@@ -1,3 +1,3 @@
 include 'hoplite-core',
-        'hoplite-hocon'
-        'hoplite-arrow'
+        'hoplite-hocon',
+        'hoplite-yaml'
