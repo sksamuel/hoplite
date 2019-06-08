@@ -2,7 +2,11 @@ package com.sksamuel.hoplite
 
 import arrow.data.NonEmptyList
 import arrow.data.Validated
-import arrow.data.ValidatedNel
+import arrow.data.extensions.list.traverse.sequence
+import arrow.data.extensions.nonemptylist.semigroup.semigroup
+import arrow.data.extensions.validated.applicative.applicative
+import arrow.data.fix
+import arrow.data.invalid
 import arrow.data.invalidNel
 import arrow.data.validNel
 import kotlin.reflect.KType
@@ -43,22 +47,18 @@ interface Reader<T> {
 
           val args = T::class.constructors.first().parameters.map { param ->
 
-            val cursor2 = cursor.atPath(param.name!!)
+            val paramCursor = cursor.atPath(param.name!!)
             val reader = forType(param.type)
 
-            when {
-              cursor2 is Validated.Valid && reader is Validated.Valid -> reader.a.read(cursor2.a)
-              cursor2 is Validated.Valid && reader is Validated.Invalid -> reader.toValidatedNel()
-              cursor2 is Validated.Invalid && reader is Validated.Valid -> cursor2.toValidatedNel()
-              cursor2 is Validated.Invalid && reader is Validated.Invalid ->
-                Validated.Invalid(NonEmptyList(cursor2.e, listOf(reader.e)))
-              else -> throw IllegalStateException("Not possible value")
-            }
+            Validated.applicative(NonEmptyList.semigroup<ConfigFailure>()).map(paramCursor, reader) { (c, r) ->
+              r.read(c)
+            }.fix().fold({ it.invalid() }, { it })
           }
 
-          // todo the args must be flatten
-          val flattened: ValidatedNel<ConfigFailure, List<Any?>> = emptyList<Any?>().validNel()
-          flattened.map { aa -> T::class.constructors.first().call(aa) }
+          args.sequence(Validated.applicative(NonEmptyList.semigroup<ConfigFailure>())).fix().map { it.fix() }.map {
+            T::class.constructors.first().call(it.toList())
+          }
+
         } else {
           ConfigFailure("Cannot read values for a non-data class").invalidNel()
         }
