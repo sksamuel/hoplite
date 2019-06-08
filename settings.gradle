@@ -1,1 +1,3 @@
-include 'hoplite-core'
+include 'hoplite-core',
+        'hoplite-hocon'
+        'hoplite-arrow'

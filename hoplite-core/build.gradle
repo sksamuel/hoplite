@@ -1,0 +1,12 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+}
+
+dependencies {
+    api 'org.jetbrains.kotlin:kotlin-reflect:1.3.31'
+    api 'io.arrow-kt:arrow-core-data:0.9.0'
+    api 'io.arrow-kt:arrow-validation:0.9.0'
+    api 'io.arrow-kt:arrow-typeclasses:0.9.0'
+    api 'io.arrow-kt:arrow-core-extensions:0.9.0'
+    testCompile "io.kotlintest:kotlintest-runner-junit5:3.3.2"
+}
