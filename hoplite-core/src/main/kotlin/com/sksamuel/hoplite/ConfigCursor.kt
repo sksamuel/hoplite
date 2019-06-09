@@ -1,5 +1,7 @@
 package com.sksamuel.hoplite
 
+import arrow.data.valid
+
 interface ConfigValue
 
 /**
@@ -11,12 +13,12 @@ interface ConfigCursor {
   /**
    * The `ConfigValue` to which this cursor points to.
    */
-  fun value(): ConfigValue
+  fun value(): ConfigValue = TODO()
 
   /**
    * The path in the config to which this cursor points as a list of keys in reverse order (deepest key first).
    */
-  fun pathElems(): List<String>
+  fun pathElems(): List<String> = emptyList()
 
   /**
    * The path in the config to which this cursor points.
@@ -26,7 +28,7 @@ interface ConfigCursor {
   /**
    * The file system location of the config to which this cursor points.
    */
-  fun location(): ConfigLocation?
+  fun location(): ConfigLocation? = null
 
   /**
    * Returns whether this cursor points to an undefined value. A cursor can point to an undefined value when a missing
@@ -34,7 +36,7 @@ interface ConfigCursor {
    *
    * @return `true` if this cursor points to an undefined value, `false` otherwise.
    */
-  fun isUndefined(): Boolean
+  fun isUndefined(): Boolean = false
 
   /**
    * Returns whether this cursor points to a `null` config value. An explicit `null` value is different than a missing
@@ -42,7 +44,7 @@ interface ConfigCursor {
    *
    * @return `true` if this cursor points to a `null` value, `false` otherwise.
    */
-  fun isNull(): Boolean
+  fun isNull(): Boolean = false
 
   /**
    * Casts this cursor to a string.
@@ -50,16 +52,12 @@ interface ConfigCursor {
    * @return a `Right` with the string value pointed to by this cursor if the cast can be done, `Left` with a list of
    *         failures otherwise.
    */
-  fun asString(): ConfigResult<String> //= castOrFail(STRING, v => Right (v.unwrapped.asInstanceOf[String]))
-
-  /**
-   * Casts this cursor to a boolean.
-   *
-   * @return a `Right` with the boolean value pointed to by this cursor if the cast can be done, `Left` with a list of
-   *         failures otherwise.
-   */
-  fun asBoolean(): ConfigResult<Boolean>
-  //  castOrFail(BOOLEAN, v => Right (v.unwrapped.asInstanceOf[Boolean]))
+  fun asString(): ConfigResult<String> = ConfigResults.failed("Cannot convert ${this.javaClass.name} to a String")
+  fun asBoolean(): ConfigResult<Boolean> = ConfigResults.failed("Cannot convert ${this.javaClass.name} to a Boolean")
+  fun asFloat(): ConfigResult<Float> = ConfigResults.failed("Cannot convert ${this.javaClass.name} to a Float")
+  fun asDouble(): ConfigResult<Double> = ConfigResults.failed("Cannot convert ${this.javaClass.name} to a Double")
+  fun asInt(): ConfigResult<Int> = ConfigResults.failed("Cannot convert ${this.javaClass.name} to a Int")
+  fun asLong(): ConfigResult<Long> = ConfigResults.failed("Cannot convert ${this.javaClass.name} to a Long")
 
   //  /**
 //   * Casts this cursor to a long.
@@ -170,7 +168,7 @@ interface ConfigCursor {
 //   *         failures otherwise.
 //   */
 //  //@deprecated("Use `.fluent.at(pathSegments).cursor` instead", "0.10.2")
-  fun atPath(path: String): ConfigResult<ConfigCursor> = TODO()// = fluent.at(pathSegments: _*).cursor
+  fun atPath(path: String): ConfigResult<ConfigCursor> = ConfigResults.failed("Cannot nest path for primitive type")// = fluent.at(pathSegments: _*).cursor
 //
 //  /**
 //   * Casts this cursor as either a `ConfigListCursor` or a `ConfigObjectCursor`.
@@ -243,4 +241,29 @@ interface ConfigCursor {
 //    else
 //      scopeFailure(ConfigCursor.transform(value, expectedType).right.flatMap(cast))
 //  }
+}
+
+data class StringConfigCursor(val value: String) : ConfigCursor {
+  override fun asString(): ConfigResult<String> = value.valid()
+}
+
+data class BooleanConfigCursor(val value: Boolean) : ConfigCursor {
+  override fun asBoolean(): ConfigResult<Boolean> = value.valid()
+}
+
+data class LongConfigCursor(val value: Long) : ConfigCursor {
+  override fun asLong(): ConfigResult<Long> = value.valid()
+}
+
+data class IntConfigCursor(val value: Int) : ConfigCursor {
+  override fun asInt(): ConfigResult<Int> = value.valid()
+}
+
+data class FloatConfigCursor(val value: Float) : ConfigCursor {
+  override fun asFloat(): ConfigResult<Float> = value.valid()
+}
+
+data class DoubleConfigCursor(val value: Double) : ConfigCursor {
+  override fun asDouble(): ConfigResult<Double> = value.valid()
+  override fun asFloat(): ConfigResult<Float> = value.toFloat().valid()
 }
