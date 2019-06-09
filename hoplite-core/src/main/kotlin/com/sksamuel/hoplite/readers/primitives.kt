@@ -6,7 +6,6 @@ import kotlin.reflect.KClass
 
 class StringReader : Reader<String> {
   override fun read(cursor: ConfigCursor): ConfigResult<String> = cursor.asString()
-  override fun supports(c: KClass<*>): Boolean = c == String::class
 }
 
 class DoubleReader : Reader<Double> {

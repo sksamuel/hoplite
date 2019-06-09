@@ -6,6 +6,7 @@ import arrow.data.validNel
 import com.sksamuel.hoplite.ConfigCursor
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
+import java.lang.reflect.ParameterizedType
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -13,7 +14,10 @@ import kotlin.reflect.KType
 interface Reader<T> {
 
   fun read(cursor: ConfigCursor): ConfigResult<T>
-  fun supports(c: KClass<*>): Boolean
+  fun supports(c: KClass<*>): Boolean {
+    val readerType = this.javaClass.genericInterfaces.filterIsInstance<ParameterizedType>().find { it.rawType == Reader::class.java }!!
+    return readerType.actualTypeArguments[0].typeName == c.java.name
+  }
 
   companion object {
 
