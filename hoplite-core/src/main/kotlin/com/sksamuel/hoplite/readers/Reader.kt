@@ -11,12 +11,17 @@ import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
-interface Reader<T> {
+interface Reader<A> {
 
-  fun read(cursor: ConfigCursor): ConfigResult<T>
+  fun read(cursor: ConfigCursor): ConfigResult<A>
+
   fun supports(c: KClass<*>): Boolean {
     val readerType = this.javaClass.genericInterfaces.filterIsInstance<ParameterizedType>().find { it.rawType == Reader::class.java }!!
     return readerType.actualTypeArguments[0].typeName == c.java.name
+  }
+
+  fun <B> map(f: (A) -> B): Reader<B> = object : Reader<B> {
+    override fun read(cursor: ConfigCursor): ConfigResult<B> = this@Reader.read(cursor).map { f(it) }
   }
 
   companion object {
@@ -33,7 +38,7 @@ interface Reader<T> {
     }
 
     /**
-     * Returns a [Reader] for type T.
+     * Returns a [Reader] for type A.
      */
     inline fun <reified T : Any> forT() = DataClassReader(T::class)
   }
