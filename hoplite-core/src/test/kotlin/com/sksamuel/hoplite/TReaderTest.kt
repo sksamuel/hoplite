@@ -1,7 +1,6 @@
 package com.sksamuel.hoplite
 
-import io.kotlintest.should
-import io.kotlintest.specs.StringSpec
+import com.sksamuel.hoplite.readers.Reader
 import io.kotlintest.specs.WordSpec
 
 class TReaderTest : WordSpec({

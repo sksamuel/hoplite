@@ -1,0 +1,6 @@
+com.sksamuel.hoplite.readers.StringReader
+com.sksamuel.hoplite.readers.DoubleReader
+com.sksamuel.hoplite.readers.FloatReader
+com.sksamuel.hoplite.readers.IntReader
+com.sksamuel.hoplite.readers.LongReader
+com.sksamuel.hoplite.readers.BooleanReader

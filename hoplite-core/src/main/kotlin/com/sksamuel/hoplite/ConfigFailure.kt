@@ -1,5 +1,7 @@
 package com.sksamuel.hoplite
 
+import kotlin.reflect.KType
+
 interface ConfigFailure {
 
   /**
@@ -15,11 +17,17 @@ interface ConfigFailure {
   companion object {
     operator fun invoke(description: String): ConfigFailure = GenericFailure(description)
     fun missingPath(path: String): ConfigFailure = MissingPathFailure(path)
+    fun unsupportedType(type: KType): ConfigFailure = UnsupportedTypeFailure(type)
   }
 }
 
 data class MissingPathFailure(val path: String) : ConfigFailure {
   override fun description(): String = "Path $path was not available"
+  override fun location(): ConfigLocation? = null
+}
+
+data class UnsupportedTypeFailure(val type: KType) : ConfigFailure {
+  override fun description(): String = "Type $type is unsupported"
   override fun location(): ConfigLocation? = null
 }
 

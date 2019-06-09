@@ -16,7 +16,7 @@ import com.sksamuel.hoplite.DoubleConfigCursor
 import com.sksamuel.hoplite.FloatConfigCursor
 import com.sksamuel.hoplite.IntConfigCursor
 import com.sksamuel.hoplite.LongConfigCursor
-import com.sksamuel.hoplite.Reader
+import com.sksamuel.hoplite.readers.Reader
 import com.sksamuel.hoplite.StringConfigCursor
 import org.yaml.snakeyaml.Yaml
 
