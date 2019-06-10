@@ -3,6 +3,7 @@ package com.sksamuel.hoplite.yaml
 import io.kotlintest.assertions.arrow.validation.shouldBeValid
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.FunSpec
+import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -28,6 +29,23 @@ class ConverterTest : FunSpec({
     data class Test(val date: LocalDate)
     loadConfig<Test>("/test_date.yml").shouldBeValid {
       it.a shouldBe Test(LocalDate.of(2016, 5, 12))
+    }
+  }
+
+  test("java time Duration support") {
+    data class Test(val nanos: Duration,
+                    val millis: Duration,
+                    val seconds: Duration,
+                    val hours: Duration,
+                    val days: Duration)
+    loadConfig<Test>("/test_duration.yml").shouldBeValid {
+      it.a shouldBe Test(
+          Duration.ofNanos(10),
+          Duration.ofMillis(5124),
+          Duration.ofSeconds(12),
+          Duration.ofHours(1),
+          Duration.ofDays(3)
+      )
     }
   }
 

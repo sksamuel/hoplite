@@ -6,4 +6,5 @@ com.sksamuel.hoplite.converter.LongConverterProvider
 com.sksamuel.hoplite.converter.BooleanConverterProvider
 com.sksamuel.hoplite.converter.LocalDateTimeConverterProvider
 com.sksamuel.hoplite.converter.LocalDateConverterProvider
+com.sksamuel.hoplite.converter.DurationConverterProvider
 com.sksamuel.hoplite.converter.EnumConverterProvider
