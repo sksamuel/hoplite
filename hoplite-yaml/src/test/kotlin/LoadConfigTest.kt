@@ -9,6 +9,8 @@ import io.kotlintest.specs.FunSpec
 import java.time.LocalDate
 import java.time.LocalDateTime
 
+enum class Wine { Malbec, Shiraz, Merlot }
+
 class LoadConfigTest : FunSpec({
 
   test("return failure for missing resource") {
@@ -35,6 +37,13 @@ class LoadConfigTest : FunSpec({
     data class Test(val date: LocalDate)
     loadConfig<Test>("/test_date.yml").shouldBeValid {
       it.a shouldBe Test(LocalDate.of(2016, 5, 12))
+    }
+  }
+
+  test("Enum support") {
+    data class Test(val wine: Wine)
+    loadConfig<Test>("/test_enum.yml").shouldBeValid {
+      it.a shouldBe Test(Wine.Malbec)
     }
   }
 })

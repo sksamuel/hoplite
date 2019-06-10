@@ -17,16 +17,18 @@ interface ConfigFailure {
 
   companion object {
     operator fun invoke(description: String): ConfigFailure = GenericFailure(description)
-    fun missingPath(path: String): ConfigFailure = MissingPathFailure(path)
+    fun missingPath(path: String, keys: Collection<String>): ConfigFailure = MissingPathFailure(path, keys)
     fun unsupportedType(type: KType): ConfigFailure = UnsupportedTypeFailure(type)
     inline fun <reified T> conversionFailure(v: Any?): ConfigFailure = ConversionFailure(T::class, v)
     fun throwable(t: Throwable): ConfigFailure = ThrowableFailure(t, null)
   }
 }
 
-data class MissingPathFailure(val path: String) : ConfigFailure {
-  override fun description(): String = "Path $path was not available"
-  override fun location(): ConfigLocation? = null
+data class MissingPathFailure(val description: String, val location: ConfigLocation?) : ConfigFailure {
+  constructor(path: String, keys: Collection<String>) : this("Path $path was not available (available keys $keys)", null)
+
+  override fun description(): String = description
+  override fun location(): ConfigLocation? = location
 }
 
 data class UnsupportedTypeFailure(val type: KType) : ConfigFailure {

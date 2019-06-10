@@ -1,0 +1,9 @@
+com.sksamuel.hoplite.converter.StringConverterProvider
+com.sksamuel.hoplite.converter.DoubleConverterProvider
+com.sksamuel.hoplite.converter.FloatConverterProvider
+com.sksamuel.hoplite.converter.IntConverterProvider
+com.sksamuel.hoplite.converter.LongConverterProvider
+com.sksamuel.hoplite.converter.BooleanConverterProvider
+com.sksamuel.hoplite.converter.LocalDateTimeConverterProvider
+com.sksamuel.hoplite.converter.LocalDateConverterProvider
+com.sksamuel.hoplite.converter.EnumConverterProvider

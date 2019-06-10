@@ -4,7 +4,7 @@ package com.sksamuel.hoplite
  * A wrapper for a `ConfigValue` providing safe navigation through the config and holding positional data for better
  * error handling.
  */
-interface ConfigCursor {
+interface Cursor {
 
   fun value(): Any?
 
@@ -148,7 +148,7 @@ interface ConfigCursor {
 //   *         failures otherwise.
 //   */
 //  //@deprecated("Use `.fluent.at(pathSegments).cursor` instead", "0.10.2")
-  fun atPath(path: String): ConfigResult<ConfigCursor> = ConfigResults.failed("Cannot nest path for primitive type")// = fluent.at(pathSegments: _*).cursor
+  fun atPath(path: String): ConfigResult<Cursor> = ConfigResults.failed("Cannot nest path for primitive type")// = fluent.at(pathSegments: _*).cursor
 //
 //  /**
 //   * Casts this cursor as either a `ConfigListCursor` or a `ConfigObjectCursor`.
@@ -223,26 +223,26 @@ interface ConfigCursor {
 //  }
 }
 
-data class StringConfigCursor(val value: String) : ConfigCursor {
+data class StringCursor(val value: String) : Cursor {
   override fun value(): Any? = value
 }
 
-data class BooleanConfigCursor(val value: Boolean) : ConfigCursor {
+data class BooleanCursor(val value: Boolean) : Cursor {
   override fun value(): Any? = value
 }
 
-data class LongConfigCursor(val value: Long) : ConfigCursor {
+data class LongCursor(val value: Long) : Cursor {
   override fun value(): Any? = value
 }
 
-data class IntConfigCursor(val value: Int) : ConfigCursor {
+data class IntCursor(val value: Int) : Cursor {
   override fun value(): Any? = value
 }
 
-data class FloatConfigCursor(val value: Float) : ConfigCursor {
+data class FloatCursor(val value: Float) : Cursor {
   override fun value(): Any? = value
 }
 
-data class DoubleConfigCursor(val value: Double) : ConfigCursor {
+data class DoubleCursor(val value: Double) : Cursor {
   override fun value(): Any? = value
 }

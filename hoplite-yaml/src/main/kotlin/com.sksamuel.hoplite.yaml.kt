@@ -4,12 +4,12 @@ import arrow.core.toOption
 import arrow.data.invalidNel
 import arrow.data.validNel
 import com.sksamuel.hoplite.CannotParse
-import com.sksamuel.hoplite.ConfigCursor
+import com.sksamuel.hoplite.Cursor
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigLocation
 import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.converter.DataClassConverter
 import com.sksamuel.hoplite.flatMap
-import com.sksamuel.hoplite.readers.Reader
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.SafeConstructor
 import org.yaml.snakeyaml.error.Mark
@@ -40,8 +40,7 @@ inline fun <reified A : Any> loadConfig(resourceName: String): ConfigResult<A> {
         is Map<*, *> -> MapCursor(result)
         else -> TODO()
       }
-      val reader = Reader.forT<A>()
-      reader.read(cursor)
+      DataClassConverter(A::class).apply(cursor)
     }
   }
 }
@@ -58,21 +57,21 @@ fun <A> handleYamlErrors(path: Path, f: (java.io.Reader) -> ConfigResult<A>): Co
 
 fun locationFromMark(path: Path, mark: Mark): ConfigLocation = ConfigLocation(path.toUri().toURL(), mark.line)
 
-class MapCursor(private val map: Map<*, *>) : ConfigCursor {
+class MapCursor(private val map: Map<*, *>) : Cursor {
   override fun value(): Any? = map
   override fun pathElems(): List<String> = emptyList()
   override fun location(): ConfigLocation? = null
   override fun isUndefined(): Boolean = false
   override fun isNull(): Boolean = false
-  override fun atPath(path: String): ConfigResult<ConfigCursor> {
+  override fun atPath(path: String): ConfigResult<Cursor> {
     return when (val el = map[path]) {
-      null -> ConfigFailure.missingPath(path).invalidNel()
+      null -> ConfigFailure.missingPath(path, map.keys.map { it.toString() }).invalidNel()
       is Map<*, *> -> MapCursor(el).validNel()
       else -> PrimitiveCursor(el).validNel()
     }
   }
 }
 
-class PrimitiveCursor(private val value: Any?) : ConfigCursor {
+class PrimitiveCursor(private val value: Any?) : Cursor {
   override fun value(): Any? = value
 }
