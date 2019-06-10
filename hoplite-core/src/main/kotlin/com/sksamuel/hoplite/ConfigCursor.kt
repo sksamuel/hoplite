@@ -1,19 +1,12 @@
 package com.sksamuel.hoplite
 
-import arrow.data.valid
-
-interface ConfigValue
-
 /**
  * A wrapper for a `ConfigValue` providing safe navigation through the config and holding positional data for better
  * error handling.
  */
 interface ConfigCursor {
 
-  /**
-   * The `ConfigValue` to which this cursor points to.
-   */
-  fun value(): ConfigValue = TODO()
+  fun value(): Any?
 
   /**
    * The path in the config to which this cursor points as a list of keys in reverse order (deepest key first).
@@ -45,19 +38,6 @@ interface ConfigCursor {
    * @return `true` if this cursor points to a `null` value, `false` otherwise.
    */
   fun isNull(): Boolean = false
-
-  /**
-   * Casts this cursor to a string.
-   *
-   * @return a `Right` with the string value pointed to by this cursor if the cast can be done, `Left` with a list of
-   *         failures otherwise.
-   */
-  fun asString(): ConfigResult<String> = ConfigResults.failed("Cannot convert ${this.javaClass.name} to a String")
-  fun asBoolean(): ConfigResult<Boolean> = ConfigResults.failed("Cannot convert ${this.javaClass.name} to a Boolean")
-  fun asFloat(): ConfigResult<Float> = ConfigResults.failed("Cannot convert ${this.javaClass.name} to a Float")
-  fun asDouble(): ConfigResult<Double> = ConfigResults.failed("Cannot convert ${this.javaClass.name} to a Double")
-  fun asInt(): ConfigResult<Int> = ConfigResults.failed("Cannot convert ${this.javaClass.name} to a Int")
-  fun asLong(): ConfigResult<Long> = ConfigResults.failed("Cannot convert ${this.javaClass.name} to a Long")
 
   //  /**
 //   * Casts this cursor to a long.
@@ -244,26 +224,25 @@ interface ConfigCursor {
 }
 
 data class StringConfigCursor(val value: String) : ConfigCursor {
-  override fun asString(): ConfigResult<String> = value.valid()
+  override fun value(): Any? = value
 }
 
 data class BooleanConfigCursor(val value: Boolean) : ConfigCursor {
-  override fun asBoolean(): ConfigResult<Boolean> = value.valid()
+  override fun value(): Any? = value
 }
 
 data class LongConfigCursor(val value: Long) : ConfigCursor {
-  override fun asLong(): ConfigResult<Long> = value.valid()
+  override fun value(): Any? = value
 }
 
 data class IntConfigCursor(val value: Int) : ConfigCursor {
-  override fun asInt(): ConfigResult<Int> = value.valid()
+  override fun value(): Any? = value
 }
 
 data class FloatConfigCursor(val value: Float) : ConfigCursor {
-  override fun asFloat(): ConfigResult<Float> = value.valid()
+  override fun value(): Any? = value
 }
 
 data class DoubleConfigCursor(val value: Double) : ConfigCursor {
-  override fun asDouble(): ConfigResult<Double> = value.valid()
-  override fun asFloat(): ConfigResult<Float> = value.toFloat().valid()
+  override fun value(): Any? = value
 }

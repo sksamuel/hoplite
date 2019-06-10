@@ -1,5 +1,6 @@
 package com.sksamuel.hoplite
 
+import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
 interface ConfigFailure {
@@ -18,6 +19,8 @@ interface ConfigFailure {
     operator fun invoke(description: String): ConfigFailure = GenericFailure(description)
     fun missingPath(path: String): ConfigFailure = MissingPathFailure(path)
     fun unsupportedType(type: KType): ConfigFailure = UnsupportedTypeFailure(type)
+    inline fun <reified T> conversionFailure(v: Any?): ConfigFailure = ConversionFailure(T::class, v)
+    fun throwable(t: Throwable): ConfigFailure = ThrowableFailure(t, null)
   }
 }
 
@@ -48,20 +51,25 @@ data class GenericFailure(val description: String) : ConfigFailure {
 }
 
 /**
- * A failure occurred when converting from a `ConfigValue` to a given type. The failure contains a path to the
- * `ConfigValue` that raised the error.
+ * A failure occurred due to the inability to parse the configuration.
  *
- * @param reason the reason for the conversion failure
+ * @param msg the error message from the parser
  * @param location the optional location of the failure
- * @param path the path to the `ConfigValue` that raised the error
- * @param value the value that was requested to be converted
- * @param toType the target type that the value was requested to be converted to
- * @param because the reason why the conversion was not possible
  */
-data class ConversionFailure(private val value: String,
-                             private val toType: String,
-                             private val because: String,
-                             private val location: ConfigLocation?) : ConfigFailure {
-  override fun description() = "Cannot convert '$value' to $toType: $because."
+data class CannotParse(val msg: String, val location: ConfigLocation?) : ConfigFailure {
+  override fun description() = "Unable to parse the configuration: $msg."
+  override fun location(): ConfigLocation? = location
+}
+
+/**
+ * A [ConfigFailure] used when a target type could not be created from a given value.
+ * For example, if a field in data class was an int, but at runtime the configuration
+ * tried to pass "hello" then this would result in a conversion failure.
+ */
+data class ConversionFailure(val description: String, val location: ConfigLocation?) : ConfigFailure {
+  constructor(klass: KClass<*>, value: Any?) :
+      this("Cannot convert ${value?.javaClass?.name}:$value to ${klass.qualifiedName}", null)
+
+  override fun description() = description
   override fun location(): ConfigLocation? = location
 }

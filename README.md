@@ -5,3 +5,14 @@ Hoplite is a Kotlin library for loading configuration files and a port of the in
 [![Build Status](https://travis-ci.org/sksamuel/hoplite.svg?branch=master)](https://travis-ci.org/sksamuel/hoplite)
 [<img src="https://img.shields.io/maven-central/v/com.sksamuel.hoplite/hoplite.svg?label=latest%20release"/>](http://search.maven.org/#search%7Cga%7C1%7Ckquants)
 [<img src="https://img.shields.io/nexus/s/https/oss.sonatype.org/com.sksamuel.hoplite/hoplite.svg?label=latest%20snapshot&style=plastic"/>](https://oss.sonatype.org/content/repositories/snapshots/com/sksamuel/hoplite/)
+
+### Supported Types
+
+| JVM Type  |
+|---|
+| String |
+| Long |
+| Int |
+| Boolean |
+| Double |
+| Float |
