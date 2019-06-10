@@ -1,4 +1,4 @@
-package com.sksamuel.hoplite
+package com.sksamuel.hoplite.arrow
 
 import arrow.data.Invalid
 import arrow.data.Valid
