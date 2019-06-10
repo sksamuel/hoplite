@@ -29,15 +29,17 @@ abstract class ParameterizedConverterProvider<B> : ConverterProvider {
   }
 }
 
-fun locateConverter(type: KType): ConfigResult<Converter<*>> {
-  val readers = ServiceLoader.load(ConverterProvider::class.java).toList()
+fun converterFor(type: KType): ConfigResult<Converter<*>> {
   return when (val c = type.classifier) {
-    is KClass<*> -> {
-      readers.mapNotNull { it.provide(c) }.firstOrNull().toOption().fold(
-          { ConfigFailure.unsupportedType(type).invalidNel() },
-          { it.validNel() }
-      )
-    }
+    is KClass<*> -> if (c.isData) DataClassConverter(c).validNel() else locateConverter(c)
     else -> ConfigFailure("Unsupported classifer $type").invalidNel()
   }
+}
+
+fun <T : Any> locateConverter(klass: KClass<T>): ConfigResult<Converter<T>> {
+  val readers = ServiceLoader.load(ConverterProvider::class.java).toList()
+  return readers.mapNotNull { it.provide(klass) }.firstOrNull().toOption().fold(
+      { ConfigFailure.unsupportedType(klass).invalidNel() },
+      { it.validNel() }
+  )
 }

@@ -1,7 +1,7 @@
 package com.sksamuel.hoplite
 
 import kotlin.reflect.KClass
-import kotlin.reflect.KType
+import kotlin.reflect.KClassifier
 
 interface ConfigFailure {
 
@@ -18,7 +18,7 @@ interface ConfigFailure {
   companion object {
     operator fun invoke(description: String): ConfigFailure = GenericFailure(description)
     fun missingPath(path: String, keys: Collection<String>): ConfigFailure = MissingPathFailure(path, keys)
-    fun unsupportedType(type: KType): ConfigFailure = UnsupportedTypeFailure(type)
+    fun unsupportedType(klass: KClassifier): ConfigFailure = UnsupportedTypeFailure(klass)
     inline fun <reified T> conversionFailure(v: Any?): ConfigFailure = ConversionFailure(T::class, v)
     fun throwable(t: Throwable): ConfigFailure = ThrowableFailure(t, null)
   }
@@ -31,7 +31,7 @@ data class MissingPathFailure(val description: String, val location: ConfigLocat
   override fun location(): ConfigLocation? = location
 }
 
-data class UnsupportedTypeFailure(val type: KType) : ConfigFailure {
+data class UnsupportedTypeFailure(val type: KClassifier) : ConfigFailure {
   override fun description(): String = "Type $type is unsupported"
   override fun location(): ConfigLocation? = null
 }

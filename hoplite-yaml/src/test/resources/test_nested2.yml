@@ -1,0 +1,5 @@
+a: foo
+b:
+  a: goo
+  b: moo
+c: voo

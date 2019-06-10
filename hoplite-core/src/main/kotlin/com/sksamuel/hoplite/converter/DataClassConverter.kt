@@ -13,7 +13,7 @@ class DataClassConverter<T : Any>(private val klass: KClass<T>) : Converter<T> {
   override fun apply(cursor: Cursor): ConfigResult<T> {
 
     val args: ValidatedNel<ConfigFailure, List<Any?>> = klass.constructors.first().parameters.map { param ->
-      locateConverter(param.type).flatMap {
+      converterFor(param.type).flatMap {
         it.apply(cursor.atKey(param.name!!))
       }
     }.sequence()

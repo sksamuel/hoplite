@@ -8,7 +8,7 @@ import com.sksamuel.hoplite.Cursor
 
 inline fun <reified T> basicConverter(): Converter<T> = object : Converter<T> {
   override fun apply(cursor: Cursor): ConfigResult<T> {
-    println("Is ${cursor.value()} a ${T::class}" + (cursor.value() is T))
+    // println("Is ${cursor.value()} a ${T::class}" + (cursor.value() is T))
     return when (val v = cursor.value()) {
       is T -> v.validNel()
       else -> ConfigFailure.conversionFailure<T>(v).invalidNel()
