@@ -6,6 +6,7 @@ import io.kotlintest.assertions.arrow.validation.shouldBeInvalid
 import io.kotlintest.assertions.arrow.validation.shouldBeValid
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.FunSpec
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 class LoadConfigTest : FunSpec({
@@ -25,8 +26,15 @@ class LoadConfigTest : FunSpec({
 
   test("LocalDateTime support") {
     data class Test(val date: LocalDateTime)
-    loadConfig<Test>("/test_date.yml").shouldBeValid {
+    loadConfig<Test>("/test_datetime.yml").shouldBeValid {
       it.a shouldBe Test(LocalDateTime.of(2016, 5, 12, 12, 55, 31))
+    }
+  }
+
+  test("LocalDate support") {
+    data class Test(val date: LocalDate)
+    loadConfig<Test>("/test_date.yml").shouldBeValid {
+      it.a shouldBe Test(LocalDate.of(2016, 5, 12))
     }
   }
 })
