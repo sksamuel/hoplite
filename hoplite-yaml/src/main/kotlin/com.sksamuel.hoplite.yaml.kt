@@ -25,7 +25,13 @@ import java.nio.file.Paths
  * Attempts to load config from /application.yml on the resource path and returns
  * an instance of <A> if the values can be appropriately converted.
  */
-inline fun <reified A : Any> loadConfig(): ConfigResult<A> = loadConfig("")
+inline fun <reified A : Any> loadConfig(): ConfigResult<A> = loadConfig("/application.yml")
+
+inline fun <reified A : Any> loadConfigOrThrow(vararg resources: String): A =
+    loadConfig<A>(*resources).fold(
+        { errors -> throw RuntimeException("Error loading config\n" + errors.all.joinToString("\n") { it.description() }) },
+        { it }
+    )
 
 inline fun <reified A : Any> loadConfig(vararg resources: String): ConfigResult<A> {
   val loader = object {}

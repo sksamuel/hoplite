@@ -34,9 +34,9 @@ allprojects {
     group = "com.sksamuel.hoplite"
 
     if (isTravis) {
-        version "0.20." + travisBuildNumber + "-SNAPSHOT"
+        version "0.21.0." + travisBuildNumber + "-SNAPSHOT"
     } else {
-        version "0.20.0"
+        version "0.21.0"
     }
 
     task javadocJar(type: Jar) {
