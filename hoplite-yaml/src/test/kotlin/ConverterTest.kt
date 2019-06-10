@@ -6,6 +6,7 @@ import io.kotlintest.specs.FunSpec
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.*
 
 enum class Wine { Malbec, Shiraz, Merlot }
 
@@ -53,6 +54,13 @@ class ConverterTest : FunSpec({
     data class Test(val wine: Wine)
     loadConfig<Test>("/test_enum.yml").shouldBeValid {
       it.a shouldBe Test(Wine.Malbec)
+    }
+  }
+
+  test("UUID support") {
+    data class Test(val uuid: UUID)
+    loadConfig<Test>("/test_uuid.yml").shouldBeValid {
+      it.a shouldBe Test(UUID.fromString("66cefa93-9816-4c09-aad9-6355664e3e4f"))
     }
   }
 })

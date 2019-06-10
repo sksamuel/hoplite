@@ -9,7 +9,6 @@ import kotlin.reflect.KClass
 
 class EnumConverterProvider : ConverterProvider {
   override fun <T : Any> provide(targetType: KClass<T>): Converter<T>? {
-    @Suppress("UNCHECKED_CAST")
     return if (targetType.java.isEnum) EnumConverter(targetType) else null
   }
 }
