@@ -48,3 +48,32 @@ interface Cursor {
    */
   fun atKey(key: String): Cursor
 }
+
+class MapCursor(private val map: Map<*, *>) : Cursor {
+  override fun value(): Any? = map
+  override fun path(): List<String> = emptyList()
+  override fun location(): ConfigLocation? = null
+  override fun isUndefined(): Boolean = false
+  override fun isNull(): Boolean = false
+  override fun atKey(key: String): Cursor {
+    return when (val el = map[key]) {
+      null -> UndefinedCursor // ConfigFailure.missingPath(key, map.keys.map { it.toString() }).invalidNel()
+      is Map<*, *> -> MapCursor(el)
+      else -> PrimitiveCursor(el)
+    }
+  }
+}
+
+class PrimitiveCursor(private val value: Any?) : Cursor {
+  override fun isNull(): Boolean = value == null
+  override fun isUndefined(): Boolean = false
+  override fun value(): Any? = value
+  override fun atKey(key: String): Cursor = UndefinedCursor
+}
+
+object UndefinedCursor : Cursor {
+  override fun value(): Any? = null
+  override fun isUndefined(): Boolean = true
+  override fun isNull(): Boolean = false
+  override fun atKey(key: String): Cursor = UndefinedCursor
+}

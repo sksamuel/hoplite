@@ -9,6 +9,7 @@ import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigLocation
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Cursor
+import com.sksamuel.hoplite.MapCursor
 import com.sksamuel.hoplite.arrow.flatMap
 import com.sksamuel.hoplite.arrow.sequence
 import com.sksamuel.hoplite.converter.DataClassConverter
@@ -75,32 +76,3 @@ fun <A> handleYamlErrors(path: Path, f: (java.io.Reader) -> ConfigResult<A>): Co
     }
 
 fun locationFromMark(path: Path, mark: Mark): ConfigLocation = ConfigLocation(path.toUri().toURL(), mark.line)
-
-class MapCursor(private val map: Map<*, *>) : Cursor {
-  override fun value(): Any? = map
-  override fun path(): List<String> = emptyList()
-  override fun location(): ConfigLocation? = null
-  override fun isUndefined(): Boolean = false
-  override fun isNull(): Boolean = false
-  override fun atKey(key: String): Cursor {
-    return when (val el = map[key]) {
-      null -> UndefinedCursor // ConfigFailure.missingPath(key, map.keys.map { it.toString() }).invalidNel()
-      is Map<*, *> -> MapCursor(el)
-      else -> PrimitiveCursor(el)
-    }
-  }
-}
-
-class PrimitiveCursor(private val value: Any?) : Cursor {
-  override fun isNull(): Boolean = value == null
-  override fun isUndefined(): Boolean = false
-  override fun value(): Any? = value
-  override fun atKey(key: String): Cursor = UndefinedCursor
-}
-
-object UndefinedCursor : Cursor {
-  override fun value(): Any? = null
-  override fun isUndefined(): Boolean = true
-  override fun isNull(): Boolean = false
-  override fun atKey(key: String): Cursor = UndefinedCursor
-}

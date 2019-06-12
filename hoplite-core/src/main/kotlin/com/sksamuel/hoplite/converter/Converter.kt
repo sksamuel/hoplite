@@ -16,30 +16,33 @@ interface Converter<T> {
 }
 
 interface ConverterProvider {
-  fun <T : Any> provide(targetType: KClass<T>): Converter<T>?
+  fun <T : Any> provide(type: KType): Converter<T>?
 }
 
 abstract class ParameterizedConverterProvider<B> : ConverterProvider {
   abstract fun converter(): Converter<B>
   @Suppress("UNCHECKED_CAST")
-  override fun <T : Any> provide(targetType: KClass<T>): Converter<T>? {
+  override fun <T : Any> provide(type: KType): Converter<T>? {
     val ptype = this.javaClass.genericSuperclass as ParameterizedType
     val typeArg = ptype.actualTypeArguments[0].typeName
-    return if (typeArg == targetType.javaObjectType.name) converter() as Converter<T> else null
+    return when (val c = type.classifier) {
+      is KClass<*> -> if (typeArg == c.javaObjectType.name) converter() as Converter<T> else null
+      else -> null
+    }
   }
 }
 
 fun converterFor(type: KType): ConfigResult<Converter<*>> {
   return when (val c = type.classifier) {
-    is KClass<*> -> if (c.isData) DataClassConverter(c).validNel() else locateConverter(c)
+    is KClass<*> -> if (c.isData) DataClassConverter(c).validNel() else locateConverter<Any>(type)
     else -> ConfigFailure("Unsupported classifer $type").invalidNel()
   }
 }
 
-fun <T : Any> locateConverter(klass: KClass<T>): ConfigResult<Converter<T>> {
+fun <T : Any> locateConverter(type: KType): ConfigResult<Converter<T>> {
   val readers = ServiceLoader.load(ConverterProvider::class.java).toList()
-  return readers.mapNotNull { it.provide(klass) }.firstOrNull().toOption().fold(
-      { ConfigFailure.unsupportedType(klass).invalidNel() },
+  return readers.mapNotNull { it.provide<T>(type) }.firstOrNull().toOption().fold(
+      { ConfigFailure.unsupportedType(type).invalidNel() },
       { it.validNel() }
   )
 }

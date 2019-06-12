@@ -6,10 +6,12 @@ import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.ConversionFailure
 import com.sksamuel.hoplite.Cursor
 import kotlin.reflect.KClass
+import kotlin.reflect.KType
 
 class EnumConverterProvider : ConverterProvider {
-  override fun <T : Any> provide(targetType: KClass<T>): Converter<T>? {
-    return if (targetType.java.isEnum) EnumConverter(targetType) else null
+  override fun <T : Any> provide(type: KType): Converter<T>? = when (val c = type.classifier) {
+    is KClass<*> -> if (c.java.isEnum) EnumConverter<T>(c as KClass<T>) else null
+    else -> null
   }
 }
 
