@@ -18,9 +18,6 @@ class DataClassConverter<T : Any>(private val klass: KClass<T>) : Converter<T> {
       }
     }.sequence()
 
-    println("******")
-    println("args=$args")
-
     return args.map {
       klass.constructors.first().call(*it.toTypedArray())
     }
