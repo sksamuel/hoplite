@@ -10,3 +10,4 @@ com.sksamuel.hoplite.converter.DurationConverterProvider
 com.sksamuel.hoplite.converter.UUIDConverterProvider
 com.sksamuel.hoplite.converter.EnumConverterProvider
 com.sksamuel.hoplite.converter.ListConverterProvider
+com.sksamuel.hoplite.converter.NonEmptyListConverterProvider

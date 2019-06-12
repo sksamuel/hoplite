@@ -1,5 +1,6 @@
 package com.sksamuel.hoplite.yaml
 
+import arrow.data.NonEmptyList
 import io.kotlintest.assertions.arrow.validation.shouldBeValid
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.FunSpec
@@ -68,6 +69,13 @@ class ConverterTest : FunSpec({
     data class Test(val strings: List<String>, val longs: List<Long>)
     loadConfig<Test>("/test_array.yml").shouldBeValid {
       it.a shouldBe Test(listOf("1", "2", "a", "b"), listOf(1, 2, 3, 4))
+    }
+  }
+
+  test("NonEmptyList<T>") {
+    data class Test(val strings: NonEmptyList<String>, val longs: NonEmptyList<Long>)
+    loadConfig<Test>("/test_array.yml").shouldBeValid {
+      it.a shouldBe Test(NonEmptyList.of("1", "2", "a", "b"), NonEmptyList.of(1, 2, 3, 4))
     }
   }
 })
