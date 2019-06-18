@@ -1,0 +1,9 @@
+map1:
+  a: 11
+  b: 22
+  c: 33
+
+map2:
+  11: true
+  22: false
+  33: true

@@ -72,10 +72,17 @@ class ConverterTest : FunSpec({
     }
   }
 
-  test("NonEmptyList<T>") {
+  test("NonEmptyList<A>") {
     data class Test(val strings: NonEmptyList<String>, val longs: NonEmptyList<Long>)
     ConfigLoader().loadConfig<Test>("/test_array.yml").shouldBeValid {
       it.a shouldBe Test(NonEmptyList.of("1", "2", "a", "b"), NonEmptyList.of(1, 2, 3, 4))
+    }
+  }
+
+  test("Maps<K,V>") {
+    data class Test(val map1: Map<String, Int>, val map2: Map<Int, Boolean>)
+    ConfigLoader().loadConfig<Test>("/test_map.yml").shouldBeValid {
+      it.a shouldBe Test(mapOf("a" to 11, "b" to 22, "c" to 33), mapOf(11 to true, 22 to false, 33 to true))
     }
   }
 })
