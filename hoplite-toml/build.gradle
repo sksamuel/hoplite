@@ -1,0 +1,10 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+}
+
+dependencies {
+    compile project(":hoplite-core")
+    compile 'org.tomlj:tomlj:1.0.0'
+    testImplementation "io.kotlintest:kotlintest-runner-junit5:3.3.2"
+    implementation 'io.kotlintest:kotlintest-assertions-arrow:3.4.2176-SNAPSHOT'
+}
