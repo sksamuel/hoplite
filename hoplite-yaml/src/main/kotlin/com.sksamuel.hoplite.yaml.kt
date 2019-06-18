@@ -70,9 +70,7 @@ class ConfigLoader(private val preprocessors: List<Preprocessor> = listOf(EnvVar
 
   fun toCursor(url: URL): ConfigResult<Cursor> = handleYamlErrors(Paths.get(url.toURI())) {
     val yaml = Yaml(SafeConstructor())
-    val result = yaml.load<Any>(it)
-    println("Result=$result")
-    when (result) {
+    when (val result = yaml.load<Any>(it)) {
       is Map<*, *> -> MapCursor(result).validNel()
       else -> ConfigFailure("Unsupported YAML return type ${result.javaClass.name}").invalidNel()
     }
