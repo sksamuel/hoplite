@@ -21,3 +21,18 @@ Hoplite is a Kotlin library for loading configuration files and a port of the in
 | LocalDate |
 | Duration |
 | UUID |
+
+
+### Pre-Processors
+
+Hoplite supports what it calls preprocessors. These are just functions `(String) -> String` that are applied to every value as they are read from the underlying config file.
+The preprocessor is able to transform the value (or return the input - aka identity) depending on the logic of that preprocessor. 
+
+For example, a preprocessor may choose to perform environment variable substition, configure default values, 
+perform database lookups, or whatever other custom action you need when the config is being resolved.
+
+#### Built-in Preprocessors 
+
+| Preprocessor | Function |
+|--------------|--------|
+| EnvVar Preprocessor | Replaces any strings of the form ${VAR} with the environment variable $VAR. These replacement strings can occur between other strings. For example `foo: hello ${USERNAME}!` would result in foo being assigned the value `hello Sam!` assuming the env var `USERNAME` was set to `SAM` | 

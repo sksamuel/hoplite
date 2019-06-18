@@ -14,10 +14,10 @@ interface Cursor {
    * searching the other cursor for paths that do not exist in this cursor.
    */
   fun withFallback(other: Cursor): Cursor = object : Cursor {
+    override fun transform(f: (String) -> String) = this@Cursor.transform(f).withFallback(other.transform(f))
     override fun value(): Any? = this@Cursor.value() ?: other.value()
     override fun atKey(key: String): Cursor =
         if (this@Cursor.atKey(key).isUndefined()) other.atKey(key) else this@Cursor.atKey(key)
-
     override fun isNull(): Boolean = this@Cursor.isNull() || (other.isUndefined() && other.isNull())
     override fun isUndefined(): Boolean = this@Cursor.isUndefined() && other.isUndefined()
   }
@@ -47,9 +47,22 @@ interface Cursor {
    * Returns a cursor pointing to values stored at the provided key of this cursor.
    */
   fun atKey(key: String): Cursor
+
+  fun transform(f: (String) -> String): Cursor
 }
 
 class MapCursor(private val map: Map<*, *>) : Cursor {
+
+  override fun transform(f: (String) -> String): Cursor {
+    val t = map.mapValues {
+      when (val value = it.value) {
+        is String -> f(value)
+        else -> value
+      }
+    }
+    return MapCursor(t)
+  }
+
   override fun value(): Any? = map
   override fun path(): List<String> = emptyList()
   override fun location(): ConfigLocation? = null
@@ -65,6 +78,15 @@ class MapCursor(private val map: Map<*, *>) : Cursor {
 }
 
 class PrimitiveCursor(private val value: Any?) : Cursor {
+
+  override fun transform(f: (String) -> String): Cursor {
+    val t = when (value) {
+      is String -> f(value)
+      else -> value
+    }
+    return PrimitiveCursor(t)
+  }
+
   override fun isNull(): Boolean = value == null
   override fun isUndefined(): Boolean = false
   override fun value(): Any? = value
@@ -72,6 +94,7 @@ class PrimitiveCursor(private val value: Any?) : Cursor {
 }
 
 object UndefinedCursor : Cursor {
+  override fun transform(f: (String) -> String): Cursor = this
   override fun value(): Any? = null
   override fun isUndefined(): Boolean = true
   override fun isNull(): Boolean = false
