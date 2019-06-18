@@ -21,8 +21,9 @@ Hoplite is a Kotlin library for loading configuration files and a port of the in
 | `LocalDate` |
 | `Duration` |
 | `UUID` |
-| `List<T>` |
-| `arrow.data.NonEmptyList` |
+| `List<A>` |
+| `Map<K,V>` |
+| `arrow.data.NonEmptyList<A>` |
 | `X500Principal` |
 | `KerberosPrincipal` |
 | `JMXPrincipal` |
