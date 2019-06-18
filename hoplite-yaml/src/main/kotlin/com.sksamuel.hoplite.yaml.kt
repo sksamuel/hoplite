@@ -9,9 +9,9 @@ import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigLocation
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Cursor
-import com.sksamuel.hoplite.EnvVarPreprocessor
+import com.sksamuel.hoplite.preprocessor.EnvVarPreprocessor
 import com.sksamuel.hoplite.MapCursor
-import com.sksamuel.hoplite.Preprocessor
+import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.arrow.flatMap
 import com.sksamuel.hoplite.arrow.sequence
 import com.sksamuel.hoplite.converter.DataClassConverter

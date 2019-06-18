@@ -1,4 +1,4 @@
-package com.sksamuel.hoplite
+package com.sksamuel.hoplite.preprocessor
 
 /**
  * Takes a raw config value and processes it.
@@ -15,4 +15,3 @@ object EnvVarPreprocessor : Preprocessor {
     return regex.replace(value) { it.groupValues[1] }
   }
 }
-
