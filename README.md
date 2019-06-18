@@ -39,6 +39,6 @@ perform database lookups, or whatever other custom action you need when the conf
 
 #### Built-in Preprocessors 
 
-| Preprocessor | Function |
-|--------------|--------|
-| EnvVar Preprocessor | Replaces any strings of the form ${VAR} with the environment variable $VAR. These replacement strings can occur between other strings. For example `foo: hello ${USERNAME}!` would result in foo being assigned the value `hello Sam!` assuming the env var `USERNAME` was set to `SAM` | 
+| Preprocessor        | Function                                                                                                                                                                                                                                                                                |
+|:--------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| EnvVar Preprocessor | Replaces any strings of the form ${VAR} with the environment variable $VAR. These replacement strings can occur between other strings.<br/><br/>For example `foo: hello ${USERNAME}!` would result in foo being assigned the value `hello Sam!` assuming the env var `USERNAME` was set to `SAM` |
