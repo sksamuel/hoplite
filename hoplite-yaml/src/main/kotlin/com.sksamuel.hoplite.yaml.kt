@@ -44,10 +44,9 @@ class ConfigLoader(private val preprocessors: List<Preprocessor> = listOf(EnvVar
   inline fun <reified A : Any> loadConfig(vararg resources: String): ConfigResult<A> = loadConfig(A::class, *resources)
 
   fun <A : Any> loadConfig(klass: KClass<A>, vararg resources: String): ConfigResult<A> {
-    val loader = object {}
 
     val uris = resources.map { resource ->
-      loader.javaClass.getResource(resource).toOption().fold(
+      this.javaClass.getResource(resource).toOption().fold(
           { ConfigFailure("Could not find resource $resource").invalidNel() },
           { it.valid() }
       )
