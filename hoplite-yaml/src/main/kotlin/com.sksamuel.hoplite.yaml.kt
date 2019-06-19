@@ -19,8 +19,7 @@ import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.SafeConstructor
 import org.yaml.snakeyaml.error.Mark
 import org.yaml.snakeyaml.error.MarkedYAMLException
-import java.net.URL
-import java.nio.file.Files
+import java.io.InputStream
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.reflect.KClass
@@ -45,15 +44,15 @@ class ConfigLoader(private val preprocessors: List<Preprocessor> = listOf(EnvVar
 
   fun <A : Any> loadConfig(klass: KClass<A>, vararg resources: String): ConfigResult<A> {
 
-    val uris = resources.map { resource ->
-      this.javaClass.getResource(resource).toOption().fold(
+    val streams = resources.map { resource ->
+      this.javaClass.getResourceAsStream(resource).toOption().fold(
           { ConfigFailure("Could not find resource $resource").invalidNel() },
           { it.valid() }
       )
     }.sequence()
 
-    val cursors = uris.flatMap {
-      it.map { uri -> toCursor(uri) }.sequence()
+    val cursors = streams.flatMap {
+      it.map { stream -> toCursor(stream) }.sequence()
     }.map { cs ->
       cs.map { c ->
         preprocessors.fold(c) { acc, p -> acc.transform(p::process) }
@@ -67,7 +66,7 @@ class ConfigLoader(private val preprocessors: List<Preprocessor> = listOf(EnvVar
     }
   }
 
-  fun toCursor(url: URL): ConfigResult<Cursor> = handleYamlErrors(Paths.get(url.toURI())) {
+  fun toCursor(stream: InputStream): ConfigResult<Cursor> = handleYamlErrors(stream) {
     val yaml = Yaml(SafeConstructor())
     when (val result = yaml.load<Any>(it)) {
       is Map<*, *> -> MapCursor(result).validNel()
@@ -75,12 +74,11 @@ class ConfigLoader(private val preprocessors: List<Preprocessor> = listOf(EnvVar
     }
   }
 
-  fun <A> handleYamlErrors(path: Path, f: (java.io.Reader) -> ConfigResult<A>): ConfigResult<A> =
+  fun <A> handleYamlErrors(stream: InputStream, f: (InputStream) -> ConfigResult<A>): ConfigResult<A> =
       try {
-        val r = Files.newBufferedReader(path)
-        f(r)
+        f(stream)
       } catch (e: MarkedYAMLException) {
-        CannotParse(e.message!!, locationFromMark(path, e.problemMark)).invalidNel()
+        CannotParse(e.message!!, locationFromMark(Paths.get("/todo"), e.problemMark)).invalidNel()
       } catch (t: Throwable) {
         ConfigFailure.throwable(t).invalidNel()
       }
