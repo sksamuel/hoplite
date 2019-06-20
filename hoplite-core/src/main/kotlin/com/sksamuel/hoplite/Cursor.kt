@@ -53,7 +53,7 @@ interface Cursor {
 
 class MapCursor(private val map: Map<*, *>) : Cursor {
 
-  private fun mapValues(f: (String) -> String, m: Map<*, *>): Map<*, *> = map.mapValues {
+  private fun mapValues(f: (String) -> String, m: Map<*, *>): Map<*, *> = m.mapValues {
     when (val value = it.value) {
       is String -> f(value)
       is Map<*, *> -> mapValues(f, value)
