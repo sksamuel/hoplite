@@ -53,14 +53,16 @@ interface Cursor {
 
 class MapCursor(private val map: Map<*, *>) : Cursor {
 
-  override fun transform(f: (String) -> String): Cursor {
-    val t = map.mapValues {
-      when (val value = it.value) {
-        is String -> f(value)
-        else -> value
-      }
+  private fun mapValues(f: (String) -> String, m: Map<*, *>): Map<*, *> = map.mapValues {
+    when (val value = it.value) {
+      is String -> f(value)
+      is Map<*, *> -> mapValues(f, value)
+      else -> value
     }
-    return MapCursor(t)
+  }
+
+  override fun transform(f: (String) -> String): Cursor {
+    return MapCursor(mapValues(f, map))
   }
 
   override fun value(): Any? = map
