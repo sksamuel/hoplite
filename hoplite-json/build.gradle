@@ -5,5 +5,5 @@ plugins {
 dependencies {
     compile project(":hoplite-core")
     testImplementation "io.kotlintest:kotlintest-runner-junit5:3.3.2"
-    implementation 'io.kotlintest:kotlintest-assertions-arrow:3.4.2176-SNAPSHOT'
+    implementation 'io.kotlintest:kotlintest-assertions-arrow:3.4.0'
 }
