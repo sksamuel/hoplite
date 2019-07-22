@@ -8,5 +8,5 @@ dependencies {
     api 'io.arrow-kt:arrow-validation:0.9.0'
     api 'io.arrow-kt:arrow-typeclasses:0.9.0'
     api 'io.arrow-kt:arrow-core-extensions:0.9.0'
-    testCompile "io.kotlintest:kotlintest-runner-junit5:3.3.2"
+    testCompile "io.kotlintest:kotlintest-runner-junit5:3.4.0"
 }
