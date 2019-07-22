@@ -8,6 +8,7 @@ import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Cursor
 import com.sksamuel.hoplite.ThrowableFailure
 import com.sksamuel.hoplite.arrow.toValidated
+import java.util.*
 
 inline fun <reified T> basicConverter(): Converter<T> = object : Converter<T> {
   override fun apply(cursor: Cursor): ConfigResult<T> {
@@ -19,7 +20,20 @@ inline fun <reified T> basicConverter(): Converter<T> = object : Converter<T> {
 }
 
 class StringConverterProvider : ParameterizedConverterProvider<String>() {
-  override fun converter(): Converter<String> = basicConverter()
+  override fun converter(): Converter<String> = object : Converter<String> {
+    override fun apply(cursor: Cursor): ConfigResult<String> = when (val v = cursor.value()) {
+      is String -> v.validNel()
+      is Double -> v.toString().validNel()
+      is Float -> v.toString().validNel()
+      is Boolean -> v.toString().validNel()
+      is Long -> v.toString().validNel()
+      is Int -> v.toString().validNel()
+      is Short -> v.toString().validNel()
+      is Byte -> v.toString().validNel()
+      is UUID -> v.toString().validNel()
+      else -> ConfigFailure.conversionFailure<Double>(v).invalidNel()
+    }
+  }
 }
 
 class DoubleConverterProvider : ParameterizedConverterProvider<Double>() {

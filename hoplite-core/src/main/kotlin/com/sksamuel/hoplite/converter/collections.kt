@@ -25,7 +25,8 @@ class ListConverterProvider : ConverterProvider {
               override fun apply(cursor: Cursor): ConfigResult<List<T>> {
                 return when (val v = cursor.value()) {
                   is String -> v.split(",").map { it.trim() }.map { converter.apply(PrimitiveCursor(it)) }.sequence()
-                  else -> ConfigFailure("Unsupported list type ${v.javaClass.name}").invalidNel()
+                  is List<*> -> v.map { converter.apply(PrimitiveCursor(it)) }.sequence()
+                  else -> ConfigFailure("Unsupported list type ${v?.javaClass?.name}").invalidNel()
                 }
               }
             }

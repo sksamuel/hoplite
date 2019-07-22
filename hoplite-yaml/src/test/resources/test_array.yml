@@ -1,2 +1,10 @@
-strings: 1,2,a,b
-longs: 1,2,3,4
+strings:
+  - 1
+  - 2
+  - "a"
+  - "b"
+longs:
+  - 1
+  - 2
+  - 3
+  - 4

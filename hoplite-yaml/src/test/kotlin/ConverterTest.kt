@@ -65,6 +65,13 @@ class ConverterTest : FunSpec({
     }
   }
 
+  test("List<T> as delimited string") {
+    data class Test(val strings: List<String>, val longs: List<Long>)
+    ConfigLoader().loadConfig<Test>("/test_array_as_delimited_string.yml").shouldBeValid {
+      it.a shouldBe Test(listOf("1", "2", "a", "b"), listOf(1, 2, 3, 4))
+    }
+  }
+
   test("List<T>") {
     data class Test(val strings: List<String>, val longs: List<Long>)
     ConfigLoader().loadConfig<Test>("/test_array.yml").shouldBeValid {
@@ -72,9 +79,9 @@ class ConverterTest : FunSpec({
     }
   }
 
-  test("NonEmptyList<A>") {
+  test("NonEmptyList<A> as delimited string") {
     data class Test(val strings: NonEmptyList<String>, val longs: NonEmptyList<Long>)
-    ConfigLoader().loadConfig<Test>("/test_array.yml").shouldBeValid {
+    ConfigLoader().loadConfig<Test>("/test_array_as_delimited_string.yml").shouldBeValid {
       it.a shouldBe Test(NonEmptyList.of("1", "2", "a", "b"), NonEmptyList.of(1, 2, 3, 4))
     }
   }
