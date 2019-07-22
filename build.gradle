@@ -57,7 +57,7 @@ allprojects {
         compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
         compile "org.slf4j:slf4j-api:1.7.25"
 
-        testCompile "io.kotlintest:kotlintest-runner-junit5:3.3.2"
+        testCompile "io.kotlintest:kotlintest-runner-junit5:3.4.0"
         testCompile "ch.qos.logback:logback-classic:1.2.3"
     }
 
