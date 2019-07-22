@@ -57,7 +57,7 @@ class MapConverterProvider : ConverterProvider {
               override fun apply(cursor: Cursor): ConfigResult<Map<*, *>> {
                 return when (val v = cursor.value()) {
                   is Map<*, *> -> v.validNel()
-                  else -> ConfigFailure("Unsupported list type $v").invalidNel()
+                  else -> ConfigFailure("Unsupported map type $v").invalidNel()
                 }
               }
             }
