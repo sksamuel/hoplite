@@ -16,22 +16,6 @@ import com.sksamuel.hoplite.Value
 import java.io.InputStream
 import java.lang.UnsupportedOperationException
 
-fun main() {
-
-  val json = """{ "name":"sam", "location":"chicago" }"""
-
-  val jsonFactory = JsonFactory() // or, for data binding, org.codehaus.jackson.mapper.MappingJsonFactory
-  val parser = jsonFactory.createParser(json) // or URL, Stream, Reader, String, byte[]
-  while (parser.nextToken() !== JsonToken.END_OBJECT) {
-    if (parser.currentToken == JsonToken.FIELD_NAME) {
-      println(parser.tokenLocation.lineNr)
-      println(parser.currentName)
-      println(parser.text)
-    }
-  }
-  parser.close()
-}
-
 interface Parser {
   fun load(input: InputStream): Value
 }
@@ -58,7 +42,7 @@ object TokenProduction : Production {
       JsonToken.NOT_AVAILABLE -> throw UnsupportedOperationException("Invalid json at ${parser.currentLocation}")
       JsonToken.START_OBJECT -> ObjectProduction.parse(parser)
       JsonToken.START_ARRAY -> ArrayProduction.parse(parser)
-      JsonToken.VALUE_EMBEDDED_OBJECT -> TODO()
+      JsonToken.VALUE_EMBEDDED_OBJECT -> throw UnsupportedOperationException("Invalid json at ${parser.currentLocation}")
       JsonToken.VALUE_STRING -> StringValue(parser.valueAsString, parser.currentLocation.toLineColPos())
       JsonToken.VALUE_NUMBER_INT -> LongValue(parser.valueAsLong, parser.currentLocation.toLineColPos())
       JsonToken.VALUE_NUMBER_FLOAT -> DoubleValue(parser.valueAsDouble, parser.currentLocation.toLineColPos())
