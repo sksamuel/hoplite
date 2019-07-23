@@ -10,15 +10,12 @@ import com.sksamuel.hoplite.ListValue
 import com.sksamuel.hoplite.LongValue
 import com.sksamuel.hoplite.MapValue
 import com.sksamuel.hoplite.NullValue
+import com.sksamuel.hoplite.Parser
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringValue
 import com.sksamuel.hoplite.Value
 import java.io.InputStream
 import java.lang.UnsupportedOperationException
-
-interface Parser {
-  fun load(input: InputStream): Value
-}
 
 object JacksonParser : Parser {
 
