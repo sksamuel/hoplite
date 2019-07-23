@@ -1,5 +1,4 @@
 include 'hoplite-core',
         'hoplite-json',
         'hoplite-toml',
-        'hoplite-hocon',
         'hoplite-yaml'
