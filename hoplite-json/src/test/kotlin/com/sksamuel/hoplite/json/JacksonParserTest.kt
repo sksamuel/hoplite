@@ -11,7 +11,6 @@ import io.kotlintest.shouldBe
 import io.kotlintest.specs.FunSpec
 import com.sksamuel.hoplite.Pos.LineColPos
 
-
 class JacksonParserTest : FunSpec() {
   init {
 
