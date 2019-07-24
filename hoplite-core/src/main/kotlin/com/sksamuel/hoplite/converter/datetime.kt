@@ -5,7 +5,7 @@ import arrow.data.valid
 import arrow.data.validNel
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
-import com.sksamuel.hoplite.Cursor
+import com.sksamuel.hoplite.Cursor2
 import com.sksamuel.hoplite.parseDuration
 import java.time.Duration
 import java.time.Instant
@@ -15,7 +15,7 @@ import java.time.ZoneOffset
 
 class LocalDateTimeConverterProvider : ParameterizedConverterProvider<LocalDateTime>() {
   override fun converter(): Converter<LocalDateTime> = object : Converter<LocalDateTime> {
-    override fun apply(cursor: Cursor): ConfigResult<LocalDateTime> =
+    override fun apply(cursor: Cursor2): ConfigResult<LocalDateTime> =
         when (val v = cursor.value()) {
           is java.util.Date -> LocalDateTime.ofInstant(v.toInstant(), ZoneOffset.UTC).validNel()
           is LocalDateTime -> v.validNel()
@@ -28,7 +28,7 @@ class LocalDateTimeConverterProvider : ParameterizedConverterProvider<LocalDateT
 
 class LocalDateConverterProvider : ParameterizedConverterProvider<LocalDate>() {
   override fun converter(): Converter<LocalDate> = object : Converter<LocalDate> {
-    override fun apply(cursor: Cursor): ConfigResult<LocalDate> =
+    override fun apply(cursor: Cursor2): ConfigResult<LocalDate> =
         when (val v = cursor.value()) {
           is java.util.Date -> LocalDateTime.ofInstant(v.toInstant(), ZoneOffset.UTC).toLocalDate().valid()
           is LocalDate -> v.validNel()
@@ -40,7 +40,7 @@ class LocalDateConverterProvider : ParameterizedConverterProvider<LocalDate>() {
 
 class DurationConverterProvider : ParameterizedConverterProvider<Duration>() {
   override fun converter(): Converter<Duration> = object : Converter<Duration> {
-    override fun apply(cursor: Cursor): ConfigResult<Duration> =
+    override fun apply(cursor: Cursor2): ConfigResult<Duration> =
         when (val v = cursor.value()) {
           is String -> parseDuration(v)
           else -> ConfigFailure.conversionFailure<LocalDateTime>(v).invalidNel()

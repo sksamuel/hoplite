@@ -5,14 +5,14 @@ import arrow.data.invalidNel
 import arrow.data.validNel
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
-import com.sksamuel.hoplite.Cursor
+import com.sksamuel.hoplite.Cursor2
 import java.lang.reflect.ParameterizedType
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
 interface Converter<T> {
-  fun apply(cursor: Cursor): ConfigResult<T>
+  fun apply(cursor: Cursor2): ConfigResult<T>
 }
 
 interface ConverterProvider {

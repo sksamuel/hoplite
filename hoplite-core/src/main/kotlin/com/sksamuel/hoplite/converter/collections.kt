@@ -7,8 +7,8 @@ import arrow.data.invalidNel
 import arrow.data.validNel
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
-import com.sksamuel.hoplite.Cursor
-import com.sksamuel.hoplite.PrimitiveCursor
+import com.sksamuel.hoplite.Cursor2
+import com.sksamuel.hoplite.PrimitiveCursor2
 import com.sksamuel.hoplite.arrow.sequence
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubtypeOf
@@ -22,10 +22,10 @@ class ListConverterProvider : ConverterProvider {
         if (t != null) {
           return locateConverter<T>(t).map { converter ->
             object : Converter<List<T>> {
-              override fun apply(cursor: Cursor): ConfigResult<List<T>> {
+              override fun apply(cursor: Cursor2): ConfigResult<List<T>> {
                 return when (val v = cursor.value()) {
-                  is String -> v.split(",").map { it.trim() }.map { converter.apply(PrimitiveCursor(it)) }.sequence()
-                  is List<*> -> v.map { converter.apply(PrimitiveCursor(it)) }.sequence()
+                  is String -> v.split(",").map { it.trim() }.map { converter.apply(PrimitiveCursor2(it)) }.sequence()
+                  is List<*> -> v.map { converter.apply(PrimitiveCursor2(it)) }.sequence()
                   else -> ConfigFailure("Unsupported list type ${v?.javaClass?.name}").invalidNel()
                 }
               }
@@ -55,7 +55,7 @@ class MapConverterProvider : ConverterProvider {
               keyConverter,
               valueConverter) { (kc, vc) ->
             object : Converter<Map<*, *>> {
-              override fun apply(cursor: Cursor): ConfigResult<Map<*, *>> {
+              override fun apply(cursor: Cursor2): ConfigResult<Map<*, *>> {
                 return when (val v = cursor.value()) {
                   is Map<*, *> -> v.validNel()
                   else -> ConfigFailure("Unsupported map type $v").invalidNel()

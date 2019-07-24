@@ -8,9 +8,9 @@ import com.sksamuel.hoplite.CannotParse
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigLocation
 import com.sksamuel.hoplite.ConfigResult
-import com.sksamuel.hoplite.Cursor
+import com.sksamuel.hoplite.Cursor2
 import com.sksamuel.hoplite.preprocessor.EnvVarPreprocessor
-import com.sksamuel.hoplite.MapCursor
+import com.sksamuel.hoplite.MapCursor2
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.arrow.flatMap
 import com.sksamuel.hoplite.arrow.sequence
@@ -66,10 +66,10 @@ class ConfigLoader(private val preprocessors: List<Preprocessor> = listOf(EnvVar
     }
   }
 
-  fun toCursor(stream: InputStream): ConfigResult<Cursor> = handleYamlErrors(stream) {
+  fun toCursor(stream: InputStream): ConfigResult<Cursor2> = handleYamlErrors(stream) {
     val yaml = Yaml(SafeConstructor())
     when (val result = yaml.load<Any>(it)) {
-      is Map<*, *> -> MapCursor(result).validNel()
+      is Map<*, *> -> MapCursor2(result).validNel()
       else -> ConfigFailure("Unsupported YAML return type ${result.javaClass.name}").invalidNel()
     }
   }
