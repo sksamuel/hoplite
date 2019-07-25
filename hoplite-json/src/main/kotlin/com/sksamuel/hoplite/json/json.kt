@@ -39,7 +39,6 @@ object TokenProduction : Production {
       JsonToken.NOT_AVAILABLE -> throw UnsupportedOperationException("Invalid json at ${parser.currentLocation}")
       JsonToken.START_OBJECT -> ObjectProduction.parse(parser)
       JsonToken.START_ARRAY -> ArrayProduction.parse(parser)
-      JsonToken.VALUE_EMBEDDED_OBJECT -> throw UnsupportedOperationException("Invalid json at ${parser.currentLocation}")
       JsonToken.VALUE_STRING -> StringValue(parser.valueAsString, parser.currentLocation.toLineColPos())
       JsonToken.VALUE_NUMBER_INT -> LongValue(parser.valueAsLong, parser.currentLocation.toLineColPos())
       JsonToken.VALUE_NUMBER_FLOAT -> DoubleValue(parser.valueAsDouble, parser.currentLocation.toLineColPos())
