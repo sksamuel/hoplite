@@ -6,12 +6,10 @@ import arrow.data.getOrElse
 import arrow.data.invalidNel
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
-import com.sksamuel.hoplite.Cursor
 import com.sksamuel.hoplite.ListValue
 import com.sksamuel.hoplite.MapValue
-import com.sksamuel.hoplite.Pos
-import com.sksamuel.hoplite.PrimitiveCursor
 import com.sksamuel.hoplite.StringValue
+import com.sksamuel.hoplite.Value
 import com.sksamuel.hoplite.arrow.sequence
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubtypeOf
@@ -25,15 +23,13 @@ class ListConverterProvider : ConverterProvider {
         if (t != null) {
           return locateConverter<T>(t).map { converter ->
             object : Converter<List<T>> {
-              override fun apply(cursor: Cursor): ConfigResult<List<T>> {
-                return when (val v = cursor.value()) {
-                  is StringValue -> v.value.split(",").map { it.trim() }.map {
-                    converter.apply(PrimitiveCursor("",
-                        StringValue(it, Pos.NoPos),
-                        emptyList()))
+              override fun apply(value: Value): ConfigResult<List<T>> {
+                return when (value) {
+                  is StringValue -> value.value.split(",").map { it.trim() }.map {
+                    converter.apply(StringValue(it, value.pos))
                   }.sequence()
-                  is ListValue -> v.values.map { converter.apply(Cursor("", it, emptyList())) }.sequence()
-                  else -> ConfigFailure("Unsupported list type ${v.javaClass.name}").invalidNel()
+                  is ListValue -> value.values.map { converter.apply(it) }.sequence()
+                  else -> ConfigFailure("Unsupported list type ${value.javaClass.name}").invalidNel()
                 }
               }
             }
@@ -62,13 +58,13 @@ class MapConverterProvider : ConverterProvider {
               keyConverter,
               valueConverter) { (kc, vc) ->
             object : Converter<Map<*, *>> {
-              override fun apply(cursor: Cursor): ConfigResult<Map<*, *>> {
-                return when (val v = cursor.value()) {
-                  is MapValue -> v.map.map { (k, v) ->
+              override fun apply(value: Value): ConfigResult<Map<*, *>> {
+                return when (value) {
+                  is MapValue -> value.map.map { (k, v) ->
                     arrow.data.extensions.validated.applicative.map(
                         NonEmptyList.semigroup(),
-                        kc.apply(Cursor("", StringValue(k, Pos.NoPos), emptyList())),
-                        vc.apply(Cursor("", v, emptyList()))
+                        kc.apply(StringValue(k, value.pos)),
+                        vc.apply(v)
                     ) { (k, v) -> Pair(k, v) }
                   }.sequence().map { it.toMap() }
                   else -> ConfigFailure("Unsupported map type $v").invalidNel()

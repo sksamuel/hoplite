@@ -4,7 +4,7 @@ import arrow.data.invalidNel
 import arrow.data.validNel
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.ConversionFailure
-import com.sksamuel.hoplite.Cursor
+import com.sksamuel.hoplite.Value
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
@@ -16,8 +16,8 @@ class EnumConverterProvider : ConverterProvider {
 }
 
 class EnumConverter<T : Any>(private val klass: KClass<T>) : Converter<T> {
-  override fun apply(cursor: Cursor): ConfigResult<T> {
-    val t = klass.java.enumConstants.find { it.toString().validNel() == cursor.string() }
-    return t?.validNel() ?: ConversionFailure(klass, cursor.value()).invalidNel()
+  override fun apply(value: Value): ConfigResult<T> {
+    val t = klass.java.enumConstants.find { it.toString().validNel() == value.string() }
+    return t?.validNel() ?: ConversionFailure(klass, value).invalidNel()
   }
 }

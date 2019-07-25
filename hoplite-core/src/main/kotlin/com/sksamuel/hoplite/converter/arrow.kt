@@ -5,10 +5,8 @@ import arrow.data.getOrElse
 import arrow.data.invalidNel
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
-import com.sksamuel.hoplite.Cursor
-import com.sksamuel.hoplite.Pos
-import com.sksamuel.hoplite.PrimitiveCursor
 import com.sksamuel.hoplite.StringValue
+import com.sksamuel.hoplite.Value
 import com.sksamuel.hoplite.arrow.sequence
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubtypeOf
@@ -22,16 +20,15 @@ class NonEmptyListConverterProvider : ConverterProvider {
         if (t != null) {
           return locateConverter<T>(t).map { converter ->
             object : Converter<NonEmptyList<T>> {
-              override fun apply(cursor: Cursor): ConfigResult<NonEmptyList<T>> {
-                return when (val v = cursor.value()) {
+              override fun apply(value: Value): ConfigResult<NonEmptyList<T>> {
+                return when (value) {
                   is StringValue ->
-                    v.value.split(",").map { it.trim() }.map {
-                      converter.apply(PrimitiveCursor("",
-                          StringValue(it, Pos.NoPos), emptyList()))
+                    value.value.split(",").map { it.trim() }.map {
+                      converter.apply(StringValue(it, value.pos))
                     }.sequence().map {
                       NonEmptyList.fromListUnsafe(it)
                     }
-                  else -> ConfigFailure("Unsupported list type $v").invalidNel()
+                  else -> ConfigFailure("Unsupported list type $value").invalidNel()
                 }
               }
             }

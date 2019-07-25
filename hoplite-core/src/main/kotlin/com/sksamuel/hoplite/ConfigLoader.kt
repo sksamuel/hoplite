@@ -56,15 +56,15 @@ class ConfigLoader(private val parser: Parser,
       )
     }.sequence()
 
-    val cursor = streams.map {
-      it.map { input -> Cursor(input.resource, parser.load(input.stream), emptyList()) }
+    val values = streams.map {
+      it.map { input -> parser.load(input.stream) }
     }.map { cs ->
       cs.map { c ->
         preprocessors.fold(c) { acc, p -> acc.transform(p::process) }
       }.reduce { acc, b -> b }
     }
 
-    return cursor.flatMap {
+    return values.flatMap {
       DataClassConverter(klass).apply(it)
     }
 
