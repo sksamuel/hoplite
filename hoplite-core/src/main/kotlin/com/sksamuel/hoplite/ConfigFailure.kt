@@ -24,6 +24,11 @@ interface ConfigFailure {
   }
 }
 
+data class NullForNonNull(val value: NullValue, val param: String) : ConfigFailure {
+  override fun description(): String = "null value supplied for non-null field $param"
+  override fun location(): ConfigLocation? = null
+}
+
 data class MissingPathFailure(val description: String, val location: ConfigLocation?) : ConfigFailure {
   constructor(path: String, keys: Collection<String>) : this("Path $path was not available (available keys $keys)", null)
 
@@ -43,7 +48,7 @@ data class UnsupportedTypeFailure(val type: KType) : ConfigFailure {
  * @param location the optional location of the failure
  */
 data class ThrowableFailure(val throwable: Throwable, val location: ConfigLocation?) : ConfigFailure {
-  override fun description() = "${throwable.message}."
+  override fun description() = "${throwable.message}.${throwable.stackTrace.toList()}"
   override fun location(): ConfigLocation? = location
 }
 

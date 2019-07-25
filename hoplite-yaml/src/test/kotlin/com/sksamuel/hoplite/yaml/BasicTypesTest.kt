@@ -94,4 +94,11 @@ class BasicTypesTest : FunSpec({
       it.a shouldBe Test(mapOf("a" to 11, "b" to 22, "c" to 33), mapOf(11 to true, 22 to false, 33 to true))
     }
   }
+
+  test("null fields") {
+    data class Test(val a: String?, val b: Double?)
+    ConfigLoader(Yaml).loadConfig<Test>("/test_nulls.yml").shouldBeValid {
+      it.a shouldBe Test(null, null)
+    }
+  }
 })

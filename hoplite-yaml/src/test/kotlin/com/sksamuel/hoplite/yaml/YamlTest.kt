@@ -2,6 +2,7 @@ package com.sksamuel.hoplite.yaml
 
 import com.sksamuel.hoplite.ListValue
 import com.sksamuel.hoplite.MapValue
+import com.sksamuel.hoplite.NullValue
 import com.sksamuel.hoplite.StringValue
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.FunSpec
@@ -19,6 +20,23 @@ class YamlTest : FunSpec() {
                   "b" to StringValue(value = "1", pos = LineColPos(line = 1, col = 5)),
                   "c" to StringValue(value = "true", pos = LineColPos(line = 2, col = 5)),
                   "d" to StringValue(value = "2.3", pos = LineColPos(line = 3, col = 5))
+              ),
+              pos = LineColPos(line = 0, col = 0)
+          )
+    }
+
+    test("parsing null fields") {
+      Yaml.load(javaClass.getResourceAsStream("/nulls.yml")) shouldBe
+          MapValue(
+              map = mapOf(
+                  "a" to NullValue(pos = LineColPos(line = 0, col = 3)),
+                  "b" to MapValue(
+                      map = mapOf(
+                          "c" to StringValue(value = "hello", pos = LineColPos(line = 2, col = 5)),
+                          "d" to NullValue(pos = LineColPos(line = 3, col = 5))
+                      ),
+                      pos = LineColPos(line = 2, col = 2)
+                  )
               ),
               pos = LineColPos(line = 0, col = 0)
           )

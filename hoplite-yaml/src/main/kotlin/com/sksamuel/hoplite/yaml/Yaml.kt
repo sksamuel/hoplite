@@ -2,10 +2,12 @@ package com.sksamuel.hoplite.yaml.com.sksamuel.hoplite.yaml
 
 import com.sksamuel.hoplite.ListValue
 import com.sksamuel.hoplite.MapValue
+import com.sksamuel.hoplite.NullValue
 import com.sksamuel.hoplite.Parser
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringValue
 import com.sksamuel.hoplite.Value
+import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.SafeConstructor
 import org.yaml.snakeyaml.error.Mark
@@ -77,7 +79,20 @@ object TokenProduction : Production {
     return when (val event = stream.current()) {
       is MappingStartEvent -> MapProduction.parse(stream)
       is SequenceStartEvent -> SequenceProduction.parse(stream)
-      is ScalarEvent -> StringValue(event.value, event.startMark.toPos())
+      // https://yaml.org/refcard.html
+      // Language Independent Scalar types:
+      //    { ~, null }              : Null (no value).
+      //    [ 1234, 0x4D2, 02333 ]   : [ Decimal int, Hexadecimal int, Octal int ]
+      //    [ 1_230.15, 12.3015e+02 ]: [ Fixed float, Exponential float ]
+      //    [ .inf, -.Inf, .NAN ]    : [ Infinity (float), Negative, Not a number ]
+      //    { Y, true, Yes, ON  }    : Boolean true
+      //    { n, FALSE, No, off }    : Boolean false
+      is ScalarEvent -> {
+        if (event.value == "null" && event.scalarStyle == DumperOptions.ScalarStyle.PLAIN)
+          NullValue(event.startMark.toPos())
+        else
+          StringValue(event.value, event.startMark.toPos())
+      }
       else -> throw java.lang.UnsupportedOperationException("Invalid YAML event ${stream.current().id()} at ${stream.current().startMark}")
     }
   }
