@@ -2,12 +2,12 @@ package com.sksamuel.hoplite
 
 import arrow.data.ValidatedNel
 import arrow.data.invalidNel
-import java.net.URL
 
 typealias ConfigResult<A> = ValidatedNel<ConfigFailure, A>
 
 object ConfigResults {
   fun failed(description: String): ConfigResult<Nothing> = ConfigFailure(description).invalidNel()
+  fun failedTypeConversion(value: Value): ConfigResult<Nothing> = ConfigFailure("type conversion failure at $value").invalidNel()
 }
 
 /**
@@ -18,6 +18,6 @@ object ConfigResults {
  * @param lineNumber the line number (starting at 0), where the given
  *                   ConfigValue definition starts
  */
-data class ConfigLocation(val url: URL, val lineNumber: Int) {
-  val description: String = "($url:$lineNumber)"
+data class ConfigLocation(val resource: String, val pos: Pos) {
+  val description: String = "($resource:${pos.line})"
 }

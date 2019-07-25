@@ -2,17 +2,13 @@ package com.sksamuel.hoplite
 
 import arrow.core.toOption
 import arrow.data.invalidNel
-import arrow.data.valid
 import arrow.data.validNel
 import com.sksamuel.hoplite.arrow.flatMap
 import com.sksamuel.hoplite.arrow.sequence
 import com.sksamuel.hoplite.converter.DataClassConverter
 import com.sksamuel.hoplite.preprocessor.EnvVarPreprocessor
 import com.sksamuel.hoplite.preprocessor.Preprocessor
-import sun.jvm.hotspot.oops.Mark
 import java.io.InputStream
-import java.nio.file.Path
-import java.nio.file.Paths
 import kotlin.reflect.KClass
 
 class ConfigLoader(private val parser: Parser,
@@ -51,26 +47,32 @@ class ConfigLoader(private val parser: Parser,
    */
   fun <A : Any> loadConfig(klass: KClass<A>, vararg resources: String): ConfigResult<A> {
 
+    data class Input(val resource: String, val stream: InputStream)
+
     val streams = resources.map { resource ->
       this.javaClass.getResourceAsStream(resource).toOption().fold(
           { ConfigFailure("Could not find resource $resource").invalidNel() },
-          { it.valid() }
+          { Input(resource, it).validNel() }
       )
     }.sequence()
 
-    val cursors = streams.flatMap {
-      it.map { stream -> toCursor(stream) }.sequence()
+    val cursor = streams.map {
+      it.map { input -> Cursor(input.resource, parser.load(input.stream), emptyList()) }
     }.map { cs ->
       cs.map { c ->
         preprocessors.fold(c) { acc, p -> acc.transform(p::process) }
-      }
+      }.reduce { acc, b -> b }
     }
 
-    return cursors.map {
-      it.reduce { a, b -> a.withFallback(b) }
-    }.flatMap {
+    return cursor.flatMap {
       DataClassConverter(klass).apply(it)
     }
+
+//    return cursors.map {
+//      it.reduce { a, b -> a.withFallback(b) }
+//    }.flatMap {
+//      DataClassConverter(klass).apply(it)
+//    }
   }
 
 //  fun toCursor(stream: InputStream): ConfigResult<Cursor> = handleYamlErrors(stream) {

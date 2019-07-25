@@ -4,11 +4,14 @@ import arrow.data.NonEmptyList
 import arrow.data.extensions.nonemptylist.semigroup.semigroup
 import arrow.data.getOrElse
 import arrow.data.invalidNel
-import arrow.data.validNel
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
-import com.sksamuel.hoplite.Cursor2
-import com.sksamuel.hoplite.PrimitiveCursor2
+import com.sksamuel.hoplite.Cursor
+import com.sksamuel.hoplite.ListValue
+import com.sksamuel.hoplite.MapValue
+import com.sksamuel.hoplite.Pos
+import com.sksamuel.hoplite.PrimitiveCursor
+import com.sksamuel.hoplite.StringValue
 import com.sksamuel.hoplite.arrow.sequence
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubtypeOf
@@ -22,11 +25,15 @@ class ListConverterProvider : ConverterProvider {
         if (t != null) {
           return locateConverter<T>(t).map { converter ->
             object : Converter<List<T>> {
-              override fun apply(cursor: Cursor2): ConfigResult<List<T>> {
+              override fun apply(cursor: Cursor): ConfigResult<List<T>> {
                 return when (val v = cursor.value()) {
-                  is String -> v.split(",").map { it.trim() }.map { converter.apply(PrimitiveCursor2(it)) }.sequence()
-                  is List<*> -> v.map { converter.apply(PrimitiveCursor2(it)) }.sequence()
-                  else -> ConfigFailure("Unsupported list type ${v?.javaClass?.name}").invalidNel()
+                  is StringValue -> v.value.split(",").map { it.trim() }.map {
+                    converter.apply(PrimitiveCursor("",
+                        StringValue(it, Pos.NoPos),
+                        emptyList()))
+                  }.sequence()
+                  is ListValue -> v.values.map { converter.apply(Cursor("", it, emptyList())) }.sequence()
+                  else -> ConfigFailure("Unsupported list type ${v.javaClass.name}").invalidNel()
                 }
               }
             }
@@ -44,7 +51,7 @@ class MapConverterProvider : ConverterProvider {
       if (type.arguments.size == 2) {
 
         val k = type.arguments[0].type
-        val v = type.arguments[0].type
+        val v = type.arguments[1].type
         if (k != null && v != null) {
 
           val keyConverter = locateConverter<Any>(k)
@@ -55,9 +62,15 @@ class MapConverterProvider : ConverterProvider {
               keyConverter,
               valueConverter) { (kc, vc) ->
             object : Converter<Map<*, *>> {
-              override fun apply(cursor: Cursor2): ConfigResult<Map<*, *>> {
+              override fun apply(cursor: Cursor): ConfigResult<Map<*, *>> {
                 return when (val v = cursor.value()) {
-                  is Map<*, *> -> v.validNel()
+                  is MapValue -> v.map.map { (k, v) ->
+                    arrow.data.extensions.validated.applicative.map(
+                        NonEmptyList.semigroup(),
+                        kc.apply(Cursor("", StringValue(k, Pos.NoPos), emptyList())),
+                        vc.apply(Cursor("", v, emptyList()))
+                    ) { (k, v) -> Pair(k, v) }
+                  }.sequence().map { it.toMap() }
                   else -> ConfigFailure("Unsupported map type $v").invalidNel()
                 }
               }

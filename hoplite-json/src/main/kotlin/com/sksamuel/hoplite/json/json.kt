@@ -17,7 +17,7 @@ import com.sksamuel.hoplite.Value
 import java.io.InputStream
 import java.lang.UnsupportedOperationException
 
-object JacksonParser : Parser {
+object Json : Parser {
 
   private val jsonFactory = JsonFactory()
 
@@ -56,7 +56,7 @@ private fun JsonLocation.toLineColPos(): Pos = Pos.LineColPos(this.lineNr, this.
 object ObjectProduction : Production {
   override fun parse(parser: JsonParser): Value {
     require(parser.currentToken == JsonToken.START_OBJECT)
-    val start = parser.currentLocation.charOffset
+    val loc = parser.currentLocation
     val obj = mutableMapOf<String, Value>()
     while (parser.nextToken() != JsonToken.END_OBJECT) {
       require(parser.currentToken() == JsonToken.FIELD_NAME)
@@ -65,22 +65,22 @@ object ObjectProduction : Production {
       val value = TokenProduction.parse(parser)
       obj[fieldName] = value
     }
-    val end = parser.currentLocation.charOffset
-    return MapValue(obj, Pos.RangePos(start, end))
+    return MapValue(obj, loc.toPos())
   }
 }
+
+fun JsonLocation.toPos(): Pos = Pos.LineColPos(this.lineNr, this.columnNr)
 
 object ArrayProduction : Production {
   override fun parse(parser: JsonParser): Value {
     require(parser.currentToken == JsonToken.START_ARRAY)
-    val start = parser.currentLocation.charOffset
+    val loc = parser.currentLocation
     val list = mutableListOf<Value>()
     while (parser.nextToken() != JsonToken.END_ARRAY) {
       val value = TokenProduction.parse(parser)
       list.add(value)
     }
     require(parser.currentToken == JsonToken.END_ARRAY)
-    val end = parser.currentLocation.charOffset
-    return ListValue(list.toList(), Pos.RangePos(start, end))
+    return ListValue(list.toList(), loc.toPos())
   }
 }

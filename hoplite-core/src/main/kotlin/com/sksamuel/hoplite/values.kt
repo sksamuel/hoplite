@@ -5,24 +5,33 @@ sealed class Value {
 }
 
 sealed class Pos {
-  object NoPos : Pos()
-  data class LinePos(val line: Long) : Pos()
-  data class LineColPos(val line: Int, val col: Int) : Pos()
-  data class OffsetPos(val offset: Long) : Pos()
-  data class RangePos(val start: Long, val end: Long) : Pos()
+
+  abstract val line: Int
+
+  object NoPos : Pos() {
+    override val line: Int = -1
+  }
+
+  data class LinePos(override val line: Int) : Pos()
+  data class LineColPos(override val line: Int, val col: Int) : Pos()
+  data class RangePos(val start: Int, val end: Int) : Pos() {
+    override val line: Int = start
+  }
 }
 
-// -- basic types
+sealed class PrimitiveValue : Value()
+sealed class NumberValue : PrimitiveValue()
 
-data class StringValue(val value: String, override val pos: Pos) : Value()
-data class LongValue(val value: Long, override val pos: Pos) : Value()
-data class IntValue(val value: Int, override val pos: Pos) : Value()
-data class BooleanValue(val value: Boolean, override val pos: Pos) : Value()
-data class DoubleValue(val value: Double, override val pos: Pos) : Value()
-data class FloatValue(val value: Float, override val pos: Pos) : Value()
-data class NullValue(override val pos: Pos) : Value()
+data class StringValue(val value: String, override val pos: Pos) : PrimitiveValue()
+data class BooleanValue(val value: Boolean, override val pos: Pos) : PrimitiveValue()
+data class LongValue(val value: Long, override val pos: Pos) : NumberValue()
+data class DoubleValue(val value: Double, override val pos: Pos) : NumberValue()
+data class NullValue(override val pos: Pos) : PrimitiveValue()
 
-// -- container types
+sealed class ContainerValue : Value()
 
-data class MapValue(val value: Map<String, Value>, override val pos: Pos) : Value()
-data class ListValue(val values: List<Value>, override val pos: Pos) : Value()
+data class MapValue(val map: Map<String, Value>, override val pos: Pos) : ContainerValue() {
+  operator fun get(key: String): Value = map.getOrDefault(key, NullValue(pos))
+}
+
+data class ListValue(val values: List<Value>, override val pos: Pos) : ContainerValue()

@@ -11,11 +11,11 @@ import io.kotlintest.shouldBe
 import io.kotlintest.specs.FunSpec
 import com.sksamuel.hoplite.Pos.LineColPos
 
-class JacksonParserTest : FunSpec() {
+class JsonTest : FunSpec() {
   init {
 
     test("parsing basic json") {
-      JacksonParser.load(javaClass.getResourceAsStream("/basic.json")) shouldBe
+      Json.load(javaClass.getResourceAsStream("/basic.json")) shouldBe
           MapValue(
               mapOf(
                   "a" to StringValue(value = "hello", pos = Pos.LineColPos(line = 2, col = 15)),
@@ -28,7 +28,7 @@ class JacksonParserTest : FunSpec() {
     }
 
     test("parsing nested basic arrays") {
-      JacksonParser.load(javaClass.getResourceAsStream("/nested_basic_arrays.json")) shouldBe
+      Json.load(javaClass.getResourceAsStream("/nested_basic_arrays.json")) shouldBe
           MapValue(
               mapOf(
                   "a" to StringValue(value = "hello", pos = Pos.LineColPos(line = 2, col = 15)),
@@ -46,21 +46,21 @@ class JacksonParserTest : FunSpec() {
     }
 
     test("parsing nested container arrays") {
-      JacksonParser.load(javaClass.getResourceAsStream("/nested_container_arrays.json")) shouldBe
+      Json.load(javaClass.getResourceAsStream("/nested_container_arrays.json")) shouldBe
           MapValue(
               mapOf(
                   "a" to StringValue(value = "hello", pos = Pos.LineColPos(line = 2, col = 15)),
                   "b" to ListValue(
                       values = listOf(
                           MapValue(
-                              value = mapOf(
+                              map = mapOf(
                                   "c" to StringValue(value = "hello", pos = LineColPos(line = 5, col = 19)),
                                   "d" to BooleanValue(value = true, pos = LineColPos(line = 6, col = 16))
                               ),
                               pos = Pos.RangePos(start = -1, end = -1)
                           ),
                           MapValue(
-                              value = mapOf(
+                              map = mapOf(
                                   "e" to DoubleValue(value = 1.4, pos = LineColPos(line = 9, col = 15)),
                                   "f" to LongValue(value = 4, pos = LineColPos(line = 10, col = 13))
                               ),

@@ -23,7 +23,7 @@ import org.yaml.snakeyaml.events.StreamStartEvent
 import java.io.InputStream
 import java.io.InputStreamReader
 
-object YamlParser : Parser {
+object Yaml : Parser {
   private val yaml = Yaml(SafeConstructor())
   override fun load(input: InputStream): Value {
     val reader = InputStreamReader(input)
