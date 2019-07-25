@@ -16,7 +16,7 @@ class EnumConverterProvider : ConverterProvider {
 }
 
 class EnumConverter<T : Any>(private val klass: KClass<T>) : Converter<T> {
-  override fun apply(value: Value): ConfigResult<T> {
+  override fun convert(value: Value): ConfigResult<T> {
     val t = klass.java.enumConstants.find { it.toString().validNel() == value.string() }
     return t?.validNel() ?: ConversionFailure(klass, value).invalidNel()
   }

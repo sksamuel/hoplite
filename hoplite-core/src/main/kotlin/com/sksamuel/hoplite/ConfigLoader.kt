@@ -61,11 +61,11 @@ class ConfigLoader(private val parser: Parser,
     }.map { cs ->
       cs.map { c ->
         preprocessors.fold(c) { acc, p -> acc.transform(p::process) }
-      }.reduce { acc, b -> b }
+      }.reduce { acc, b -> acc.withFallback(b) }
     }
 
     return values.flatMap {
-      DataClassConverter(klass).apply(it)
+      DataClassConverter(klass).convert(it)
     }
 
 //    return cursors.map {

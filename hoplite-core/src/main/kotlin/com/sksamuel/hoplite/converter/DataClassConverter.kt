@@ -10,11 +10,11 @@ import kotlin.reflect.KClass
 
 class DataClassConverter<T : Any>(private val klass: KClass<T>) : Converter<T> {
 
-  override fun apply(value: Value): ConfigResult<T> {
+  override fun convert(value: Value): ConfigResult<T> {
 
     val args: ValidatedNel<ConfigFailure, List<Any?>> = klass.constructors.first().parameters.map { param ->
       converterFor(param.type).flatMap {
-        it.apply(value.atKey(param.name!!))
+        it.convert(value.atKey(param.name!!))
       }
     }.sequence()
 

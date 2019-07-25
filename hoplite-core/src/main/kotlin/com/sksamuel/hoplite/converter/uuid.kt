@@ -12,7 +12,7 @@ import java.util.*
 
 class UUIDConverterProvider : ParameterizedConverterProvider<UUID>() {
   override fun converter(): Converter<UUID> = object : Converter<UUID> {
-    override fun apply(value: Value): ConfigResult<UUID> =
+    override fun convert(value: Value): ConfigResult<UUID> =
         when (value) {
           is StringValue -> Try { UUID.fromString(value.value) }.toValidated { ConfigFailure("UUID could not be parsed from $value") }.toValidatedNel()
           else -> ConfigFailure.conversionFailure<LocalDateTime>(value).invalidNel()

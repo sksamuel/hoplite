@@ -17,7 +17,7 @@ import java.time.format.DateTimeFormatter
 
 class LocalDateTimeConverterProvider : ParameterizedConverterProvider<LocalDateTime>() {
   override fun converter(): Converter<LocalDateTime> = object : Converter<LocalDateTime> {
-    override fun apply(value: Value): ConfigResult<LocalDateTime> =
+    override fun convert(value: Value): ConfigResult<LocalDateTime> =
         when (value) {
           //is java.util.Date -> LocalDateTime.ofInstant(v.toInstant(), ZoneOffset.UTC).validNel()
           //is LocalDateTime -> v.validNel()
@@ -30,7 +30,7 @@ class LocalDateTimeConverterProvider : ParameterizedConverterProvider<LocalDateT
 
 class LocalDateConverterProvider : ParameterizedConverterProvider<LocalDate>() {
   override fun converter(): Converter<LocalDate> = object : Converter<LocalDate> {
-    override fun apply(value: Value): ConfigResult<LocalDate> =
+    override fun convert(value: Value): ConfigResult<LocalDate> =
         when (value) {
           //    is java.util.Date -> LocalDateTime.ofInstant(v.toInstant(), ZoneOffset.UTC).toLocalDate().valid()
           //    is LocalDate -> v.validNel()
@@ -42,7 +42,7 @@ class LocalDateConverterProvider : ParameterizedConverterProvider<LocalDate>() {
 
 class DurationConverterProvider : ParameterizedConverterProvider<Duration>() {
   override fun converter(): Converter<Duration> = object : Converter<Duration> {
-    override fun apply(value: Value): ConfigResult<Duration> =
+    override fun convert(value: Value): ConfigResult<Duration> =
         when (value) {
           is StringValue -> parseDuration(value.value)
           else -> ConfigFailure.conversionFailure<LocalDateTime>(value).invalidNel()

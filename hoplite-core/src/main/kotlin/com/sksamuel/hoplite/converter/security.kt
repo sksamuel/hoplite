@@ -12,18 +12,18 @@ fun <T> viaString(cursor: Value, f: (String) -> T): ConfigResult<T> {
 
 class KeberosPrincipalConverterProvider : ParameterizedConverterProvider<KerberosPrincipal>() {
   override fun converter(): Converter<KerberosPrincipal> = object : Converter<KerberosPrincipal> {
-    override fun apply(value: Value): ConfigResult<KerberosPrincipal> = viaString(value) { KerberosPrincipal(it) }
+    override fun convert(value: Value): ConfigResult<KerberosPrincipal> = viaString(value) { KerberosPrincipal(it) }
   }
 }
 
 class X500PrincipalConverterProvider : ParameterizedConverterProvider<X500Principal>() {
   override fun converter(): Converter<X500Principal> = object : Converter<X500Principal> {
-    override fun apply(value: Value): ConfigResult<X500Principal> = viaString(value) { X500Principal(it) }
+    override fun convert(value: Value): ConfigResult<X500Principal> = viaString(value) { X500Principal(it) }
   }
 }
 
 class JMXPrincipalConverterProvider : ParameterizedConverterProvider<JMXPrincipal>() {
   override fun converter(): Converter<JMXPrincipal> = object : Converter<JMXPrincipal> {
-    override fun apply(value: Value): ConfigResult<JMXPrincipal> = viaString(value) { JMXPrincipal(it) }
+    override fun convert(value: Value): ConfigResult<JMXPrincipal> = viaString(value) { JMXPrincipal(it) }
   }
 }

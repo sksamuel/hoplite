@@ -12,7 +12,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
 interface Converter<T> {
-  fun apply(value: Value): ConfigResult<T>
+  fun convert(value: Value): ConfigResult<T>
 }
 
 interface ConverterProvider {

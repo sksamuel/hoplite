@@ -20,11 +20,11 @@ class NonEmptyListConverterProvider : ConverterProvider {
         if (t != null) {
           return locateConverter<T>(t).map { converter ->
             object : Converter<NonEmptyList<T>> {
-              override fun apply(value: Value): ConfigResult<NonEmptyList<T>> {
+              override fun convert(value: Value): ConfigResult<NonEmptyList<T>> {
                 return when (value) {
                   is StringValue ->
                     value.value.split(",").map { it.trim() }.map {
-                      converter.apply(StringValue(it, value.pos))
+                      converter.convert(StringValue(it, value.pos))
                     }.sequence().map {
                       NonEmptyList.fromListUnsafe(it)
                     }

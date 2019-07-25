@@ -23,12 +23,12 @@ class ListConverterProvider : ConverterProvider {
         if (t != null) {
           return locateConverter<T>(t).map { converter ->
             object : Converter<List<T>> {
-              override fun apply(value: Value): ConfigResult<List<T>> {
+              override fun convert(value: Value): ConfigResult<List<T>> {
                 return when (value) {
                   is StringValue -> value.value.split(",").map { it.trim() }.map {
-                    converter.apply(StringValue(it, value.pos))
+                    converter.convert(StringValue(it, value.pos))
                   }.sequence()
-                  is ListValue -> value.values.map { converter.apply(it) }.sequence()
+                  is ListValue -> value.values.map { converter.convert(it) }.sequence()
                   else -> ConfigFailure("Unsupported list type ${value.javaClass.name}").invalidNel()
                 }
               }
@@ -58,13 +58,13 @@ class MapConverterProvider : ConverterProvider {
               keyConverter,
               valueConverter) { (kc, vc) ->
             object : Converter<Map<*, *>> {
-              override fun apply(value: Value): ConfigResult<Map<*, *>> {
+              override fun convert(value: Value): ConfigResult<Map<*, *>> {
                 return when (value) {
                   is MapValue -> value.map.map { (k, v) ->
                     arrow.data.extensions.validated.applicative.map(
                         NonEmptyList.semigroup(),
-                        kc.apply(StringValue(k, value.pos)),
-                        vc.apply(v)
+                        kc.convert(StringValue(k, value.pos)),
+                        vc.convert(v)
                     ) { (k, v) -> Pair(k, v) }
                   }.sequence().map { it.toMap() }
                   else -> ConfigFailure("Unsupported map type $v").invalidNel()

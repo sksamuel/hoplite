@@ -5,22 +5,22 @@ import arrow.data.validNel
 /**
  * An ADT that models the tree returned from config files.
  */
-sealed class Value {
+interface Value {
 
   /**
    * Returns the positional information of this value.
    */
-  abstract val pos: Pos
+  val pos: Pos
 
   /**
-   * Returns a cursor pointing to the [Value] stored at the given key of this cursor.
+   * Returns the [Value] stored at the given key of this value.
    */
-  abstract fun atKey(key: String): Value
+  fun atKey(key: String): Value
 
   /**
-   * Returns a cursor pointing to the [Value] stored at the index of this value
+   * Returns the [Value] stored at the index of this value
    */
-  abstract fun atIndex(index: Int): Value
+  fun atIndex(index: Int): Value
 
   fun atPath(path: String): Value {
     val parts = path.split('.')
@@ -36,10 +36,21 @@ sealed class Value {
     else -> ConfigResults.failedTypeConversion(this)
   }
 
-  open fun transform(f: (String) -> String): Value = when (this) {
+  fun transform(f: (String) -> String): Value = when (this) {
     is StringValue -> StringValue(f(value), pos)
     is MapValue -> MapValue(map.map { f(it.key) to it.value.transform(f) }.toMap(), pos)
     is ListValue -> ListValue(values.map { it.transform(f) }, pos)
+    else -> this
+  }
+
+  fun withFallback(fallback: Value): Value = object : Value {
+    override val pos: Pos = this@Value.pos
+    override fun atKey(key: String): Value = this@Value.atKey(key).recover(fallback.atKey(key))
+    override fun atIndex(index: Int): Value = this@Value.atIndex(index).recover(fallback.atIndex(index))
+  }
+
+  fun recover(value: Value): Value = when (this) {
+    is UndefinedValue -> value
     else -> this
   }
 }
@@ -56,7 +67,7 @@ sealed class Pos {
   data class LineColPos(override val line: Int, val col: Int) : Pos()
 }
 
-sealed class PrimitiveValue : Value() {
+sealed class PrimitiveValue : Value {
   abstract val value: Any?
   override fun atIndex(index: Int): Value = UndefinedValue(pos)
   override fun atKey(key: String): Value = UndefinedValue(pos)
@@ -72,12 +83,12 @@ data class NullValue(override val pos: Pos) : PrimitiveValue() {
   override val value: Any? = null
 }
 
-data class UndefinedValue(override val pos: Pos) : Value() {
+data class UndefinedValue(override val pos: Pos) : Value {
   override fun atKey(key: String): Value = this
   override fun atIndex(index: Int): Value = this
 }
 
-sealed class ContainerValue : Value()
+sealed class ContainerValue : Value
 
 data class MapValue(val map: Map<String, Value>, override val pos: Pos) : ContainerValue() {
   override fun atKey(key: String): Value = get(key)
@@ -88,4 +99,6 @@ data class MapValue(val map: Map<String, Value>, override val pos: Pos) : Contai
 data class ListValue(val values: List<Value>, override val pos: Pos) : ContainerValue() {
   override fun atKey(key: String): Value = UndefinedValue(pos)
   override fun atIndex(index: Int): Value = values.getOrElse(index) { UndefinedValue(pos) }
+  operator fun get(index: Int): Value = atIndex(index)
+
 }
