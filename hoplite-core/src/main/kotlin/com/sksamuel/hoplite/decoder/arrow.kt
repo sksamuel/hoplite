@@ -1,4 +1,4 @@
-package com.sksamuel.hoplite.converter
+package com.sksamuel.hoplite.decoder
 
 import arrow.data.NonEmptyList
 import arrow.data.getOrElse
@@ -12,14 +12,14 @@ import kotlin.reflect.KType
 import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.starProjectedType
 
-class NonEmptyListConverterProvider : ConverterProvider {
-  override fun <T : Any> provide(type: KType): Converter<T>? {
+class NonEmptyListDecoderFactory : DecoderFactory {
+  override fun <T : Any> provide(type: KType): Decoder<T>? {
     if (type.isSubtypeOf(NonEmptyList::class.starProjectedType)) {
       if (type.arguments.size == 1) {
         val t = type.arguments[0].type
         if (t != null) {
           return locateConverter<T>(t).map { converter ->
-            object : Converter<NonEmptyList<T>> {
+            object : Decoder<NonEmptyList<T>> {
               override fun convert(value: Value): ConfigResult<NonEmptyList<T>> {
                 return when (value) {
                   is StringValue ->
@@ -32,7 +32,7 @@ class NonEmptyListConverterProvider : ConverterProvider {
                 }
               }
             }
-          }.getOrElse { null } as Converter<T>
+          }.getOrElse { null } as Decoder<T>
         }
       }
     }

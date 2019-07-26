@@ -11,7 +11,7 @@ import com.sksamuel.hoplite.StringValue
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 
-class RegionConverterProviderTest : StringSpec() {
+class RegionDecoderProviderTest : StringSpec() {
   init {
     "region converter" {
       RegionConverterProvider().converter().convert(StringValue("us-east-1", Pos.NoPos)) shouldBe Region.getRegion(Regions.US_EAST_1).valid()

@@ -5,16 +5,21 @@ import arrow.data.invalidNel
 import arrow.data.validNel
 import com.sksamuel.hoplite.arrow.flatMap
 import com.sksamuel.hoplite.arrow.sequence
-import com.sksamuel.hoplite.converter.DataClassConverter
+import com.sksamuel.hoplite.decoder.DataClassDecoder
+import com.sksamuel.hoplite.decoder.DecoderFactory
+import com.sksamuel.hoplite.decoder.DecoderRegistry
+import com.sksamuel.hoplite.decoder.defaultRegistry
 import com.sksamuel.hoplite.preprocessor.EnvVarPreprocessor
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import java.io.InputStream
 import kotlin.reflect.KClass
 
 class ConfigLoader(private val parser: Parser,
+                   private val registry: DecoderRegistry = defaultRegistry(),
                    private val preprocessors: List<Preprocessor> = listOf(EnvVarPreprocessor)) {
 
-  fun withPreprocessor(preprocessor: Preprocessor) = ConfigLoader(parser, preprocessors + preprocessor)
+  fun withPreprocessor(preprocessor: Preprocessor) = ConfigLoader(parser, registry, preprocessors + preprocessor)
+  fun withDecoderFactory(factory: DecoderFactory) = ConfigLoader(parser, registry, preprocessors)
 
   /**
    * Attempts to load config from the specified resources on the class path and returns
@@ -65,7 +70,7 @@ class ConfigLoader(private val parser: Parser,
     }
 
     return values.flatMap {
-      DataClassConverter(klass).convert(it)
+      DataClassDecoder(klass).convert(it)
     }
 
 //    return cursors.map {

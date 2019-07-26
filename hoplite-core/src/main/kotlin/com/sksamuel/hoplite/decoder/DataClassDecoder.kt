@@ -1,4 +1,4 @@
-package com.sksamuel.hoplite.converter
+package com.sksamuel.hoplite.decoder
 
 import arrow.data.ValidatedNel
 import arrow.data.invalidNel
@@ -12,7 +12,8 @@ import com.sksamuel.hoplite.arrow.flatMap
 import com.sksamuel.hoplite.arrow.sequence
 import kotlin.reflect.KClass
 
-class DataClassConverter<T : Any>(private val klass: KClass<T>) : Converter<T> {
+class DataClassDecoder<T : Any>(private val klass: KClass<T>,
+                                private val registry: DecoderRegistry) : Decoder<T> {
 
   override fun convert(value: Value): ConfigResult<T> {
 
@@ -20,7 +21,7 @@ class DataClassConverter<T : Any>(private val klass: KClass<T>) : Converter<T> {
       when (val vv = value.atKey(param.name!!)) {
         is NullValue ->
           if (param.type.isMarkedNullable) null.validNel() else NullForNonNull(vv, param.name ?: "<none>").invalidNel()
-        else -> converterFor(param.type).flatMap { it.convert(vv) }
+        else -> registry.decoder(param.type).flatMap { it.convert(vv) }
       }
     }.sequence()
 
