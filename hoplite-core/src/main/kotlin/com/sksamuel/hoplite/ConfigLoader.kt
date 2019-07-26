@@ -5,21 +5,21 @@ import arrow.data.invalidNel
 import arrow.data.validNel
 import com.sksamuel.hoplite.arrow.flatMap
 import com.sksamuel.hoplite.arrow.sequence
-import com.sksamuel.hoplite.decoder.DataClassDecoder
-import com.sksamuel.hoplite.decoder.DecoderFactory
+import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.decoder.defaultRegistry
 import com.sksamuel.hoplite.preprocessor.EnvVarPreprocessor
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import java.io.InputStream
 import kotlin.reflect.KClass
+import kotlin.reflect.full.createType
 
 class ConfigLoader(private val parser: Parser,
                    private val registry: DecoderRegistry = defaultRegistry(),
                    private val preprocessors: List<Preprocessor> = listOf(EnvVarPreprocessor)) {
 
   fun withPreprocessor(preprocessor: Preprocessor) = ConfigLoader(parser, registry, preprocessors + preprocessor)
-  fun withDecoderFactory(factory: DecoderFactory) = ConfigLoader(parser, registry, preprocessors)
+  fun withDecoder(decoder: Decoder<*>) = ConfigLoader(parser, registry.register(decoder), preprocessors)
 
   /**
    * Attempts to load config from the specified resources on the class path and returns
@@ -61,7 +61,7 @@ class ConfigLoader(private val parser: Parser,
       )
     }.sequence()
 
-    val values = streams.map {
+    val root = streams.map {
       it.map { input -> parser.load(input.stream) }
     }.map { cs ->
       cs.map { c ->
@@ -69,16 +69,18 @@ class ConfigLoader(private val parser: Parser,
       }.reduce { acc, b -> acc.withFallback(b) }
     }
 
-    return values.flatMap {
-      DataClassDecoder(klass).convert(it)
+    return root.flatMap { node ->
+      registry.decoder(klass).flatMap { decoder ->
+        decoder.decode(node, klass.createType(), registry)
+      }
     }
-
+  }
 //    return cursors.map {
 //      it.reduce { a, b -> a.withFallback(b) }
 //    }.flatMap {
 //      DataClassConverter(klass).apply(it)
 //    }
-  }
+}
 
 //  fun toCursor(stream: InputStream): ConfigResult<Cursor> = handleYamlErrors(stream) {
 //    val yaml = Yaml(SafeConstructor())
@@ -98,5 +100,3 @@ class ConfigLoader(private val parser: Parser,
 //      }
 //
 //  fun locationFromMark(path: Path, mark: Mark): ConfigLocation = ConfigLocation(path.toUri().toURL(), mark.line)
-
-}

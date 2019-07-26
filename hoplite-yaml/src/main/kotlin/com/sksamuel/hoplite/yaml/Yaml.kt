@@ -1,12 +1,12 @@
 package com.sksamuel.hoplite.yaml.com.sksamuel.hoplite.yaml
 
-import com.sksamuel.hoplite.ListValue
-import com.sksamuel.hoplite.MapValue
-import com.sksamuel.hoplite.NullValue
+import com.sksamuel.hoplite.ListNode
+import com.sksamuel.hoplite.MapNode
+import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.Parser
 import com.sksamuel.hoplite.Pos
-import com.sksamuel.hoplite.StringValue
-import com.sksamuel.hoplite.Value
+import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.Node
 import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.SafeConstructor
@@ -27,7 +27,7 @@ import java.io.InputStreamReader
 
 object Yaml : Parser {
   private val yaml = Yaml(SafeConstructor())
-  override fun load(input: InputStream): Value {
+  override fun load(input: InputStream): Node {
     val reader = InputStreamReader(input)
     val events = yaml.parse(reader).iterator()
     val stream = TokenStream(events)
@@ -71,11 +71,11 @@ fun Event.id() = when (this) {
 }
 
 interface Production {
-  fun parse(stream: TokenStream<Event>): Value
+  fun parse(stream: TokenStream<Event>): Node
 }
 
 object TokenProduction : Production {
-  override fun parse(stream: TokenStream<Event>): Value {
+  override fun parse(stream: TokenStream<Event>): Node {
     return when (val event = stream.current()) {
       is MappingStartEvent -> MapProduction.parse(stream)
       is SequenceStartEvent -> SequenceProduction.parse(stream)
@@ -89,9 +89,9 @@ object TokenProduction : Production {
       //    { n, FALSE, No, off }    : Boolean false
       is ScalarEvent -> {
         if (event.value == "null" && event.scalarStyle == DumperOptions.ScalarStyle.PLAIN)
-          NullValue(event.startMark.toPos())
+          NullNode(event.startMark.toPos())
         else
-          StringValue(event.value, event.startMark.toPos())
+          StringNode(event.value, event.startMark.toPos())
       }
       else -> throw java.lang.UnsupportedOperationException("Invalid YAML event ${stream.current().id()} at ${stream.current().startMark}")
     }
@@ -99,10 +99,10 @@ object TokenProduction : Production {
 }
 
 object MapProduction : Production {
-  override fun parse(stream: TokenStream<Event>): Value {
+  override fun parse(stream: TokenStream<Event>): Node {
     require(stream.current().`is`(Event.ID.MappingStart))
     val mark = stream.current().startMark
-    val obj = mutableMapOf<String, Value>()
+    val obj = mutableMapOf<String, Node>()
     while (stream.next().id() != Event.ID.MappingEnd) {
       require(stream.current().id() == Event.ID.Scalar)
       val field = stream.current() as ScalarEvent
@@ -112,21 +112,21 @@ object MapProduction : Production {
       obj[fieldName] = value
     }
     require(stream.current().`is`(Event.ID.MappingEnd))
-    return MapValue(obj, mark.toPos())
+    return MapNode(obj, mark.toPos())
   }
 }
 
 object SequenceProduction : Production {
-  override fun parse(stream: TokenStream<Event>): Value {
+  override fun parse(stream: TokenStream<Event>): Node {
     require(stream.current().`is`(Event.ID.SequenceStart))
     val mark = stream.current().startMark
-    val list = mutableListOf<Value>()
+    val list = mutableListOf<Node>()
     while (stream.next().id() != Event.ID.SequenceEnd) {
       val value = TokenProduction.parse(stream)
       list.add(value)
     }
     require(stream.current().`is`(Event.ID.SequenceEnd))
-    return ListValue(list.toList(), mark.toPos())
+    return ListNode(list.toList(), mark.toPos())
   }
 }
 

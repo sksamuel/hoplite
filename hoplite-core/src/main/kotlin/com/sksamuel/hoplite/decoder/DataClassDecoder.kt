@@ -6,22 +6,24 @@ import arrow.data.validNel
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.NullForNonNull
-import com.sksamuel.hoplite.NullValue
-import com.sksamuel.hoplite.Value
+import com.sksamuel.hoplite.NullNode
+import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.arrow.flatMap
 import com.sksamuel.hoplite.arrow.sequence
 import kotlin.reflect.KClass
+import kotlin.reflect.KType
 
-class DataClassDecoder<T : Any>(private val klass: KClass<T>,
-                                private val registry: DecoderRegistry) : Decoder<T> {
+class DataClassDecoder : Decoder<Any> {
 
-  override fun convert(value: Value): ConfigResult<T> {
+  override fun supports(type: KType): Boolean = type.classifier is KClass<*> && (type.classifier as KClass<*>).isData
+
+  override fun decode(node: Node, type: KType, registry: DecoderRegistry): ConfigResult<Any> {
+    val klass = type.classifier as KClass<*>
 
     val args: ValidatedNel<ConfigFailure, List<Any?>> = klass.constructors.first().parameters.map { param ->
-      when (val vv = value.atKey(param.name!!)) {
-        is NullValue ->
-          if (param.type.isMarkedNullable) null.validNel() else NullForNonNull(vv, param.name ?: "<none>").invalidNel()
-        else -> registry.decoder(param.type).flatMap { it.convert(vv) }
+      when (val n = node.atKey(param.name!!)) {
+        is NullNode -> if (param.type.isMarkedNullable) null.validNel() else NullForNonNull(n, param.name!!).invalidNel()
+        else -> registry.decoder(param.type).flatMap { it.decode(n, param.type, registry) }
       }
     }.sequence()
 

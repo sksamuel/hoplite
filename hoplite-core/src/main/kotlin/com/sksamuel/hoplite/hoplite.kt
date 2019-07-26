@@ -2,12 +2,16 @@ package com.sksamuel.hoplite
 
 import arrow.data.ValidatedNel
 import arrow.data.invalidNel
+import kotlin.reflect.KType
 
 typealias ConfigResult<A> = ValidatedNel<ConfigFailure, A>
 
 object ConfigResults {
+  fun NoSuchDecoder(type: KType): ConfigResult<Nothing> = ConfigFailure("No such decoder for $type").invalidNel()
+  fun decodeFailure(node: Node, target: Class<*>?): ConfigResult<Nothing> = TODO()
+  fun decodeFailure(node: Node, error: String): ConfigResult<Nothing> = TODO()
   fun failed(description: String): ConfigResult<Nothing> = ConfigFailure(description).invalidNel()
-  fun failedTypeConversion(value: Value): ConfigResult<Nothing> = ConfigFailure("type conversion failure at $value").invalidNel()
+  fun failedTypeConversion(node: Node): ConfigResult<Nothing> = ConfigFailure("type conversion failure at $node").invalidNel()
 }
 
 /**

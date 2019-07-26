@@ -4,22 +4,17 @@ import arrow.core.Try
 import arrow.data.invalidNel
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
-import com.sksamuel.hoplite.StringValue
-import com.sksamuel.hoplite.Value
+import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.arrow.toValidated
 import java.time.LocalDateTime
 import java.util.*
 import kotlin.reflect.KType
 
-object UUIDDecoder : Decoder<UUID> {
-  override fun convert(value: Value, type: KType): ConfigResult<UUID> = when (value) {
-    is StringValue -> Try { UUID.fromString(value.value) }.toValidated { ConfigFailure("UUID could not be parsed from $value") }.toValidatedNel()
-    else -> ConfigFailure.conversionFailure<LocalDateTime>(value).invalidNel()
-  }
-}
-
-class UUIDDecoderRegistration : DecoderRegistration {
-  override fun register(registry: DecoderRegistry) {
-    registry.register(UUID::class, UUIDDecoder)
+class UUIDDecoder : Decoder<UUID> {
+  override fun supports(type: KType): Boolean = type.classifier == UUID::class
+  override fun decode(node: Node, type: KType, registry: DecoderRegistry): ConfigResult<UUID> = when (node) {
+    is StringNode -> Try { UUID.fromString(node.value) }.toValidated { ConfigFailure("UUID could not be parsed from $node") }.toValidatedNel()
+    else -> ConfigFailure.conversionFailure<LocalDateTime>(node).invalidNel()
   }
 }

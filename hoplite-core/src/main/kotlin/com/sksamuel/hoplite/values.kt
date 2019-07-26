@@ -5,7 +5,7 @@ import arrow.data.validNel
 /**
  * An ADT that models the tree returned from config files.
  */
-interface Value {
+interface Node {
 
   /**
    * Returns the positional information of this value.
@@ -13,44 +13,44 @@ interface Value {
   val pos: Pos
 
   /**
-   * Returns the [Value] stored at the given key of this value.
+   * Returns the [Node] stored at the given key of this value.
    */
-  fun atKey(key: String): Value
+  fun atKey(key: String): Node
 
   /**
-   * Returns the [Value] stored at the index of this value
+   * Returns the [Node] stored at the index of this value
    */
-  fun atIndex(index: Int): Value
+  fun atIndex(index: Int): Node
 
-  fun atPath(path: String): Value {
+  fun atPath(path: String): Node {
     val parts = path.split('.')
     return parts.fold(this, { acc, part -> acc.atKey(part) })
   }
 
   /**
-   * Returns the underlying [Value] as a String, if the value is
-   * a [StringValue] type, otherwise returns an error.
+   * Returns the underlying [Node] as a String, if the value is
+   * a [StringNode] type, otherwise returns an error.
    */
   fun string(): ConfigResult<String> = when (this) {
-    is StringValue -> this.value.validNel()
+    is StringNode -> this.value.validNel()
     else -> ConfigResults.failedTypeConversion(this)
   }
 
-  fun transform(f: (String) -> String): Value = when (this) {
-    is StringValue -> StringValue(f(value), pos)
-    is MapValue -> MapValue(map.map { f(it.key) to it.value.transform(f) }.toMap(), pos)
-    is ListValue -> ListValue(values.map { it.transform(f) }, pos)
+  fun transform(f: (String) -> String): Node = when (this) {
+    is StringNode -> StringNode(f(value), pos)
+    is MapNode -> MapNode(map.map { f(it.key) to it.value.transform(f) }.toMap(), pos)
+    is ListNode -> ListNode(elements.map { it.transform(f) }, pos)
     else -> this
   }
 
-  fun withFallback(fallback: Value): Value = object : Value {
-    override val pos: Pos = this@Value.pos
-    override fun atKey(key: String): Value = this@Value.atKey(key).recover(fallback.atKey(key))
-    override fun atIndex(index: Int): Value = this@Value.atIndex(index).recover(fallback.atIndex(index))
+  fun withFallback(fallback: Node): Node = object : Node {
+    override val pos: Pos = this@Node.pos
+    override fun atKey(key: String): Node = this@Node.atKey(key).recover(fallback.atKey(key))
+    override fun atIndex(index: Int): Node = this@Node.atIndex(index).recover(fallback.atIndex(index))
   }
 
-  fun recover(value: Value): Value = when (this) {
-    is UndefinedValue -> value
+  fun recover(node: Node): Node = when (this) {
+    is UndefinedNode -> node
     else -> this
   }
 }
@@ -67,38 +67,38 @@ sealed class Pos {
   data class LineColPos(override val line: Int, val col: Int) : Pos()
 }
 
-sealed class PrimitiveValue : Value {
+sealed class PrimitiveNode : Node {
   abstract val value: Any?
-  override fun atIndex(index: Int): Value = UndefinedValue(pos)
-  override fun atKey(key: String): Value = UndefinedValue(pos)
+  override fun atIndex(index: Int): Node = UndefinedNode(pos)
+  override fun atKey(key: String): Node = UndefinedNode(pos)
 }
 
-sealed class NumberValue : PrimitiveValue()
+sealed class NumberNode : PrimitiveNode()
 
-data class StringValue(override val value: String, override val pos: Pos) : PrimitiveValue()
-data class BooleanValue(override val value: Boolean, override val pos: Pos) : PrimitiveValue()
-data class LongValue(override val value: Long, override val pos: Pos) : NumberValue()
-data class DoubleValue(override val value: Double, override val pos: Pos) : NumberValue()
-data class NullValue(override val pos: Pos) : PrimitiveValue() {
+data class StringNode(override val value: String, override val pos: Pos) : PrimitiveNode()
+data class BooleanNode(override val value: Boolean, override val pos: Pos) : PrimitiveNode()
+data class LongNode(override val value: Long, override val pos: Pos) : NumberNode()
+data class DoubleNode(override val value: Double, override val pos: Pos) : NumberNode()
+data class NullNode(override val pos: Pos) : PrimitiveNode() {
   override val value: Any? = null
 }
 
-data class UndefinedValue(override val pos: Pos) : Value {
-  override fun atKey(key: String): Value = this
-  override fun atIndex(index: Int): Value = this
+data class UndefinedNode(override val pos: Pos) : Node {
+  override fun atKey(key: String): Node = this
+  override fun atIndex(index: Int): Node = this
 }
 
-sealed class ContainerValue : Value
+sealed class ContainerNode : Node
 
-data class MapValue(val map: Map<String, Value>, override val pos: Pos) : ContainerValue() {
-  override fun atKey(key: String): Value = get(key)
-  override fun atIndex(index: Int): Value = UndefinedValue(pos)
-  operator fun get(key: String): Value = map.getOrDefault(key, UndefinedValue(pos))
+data class MapNode(val map: Map<String, Node>, override val pos: Pos) : ContainerNode() {
+  override fun atKey(key: String): Node = get(key)
+  override fun atIndex(index: Int): Node = UndefinedNode(pos)
+  operator fun get(key: String): Node = map.getOrDefault(key, UndefinedNode(pos))
 }
 
-data class ListValue(val values: List<Value>, override val pos: Pos) : ContainerValue() {
-  override fun atKey(key: String): Value = UndefinedValue(pos)
-  override fun atIndex(index: Int): Value = values.getOrElse(index) { UndefinedValue(pos) }
-  operator fun get(index: Int): Value = atIndex(index)
+data class ListNode(val elements: List<Node>, override val pos: Pos) : ContainerNode() {
+  override fun atKey(key: String): Node = UndefinedNode(pos)
+  override fun atIndex(index: Int): Node = elements.getOrElse(index) { UndefinedNode(pos) }
+  operator fun get(index: Int): Node = atIndex(index)
 
 }

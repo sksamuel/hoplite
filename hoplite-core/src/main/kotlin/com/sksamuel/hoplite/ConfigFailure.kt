@@ -24,7 +24,7 @@ interface ConfigFailure {
   }
 }
 
-data class NullForNonNull(val value: NullValue, val param: String) : ConfigFailure {
+data class NullForNonNull(val value: NullNode, val param: String) : ConfigFailure {
   override fun description(): String = "null value supplied for non-null field $param"
   override fun location(): ConfigLocation? = null
 }
