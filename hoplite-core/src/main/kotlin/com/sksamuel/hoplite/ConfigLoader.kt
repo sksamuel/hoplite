@@ -10,13 +10,14 @@ import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.decoder.defaultRegistry
 import com.sksamuel.hoplite.preprocessor.EnvVarPreprocessor
 import com.sksamuel.hoplite.preprocessor.Preprocessor
+import com.sksamuel.hoplite.preprocessor.TruthyPreprocessor
 import java.io.InputStream
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
 class ConfigLoader(private val parser: Parser,
                    private val registry: DecoderRegistry = defaultRegistry(),
-                   private val preprocessors: List<Preprocessor> = listOf(EnvVarPreprocessor)) {
+                   private val preprocessors: List<Preprocessor> = listOf(EnvVarPreprocessor, TruthyPreprocessor)) {
 
   fun withPreprocessor(preprocessor: Preprocessor) = ConfigLoader(parser, registry, preprocessors + preprocessor)
   fun withDecoder(decoder: Decoder<*>) = ConfigLoader(parser, registry.register(decoder), preprocessors)
