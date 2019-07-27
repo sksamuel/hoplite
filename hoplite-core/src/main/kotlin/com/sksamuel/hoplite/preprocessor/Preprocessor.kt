@@ -17,12 +17,3 @@ abstract class PrefixProcessor(private val prefix: String) : Preprocessor {
   override fun process(value: String): String =
       if (value.startsWith(prefix)) handle(value) else value
 }
-
-object TruthyPreprocessor : Preprocessor {
-  override fun process(value: String): String = when (value.toLowerCase()) {
-    "yes" -> "true"
-    "1" -> "true"
-    "t" -> "true"
-    else -> value
-  }
-}

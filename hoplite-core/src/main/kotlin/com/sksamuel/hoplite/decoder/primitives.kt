@@ -6,6 +6,7 @@ import arrow.data.validNel
 import com.sksamuel.hoplite.BooleanNode
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.ConfigResults
 import com.sksamuel.hoplite.DoubleNode
 import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.StringNode
@@ -78,7 +79,11 @@ class ShortDecoder : BasicDecoder<Short> {
 class BooleanDecoder : BasicDecoder<Boolean> {
   override fun supports(type: KType): Boolean = type.classifier == Boolean::class
   override fun decode(node: Node): ConfigResult<Boolean> = when (node) {
-    is StringNode -> Try { node.value.toBoolean() }.toValidated { ThrowableFailure(it, null) }.toValidatedNel()
+    is StringNode -> when (node.value.toLowerCase()) {
+      "true", "t", "1", "yes" -> true.validNel()
+      "false", "f", "0", "no" -> false.validNel()
+      else -> ConfigResults.decodeFailure(node, Boolean::class)
+    }
     is BooleanNode -> node.value.validNel()
     else -> ConfigFailure.conversionFailure<Boolean>(node).invalidNel()
   }

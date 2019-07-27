@@ -10,7 +10,6 @@ import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.decoder.defaultRegistry
 import com.sksamuel.hoplite.preprocessor.EnvVarPreprocessor
 import com.sksamuel.hoplite.preprocessor.Preprocessor
-import com.sksamuel.hoplite.preprocessor.TruthyPreprocessor
 import java.io.InputStream
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
