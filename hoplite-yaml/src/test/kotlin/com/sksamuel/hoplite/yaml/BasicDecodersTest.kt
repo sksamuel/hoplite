@@ -6,6 +6,8 @@ import com.sksamuel.hoplite.yaml.com.sksamuel.hoplite.yaml.Yaml
 import io.kotlintest.assertions.arrow.validation.shouldBeValid
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.FunSpec
+import java.math.BigDecimal
+import java.math.BigInteger
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -99,6 +101,20 @@ class BasicTypesTest : FunSpec({
     data class Test(val a: String?, val b: Double?)
     ConfigLoader(Yaml).loadConfig<Test>("/test_nulls.yml").shouldBeValid {
       it.a shouldBe Test(null, null)
+    }
+  }
+
+  test("BigDecimal") {
+    data class Test(val a: BigDecimal, val b: BigDecimal)
+    ConfigLoader(Yaml).loadConfig<Test>("/test_bigdecimal.yml").shouldBeValid {
+      it.a shouldBe Test(10.0.toBigDecimal(), 20.3334.toBigDecimal())
+    }
+  }
+
+  test("BigInteger") {
+    data class Test(val a: BigInteger)
+    ConfigLoader(Yaml).loadConfig<Test>("/test_biginteger.yml").shouldBeValid {
+      it.a shouldBe Test(BigInteger.valueOf(10000L))
     }
   }
 })

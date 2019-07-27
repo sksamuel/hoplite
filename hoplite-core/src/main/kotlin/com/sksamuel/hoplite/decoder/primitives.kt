@@ -88,3 +88,4 @@ class BooleanDecoder : BasicDecoder<Boolean> {
     else -> ConfigFailure.conversionFailure<Boolean>(node).invalidNel()
   }
 }
+

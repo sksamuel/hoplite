@@ -15,9 +15,11 @@ com.sksamuel.hoplite.decoder.ByteDecoder
 com.sksamuel.hoplite.decoder.BooleanDecoder
 com.sksamuel.hoplite.decoder.LongDecoder
 com.sksamuel.hoplite.decoder.ListDecoder
+com.sksamuel.hoplite.decoder.SetDecoder
 com.sksamuel.hoplite.decoder.MapDecoder
 com.sksamuel.hoplite.decoder.DataClassDecoder
 com.sksamuel.hoplite.decoder.NonEmptyListDecoder
 com.sksamuel.hoplite.decoder.FileDecoder
 com.sksamuel.hoplite.decoder.PathDecoder
-com.sksamuel.hoplite.decoder.SetDecoder
+com.sksamuel.hoplite.decoder.BigIntegerDecoder
+com.sksamuel.hoplite.decoder.BigDecimalDecoder
