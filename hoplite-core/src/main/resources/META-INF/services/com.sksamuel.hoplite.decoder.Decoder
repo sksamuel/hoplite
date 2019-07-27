@@ -20,3 +20,4 @@ com.sksamuel.hoplite.decoder.DataClassDecoder
 com.sksamuel.hoplite.decoder.NonEmptyListDecoder
 com.sksamuel.hoplite.decoder.FileDecoder
 com.sksamuel.hoplite.decoder.PathDecoder
+com.sksamuel.hoplite.decoder.SetDecoder

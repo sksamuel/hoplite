@@ -17,7 +17,7 @@ import kotlin.reflect.full.createType
 
 class ConfigLoader(private val parser: Parser,
                    private val registry: DecoderRegistry = defaultRegistry(),
-                   private val preprocessors: List<Preprocessor> = listOf(EnvVarPreprocessor, TruthyPreprocessor)) {
+                   private val preprocessors: List<Preprocessor> = listOf(EnvVarPreprocessor)) {
 
   fun withPreprocessor(preprocessor: Preprocessor) = ConfigLoader(parser, registry, preprocessors + preprocessor)
   fun withDecoder(decoder: Decoder<*>) = ConfigLoader(parser, registry.register(decoder), preprocessors)
