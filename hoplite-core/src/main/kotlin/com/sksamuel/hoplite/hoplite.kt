@@ -8,6 +8,7 @@ import kotlin.reflect.KType
 typealias ConfigResult<A> = ValidatedNel<ConfigFailure, A>
 
 object ConfigResults {
+  fun NoSuchParser(ext: String): ConfigResult<Nothing> = ConfigFailure("No such parser for ext $ext").invalidNel()
   fun NoSuchDecoder(type: KType): ConfigResult<Nothing> = ConfigFailure("No such decoder for $type").invalidNel()
   fun decodeFailure(node: Node, target: KClass<*>?): ValidatedNel<ConfigFailure, Nothing> {
     return ConfigFailure("Could not convert $node into an instance of $target").invalidNel()

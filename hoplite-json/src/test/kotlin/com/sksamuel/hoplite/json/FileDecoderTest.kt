@@ -9,7 +9,7 @@ import java.io.File
 class FileDecoderTest : StringSpec({
   "file decoded from json" {
     data class Test(val file: File)
-    ConfigLoader(Json).loadConfig<Test>("/test_file.json").shouldBeValid {
+    ConfigLoader().loadConfig<Test>("/test_file.json").shouldBeValid {
       it.a shouldBe Test(File("/home/user/sam"))
     }
   }

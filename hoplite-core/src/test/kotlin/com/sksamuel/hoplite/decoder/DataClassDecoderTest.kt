@@ -24,7 +24,7 @@ class DataClassDecoderTest : StringSpec() {
           ),
           Pos.NoPos
       )
-      DataClassDecoder().decode(node, Foo::class.createType(), defaultRegistry()) shouldBe
+      DataClassDecoder().decode(node, Foo::class.createType(), defaultDecoderRegistry()) shouldBe
           Foo("hello", 123, true).valid()
     }
 
@@ -40,7 +40,7 @@ class DataClassDecoderTest : StringSpec() {
           Pos.NoPos
       )
 
-      DataClassDecoder().decode(node, Foo::class.createType(), defaultRegistry()) shouldBe
+      DataClassDecoder().decode(node, Foo::class.createType(), defaultDecoderRegistry()) shouldBe
           Foo(null, null, null).valid()
     }
 
@@ -55,7 +55,7 @@ class DataClassDecoderTest : StringSpec() {
           ),
           Pos.NoPos
       )
-      DataClassDecoder().decode(node, Foo::class.createType(), defaultRegistry()) shouldBe
+      DataClassDecoder().decode(node, Foo::class.createType(), defaultDecoderRegistry()) shouldBe
           Foo("hello", 123, true).valid()
     }
   }

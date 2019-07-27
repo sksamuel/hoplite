@@ -1,4 +1,4 @@
-package com.sksamuel.hoplite.yaml.com.sksamuel.hoplite.yaml
+package com.sksamuel.hoplite.yaml
 
 import com.sksamuel.hoplite.ListNode
 import com.sksamuel.hoplite.MapNode
@@ -25,7 +25,8 @@ import org.yaml.snakeyaml.events.StreamStartEvent
 import java.io.InputStream
 import java.io.InputStreamReader
 
-object Yaml : Parser {
+class YamlParser : Parser {
+  override fun defaultFileExtensions(): List<String> = listOf("yml", "yaml")
   private val yaml = Yaml(SafeConstructor())
   override fun load(input: InputStream): Node {
     val reader = InputStreamReader(input)

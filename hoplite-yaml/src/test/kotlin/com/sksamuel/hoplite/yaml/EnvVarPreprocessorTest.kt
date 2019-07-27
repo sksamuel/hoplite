@@ -1,7 +1,6 @@
 package com.sksamuel.hoplite.yaml
 
 import com.sksamuel.hoplite.ConfigLoader
-import com.sksamuel.hoplite.yaml.com.sksamuel.hoplite.yaml.Yaml
 import io.kotlintest.extensions.system.withEnvironment
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.FunSpec
@@ -18,7 +17,7 @@ class EnvVarPreprocessorTest : FunSpec() {
   init {
     test("replace env vars") {
       withEnvironment("wibble", "wobble") {
-        ConfigLoader(Yaml).loadConfigOrThrow<Test>("/test_env_replacement.yml") shouldBe
+        ConfigLoader().loadConfigOrThrow<Test>("/test_env_replacement.yml") shouldBe
             Test(a = "foo", b = "wibble", c = "aawibble", d = "wibblebb", e = "aawibblebb", f = "unknown")
       }
     }

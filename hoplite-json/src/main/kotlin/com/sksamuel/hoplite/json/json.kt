@@ -17,7 +17,7 @@ import com.sksamuel.hoplite.Node
 import java.io.InputStream
 import java.lang.UnsupportedOperationException
 
-object Json : Parser {
+class JsonParser : Parser {
 
   private val jsonFactory = JsonFactory()
 
@@ -26,6 +26,8 @@ object Json : Parser {
     parser.nextToken()
     return TokenProduction.parse(parser)
   }
+
+  override fun defaultFileExtensions(): List<String> = listOf("json")
 }
 
 interface Production {

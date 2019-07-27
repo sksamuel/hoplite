@@ -10,7 +10,7 @@ import java.nio.file.Paths
 class PathDecoderTest : StringSpec({
   "Path decoded from json" {
     data class Test(val path: Path)
-    ConfigLoader(Json).loadConfig<Test>("/test_path.json").shouldBeValid {
+    ConfigLoader().loadConfig<Test>("/test_path.json").shouldBeValid {
       it.a shouldBe Test(Paths.get("/home/user/sam"))
     }
   }

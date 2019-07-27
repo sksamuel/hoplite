@@ -6,15 +6,15 @@ import com.sksamuel.hoplite.ListNode
 import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.StringNode
-import io.kotlintest.shouldBe
 import io.kotlintest.specs.FunSpec
 import com.sksamuel.hoplite.Pos.LineColPos
+import io.kotlintest.shouldBe
 
 class JsonTest : FunSpec() {
   init {
 
     test("parsing basic json") {
-      Json.load(javaClass.getResourceAsStream("/basic.json")) shouldBe
+      JsonParser().load(javaClass.getResourceAsStream("/basic.json")) shouldBe
           MapNode(
               mapOf(
                   "a" to StringNode(value = "hello", pos = LineColPos(line = 2, col = 15)),
@@ -27,7 +27,7 @@ class JsonTest : FunSpec() {
     }
 
     test("parsing nested basic arrays") {
-      Json.load(javaClass.getResourceAsStream("/nested_basic_arrays.json")) shouldBe
+      JsonParser().load(javaClass.getResourceAsStream("/nested_basic_arrays.json")) shouldBe
           MapNode(
               mapOf(
                   "a" to StringNode(value = "hello", pos = LineColPos(line = 2, col = 15)),
@@ -45,7 +45,7 @@ class JsonTest : FunSpec() {
     }
 
     test("parsing nested container arrays") {
-      Json.load(javaClass.getResourceAsStream("/nested_container_arrays.json")) shouldBe
+      JsonParser().load(javaClass.getResourceAsStream("/nested_container_arrays.json")) shouldBe
           MapNode(
               mapOf(
                   "a" to StringNode(value = "hello", pos = LineColPos(line = 2, col = 15)),

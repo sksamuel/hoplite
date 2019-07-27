@@ -8,7 +8,7 @@ import io.kotlintest.specs.StringSpec
 class TruthyTest : StringSpec({
   "yes/no values" {
     data class Foo(val a: Boolean, val b: Boolean, val c: Boolean, val d: Boolean, val e: Boolean, val f: Boolean)
-    ConfigLoader(Json).loadConfig<Foo>("/truthy_yesno.json").shouldBeValid {
+    ConfigLoader().loadConfig<Foo>("/truthy_yesno.json").shouldBeValid {
       it.a.a shouldBe true
       it.a.b shouldBe false
       it.a.c shouldBe true
@@ -19,14 +19,14 @@ class TruthyTest : StringSpec({
   }
   "1/0 values" {
     data class Foo(val a: Boolean, val b: Boolean)
-    ConfigLoader(Json).loadConfig<Foo>("/truthy_10.json").shouldBeValid {
+    ConfigLoader().loadConfig<Foo>("/truthy_10.json").shouldBeValid {
       it.a.a shouldBe true
       it.a.b shouldBe false
     }
   }
   "T/F values" {
     data class Foo(val a: Boolean, val b: Boolean, val c: Boolean, val d: Boolean)
-    ConfigLoader(Json).loadConfig<Foo>("/truthy_TF.json").shouldBeValid {
+    ConfigLoader().loadConfig<Foo>("/truthy_TF.json").shouldBeValid {
       it.a.a shouldBe true
       it.a.b shouldBe true
       it.a.c shouldBe false

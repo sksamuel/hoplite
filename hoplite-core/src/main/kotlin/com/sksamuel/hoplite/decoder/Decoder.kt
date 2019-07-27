@@ -34,7 +34,7 @@ class DefaultDecoderRegistry(private val decoders: List<Decoder<*>>) : DecoderRe
   override fun register(decoder: Decoder<*>): DecoderRegistry = DefaultDecoderRegistry(decoders + decoder)
 }
 
-fun defaultRegistry(): DecoderRegistry {
+fun defaultDecoderRegistry(): DecoderRegistry {
   return ServiceLoader.load(Decoder::class.java).toList()
       .fold(DecoderRegistry.zero) { registry, decoder -> registry.register(decoder) }
 }

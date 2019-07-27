@@ -8,7 +8,7 @@ import io.kotlintest.specs.StringSpec
 class SetDecoderTest : StringSpec({
   "file decoded from json" {
     data class Test(val a: Set<Long>, val b: Set<String>)
-    ConfigLoader(Json).loadConfig<Test>("/sets.json").shouldBeValid {
+    ConfigLoader().loadConfig<Test>("/sets.json").shouldBeValid {
       it.a shouldBe Test(setOf(1, 2, 3), setOf("1", "2"))
     }
   }

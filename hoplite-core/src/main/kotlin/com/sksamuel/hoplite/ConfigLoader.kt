@@ -7,19 +7,31 @@ import com.sksamuel.hoplite.arrow.flatMap
 import com.sksamuel.hoplite.arrow.sequence
 import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.decoder.DecoderRegistry
-import com.sksamuel.hoplite.decoder.defaultRegistry
+import com.sksamuel.hoplite.decoder.defaultDecoderRegistry
 import com.sksamuel.hoplite.preprocessor.EnvVarPreprocessor
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import java.io.InputStream
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
-class ConfigLoader(private val parser: Parser,
-                   private val registry: DecoderRegistry = defaultRegistry(),
+class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoderRegistry(),
+                   private val parserRegistry: ParserRegistry = defaultParserRegistry(),
                    private val preprocessors: List<Preprocessor> = listOf(EnvVarPreprocessor)) {
 
-  fun withPreprocessor(preprocessor: Preprocessor) = ConfigLoader(parser, registry, preprocessors + preprocessor)
-  fun withDecoder(decoder: Decoder<*>) = ConfigLoader(parser, registry.register(decoder), preprocessors)
+  fun withPreprocessor(preprocessor: Preprocessor) = ConfigLoader(
+      decoderRegistry,
+      parserRegistry,
+      preprocessors + preprocessor)
+
+  fun withDecoder(decoder: Decoder<*>) = ConfigLoader(
+      decoderRegistry.register(decoder),
+      parserRegistry,
+      preprocessors)
+
+  fun withFileExtensionMapping(ext: String, parser: Parser) = ConfigLoader(
+      decoderRegistry,
+      parserRegistry.register(ext, parser),
+      preprocessors)
 
   /**
    * Attempts to load config from the specified resources on the class path and returns
@@ -52,17 +64,21 @@ class ConfigLoader(private val parser: Parser,
    */
   fun <A : Any> loadConfig(klass: KClass<A>, vararg resources: String): ConfigResult<A> {
 
-    data class Input(val resource: String, val stream: InputStream)
+    data class Input(val resource: String, val stream: InputStream, val parser: Parser, val ext: String)
 
     val streams = resources.map { resource ->
       this.javaClass.getResourceAsStream(resource).toOption().fold(
           { ConfigFailure("Could not find resource $resource").invalidNel() },
-          { Input(resource, it).validNel() }
+          { stream ->
+            val ext = resource.split('.').last()
+            val parser = parserRegistry.locate(ext)?.validNel() ?: ConfigResults.NoSuchParser(ext)
+            parser.map { Input(resource, stream, it, ext) }
+          }
       )
     }.sequence()
 
     val root = streams.map {
-      it.map { input -> parser.load(input.stream) }
+      it.map { input -> input.parser.load(input.stream) }
     }.map { cs ->
       cs.map { c ->
         preprocessors.fold(c) { acc, p -> acc.transform(p::process) }
@@ -70,8 +86,8 @@ class ConfigLoader(private val parser: Parser,
     }
 
     return root.flatMap { node ->
-      registry.decoder(klass).flatMap { decoder ->
-        decoder.decode(node, klass.createType(), registry)
+      decoderRegistry.decoder(klass).flatMap { decoder ->
+        decoder.decode(node, klass.createType(), decoderRegistry)
       }
     }
   }

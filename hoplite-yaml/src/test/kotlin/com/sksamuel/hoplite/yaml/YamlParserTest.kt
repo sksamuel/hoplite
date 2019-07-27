@@ -4,16 +4,15 @@ import com.sksamuel.hoplite.ListNode
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.StringNode
-import io.kotlintest.shouldBe
 import io.kotlintest.specs.FunSpec
 import com.sksamuel.hoplite.Pos.LineColPos
-import com.sksamuel.hoplite.yaml.com.sksamuel.hoplite.yaml.Yaml
+import io.kotlintest.shouldBe
 
-class YamlTest : FunSpec() {
+class YamlParserTest : FunSpec() {
   init {
 
     test("parsing basic json") {
-      Yaml.load(javaClass.getResourceAsStream("/basic.yml")) shouldBe
+      YamlParser().load(javaClass.getResourceAsStream("/basic.yml")) shouldBe
           MapNode(
               mapOf(
                   "a" to StringNode(value = "hello", pos = LineColPos(line = 0, col = 5)),
@@ -26,7 +25,7 @@ class YamlTest : FunSpec() {
     }
 
     test("parsing null fields") {
-      Yaml.load(javaClass.getResourceAsStream("/nulls.yml")) shouldBe
+      YamlParser().load(javaClass.getResourceAsStream("/nulls.yml")) shouldBe
           MapNode(
               map = mapOf(
                   "a" to NullNode(pos = LineColPos(line = 0, col = 3)),
@@ -43,7 +42,7 @@ class YamlTest : FunSpec() {
     }
 
     test("parsing nested basic arrays") {
-      Yaml.load(javaClass.getResourceAsStream("/nested_basic_arrays.yml")) shouldBe
+      YamlParser().load(javaClass.getResourceAsStream("/nested_basic_arrays.yml")) shouldBe
           MapNode(
               mapOf(
                   "a" to StringNode(value = "hello", pos = LineColPos(line = 0, col = 5)),
@@ -61,7 +60,7 @@ class YamlTest : FunSpec() {
     }
 
     test("parsing nested container arrays") {
-      Yaml.load(javaClass.getResourceAsStream("/nested_container_arrays.yml")) shouldBe
+      YamlParser().load(javaClass.getResourceAsStream("/nested_container_arrays.yml")) shouldBe
           MapNode(
               mapOf(
                   "a" to StringNode(value = "hello", pos = LineColPos(line = 0, col = 5)),
