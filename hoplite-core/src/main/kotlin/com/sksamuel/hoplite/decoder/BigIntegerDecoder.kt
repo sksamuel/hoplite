@@ -23,3 +23,4 @@ class BigIntegerDecoder : BasicDecoder<BigInteger> {
     else -> ConfigFailure.conversionFailure<Short>(node).invalidNel()
   }
 }
+

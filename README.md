@@ -35,6 +35,11 @@ Hoplite is a Kotlin library for loading configuration files into typesafe classe
 | `X500Principal` |
 | `KerberosPrincipal` |
 | `JMXPrincipal` |
+| `Principal` |
+| `File` |
+| `Path` |
+| `BigInteger` |
+| `BigDecimal` |
 
 
 
