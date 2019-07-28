@@ -16,19 +16,19 @@ Hoplite is a Kotlin library for loading configuration files into typesafe classe
 
 ### Supported Types
 
-| JVM Type  |
-|---|
+| JDK Type  | Conversion Notes |
+|---|---|
 | `String` |
 | `Long` |
 | `Int` |
 | `Boolean` |
 | `Double` |
 | `Float` |
-| `Enums` |
+| `Enums` | Java and Kotlin enums are both supported. An instance of the defined Enum class will be created with the constant value given in config. |
 | `LocalDateTime` |
 | `LocalDate` |
 | `Duration` |
-| `UUID` |
+| `UUID` | Creates a java.util.UUID from a String |
 | `List<A>` |
 | `Map<K,V>` |
 | `arrow.data.NonEmptyList<A>` |
@@ -36,10 +36,12 @@ Hoplite is a Kotlin library for loading configuration files into typesafe classe
 | `KerberosPrincipal` |
 | `JMXPrincipal` |
 | `Principal` |
-| `File` |
-| `Path` |
-| `BigInteger` |
-| `BigDecimal` |
+| `File` | Creates a java.io.File from a String path / filename |
+| `Path` | Creates a java.nio.Path from a String path / filename |
+| `BigInteger` | Converts from a String, Long or Int into a BigInteger. |
+| `BigDecimal` | Converts from a String, Long, Int, Double, or Float into a BigDecimal |
+| `arrow.core.Tuple2` | Converts from an array of two elements into an instance of `Tuple2<A,B>`.  Will fail if the array does not have exactly two elements.|
+| `arrow.core.Tuple3` | Converts from an array of three elements into an instance of `Tuple2<A,B,C>`. Will fail if the array does not have exactly three elements. |
 
 
 
