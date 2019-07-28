@@ -3,4 +3,5 @@ include 'hoplite-core',
         'hoplite-toml',
         'hoplite-yaml',
         'hoplite-hdfs',
+        'hoplite-props',
         'hoplite-aws'

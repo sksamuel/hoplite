@@ -80,6 +80,10 @@ sealed class Pos {
     override val line: Int = -1
   }
 
+  data class FilePos(val source: String) : Pos() {
+    override val line: Int = -1
+  }
+
   data class LineColPos(override val line: Int, val col: Int, val source: String) : Pos() {
     override fun toString(): String = "($source:$line:$col)"
   }
