@@ -1,0 +1,2 @@
+a: $RANDOM_STRING(6)
+b: hello $RANDOM_STRING(12)
