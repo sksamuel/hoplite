@@ -27,21 +27,23 @@ Hoplite is a Kotlin library for loading configuration files into typesafe classe
 | `Enums` | Java and Kotlin enums are both supported. An instance of the defined Enum class will be created with the constant value given in config. |
 | `LocalDateTime` |
 | `LocalDate` |
-| `Duration` |
-| `UUID` | Creates a java.util.UUID from a String |
-| `List<A>` |
+| `Duration` | Converts a String into a Duration, where the string uses a value and unit such as "10 seconds" or "5m". Also supports a long value which will be interpreted as a Duration of milliseconds. |
+| `UUID` | Creates a `java.util.UUID` from a String |
+| `List<A>` | Creates a List from either an array or a string delimited by commas. 
+| `Set<A>` | Creates a Set from either an array or a string delimited by commas. 
 | `Map<K,V>` |
-| `arrow.data.NonEmptyList<A>` |
-| `X500Principal` |
-| `KerberosPrincipal` |
-| `JMXPrincipal` |
-| `Principal` |
-| `File` | Creates a java.io.File from a String path / filename |
-| `Path` | Creates a java.nio.Path from a String path / filename |
+| `arrow.data.NonEmptyList<A>` | Converts arrays into a `NonEmptyList<A>` if the array is non empty. If the array is empty then an error is raised.
+| `X500Principal` | Creates an instance of `X500Principal` for String values |
+| `KerberosPrincipal` | Creates an instance of `KerberosPrincipal` for String values |
+| `JMXPrincipal` | Creates an instance of `JMXPrincipal` for String values |
+| `Principal` | Creates an instance of `BasicPrincipal` for String values |
+| `File` | Creates a java.io.File from a String path |
+| `Path` | Creates a java.nio.Path from a String path |
 | `BigInteger` | Converts from a String, Long or Int into a BigInteger. |
 | `BigDecimal` | Converts from a String, Long, Int, Double, or Float into a BigDecimal |
-| `arrow.core.Tuple2` | Converts from an array of two elements into an instance of `Tuple2<A,B>`.  Will fail if the array does not have exactly two elements.|
-| `arrow.core.Tuple3` | Converts from an array of three elements into an instance of `Tuple2<A,B,C>`. Will fail if the array does not have exactly three elements. |
+| `arrow.core.Option<A>` | A `None` is used for null or undefined values, and present values are converted to a `Some<A>` |
+| `arrow.core.Tuple2<A,B>` | Converts from an array of two elements into an instance of `Tuple2<A,B>`.  Will fail if the array does not have exactly two elements.|
+| `arrow.core.Tuple3<A,B,C>` | Converts from an array of three elements into an instance of `Tuple2<A,B,C>`. Will fail if the array does not have exactly three elements. |
 
 
 
