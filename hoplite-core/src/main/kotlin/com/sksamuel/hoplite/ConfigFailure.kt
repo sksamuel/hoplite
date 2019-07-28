@@ -54,6 +54,11 @@ sealed class ConfigFailure {
     override fun pos(): Pos = Pos.NoPos
   }
 
+  data class Generic(val msg: String) : ConfigFailure() {
+    override fun description(): String = msg
+    override fun pos(): Pos = Pos.NoPos
+  }
+
   data class InvalidEnumConstant(val node: Node,
                                  val path: String,
                                  val type: KType,
