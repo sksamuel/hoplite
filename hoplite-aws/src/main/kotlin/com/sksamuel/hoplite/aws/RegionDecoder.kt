@@ -9,14 +9,15 @@ import com.sksamuel.hoplite.ConfigResults
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.arrow.toValidated
-import com.sksamuel.hoplite.decoder.BasicDecoder
+import com.sksamuel.hoplite.decoder.DecoderRegistry
+import com.sksamuel.hoplite.decoder.NonNullableDecoder
 import kotlin.reflect.KType
 
-class RegionDecoder : BasicDecoder<Region> {
+class RegionDecoder : NonNullableDecoder<Region> {
 
   override fun supports(type: KType): Boolean = type.classifier == Region::class
 
-  override fun decode(node: Node, path: String): ConfigResult<Region> {
+  override fun safeDecode(node: Node, type: KType, registry: DecoderRegistry, path: String): ConfigResult<Region> {
     fun regionFromName(name: String): ConfigResult<Region> =
         Try { Region.getRegion(Regions.fromName(name)) }
             .toValidated { ConfigFailure("Cannot create region from $name") }

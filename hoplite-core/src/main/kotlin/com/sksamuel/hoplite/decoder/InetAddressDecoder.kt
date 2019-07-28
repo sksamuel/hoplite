@@ -11,9 +11,12 @@ import com.sksamuel.hoplite.arrow.toValidated
 import java.net.InetAddress
 import kotlin.reflect.KType
 
-class InetAddressDecoder : BasicDecoder<InetAddress> {
+class InetAddressDecoder : NonNullableDecoder<InetAddress> {
   override fun supports(type: KType): Boolean = type.classifier == InetAddress::class
-  override fun decode(node: Node, path: String): ConfigResult<InetAddress> = when (node) {
+  override fun safeDecode(node: Node,
+                          type: KType,
+                          registry: DecoderRegistry,
+                          path: String): ConfigResult<InetAddress> = when (node) {
     is StringNode -> Try { InetAddress.getByName(node.value) }.toValidated {
       ThrowableFailure(it)
     }.toValidatedNel()

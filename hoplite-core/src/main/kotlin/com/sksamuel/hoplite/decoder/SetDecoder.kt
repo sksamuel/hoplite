@@ -12,14 +12,14 @@ import kotlin.reflect.KType
 import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.starProjectedType
 
-class SetDecoder : Decoder<Set<*>> {
+class SetDecoder : NonNullableDecoder<Set<*>> {
 
   override fun supports(type: KType): Boolean = type.isSubtypeOf(Set::class.starProjectedType)
 
-  override fun decode(node: Node,
-                      type: KType,
-                      registry: DecoderRegistry,
-                      path: String): ConfigResult<Set<*>> {
+  override fun safeDecode(node: Node,
+                          type: KType,
+                          registry: DecoderRegistry,
+                          path: String): ConfigResult<Set<*>> {
     require(type.arguments.size == 1)
 
     val t = type.arguments[0].type!!

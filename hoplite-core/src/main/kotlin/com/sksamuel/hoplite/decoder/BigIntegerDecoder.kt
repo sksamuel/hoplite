@@ -13,9 +13,12 @@ import com.sksamuel.hoplite.arrow.toValidated
 import java.math.BigInteger
 import kotlin.reflect.KType
 
-class BigIntegerDecoder : BasicDecoder<BigInteger> {
+class BigIntegerDecoder : NonNullableDecoder<BigInteger> {
   override fun supports(type: KType): Boolean = type.classifier == BigInteger::class
-  override fun decode(node: Node, path: String): ConfigResult<BigInteger> = when (node) {
+  override fun safeDecode(node: Node,
+                          type: KType,
+                          registry: DecoderRegistry,
+                          path: String): ConfigResult<BigInteger> = when (node) {
     is StringNode -> Try { node.value.toLong().toBigInteger() }.toValidated {
       ThrowableFailure(it)
     }.toValidatedNel()

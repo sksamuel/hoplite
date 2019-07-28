@@ -18,29 +18,29 @@ fun <T> viaString(node: Node, path: String, type: KType, f: (String) -> T): Conf
   }
 }
 
-class KerberosPrincipalDecoder : Decoder<KerberosPrincipal> {
+class KerberosPrincipalDecoder : NonNullableDecoder<KerberosPrincipal> {
   override fun supports(type: KType): Boolean = type.classifier == KerberosPrincipal::class
-  override fun decode(node: Node,
-                      type: KType,
-                      registry: DecoderRegistry,
-                      path: String): ConfigResult<KerberosPrincipal> =
+  override fun safeDecode(node: Node,
+                          type: KType,
+                          registry: DecoderRegistry,
+                          path: String): ConfigResult<KerberosPrincipal> =
     viaString(node, path, type) { KerberosPrincipal(it) }
 }
 
-class JMXPrincipalDecoder : Decoder<JMXPrincipal> {
+class JMXPrincipalDecoder : NonNullableDecoder<JMXPrincipal> {
   override fun supports(type: KType): Boolean = type.classifier == JMXPrincipal::class
-  override fun decode(node: Node,
-                      type: KType,
-                      registry: DecoderRegistry,
-                      path: String): ConfigResult<JMXPrincipal> =
+  override fun safeDecode(node: Node,
+                          type: KType,
+                          registry: DecoderRegistry,
+                          path: String): ConfigResult<JMXPrincipal> =
     viaString(node, path, type) { JMXPrincipal(it) }
 }
 
-class X500PrincipalDecoder : Decoder<X500Principal> {
+class X500PrincipalDecoder : NonNullableDecoder<X500Principal> {
   override fun supports(type: KType): Boolean = type.classifier == X500Principal::class
-  override fun decode(node: Node,
-                      type: KType,
-                      registry: DecoderRegistry,
-                      path: String): ConfigResult<X500Principal> =
+  override fun safeDecode(node: Node,
+                          type: KType,
+                          registry: DecoderRegistry,
+                          path: String): ConfigResult<X500Principal> =
     viaString(node, path, type) { X500Principal(it) }
 }

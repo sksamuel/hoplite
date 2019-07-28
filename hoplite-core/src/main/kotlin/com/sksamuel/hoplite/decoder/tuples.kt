@@ -12,14 +12,14 @@ import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.arrow.flatMap
 import kotlin.reflect.KType
 
-class Tuple2Decoder : Decoder<Tuple2<*, *>> {
+class Tuple2Decoder : NonNullableDecoder<Tuple2<*, *>> {
 
   override fun supports(type: KType): Boolean = type.classifier == Tuple2::class
 
-  override fun decode(node: Node,
-                      type: KType,
-                      registry: DecoderRegistry,
-                      path: String): ConfigResult<Tuple2<*, *>> {
+  override fun safeDecode(node: Node,
+                          type: KType,
+                          registry: DecoderRegistry,
+                          path: String): ConfigResult<Tuple2<*, *>> {
 
     fun decode(node: ListNode): ConfigResult<Tuple2<Any?, Any?>> {
       return if (node.elements.size == 2) {
@@ -38,14 +38,14 @@ class Tuple2Decoder : Decoder<Tuple2<*, *>> {
   }
 }
 
-class Tuple3Decoder : Decoder<Tuple3<*, *, *>> {
+class Tuple3Decoder : NonNullableDecoder<Tuple3<*, *, *>> {
 
   override fun supports(type: KType): Boolean = type.classifier == Tuple3::class
 
-  override fun decode(node: Node,
-                      type: KType,
-                      registry: DecoderRegistry,
-                      path: String): ConfigResult<Tuple3<*, *, *>> {
+  override fun safeDecode(node: Node,
+                          type: KType,
+                          registry: DecoderRegistry,
+                          path: String): ConfigResult<Tuple3<*, *, *>> {
 
     fun decode(node: ListNode): ConfigResult<Tuple3<Any?, Any?, Any?>> {
       return if (node.elements.size == 3) {

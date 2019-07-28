@@ -17,9 +17,12 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import kotlin.reflect.KType
 
-class LocalDateTimeDecoder : BasicDecoder<LocalDateTime> {
+class LocalDateTimeDecoder : NonNullableDecoder<LocalDateTime> {
   override fun supports(type: KType): Boolean = type.classifier == LocalDateTime::class
-  override fun decode(node: Node, path: String): ConfigResult<LocalDateTime> = when (node) {
+  override fun safeDecode(node: Node,
+                          type: KType,
+                          registry: DecoderRegistry,
+                          path: String): ConfigResult<LocalDateTime> = when (node) {
     //is java.util.Date -> LocalDateTime.ofInstant(v.toInstant(), ZoneOffset.UTC).validNel()
     //is LocalDateTime -> v.validNel()
     is LongNode -> LocalDateTime.ofInstant(Instant.ofEpochMilli(node.value), ZoneOffset.UTC).validNel()
@@ -28,9 +31,12 @@ class LocalDateTimeDecoder : BasicDecoder<LocalDateTime> {
   }
 }
 
-class LocalDateDecoder : BasicDecoder<LocalDate> {
+class LocalDateDecoder : NonNullableDecoder<LocalDate> {
   override fun supports(type: KType): Boolean = type.classifier == LocalDate::class
-  override fun decode(node: Node, path: String): ConfigResult<LocalDate> = when (node) {
+  override fun safeDecode(node: Node,
+                          type: KType,
+                          registry: DecoderRegistry,
+                          path: String): ConfigResult<LocalDate> = when (node) {
     //    is java.util.Date -> LocalDateTime.ofInstant(v.toInstant(), ZoneOffset.UTC).toLocalDate().valid()
     //    is LocalDate -> v.validNel()
     is StringNode -> LocalDate.parse(node.value).validNel()
@@ -38,9 +44,12 @@ class LocalDateDecoder : BasicDecoder<LocalDate> {
   }
 }
 
-class DurationDecoder : BasicDecoder<Duration> {
+class DurationDecoder : NonNullableDecoder<Duration> {
   override fun supports(type: KType): Boolean = type.classifier == Duration::class
-  override fun decode(node: Node, path: String): ConfigResult<Duration> = when (node) {
+  override fun safeDecode(node: Node,
+                          type: KType,
+                          registry: DecoderRegistry,
+                          path: String): ConfigResult<Duration> = when (node) {
     is StringNode -> parseDuration(node.value)
     is LongNode -> Duration.ofMillis(node.value).valid()
     else -> ConfigFailure.conversionFailure<LocalDateTime>(node).invalidNel()

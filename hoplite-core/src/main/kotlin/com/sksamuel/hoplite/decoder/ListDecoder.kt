@@ -21,21 +21,21 @@ class ListDecoder : Decoder<List<*>> {
                       registry: DecoderRegistry,
                       path: String): ConfigResult<List<*>> {
     require(type.arguments.size == 1)
-
-    fun <T> decode(node: ListNode, type: KType, decoder: Decoder<T>): ConfigResult<List<T>> {
-      return node.elements.map { decoder.decode(it, type, registry, path) }.sequence()
-    }
-
-    fun <T> decode(node: StringNode, type: KType, decoder: Decoder<T>): ConfigResult<List<T>> {
-      val tokens = node.value.split(",").map { it.trim() }
-      return tokens.map { decoder.decode(StringNode(it, node.pos, node.dotpath), type, registry, path) }.sequence()
-    }
-
     val t = type.arguments[0].type!!
+
+    fun <T> decode(node: ListNode, decoder: Decoder<T>): ConfigResult<List<T>> {
+      return node.elements.map { decoder.decode(it, t, registry, path) }.sequence()
+    }
+
+    fun <T> decode(node: StringNode, decoder: Decoder<T>): ConfigResult<List<T>> {
+      val tokens = node.value.split(",").map { it.trim() }
+      return tokens.map { decoder.decode(StringNode(it, node.pos, node.dotpath), t, registry, path) }.sequence()
+    }
+
     return registry.decoder(t, path).flatMap { decoder ->
       when (node) {
-        is ListNode -> decode(node, t, decoder)
-        is StringNode -> decode(node, t, decoder)
+        is ListNode -> decode(node, decoder)
+        is StringNode -> decode(node, decoder)
         else -> ConfigFailure.UnsupportedListType(node, path).invalidNel()
       }
     }

@@ -40,7 +40,7 @@ sealed class ConfigFailure {
   }
 
   data class NullValueForNonNullField(val node: NullNode, val path: String) : ConfigFailure() {
-    override fun description(): String = "qweqwe${node}"
+    override fun description(): String = "Null value provided for non null path $node"
     override fun pos(): Pos = node.pos
   }
 
@@ -63,7 +63,7 @@ sealed class ConfigFailure {
                                  val path: String,
                                  val type: KType,
                                  val value: String) : ConfigFailure() {
-    override fun description(): String = "qweqweqwe ${node.dotpath}"
+    override fun description(): String = "Enum constant $value is not valid for ${node.dotpath}"
     override fun pos(): Pos = node.pos
   }
 }

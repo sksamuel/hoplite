@@ -7,17 +7,28 @@ import com.amazonaws.regions.Regions
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.decoder.DecoderRegistry
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
+import kotlin.reflect.full.createType
 
 class RegionDecoderProviderTest : StringSpec() {
   init {
     "region converter" {
-      RegionDecoder().decode(StringNode("us-east-1", Pos.NoPos, dotpath = ""), "") shouldBe
-        Region.getRegion(Regions.US_EAST_1).valid()
+      RegionDecoder().safeDecode(
+        StringNode("us-east-1", Pos.NoPos, dotpath = ""),
+        Region::class.createType(),
+        DecoderRegistry.zero,
+        ""
+      ) shouldBe Region.getRegion(Regions.US_EAST_1).valid()
 
-      RegionDecoder().decode(StringNode("qwewqe-1", Pos.NoPos, dotpath = ""), "") shouldBe
-        ConfigFailure("Cannot create region from qwewqe-1").invalidNel()
+      RegionDecoder().safeDecode(
+        StringNode("us-qwewqe-1", Pos.NoPos, dotpath = ""),
+        Region::class.createType(),
+        DecoderRegistry.zero,
+        ""
+      ) shouldBe
+        ConfigFailure("Cannot create region from us-qwewqe-1").invalidNel()
     }
   }
 }

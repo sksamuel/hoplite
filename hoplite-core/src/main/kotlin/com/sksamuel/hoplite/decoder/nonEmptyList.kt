@@ -13,14 +13,14 @@ import kotlin.reflect.KType
 import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.starProjectedType
 
-class NonEmptyListDecoder : Decoder<NonEmptyList<*>> {
+class NonEmptyListDecoder : NonNullableDecoder<NonEmptyList<*>> {
 
   override fun supports(type: KType): Boolean = type.isSubtypeOf(NonEmptyList::class.starProjectedType)
 
-  override fun decode(node: Node,
-                      type: KType,
-                      registry: DecoderRegistry,
-                      path: String): ConfigResult<NonEmptyList<*>> {
+  override fun safeDecode(node: Node,
+                          type: KType,
+                          registry: DecoderRegistry,
+                          path: String): ConfigResult<NonEmptyList<*>> {
     require(type.arguments.size == 1)
     val t = type.arguments[0].type!!
 

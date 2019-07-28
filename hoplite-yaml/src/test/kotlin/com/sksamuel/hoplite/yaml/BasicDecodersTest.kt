@@ -96,13 +96,6 @@ class BasicTypesTest : FunSpec({
     }
   }
 
-  test("null fields") {
-    data class Test(val a: String?, val b: Double?)
-    ConfigLoader().loadConfig<Test>("/test_nulls.yml").shouldBeValid {
-      it.a shouldBe Test(null, null)
-    }
-  }
-
   test("BigDecimal") {
     data class Test(val a: BigDecimal, val b: BigDecimal)
     ConfigLoader().loadConfig<Test>("/test_bigdecimal.yml").shouldBeValid {

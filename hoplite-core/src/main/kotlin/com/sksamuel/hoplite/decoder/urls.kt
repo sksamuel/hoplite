@@ -11,12 +11,12 @@ import java.net.URI
 import java.net.URL
 import kotlin.reflect.KType
 
-class URLDecoder : Decoder<URL> {
+class URLDecoder : NonNullableDecoder<URL> {
   override fun supports(type: KType): Boolean = type.classifier == URL::class
-  override fun decode(node: Node,
-                      type: KType,
-                      registry: DecoderRegistry,
-                      path: String): ConfigResult<URL> = when (node) {
+  override fun safeDecode(node: Node,
+                          type: KType,
+                          registry: DecoderRegistry,
+                          path: String): ConfigResult<URL> = when (node) {
     is StringNode -> Try { URL(node.value) }.toValidated {
       ConfigFailure.TypeConversionFailure(node, path, type)
     }.toValidatedNel()
@@ -24,12 +24,12 @@ class URLDecoder : Decoder<URL> {
   }
 }
 
-class URIDecoder : Decoder<URI> {
+class URIDecoder : NonNullableDecoder<URI> {
   override fun supports(type: KType): Boolean = type.classifier == URI::class
-  override fun decode(node: Node,
-                      type: KType,
-                      registry: DecoderRegistry,
-                      path: String): ConfigResult<URI> = when (node) {
+  override fun safeDecode(node: Node,
+                          type: KType,
+                          registry: DecoderRegistry,
+                          path: String): ConfigResult<URI> = when (node) {
     is StringNode -> Try { URI.create(node.value) }.toValidated {
       ConfigFailure.TypeConversionFailure(node, path, type)
     }.toValidatedNel()

@@ -9,9 +9,12 @@ import com.sksamuel.hoplite.StringNode
 import java.security.Principal
 import kotlin.reflect.KType
 
-class PrincipalDecoder : BasicDecoder<Principal> {
+class PrincipalDecoder : NonNullableDecoder<Principal> {
   override fun supports(type: KType): Boolean = type.classifier == Principal::class
-  override fun decode(node: Node, path: String): ConfigResult<Principal> = when (node) {
+  override fun safeDecode(node: Node,
+                          type: KType,
+                          registry: DecoderRegistry,
+                          path: String): ConfigResult<Principal> = when (node) {
     is StringNode -> BasicPrincipal(node.value).validNel()
     else -> ConfigFailure.conversionFailure<Principal>(node).invalidNel()
   }
