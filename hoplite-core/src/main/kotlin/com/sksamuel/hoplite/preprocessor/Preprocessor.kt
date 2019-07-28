@@ -7,11 +7,21 @@ interface Preprocessor {
   fun process(value: String): String
 }
 
+fun defaultPreprocessors() = listOf(EnvVarPreprocessor, SystemPropertyPreprocessor)
+
 object EnvVarPreprocessor : Preprocessor {
   private val regex = "\\$\\{(.*?)}".toRegex()
   override fun process(value: String): String = regex.replace(value) {
     val key = it.groupValues[1]
-    System.getenv(key) ?: ""
+    System.getenv(key) ?: it.value
+  }
+}
+
+object SystemPropertyPreprocessor : Preprocessor {
+  private val regex = "\\$\\{(.*?)}".toRegex()
+  override fun process(value: String): String = regex.replace(value) {
+    val key = it.groupValues[1]
+    System.getProperty(key, it.value)
   }
 }
 

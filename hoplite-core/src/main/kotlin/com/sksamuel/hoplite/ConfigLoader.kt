@@ -8,15 +8,15 @@ import com.sksamuel.hoplite.arrow.sequence
 import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.decoder.defaultDecoderRegistry
-import com.sksamuel.hoplite.preprocessor.EnvVarPreprocessor
 import com.sksamuel.hoplite.preprocessor.Preprocessor
+import com.sksamuel.hoplite.preprocessor.defaultPreprocessors
 import java.io.InputStream
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
 class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoderRegistry(),
                    private val parserRegistry: ParserRegistry = defaultParserRegistry(),
-                   private val preprocessors: List<Preprocessor> = listOf(EnvVarPreprocessor)) {
+                   private val preprocessors: List<Preprocessor> = defaultPreprocessors()) {
 
   fun withPreprocessor(preprocessor: Preprocessor) = ConfigLoader(
     decoderRegistry,

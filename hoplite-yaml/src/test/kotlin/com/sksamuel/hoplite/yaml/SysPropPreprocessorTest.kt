@@ -1,11 +1,11 @@
 package com.sksamuel.hoplite.yaml
 
 import com.sksamuel.hoplite.ConfigLoader
-import io.kotlintest.extensions.system.withEnvironment
+import io.kotlintest.extensions.system.withSystemProperty
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.FunSpec
 
-class EnvVarPreprocessorTest : FunSpec() {
+class SysPropPreprocessorTest : FunSpec() {
 
   data class Test(val a: String,
                   val b: String,
@@ -17,9 +17,9 @@ class EnvVarPreprocessorTest : FunSpec() {
                   val h: String)
 
   init {
-    test("replace env vars") {
-      withEnvironment("wibble", "wobble") {
-        ConfigLoader().loadConfigOrThrow<Test>("/test_env_replacement.yml") shouldBe
+    test("replace placeholders with system properties") {
+      withSystemProperty("wibble", "wobble") {
+        ConfigLoader().loadConfigOrThrow<Test>("/test_sysproperty_replacement.yml") shouldBe
           Test(a = "foo",
             b = "wobble",
             c = "aawobble",
