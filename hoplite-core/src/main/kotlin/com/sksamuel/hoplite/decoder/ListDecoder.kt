@@ -16,29 +16,27 @@ class ListDecoder : Decoder<List<*>> {
 
   override fun supports(type: KType): Boolean = type.isSubtypeOf(List::class.starProjectedType)
 
-  private fun <T> decode(node: ListNode,
-                         type: KType,
-                         decoder: Decoder<T>,
-                         registry: DecoderRegistry): ConfigResult<List<T>> {
-    return node.elements.map { decoder.decode(it, type, registry) }.sequence()
-  }
-
-  private fun <T> decode(node: StringNode,
-                         type: KType,
-                         decoder: Decoder<T>,
-                         registry: DecoderRegistry): ConfigResult<List<T>> {
-    val tokens = node.value.split(",").map { it.trim() }
-    return tokens.map { decoder.decode(StringNode(it, node.pos), type, registry) }.sequence()
-  }
-
-  override fun decode(node: Node, type: KType, registry: DecoderRegistry): ConfigResult<List<*>> {
+  override fun decode(node: Node,
+                      type: KType,
+                      registry: DecoderRegistry,
+                      path: String): ConfigResult<List<*>> {
     require(type.arguments.size == 1)
+
+    fun <T> decode(node: ListNode, type: KType, decoder: Decoder<T>): ConfigResult<List<T>> {
+      return node.elements.map { decoder.decode(it, type, registry, path) }.sequence()
+    }
+
+    fun <T> decode(node: StringNode, type: KType, decoder: Decoder<T>): ConfigResult<List<T>> {
+      val tokens = node.value.split(",").map { it.trim() }
+      return tokens.map { decoder.decode(StringNode(it, node.pos, node.dotpath), type, registry, path) }.sequence()
+    }
+
     val t = type.arguments[0].type!!
-    return registry.decoder(t).flatMap { decoder ->
+    return registry.decoder(t, path).flatMap { decoder ->
       when (node) {
-        is ListNode -> decode(node, t, decoder, registry)
-        is StringNode -> decode(node, t, decoder, registry)
-        else -> ConfigFailure("Unsupported list type ${node.javaClass.name}").invalidNel()
+        is ListNode -> decode(node, t, decoder)
+        is StringNode -> decode(node, t, decoder)
+        else -> ConfigFailure.UnsupportedListType(node, path).invalidNel()
       }
     }
   }

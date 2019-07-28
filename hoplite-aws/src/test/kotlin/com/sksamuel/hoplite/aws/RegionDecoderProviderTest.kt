@@ -13,8 +13,11 @@ import io.kotlintest.specs.StringSpec
 class RegionDecoderProviderTest : StringSpec() {
   init {
     "region converter" {
-      RegionDecoder().decode(StringNode("us-east-1", Pos.NoPos)) shouldBe Region.getRegion(Regions.US_EAST_1).valid()
-      RegionDecoder().decode(StringNode("qwewqe-1", Pos.NoPos)) shouldBe ConfigFailure("Cannot create region from qwewqe-1").invalidNel()
+      RegionDecoder().decode(StringNode("us-east-1", Pos.NoPos, dotpath = ""), "") shouldBe
+        Region.getRegion(Regions.US_EAST_1).valid()
+
+      RegionDecoder().decode(StringNode("qwewqe-1", Pos.NoPos, dotpath = ""), "") shouldBe
+        ConfigFailure("Cannot create region from qwewqe-1").invalidNel()
     }
   }
 }

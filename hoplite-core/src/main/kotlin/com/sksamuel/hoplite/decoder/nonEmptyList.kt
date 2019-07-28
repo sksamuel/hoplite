@@ -17,21 +17,22 @@ class NonEmptyListDecoder : Decoder<NonEmptyList<*>> {
 
   override fun supports(type: KType): Boolean = type.isSubtypeOf(NonEmptyList::class.starProjectedType)
 
-  private fun <T> decode(node: StringNode,
-                         type: KType,
-                         decoder: Decoder<T>,
-                         registry: DecoderRegistry): ConfigResult<NonEmptyList<T>> {
-    return node.value.split(",").map { it.trim() }
-        .map { decoder.decode(StringNode(it, node.pos), type, registry) }.sequence()
-        .map { NonEmptyList.fromListUnsafe(it) }
-  }
+  override fun decode(node: Node,
+                      type: KType,
+                      registry: DecoderRegistry,
+                      path: String): ConfigResult<NonEmptyList<*>> {
+    require(type.arguments.size == 1)
+    val t = type.arguments[0].type!!
 
-  private fun <T> decode(node: ListNode,
-                         type: KType,
-                         decoder: Decoder<T>,
-                         registry: DecoderRegistry): ConfigResult<NonEmptyList<T>> {
-    return node.elements.map { decoder.decode(it, type, registry) }.sequence().flatMap { ts ->
-      NonEmptyList.fromList(ts).fold(
+    fun <T> decode(node: StringNode, decoder: Decoder<T>): ConfigResult<NonEmptyList<T>> {
+      return node.value.split(",").map { it.trim() }
+        .map { decoder.decode(StringNode(it, node.pos, node.dotpath), type, registry, path) }.sequence()
+        .map { NonEmptyList.fromListUnsafe(it) }
+    }
+
+    fun <T> decode(node: ListNode, decoder: Decoder<T>): ConfigResult<NonEmptyList<T>> {
+      return node.elements.map { decoder.decode(it, type, registry, path) }.sequence().flatMap { ts ->
+        NonEmptyList.fromList(ts).fold(
           {
             val err = "Cannot convert empty list to NonEmptyList<${this.typeParameters[0]}>"
             ConfigResults.decodeFailure(node, err)
@@ -39,17 +40,14 @@ class NonEmptyListDecoder : Decoder<NonEmptyList<*>> {
           {
             it.validNel()
           }
-      )
+        )
+      }
     }
-  }
 
-  override fun decode(node: Node, type: KType, registry: DecoderRegistry): ConfigResult<NonEmptyList<*>> {
-    require(type.arguments.size == 1)
-    val t = type.arguments[0].type!!
-    return registry.decoder(t).flatMap { decoder ->
+    return registry.decoder(t, path).flatMap { decoder ->
       when (node) {
-        is StringNode -> decode(node, t, decoder, registry)
-        is ListNode -> decode(node, t, decoder, registry)
+        is StringNode -> decode(node, decoder)
+        is ListNode -> decode(node, decoder)
         else -> ConfigResults.decodeFailure(node, this.typeParameters[0])
       }
     }

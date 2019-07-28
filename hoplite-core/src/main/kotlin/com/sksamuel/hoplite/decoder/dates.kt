@@ -18,7 +18,7 @@ import kotlin.reflect.KType
 
 class LocalDateTimeDecoder : BasicDecoder<LocalDateTime> {
   override fun supports(type: KType): Boolean = type.classifier == LocalDateTime::class
-  override fun decode(node: Node): ConfigResult<LocalDateTime> = when (node) {
+  override fun decode(node: Node, path: String): ConfigResult<LocalDateTime> = when (node) {
     //is java.util.Date -> LocalDateTime.ofInstant(v.toInstant(), ZoneOffset.UTC).validNel()
     //is LocalDateTime -> v.validNel()
     is LongNode -> LocalDateTime.ofInstant(Instant.ofEpochMilli(node.value), ZoneOffset.UTC).validNel()
@@ -29,7 +29,7 @@ class LocalDateTimeDecoder : BasicDecoder<LocalDateTime> {
 
 class LocalDateDecoder : BasicDecoder<LocalDate> {
   override fun supports(type: KType): Boolean = type.classifier == LocalDate::class
-  override fun decode(node: Node): ConfigResult<LocalDate> = when (node) {
+  override fun decode(node: Node, path: String): ConfigResult<LocalDate> = when (node) {
     //    is java.util.Date -> LocalDateTime.ofInstant(v.toInstant(), ZoneOffset.UTC).toLocalDate().valid()
     //    is LocalDate -> v.validNel()
     is StringNode -> LocalDate.parse(node.value).validNel()
@@ -39,7 +39,7 @@ class LocalDateDecoder : BasicDecoder<LocalDate> {
 
 class DurationDecoder : BasicDecoder<Duration> {
   override fun supports(type: KType): Boolean = type.classifier == Duration::class
-  override fun decode(node: Node): ConfigResult<Duration> = when (node) {
+  override fun decode(node: Node, path: String): ConfigResult<Duration> = when (node) {
     is StringNode -> parseDuration(node.value)
     else -> ConfigFailure.conversionFailure<LocalDateTime>(node).invalidNel()
   }

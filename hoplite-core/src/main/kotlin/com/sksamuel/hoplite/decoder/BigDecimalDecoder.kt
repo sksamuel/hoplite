@@ -16,9 +16,9 @@ import kotlin.reflect.KType
 
 class BigDecimalDecoder : BasicDecoder<BigDecimal> {
   override fun supports(type: KType): Boolean = type.classifier == BigDecimal::class
-  override fun decode(node: Node): ConfigResult<BigDecimal> = when (node) {
+  override fun decode(node: Node, path: String): ConfigResult<BigDecimal> = when (node) {
     is StringNode -> Try { node.value.toDouble().toBigDecimal() }.toValidated {
-      ThrowableFailure(it, null)
+      ThrowableFailure(it)
     }.toValidatedNel()
     is LongNode -> node.value.toBigDecimal().validNel()
     is DoubleNode -> node.value.toBigDecimal().validNel()

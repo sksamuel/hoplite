@@ -15,9 +15,9 @@ import kotlin.reflect.KType
 
 class BigIntegerDecoder : BasicDecoder<BigInteger> {
   override fun supports(type: KType): Boolean = type.classifier == BigInteger::class
-  override fun decode(node: Node): ConfigResult<BigInteger> = when (node) {
+  override fun decode(node: Node, path: String): ConfigResult<BigInteger> = when (node) {
     is StringNode -> Try { node.value.toLong().toBigInteger() }.toValidated {
-      ThrowableFailure(it, null)
+      ThrowableFailure(it)
     }.toValidatedNel()
     is LongNode -> node.value.toBigInteger().validNel()
     else -> ConfigFailure.conversionFailure<Short>(node).invalidNel()

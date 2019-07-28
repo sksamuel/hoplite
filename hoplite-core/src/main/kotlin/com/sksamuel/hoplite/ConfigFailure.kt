@@ -3,69 +3,74 @@ package com.sksamuel.hoplite
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
-interface ConfigFailure {
+val KType.simpleName: String
+  get() = when (this.classifier) {
+    String::class -> "String"
+    Long::class -> "Long"
+    Double::class -> "Double"
+    Boolean::class -> "Boolean"
+    else -> this.toString()
+  }
+
+sealed class ConfigFailure {
 
   /**
    * A human-readable description of the failure.
    */
-  fun description(): String
+  abstract fun description(): String
 
   /**
    * The optional location of the failure.
    */
-  fun location(): ConfigLocation?
+  abstract fun pos(): Pos
 
   companion object {
     operator fun invoke(description: String): ConfigFailure = GenericFailure(description)
-    fun missingPath(path: String, keys: Collection<String>): ConfigFailure = MissingPathFailure(path, keys)
-    fun unsupportedType(type: KType): ConfigFailure = UnsupportedTypeFailure(type)
     inline fun <reified T> conversionFailure(v: Any?): ConfigFailure = ConversionFailure(T::class, v)
-    fun throwable(t: Throwable): ConfigFailure = ThrowableFailure(t, null)
+  }
+
+  data class TypeConversionFailure(val node: Node, val path: String, val target: KType) : ConfigFailure() {
+    override fun description(): String = "$path was defined as a ${target.simpleName} but was a ${node.simpleName} in config"
+    override fun pos(): Pos = node.pos
+  }
+
+  data class UnsupportedListType(val node: Node, val path: String) : ConfigFailure() {
+    override fun description(): String = "$path was defined as a list but ${node.simpleName} cannot be converted to a list"
+    override fun pos(): Pos = node.pos
+  }
+
+  data class NullValueForNonNullField(val node: NullNode, val path: String) : ConfigFailure() {
+    override fun description(): String = "qweqwe${node}"
+    override fun pos(): Pos = node.pos
+  }
+
+  data class NoSuchDecoder(val type: KType, val path: String) : ConfigFailure() {
+    override fun description(): String = "Unable to locate decoder for type $type"
+    override fun pos(): Pos = Pos.NoPos
+  }
+
+  data class MissingValue(val path: String) : ConfigFailure() {
+    override fun description(): String = "$path was defined in Kotlin but was missing from config"
+    override fun pos(): Pos = Pos.NoPos
+  }
+
+  data class InvalidEnumConstant(val node: Node,
+                                 val path: String,
+                                 val type: KType,
+                                 val value: String) : ConfigFailure() {
+    override fun description(): String = "qweqweqwe ${node.dotpath}"
+    override fun pos(): Pos = node.pos
   }
 }
 
-data class NullForNonNull(val value: NullNode, val param: String) : ConfigFailure {
-  override fun description(): String = "null value supplied for non-null field $param"
-  override fun location(): ConfigLocation? = null
-}
-
-data class MissingPathFailure(val description: String, val location: ConfigLocation?) : ConfigFailure {
-  constructor(path: String, keys: Collection<String>) : this("Path $path was not available (available keys $keys)", null)
-
-  override fun description(): String = description
-  override fun location(): ConfigLocation? = location
-}
-
-data class UnsupportedTypeFailure(val type: KType) : ConfigFailure {
-  override fun description(): String = "Type $type is unsupported"
-  override fun location(): ConfigLocation? = null
-}
-
-/**
- * A failure occurred because an exception was thrown during the reading process.
- *
- * @param throwable the exception thrown
- * @param location the optional location of the failure
- */
-data class ThrowableFailure(val throwable: Throwable, val location: ConfigLocation?) : ConfigFailure {
+data class ThrowableFailure(val throwable: Throwable) : ConfigFailure() {
   override fun description() = "${throwable.message}.${throwable.stackTrace.toList()}"
-  override fun location(): ConfigLocation? = location
+  override fun pos(): Pos = Pos.NoPos
 }
 
-data class GenericFailure(val description: String) : ConfigFailure {
+data class GenericFailure(val description: String) : ConfigFailure() {
   override fun description(): String = description
-  override fun location(): ConfigLocation? = null
-}
-
-/**
- * A failure occurred due to the inability to parse the configuration.
- *
- * @param msg the error message from the parser
- * @param location the optional location of the failure
- */
-data class CannotParse(val msg: String, val location: ConfigLocation?) : ConfigFailure {
-  override fun description() = "Unable to parse the configuration: $msg."
-  override fun location(): ConfigLocation? = location
+  override fun pos(): Pos = Pos.NoPos
 }
 
 /**
@@ -73,10 +78,10 @@ data class CannotParse(val msg: String, val location: ConfigLocation?) : ConfigF
  * For example, if a field in data class was an int, but at runtime the configuration
  * tried to pass "hello" then this would result in a conversion failure.
  */
-data class ConversionFailure(val description: String, val location: ConfigLocation?) : ConfigFailure {
+data class ConversionFailure(val description: String) : ConfigFailure() {
   constructor(klass: KClass<*>, value: Any?) :
-      this("Cannot convert ${value?.javaClass?.name}:$value to ${klass.qualifiedName}", null)
+    this("Cannot convert ${value?.javaClass?.name}:$value to ${klass.qualifiedName}")
 
   override fun description() = description
-  override fun location(): ConfigLocation? = location
+  override fun pos(): Pos = Pos.NoPos
 }

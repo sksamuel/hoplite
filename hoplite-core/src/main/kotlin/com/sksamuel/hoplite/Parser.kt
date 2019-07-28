@@ -4,7 +4,7 @@ import java.io.InputStream
 import java.util.*
 
 interface Parser {
-  fun load(input: InputStream): Node
+  fun load(input: InputStream, source: String): Node
   fun defaultFileExtensions(): List<String>
 }
 

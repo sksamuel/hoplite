@@ -28,14 +28,14 @@ import java.io.InputStreamReader
 class YamlParser : Parser {
   override fun defaultFileExtensions(): List<String> = listOf("yml", "yaml")
   private val yaml = Yaml(SafeConstructor())
-  override fun load(input: InputStream): Node {
+  override fun load(input: InputStream, source: String): Node {
     val reader = InputStreamReader(input)
     val events = yaml.parse(reader).iterator()
     val stream = TokenStream(events)
     require(stream.next().`is`(Event.ID.StreamStart))
     require(stream.next().`is`(Event.ID.DocumentStart))
     stream.next()
-    return TokenProduction.parse(stream)
+    return TokenProduction(stream, "<root>", source)
   }
 }
 
@@ -71,15 +71,13 @@ fun Event.id() = when (this) {
   else -> throw UnsupportedOperationException()
 }
 
-interface Production {
-  fun parse(stream: TokenStream<Event>): Node
-}
-
-object TokenProduction : Production {
-  override fun parse(stream: TokenStream<Event>): Node {
+object TokenProduction {
+  operator fun invoke(stream: TokenStream<Event>,
+                      path: String,
+                      source: String): Node {
     return when (val event = stream.current()) {
-      is MappingStartEvent -> MapProduction.parse(stream)
-      is SequenceStartEvent -> SequenceProduction.parse(stream)
+      is MappingStartEvent -> MapProduction(stream, path, source)
+      is SequenceStartEvent -> SequenceProduction(stream, path, source)
       // https://yaml.org/refcard.html
       // Language Independent Scalar types:
       //    { ~, null }              : Null (no value).
@@ -90,17 +88,17 @@ object TokenProduction : Production {
       //    { n, FALSE, No, off }    : Boolean false
       is ScalarEvent -> {
         if (event.value == "null" && event.scalarStyle == DumperOptions.ScalarStyle.PLAIN)
-          NullNode(event.startMark.toPos())
+          NullNode(event.startMark.toPos(source), path)
         else
-          StringNode(event.value, event.startMark.toPos())
+          StringNode(event.value, event.startMark.toPos(source), path)
       }
       else -> throw java.lang.UnsupportedOperationException("Invalid YAML event ${stream.current().id()} at ${stream.current().startMark}")
     }
   }
 }
 
-object MapProduction : Production {
-  override fun parse(stream: TokenStream<Event>): Node {
+object MapProduction {
+  operator fun invoke(stream: TokenStream<Event>, path: String, source: String): Node {
     require(stream.current().`is`(Event.ID.MappingStart))
     val mark = stream.current().startMark
     val obj = mutableMapOf<String, Node>()
@@ -109,26 +107,28 @@ object MapProduction : Production {
       val field = stream.current() as ScalarEvent
       val fieldName = field.value
       stream.next()
-      val value = TokenProduction.parse(stream)
+      val value = TokenProduction(stream, "$path.$fieldName", source)
       obj[fieldName] = value
     }
     require(stream.current().`is`(Event.ID.MappingEnd))
-    return MapNode(obj, mark.toPos())
+    return MapNode(obj, mark.toPos(source), path)
   }
 }
 
-object SequenceProduction : Production {
-  override fun parse(stream: TokenStream<Event>): Node {
+object SequenceProduction {
+  operator fun invoke(stream: TokenStream<Event>, path: String, source: String): Node {
     require(stream.current().`is`(Event.ID.SequenceStart))
     val mark = stream.current().startMark
     val list = mutableListOf<Node>()
+    var index = 0
     while (stream.next().id() != Event.ID.SequenceEnd) {
-      val value = TokenProduction.parse(stream)
+      val value = TokenProduction(stream, "$path[$index]", source)
       list.add(value)
+      index++
     }
     require(stream.current().`is`(Event.ID.SequenceEnd))
-    return ListNode(list.toList(), mark.toPos())
+    return ListNode(list.toList(), mark.toPos(source), path)
   }
 }
 
-fun Mark.toPos(): Pos = Pos.LineColPos(line, column)
+fun Mark.toPos(source: String): Pos = Pos.LineColPos(line, column, source)

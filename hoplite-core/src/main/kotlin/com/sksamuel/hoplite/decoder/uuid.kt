@@ -13,7 +13,10 @@ import kotlin.reflect.KType
 
 class UUIDDecoder : Decoder<UUID> {
   override fun supports(type: KType): Boolean = type.classifier == UUID::class
-  override fun decode(node: Node, type: KType, registry: DecoderRegistry): ConfigResult<UUID> = when (node) {
+  override fun decode(node: Node,
+                      type: KType,
+                      registry: DecoderRegistry,
+                      path: String): ConfigResult<UUID> = when (node) {
     is StringNode -> Try { UUID.fromString(node.value) }.toValidated { ConfigFailure("UUID could not be parsed from $node") }.toValidatedNel()
     else -> ConfigFailure.conversionFailure<LocalDateTime>(node).invalidNel()
   }
