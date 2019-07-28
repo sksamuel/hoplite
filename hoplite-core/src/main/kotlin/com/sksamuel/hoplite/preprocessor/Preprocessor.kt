@@ -9,7 +9,10 @@ interface Preprocessor {
 
 object EnvVarPreprocessor : Preprocessor {
   private val regex = "\\$\\{(.*?)}".toRegex()
-  override fun process(value: String): String = regex.replace(value) { it.groupValues[1] }
+  override fun process(value: String): String = regex.replace(value) {
+    val key = it.groupValues[1]
+    System.getenv(key) ?: ""
+  }
 }
 
 abstract class PrefixProcessor(private val prefix: String) : Preprocessor {

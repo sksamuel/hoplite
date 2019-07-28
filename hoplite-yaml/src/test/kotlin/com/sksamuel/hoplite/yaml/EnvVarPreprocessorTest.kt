@@ -12,13 +12,23 @@ class EnvVarPreprocessorTest : FunSpec() {
                   val c: String,
                   val d: String,
                   val e: String,
-                  val f: String)
+                  val f: String,
+                  val g: String,
+                  val h: String)
 
   init {
     test("replace env vars") {
       withEnvironment("wibble", "wobble") {
         ConfigLoader().loadConfigOrThrow<Test>("/test_env_replacement.yml") shouldBe
-            Test(a = "foo", b = "wibble", c = "aawibble", d = "wibblebb", e = "aawibblebb", f = "unknown")
+          Test(a = "foo",
+            b = "wobble",
+            c = "aawobble",
+            d = "wobblebb",
+            e = "aawobblebb",
+            f = "",
+            g = "\$wibble",
+            h = "\$wibble"
+          )
       }
     }
   }
