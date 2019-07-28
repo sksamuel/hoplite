@@ -1,6 +1,7 @@
 package com.sksamuel.hoplite.decoder
 
 import arrow.data.invalidNel
+import arrow.data.valid
 import arrow.data.validNel
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
@@ -41,6 +42,7 @@ class DurationDecoder : BasicDecoder<Duration> {
   override fun supports(type: KType): Boolean = type.classifier == Duration::class
   override fun decode(node: Node, path: String): ConfigResult<Duration> = when (node) {
     is StringNode -> parseDuration(node.value)
+    is LongNode -> Duration.ofMillis(node.value).valid()
     else -> ConfigFailure.conversionFailure<LocalDateTime>(node).invalidNel()
   }
 }
