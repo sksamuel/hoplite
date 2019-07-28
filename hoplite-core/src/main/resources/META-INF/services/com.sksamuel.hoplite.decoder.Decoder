@@ -24,3 +24,4 @@ com.sksamuel.hoplite.decoder.PathDecoder
 com.sksamuel.hoplite.decoder.BigIntegerDecoder
 com.sksamuel.hoplite.decoder.BigDecimalDecoder
 com.sksamuel.hoplite.decoder.PrincipalDecoder
+com.sksamuel.hoplite.decoder.InetAddressDecoder
