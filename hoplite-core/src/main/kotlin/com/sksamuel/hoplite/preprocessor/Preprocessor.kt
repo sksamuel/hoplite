@@ -7,7 +7,10 @@ interface Preprocessor {
   fun process(value: String): String
 }
 
-fun defaultPreprocessors() = listOf(EnvVarPreprocessor, SystemPropertyPreprocessor, RandomPreprocessor)
+fun defaultPreprocessors() = listOf(EnvVarPreprocessor,
+  SystemPropertyPreprocessor,
+  RandomPreprocessor,
+  UUIDPreprocessor)
 
 abstract class PrefixProcessor(private val prefix: String) : Preprocessor {
   abstract fun handle(value: String): String

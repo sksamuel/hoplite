@@ -62,7 +62,7 @@ perform database lookups, or whatever other custom action you need when the conf
 |:--------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | EnvVar Preprocessor | Replaces any strings of the form ${VAR} with the environment variable $VAR if defined. These replacement strings can occur between other strings.<br/><br/>For example `foo: hello ${USERNAME}!` would result in foo being assigned the value `hello Sam!` assuming the env var `USERNAME` was set to `SAM` |
 | System Property Preprocessor | Replaces any strings of the form ${VAR} with the system property $VAR if defined. These replacement strings can occur between other strings.<br/><br/>For example `debug: ${DEBUG}` would result in debug being assigned the value `true` assuming the application had been started with `-Ddebug=true` |
-| Random Preprocessor | Inserts random strings into the config whenever you use the placeholder $RANDOM_STRING(length) where length is the length of the generated random string.
+| Random Preprocessor | Inserts random strings into the config whenever you use the placeholder `$RANDOM_STRING(length)` where length is the length of the generated random string.
 
 ### Masked values
 
