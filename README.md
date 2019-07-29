@@ -127,9 +127,9 @@ There are built in decoders for all the standard day to day types, such as primi
 ### Pre-Processors
 
 Hoplite supports what it calls preprocessors. These are just functions `(String) -> String` that are applied to every value as they are read from the underlying config file.
-The preprocessor is able to transform the value (or return the input - aka identity) depending on the logic of that preprocessor. 
+The preprocessor is able to transform the value (or return the input - aka identity function) depending on the logic of that preprocessor. 
 
-For example, a preprocessor may choose to perform environment variable substition, configure default values, 
+For example, a preprocessor may choose to perform environment variable substitution, configure default values, 
 perform database lookups, or whatever other custom action you need when the config is being resolved.
 
 You can add custom pre-processors in addition to the builtt in ones, by using the function `withPreprocessor` on the `ConfigLoader` class, and passing in an instance of the `Preprocessor` interface.
@@ -141,7 +141,7 @@ For example
 ```yaml
 database:
   user: root
-  password: amazon:/my/key/path
+  password: vault:/my/key/path
 ```
 
 #### Built-in Preprocessors 
