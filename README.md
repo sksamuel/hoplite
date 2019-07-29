@@ -57,6 +57,18 @@ val config = ConfigLoader().loadConfigOrThrow<Config>("/application-staging.yaml
 
 If the values in the config file are compatible, then an instance of `Config` will be returned. Otherwise an exception will be thrown containing details of the errors.
 
+### Config Loader
+
+As you have seen from the getting started guide, `ConfigLoader` is the entry point to using Hoplite.
+Create an instance of this and then you can load config into your data classes from resources on the classpath, `java.io.File`, `java.nio.Path`, or URLS.
+
+There are two ways to use the config loader. 
+One is to throw an exception if the config could not be resolved. 
+Another is to return an arrow.data.Validated. 
+
+For most cases, when you are resolving config at application startup, the exception based approach is better. 
+This is because you typically want any errors in config to abort application bootstrapping, dumping errors to the console.
+
 ### Supported Formats
 
 Hoplite supports config files in several formats. You can mix and match formats if you really want to.
@@ -76,9 +88,10 @@ That same function can be used to map non-default file extensions to an existing
 
 `ConfigLoader().withFileExtensionMapping("conf", YamlParser)`
 
-### Supported Types
+### Decoders
 
-Hoplite will convert values in config files to many different JDK types. All the standard primitives are supported, along with collection types, 
+Hoplite converts the raw value in config files to JDK types using instances of the `Decoder` interface.
+There are built in decoders for all the standard day to day types, such as primitives, dates, lists, sets, maps, enums, arrow types and so on. The full list is below: 
 
 | JDK Type  | Conversion Notes |
 |---|---|
@@ -93,6 +106,7 @@ Hoplite will convert values in config files to many different JDK types. All the
 | `LocalDate` |
 | `Duration` | Converts a String into a Duration, where the string uses a value and unit such as "10 seconds" or "5m". Also supports a long value which will be interpreted as a Duration of milliseconds. |
 | `Instant` |  |
+| `Regex` | |
 | `UUID` | Creates a `java.util.UUID` from a String |
 | `List<A>` | Creates a List from either an array or a string delimited by commas. 
 | `Set<A>` | Creates a Set from either an array or a string delimited by commas. 
@@ -110,8 +124,6 @@ Hoplite will convert values in config files to many different JDK types. All the
 | `arrow.core.Tuple2<A,B>` | Converts from an array of two elements into an instance of `Tuple2<A,B>`.  Will fail if the array does not have exactly two elements.|
 | `arrow.core.Tuple3<A,B,C>` | Converts from an array of three elements into an instance of `Tuple2<A,B,C>`. Will fail if the array does not have exactly three elements. |
 
-
-
 ### Pre-Processors
 
 Hoplite supports what it calls preprocessors. These are just functions `(String) -> String` that are applied to every value as they are read from the underlying config file.
@@ -120,7 +132,11 @@ The preprocessor is able to transform the value (or return the input - aka ident
 For example, a preprocessor may choose to perform environment variable substition, configure default values, 
 perform database lookups, or whatever other custom action you need when the config is being resolved.
 
+You can add custom pre-processors in addition to the build in ones, by using the function `withPreprocessor` on the `ConfigLoader` class.
+
 #### Built-in Preprocessors 
+
+These built-in preprocessors are registered automatically.
 
 | Preprocessor        | Function                                                                                                                                                                                                                                                                                |
 |:--------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
