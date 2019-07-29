@@ -16,10 +16,14 @@ Hoplite is a Kotlin library for loading configuration files into typesafe classe
 
 ### Getting Started
 
-The first thing to do is to define your config data classes. 
-You should create a top level config class which can be named simply Config, or ProjectNameConfig.
+Add Hoplite to your build:
 
-This class then defines a field for each config value you need. It can include nested data classes for grouping together related configs.
+```groovy
+implementation 'com.sksamuel.hoplite:hoplite-core:<version>'
+```
+
+Next define the data classes that are going to contain the config. 
+You should create a top level class which can be named simply Config, or ProjectNameConfig. This class then defines a field for each config value you need. It can include nested data classes for grouping together related configs.
 
 For example, if we had a project that needed database config, config for an embedded HTTP server, and a field which contained which environment we were running in (staging, QA, production etc), then we may define our classes like this:
 
@@ -29,7 +33,7 @@ data class Server(val port: Int, val redirectUrl: String)
 data class Config(val env: String, val database: Database, val server: Server)
 ```
 
-For our staging environment, we may create a YAML file called `application-staging.yaml`:
+For our staging environment, we may create a YAML (or Json, etc) file called `application-staging.yaml`:
 
 ```yaml
 env: staging
