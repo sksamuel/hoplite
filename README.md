@@ -18,17 +18,22 @@ Hoplite is a Kotlin library for loading configuration files into typesafe classe
 
 ### Supported Formats
 
-Hoplite supports config in several formats. You can mix and match formats if you really want to.
+Hoplite supports config files in several formats. You can mix and match formats if you really want to.
 For each format you wish to use, you must include the appropriate hoplite module on your classpath.
+The format that hoplite uses to parser a file is determined by the file extension.
 
-| Format | Module |
-|:---|:---|
-| Json | [`hoplite-json`](https://search.maven.org/search?q=hoplite-json) |
-| [Yaml](https://yaml.org/) | [`hoplite-yaml`](https://search.maven.org/search?q=hoplite-yaml) |
-| [Toml](https://github.com/toml-lang/toml) | [`hoplite-toml`](https://search.maven.org/search?q=hoplite-toml) |
-| Java Properties files | [`hoplite-props`](https://search.maven.org/search?q=hoplite-props) |
+| Format | Module | File Extensions |
+|:---|:---|:---|
+| Json | [`hoplite-json`](https://search.maven.org/search?q=hoplite-json) | .json |
+| [Yaml](https://yaml.org/) | [`hoplite-yaml`](https://search.maven.org/search?q=hoplite-yaml) | .yml, .yaml |
+| [Toml](https://github.com/toml-lang/toml) | [`hoplite-toml`](https://search.maven.org/search?q=hoplite-toml) | .toml |
+| Java Properties files | [`hoplite-props`](https://search.maven.org/search?q=hoplite-props) | .props |
 
-If you wish to add another format you should extend `Parser` and provide an instance of that class to the `ConfigLoader`.
+If you wish to add another format you can extend `Parser` and provide an instance of that implementation to the `ConfigLoader` via `withFileExtensionMapping`.
+
+That same function can be used to map non-default file extensions to an existing parser. For example, if you wish to have your config in files called `application.conf` but in yaml format, then you can register .conf with the Yaml parser like this:
+
+`ConfigLoader().withFileExtensionMapping("conf", YamlParser)`
 
 ### Supported Types
 
