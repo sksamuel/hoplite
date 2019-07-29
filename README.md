@@ -78,6 +78,8 @@ That same function can be used to map non-default file extensions to an existing
 
 ### Supported Types
 
+Hoplite will convert values in config files to many different JDK types. All the standard primitives are supported, along with collection types, 
+
 | JDK Type  | Conversion Notes |
 |---|---|
 | `String` |
