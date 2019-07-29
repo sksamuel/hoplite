@@ -132,7 +132,17 @@ The preprocessor is able to transform the value (or return the input - aka ident
 For example, a preprocessor may choose to perform environment variable substition, configure default values, 
 perform database lookups, or whatever other custom action you need when the config is being resolved.
 
-You can add custom pre-processors in addition to the build in ones, by using the function `withPreprocessor` on the `ConfigLoader` class.
+You can add custom pre-processors in addition to the builtt in ones, by using the function `withPreprocessor` on the `ConfigLoader` class, and passing in an instance of the `Preprocessor` interface.
+A typical use case of a custom preprocessor is to lookup some values in a database, or from a third party secrets store such as [Vault](https://www.vaultproject.io/) or [Amazon Parameter Store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html).
+One way this can be implemented is to have a prefix, and then use a preprocessor to look for the prefix in strings, and if the prefix is present, use the rest of the string as a key to the service.
+
+For example
+
+```yaml
+database:
+  user: root
+  password: amazon:/my/key/path
+```
 
 #### Built-in Preprocessors 
 
@@ -144,7 +154,6 @@ These built-in preprocessors are registered automatically.
 | System Property Preprocessor | Replaces any strings of the form ${VAR} with the system property $VAR if defined. These replacement strings can occur between other strings.<br/><br/>For example `debug: ${DEBUG}` would result in debug being assigned the value `true` assuming the application had been started with `-Ddebug=true` |
 | Random Preprocessor | Inserts random strings into the config whenever you use the placeholder `$RANDOM_STRING(length)` where length is the length of the generated random string. |
 | UUID Preprocessor | Generates UUIDS and replaces placeholders of the form `$uuid()`.<br/><br/>For example, the config `foo: $uuid()` would result in foo being assigned a generated UUID. |
-| 
 
 ### Masked values
 
