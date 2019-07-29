@@ -1,5 +1,7 @@
 package com.sksamuel.hoplite.decoder
 
+import arrow.core.Try
+import arrow.core.getOrElse
 import arrow.data.invalidNel
 import arrow.data.valid
 import arrow.data.validNel
@@ -23,8 +25,6 @@ class LocalDateTimeDecoder : NonNullableDecoder<LocalDateTime> {
                           type: KType,
                           registry: DecoderRegistry,
                           path: String): ConfigResult<LocalDateTime> = when (node) {
-    //is java.util.Date -> LocalDateTime.ofInstant(v.toInstant(), ZoneOffset.UTC).validNel()
-    //is LocalDateTime -> v.validNel()
     is LongNode -> LocalDateTime.ofInstant(Instant.ofEpochMilli(node.value), ZoneOffset.UTC).validNel()
     is StringNode -> LocalDateTime.parse(node.value, DateTimeFormatter.ISO_DATE_TIME).validNel()
     else -> ConfigFailure.conversionFailure<LocalDateTime>(node).invalidNel()
@@ -37,8 +37,6 @@ class LocalDateDecoder : NonNullableDecoder<LocalDate> {
                           type: KType,
                           registry: DecoderRegistry,
                           path: String): ConfigResult<LocalDate> = when (node) {
-    //    is java.util.Date -> LocalDateTime.ofInstant(v.toInstant(), ZoneOffset.UTC).toLocalDate().valid()
-    //    is LocalDate -> v.validNel()
     is StringNode -> LocalDate.parse(node.value).validNel()
     else -> ConfigFailure.conversionFailure<LocalDateTime>(node).invalidNel()
   }
@@ -53,5 +51,18 @@ class DurationDecoder : NonNullableDecoder<Duration> {
     is StringNode -> parseDuration(node.value)
     is LongNode -> Duration.ofMillis(node.value).valid()
     else -> ConfigFailure.conversionFailure<LocalDateTime>(node).invalidNel()
+  }
+}
+
+class InstantDecoder : NonNullableDecoder<Instant> {
+  override fun supports(type: KType): Boolean = type.classifier == Instant::class
+  override fun safeDecode(node: Node,
+                          type: KType,
+                          registry: DecoderRegistry,
+                          path: String): ConfigResult<Instant> = when (node) {
+    is StringNode -> Try { Instant.ofEpochMilli(node.value.toLong()).valid() }
+      .getOrElse { ConfigFailure.conversionFailure<Instant>(node).invalidNel() }
+    is LongNode -> Instant.ofEpochMilli(node.value).valid()
+    else -> ConfigFailure.conversionFailure<Instant>(node).invalidNel()
   }
 }
