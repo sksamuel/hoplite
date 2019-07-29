@@ -45,12 +45,12 @@ sealed class ConfigFailure {
   }
 
   data class NoSuchDecoder(val type: KType, val path: String) : ConfigFailure() {
-    override fun description(): String = "Unable to locate decoder for type $type"
+    override fun description(): String = "Unable to locate decoder for type $type defined at $path"
     override fun pos(): Pos = Pos.NoPos
   }
 
   data class MissingValue(val path: String) : ConfigFailure() {
-    override fun description(): String = "$path was defined in Kotlin but was missing from config"
+    override fun description(): String = "$path was missing from config"
     override fun pos(): Pos = Pos.NoPos
   }
 

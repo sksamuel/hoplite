@@ -9,10 +9,10 @@ Hoplite is a Kotlin library for loading configuration files into typesafe classe
 ## Features
 
 - **Multiple formats:** Write your configuration in Yaml, JSON, Toml, or Java .properties files and even mix and match multiple formats in the same system.
-- **Batteries included:** Support for many standard types such as primitives, enums, collection types, uuids, nullable types, as well as popular Kotlin third party library types such as `NonEmptyList` and `Option` from Arrow.
+- **Batteries included:** Support for many standard types such as primitives, enums, dates, collection types, uuids, nullable types, as well as popular Kotlin third party library types such as `NonEmptyList` and `Option` from Arrow.
 - **Custom Data Types:** The `Decoder` interface makes it easy to add support for your custom domain types or standard library types not covered out of the box.
 - **Cascading:** Config files can be stacked. Start with a default file and then layer new configurations on top. When resolving config, lookup of values falls through to the first file that contains a definition. Can be used to have a default config file and then an environment specific file.
-- **Helpful errors:** Fail fast when the config objects are built, with helpful errors on why a value was incorrect and the location of that erroneous value.
+- **Beautiful errors:** Fail fast when the config objects are built, with detailed and beautiful errors showing exactly what went wrong and where.
 
 ## Getting Started
 
@@ -63,8 +63,8 @@ As you have seen from the getting started guide, `ConfigLoader` is the entry poi
 Create an instance of this and then you can load config into your data classes from resources on the classpath, `java.io.File`, `java.nio.Path`, or URLS.
 
 There are two ways to use the config loader. 
-One is to throw an exception if the config could not be resolved. 
-Another is to return an arrow.data.Validated. 
+One is to throw an exception if the config could not be resolved via the `loadConfigOrThrow<T>` function. 
+Another is to return an `arrow.data.Validated` via the `loadConfig<T>` function. 
 
 For most cases, when you are resolving config at application startup, the exception based approach is better. 
 This is because you typically want any errors in config to abort application bootstrapping, dumping errors to the console.

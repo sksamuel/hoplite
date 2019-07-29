@@ -14,6 +14,8 @@ import java.io.InputStream
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
+class ConfigException(private val msg: String) : java.lang.RuntimeException(msg)
+
 class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoderRegistry(),
                    private val parserRegistry: ParserRegistry = defaultParserRegistry(),
                    private val preprocessors: List<Preprocessor> = defaultPreprocessors()) {
@@ -51,7 +53,7 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
             }
             " - " + it.description() + pos
           }
-        throw RuntimeException(err)
+        throw ConfigException(err)
       },
       { it }
     )
