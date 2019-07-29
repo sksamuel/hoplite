@@ -14,7 +14,44 @@ Hoplite is a Kotlin library for loading configuration files into typesafe classe
 - **Cascading:** Config files can be stacked. Start with a default file and then layer new configurations on top. When resolving config, lookup of values falls through to the first file that contains a definition. Can be used to have a default config file and then an environment specific file.
 - **Helpful errors:** Fail fast when the config objects are built, with helpful errors on why a value was incorrect and the location of that erroneous value.
 
-### Getting Starts
+### Getting Started
+
+The first thing to do is to define your config data classes. 
+You should create a top level config class which can be named simply Config, or ProjectNameConfig.
+
+This class then defines a field for each config value you need. It can include nested data classes for grouping together related configs.
+
+For example, if we had a project that needed database config, config for an embedded HTTP server, and a field which contained which environment we were running in (staging, QA, production etc), then we may define our classes like this:
+
+```kotlin
+data class Database(val host: String, val port: Int, val user: String, val pass: String)
+data class Server(val port: Int, val redirectUrl: String) 
+data class Config(val env: String, val database: Database, val server: Server)
+```
+
+For our staging environment, we may create a YAML file called `application-staging.yaml`:
+
+```yaml
+env: staging
+
+database:
+  url: staging.wibble.com
+  port: 3306
+  user: theboss
+  pass: 0123abcd
+
+server:
+  port: 8080
+  redirectUrl: /404.html
+```
+
+Finally, to build an instance of `Config` from this file, and assuming the config file was on the classpath, we can simply execute:
+
+```kotlin
+val config = ConfigLoader().loadConfigOrThrow<Config>("/application-staging.yaml")
+```
+
+If the values in the config file are compatible, then an instance of `Config` will be returned. Otherwise an exception will be thrown containing details of the errors.
 
 ### Supported Formats
 
