@@ -14,6 +14,22 @@ Hoplite is a Kotlin library for loading configuration files into typesafe classe
 - **Cascading:** Config files can be stacked. Start with a default file and then layer new configurations on top. When resolving config, lookup of values falls through to the first file that contains a definition. Can be used to have a default config file and then an environment specific file.
 - **Helpful errors:** Fail fast when the config objects are built, with helpful errors on why a value was incorrect and the location of that erroneous value.
 
+### Getting Starts
+
+### Supported Formats
+
+Hoplite supports config in several formats. You can mix and match formats if you really want to.
+For each format you wish to use, you must include the appropriate hoplite module on your classpath.
+
+| Format | Module |
+|:---|:---|
+| Json | [`hoplite-json`](https://search.maven.org/search?q=hoplite-json) |
+| [Yaml](https://yaml.org/) | [`hoplite-yaml`](https://search.maven.org/search?q=hoplite-yaml) |
+| [Toml](https://github.com/toml-lang/toml) | [`hoplite-toml`](https://search.maven.org/search?q=hoplite-toml) |
+| Java Properties files | [`hoplite-props`](https://search.maven.org/search?q=hoplite-props) |
+
+If you wish to add another format you should extend `Parser` and provide an instance of that class to the `ConfigLoader`.
+
 ### Supported Types
 
 | JDK Type  | Conversion Notes |
@@ -62,8 +78,8 @@ perform database lookups, or whatever other custom action you need when the conf
 |:--------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | EnvVar Preprocessor | Replaces any strings of the form ${VAR} with the environment variable $VAR if defined. These replacement strings can occur between other strings.<br/><br/>For example `foo: hello ${USERNAME}!` would result in foo being assigned the value `hello Sam!` assuming the env var `USERNAME` was set to `SAM` |
 | System Property Preprocessor | Replaces any strings of the form ${VAR} with the system property $VAR if defined. These replacement strings can occur between other strings.<br/><br/>For example `debug: ${DEBUG}` would result in debug being assigned the value `true` assuming the application had been started with `-Ddebug=true` |
-| Random Preprocessor | Inserts random strings into the config whenever you use the placeholder `$RANDOM_STRING(length)` where length is the length of the generated random string.
-| UUID Preprocessor | Generates UUIDS and replaces placeholders of the form `$uuid()`.<br/><br/>For example, the config `foo: $uuid()` would result in foo being assigned a generated UUID.
+| Random Preprocessor | Inserts random strings into the config whenever you use the placeholder `$RANDOM_STRING(length)` where length is the length of the generated random string. |
+| UUID Preprocessor | Generates UUIDS and replaces placeholders of the form `$uuid()`.<br/><br/>For example, the config `foo: $uuid()` would result in foo being assigned a generated UUID. |
 | 
 
 ### Masked values
