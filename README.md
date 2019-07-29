@@ -88,6 +88,36 @@ That same function can be used to map non-default file extensions to an existing
 
 `ConfigLoader().withFileExtensionMapping("conf", YamlParser)`
 
+## Cascading Config
+
+Hoplite has the concept of cascading or layered config. 
+This means you can pass more than one config file to the ConfigLoader.
+When the config is resolved into Kotlin classes, a lookup will cascade or fall through one file to another in the order they were passed to the loader, until the first file that defines that key.
+
+For example, if you had the following two files in yaml:
+
+`application.yaml`:
+```yaml
+elasticsearch:
+  port: 9200
+  clusterName: product-search
+```
+
+`application-prod.yaml`:
+```yaml
+elasticsearch:
+  host: production-elasticsearch.mycompany.internal
+  port: 9202
+```
+
+And both were passed to the ConfigLoader like this: `ConfigLoader().loadConfigOrThrow<Config>("/application-prod.yaml", "/application.yaml")`, then lookups will be attempted in the order the files were declared.
+So in this case, the config would be resolved like this:
+```
+elasticsearch.port = 9202 // the value in application-prod.yaml takes priority over the value in application.yaml
+elasticsearch.host = production-elasticsearch.mycompany.internal 
+elasitcsearch.clusterName = product-search // not defined in application-prod.yaml so falls through to application.yaml
+```
+
 ## Decoders
 
 Hoplite converts the raw value in config files to JDK types using instances of the `Decoder` interface.
