@@ -13,7 +13,7 @@ class ResourceTest : FunSpec({
   test("return failure for missing resource") {
     data class Foo(val a: String)
     ConfigLoader().loadConfig<Foo>("/missing.yml").shouldBeInvalid {
-      it.e shouldBe NonEmptyList.just(ConfigFailure("Could not find resource /missing.yml"))
+      it.e shouldBe NonEmptyList.just(ConfigFailure.UnknownSource("/missing.yml"))
     }
   }
 
