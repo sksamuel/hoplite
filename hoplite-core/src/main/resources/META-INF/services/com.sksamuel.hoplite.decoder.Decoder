@@ -33,3 +33,5 @@ com.sksamuel.hoplite.decoder.URIDecoder
 com.sksamuel.hoplite.decoder.MaskedDecoder
 com.sksamuel.hoplite.decoder.InstantDecoder
 com.sksamuel.hoplite.decoder.DataClassDecoder
+com.sksamuel.hoplite.decoder.YearDecoder
+com.sksamuel.hoplite.decoder.JavaUtilDateDecoder
