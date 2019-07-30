@@ -104,7 +104,7 @@ Error loading config because:
 
 Hoplite supports config files in several formats. You can mix and match formats if you really want to.
 For each format you wish to use, you must include the appropriate hoplite module on your classpath.
-The format that hoplite uses to parser a file is determined by the file extension.
+The format that hoplite uses to parse a file is determined by the file extension.
 
 | Format | Module | File Extensions |
 |:---|:---|:---|
