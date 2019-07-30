@@ -1,7 +1,8 @@
 include 'hoplite-core',
-        'hoplite-json',
-        'hoplite-toml',
-        'hoplite-yaml',
+        'hoplite-aws',
         'hoplite-hdfs',
+        'hoplite-hocon',
+        'hoplite-json',
         'hoplite-props',
-        'hoplite-aws'
+        'hoplite-toml',
+        'hoplite-yaml'

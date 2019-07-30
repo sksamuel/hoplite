@@ -10,7 +10,7 @@ import io.kotlintest.specs.FunSpec
 import com.sksamuel.hoplite.Pos.LineColPos
 import io.kotlintest.shouldBe
 
-class JsonTest : FunSpec() {
+class JsonParserTest : FunSpec() {
   init {
 
     test("parsing basic json") {

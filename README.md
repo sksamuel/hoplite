@@ -115,9 +115,9 @@ The format that hoplite uses to parse a file is determined by the file extension
 
 If you wish to add another format you can extend `Parser` and provide an instance of that implementation to the `ConfigLoader` via `withFileExtensionMapping`.
 
-That same function can be used to map non-default file extensions to an existing parser. For example, if you wish to have your config in files called `application.conf` but in yaml format, then you can register .conf with the Yaml parser like this:
+That same function can be used to map non-default file extensions to an existing parser. For example, if you wish to have your config in files called `application.data` but in yaml format, then you can register .data with the Yaml parser like this:
 
-`ConfigLoader().withFileExtensionMapping("conf", YamlParser)`
+`ConfigLoader().withFileExtensionMapping("data", YamlParser)`
 
 ## Cascading Config
 
