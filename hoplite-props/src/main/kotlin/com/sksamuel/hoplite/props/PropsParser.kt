@@ -37,5 +37,5 @@ class PropsParser : Parser {
     return root.toNode(Pos.FilePos(source), "<root>")
   }
 
-  override fun defaultFileExtensions(): List<String> = listOf("props")
+  override fun defaultFileExtensions(): List<String> = listOf("props", "properties")
 }
