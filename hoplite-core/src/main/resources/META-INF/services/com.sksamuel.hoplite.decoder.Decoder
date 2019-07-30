@@ -37,3 +37,6 @@ com.sksamuel.hoplite.decoder.PairDecoder
 com.sksamuel.hoplite.decoder.DataClassDecoder
 com.sksamuel.hoplite.decoder.YearDecoder
 com.sksamuel.hoplite.decoder.JavaUtilDateDecoder
+com.sksamuel.hoplite.decoder.IntRangeDecoder
+com.sksamuel.hoplite.decoder.LongRangeDecoder
+com.sksamuel.hoplite.decoder.CharRangeDecoder
