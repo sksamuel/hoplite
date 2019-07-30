@@ -10,12 +10,9 @@ import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.parseDuration
-import java.time.Duration
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneOffset
+import java.time.*
 import java.time.format.DateTimeFormatter
+import java.util.*
 import kotlin.reflect.KType
 
 class LocalDateTimeDecoder : NonNullableDecoder<LocalDateTime> {
@@ -62,6 +59,30 @@ class InstantDecoder : NonNullableDecoder<Instant> {
     is StringNode -> Try { Instant.ofEpochMilli(node.value.toLong()).valid() }
       .getOrElse { ConfigFailure.DecodeError(node, type).invalid() }
     is LongNode -> Instant.ofEpochMilli(node.value).valid()
+    else -> ConfigFailure.DecodeError(node, type).invalid()
+  }
+}
+
+class YearDecoder: NonNullableDecoder<Year> {
+  override fun supports(type: KType): Boolean = type.classifier == java.time.Year::class
+  override fun safeDecode(node: Node,
+                          type: KType,
+                          registry: DecoderRegistry): ConfigResult<Year> = when(node) {
+    is StringNode -> Try { Year.of(node.value.toInt()).valid() }
+      .getOrElse { ConfigFailure.DecodeError(node, type).invalid() }
+    is LongNode -> Year.of(node.value.toInt()).valid()
+    else -> ConfigFailure.DecodeError(node, type).invalid()
+  }
+}
+
+class JavaUtilDateDecoder : NonNullableDecoder<java.util.Date> {
+  override fun supports(type: KType): Boolean = type.classifier == java.util.Date::class
+  override fun safeDecode(node: Node,
+                          type: KType,
+                          registry: DecoderRegistry): ConfigResult<Date> = when (node) {
+    is StringNode -> Try { java.util.Date(node.value.toLong()).valid() }
+      .getOrElse { ConfigFailure.DecodeError(node, type).invalid() }
+    is LongNode -> java.util.Date(node.value).valid()
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }
