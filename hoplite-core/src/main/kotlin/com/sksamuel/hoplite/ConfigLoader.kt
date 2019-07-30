@@ -111,8 +111,8 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
     fun InputSource.parse() = parserRegistry.locate(ext()).map { it.load(stream, resource) }
     fun Node.preprocess() = preprocessors.fold(this) { acc, p -> acc.transform(p::process) }
     fun List<Node>.preprocessAll() = this.map { it.preprocess() }
-    fun Node.decode() = decoderRegistry.decoder(klass, path).flatMap { decoder ->
-      decoder.decode(this, klass.createType(), decoderRegistry, path)
+    fun Node.decode() = decoderRegistry.decoder(klass).flatMap { decoder ->
+      decoder.decode(this, klass.createType(), decoderRegistry)
     }
 
     return sources.map { it.parse() }.sequence()

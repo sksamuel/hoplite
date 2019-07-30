@@ -36,23 +36,23 @@ sealed class ConfigFailure {
    * For example, if a field in data class was an int, but at runtime the configuration
    * tried to pass "hello" then this would result in a conversion failure.
    */
-  data class DecodeError(val node: Node, val param: String, val target: KType) : ConfigFailure() {
+  data class DecodeError(val node: Node, val target: KType) : ConfigFailure() {
     override fun description(): String = "Required type ${target.simpleName} could not be decoded from a ${node.simpleName} ${node.pos.loc()}"
   }
 
-  data class UnsupportedCollectionType(val node: Node, val param: String, val type: String) : ConfigFailure() {
+  data class UnsupportedCollectionType(val node: Node, val type: String) : ConfigFailure() {
     override fun description(): String = "Defined as a $type but a ${node.simpleName} cannot be converted to a collection ${node.pos.loc()}"
   }
 
-  data class NullValueForNonNullField(val node: NullNode, val path: String) : ConfigFailure() {
+  data class NullValueForNonNullField(val node: NullNode) : ConfigFailure() {
     override fun description(): String = "Type defined as not-null but null was loaded from config ${node.pos.loc()}"
   }
 
-  data class NoSuchDecoder(val type: KType, val param: String) : ConfigFailure() {
+  data class NoSuchDecoder(val type: KType) : ConfigFailure() {
     override fun description(): String = "Unable to locate a decoder for $type"
   }
 
-  data class MissingValue(val path: String) : ConfigFailure() {
+  object MissingValue : ConfigFailure() {
     override fun description(): String = "Missing from config"
   }
 
@@ -69,7 +69,6 @@ sealed class ConfigFailure {
   }
 
   data class InvalidEnumConstant(val node: Node,
-                                 val path: String,
                                  val type: KType,
                                  val value: String) : ConfigFailure() {
     override fun description(): String = "Required a value for the Enum type $type but given value was $value ${node.pos.loc()}"

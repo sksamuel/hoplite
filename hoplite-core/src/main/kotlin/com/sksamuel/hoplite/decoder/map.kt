@@ -18,8 +18,7 @@ class MapDecoder : NonNullableDecoder<Map<*, *>> {
 
   override fun safeDecode(node: Node,
                           type: KType,
-                          registry: DecoderRegistry,
-                          path: String): ConfigResult<Map<*, *>> {
+                          registry: DecoderRegistry): ConfigResult<Map<*, *>> {
     require(type.arguments.size == 2)
 
     val kType = type.arguments[0].type!!
@@ -31,8 +30,8 @@ class MapDecoder : NonNullableDecoder<Map<*, *>> {
                       registry: DecoderRegistry): ConfigResult<Map<*, *>> {
 
       return node.map.entries.map { (k, v) ->
-        kdecoder.decode(StringNode(k, node.pos, node.dotpath), kType, registry, path).flatMap { kk ->
-          vdecoder.decode(v, vType, registry, path).map { vv ->
+        kdecoder.decode(StringNode(k, node.pos, node.dotpath), kType, registry).flatMap { kk ->
+          vdecoder.decode(v, vType, registry).map { vv ->
             kk to vv
           }
         }
@@ -41,11 +40,11 @@ class MapDecoder : NonNullableDecoder<Map<*, *>> {
         .map { it.toMap() }
     }
 
-    return registry.decoder(kType, path).flatMap { kdecoder ->
-      registry.decoder(vType, path).flatMap { vdecoder ->
+    return registry.decoder(kType).flatMap { kdecoder ->
+      registry.decoder(vType).flatMap { vdecoder ->
         when (node) {
           is MapNode -> decode(node, kdecoder, vdecoder, registry)
-          else -> ConfigFailure.UnsupportedCollectionType(node, path, "Map").invalid()
+          else -> ConfigFailure.UnsupportedCollectionType(node, "Map").invalid()
         }
       }
     }

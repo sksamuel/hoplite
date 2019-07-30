@@ -18,15 +18,13 @@ class RegionDecoderProviderTest : StringSpec() {
       RegionDecoder().safeDecode(
         StringNode("us-east-1", Pos.NoPos, dotpath = ""),
         Region::class.createType(),
-        DecoderRegistry.zero,
-        ""
+        DecoderRegistry.zero
       ) shouldBe Region.getRegion(Regions.US_EAST_1).valid()
 
       RegionDecoder().safeDecode(
         StringNode("us-qwewqe-1", Pos.NoPos, dotpath = ""),
         Region::class.createType(),
-        DecoderRegistry.zero,
-        ""
+        DecoderRegistry.zero
       ) shouldBe
         ConfigFailure.Generic("Cannot create region from us-qwewqe-1").invalid()
     }

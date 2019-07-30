@@ -17,14 +17,16 @@ class RegionDecoder : NonNullableDecoder<Region> {
 
   override fun supports(type: KType): Boolean = type.classifier == Region::class
 
-  override fun safeDecode(node: Node, type: KType, registry: DecoderRegistry, path: String): ConfigResult<Region> {
+  override fun safeDecode(node: Node,
+                          type: KType,
+                          registry: DecoderRegistry): ConfigResult<Region> {
     fun regionFromName(name: String): ConfigResult<Region> =
         Try { Region.getRegion(Regions.fromName(name)) }
           .toValidated { ConfigFailure.Generic("Cannot create region from $name") }
 
     return when (node) {
       is StringNode -> regionFromName(node.value)
-      else -> ConfigFailure.DecodeError(node, path, type).invalid()
+      else -> ConfigFailure.DecodeError(node, type).invalid()
     }
   }
 }

@@ -17,11 +17,10 @@ class BigIntegerDecoder : NonNullableDecoder<BigInteger> {
   override fun supports(type: KType): Boolean = type.classifier == BigInteger::class
   override fun safeDecode(node: Node,
                           type: KType,
-                          registry: DecoderRegistry,
-                          path: String): ConfigResult<BigInteger> = when (node) {
+                          registry: DecoderRegistry): ConfigResult<BigInteger> = when (node) {
     is StringNode -> Try { node.value.toLong().toBigInteger() }.toValidated { ThrowableFailure(it) }
     is LongNode -> node.value.toBigInteger().valid()
-    else -> ConfigFailure.DecodeError(node, path, type).invalid()
+    else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }
 

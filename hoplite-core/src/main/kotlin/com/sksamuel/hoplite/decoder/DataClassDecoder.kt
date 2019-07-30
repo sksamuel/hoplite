@@ -15,16 +15,15 @@ class DataClassDecoder : Decoder<Any> {
 
   override fun decode(node: Node,
                       type: KType,
-                      registry: DecoderRegistry,
-                      path: String): ConfigResult<Any> {
+                      registry: DecoderRegistry): ConfigResult<Any> {
 
     val klass = type.classifier as KClass<*>
 
     val args: ValidatedNel<ConfigFailure, List<Any?>> = klass.constructors.first().parameters.map { param ->
       val paramName = param.name ?: "<anon>"
-      val n = node.atKey(param.name!!)
-      registry.decoder(param.type, paramName)
-        .flatMap { it.decode(n, param.type, registry, paramName) }
+      val n = node.atKey(paramName)
+      registry.decoder(param.type)
+        .flatMap { it.decode(n, param.type, registry) }
         .leftMap { ConfigFailure.ParamFailure(paramName, it) }
     }.sequence()
 

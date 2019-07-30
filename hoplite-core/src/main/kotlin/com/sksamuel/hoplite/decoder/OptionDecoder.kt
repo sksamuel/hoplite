@@ -23,20 +23,19 @@ class OptionDecoder : Decoder<Option<*>> {
 
   override fun decode(node: Node,
                       type: KType,
-                      registry: DecoderRegistry,
-                      path: String): ConfigResult<Option<*>> {
+                      registry: DecoderRegistry): ConfigResult<Option<*>> {
     require(type.arguments.size == 1)
     val t = type.arguments[0].type!!
 
     fun <T> decode(node: Node, decoder: Decoder<T>): ConfigResult<Option<T>> {
-      return decoder.decode(node, t, registry, path).map { Some(it) }
+      return decoder.decode(node, t, registry).map { Some(it) }
     }
 
-    return registry.decoder(t, path).flatMap { decoder ->
+    return registry.decoder(t).flatMap { decoder ->
       when (node) {
         is UndefinedNode, is NullNode -> None.valid()
         is StringNode, is LongNode, is DoubleNode, is BooleanNode -> decode(node, decoder)
-        else -> ConfigFailure.DecodeError(node, path, type).invalid()
+        else -> ConfigFailure.DecodeError(node, type).invalid()
       }
     }
   }

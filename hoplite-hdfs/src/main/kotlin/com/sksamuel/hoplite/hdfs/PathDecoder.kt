@@ -16,10 +16,12 @@ class PathDecoder : NonNullableDecoder<Path> {
 
   override fun supports(type: KType): Boolean = type.classifier == Path::class
 
-  override fun safeDecode(node: Node, type: KType, registry: DecoderRegistry, path: String): ConfigResult<Path> {
+  override fun safeDecode(node: Node,
+                          type: KType,
+                          registry: DecoderRegistry): ConfigResult<Path> {
     return when (node) {
       is StringNode -> Path(node.value).valid()
-      else -> ConfigFailure.DecodeError(node, path, Path::class.createType()).invalid()
+      else -> ConfigFailure.DecodeError(node, Path::class.createType()).invalid()
     }
   }
 }

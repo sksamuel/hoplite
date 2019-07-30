@@ -20,34 +20,33 @@ class NonEmptyListDecoder : NonNullableDecoder<NonEmptyList<*>> {
 
   override fun safeDecode(node: Node,
                           type: KType,
-                          registry: DecoderRegistry,
-                          path: String): ConfigResult<NonEmptyList<*>> {
+                          registry: DecoderRegistry): ConfigResult<NonEmptyList<*>> {
     require(type.arguments.size == 1)
     val t = type.arguments[0].type!!
 
     fun <T> decode(node: StringNode, decoder: Decoder<T>): ConfigResult<NonEmptyList<T>> {
       return node.value.split(",").map { it.trim() }
-        .map { decoder.decode(StringNode(it, node.pos, node.dotpath), type, registry, path) }.sequence()
+        .map { decoder.decode(StringNode(it, node.pos, node.dotpath), type, registry) }.sequence()
         .leftMap { ConfigFailure.CollectionElementErrors(node, it) }
         .map { NonEmptyList.fromListUnsafe(it) }
     }
 
     fun <T> decode(node: ListNode, decoder: Decoder<T>): ConfigResult<NonEmptyList<T>> {
-      return node.elements.map { decoder.decode(it, type, registry, path) }.sequence()
+      return node.elements.map { decoder.decode(it, type, registry) }.sequence()
         .leftMap { ConfigFailure.CollectionElementErrors(node, it) }
         .flatMap { ts ->
         NonEmptyList.fromList(ts).fold(
-          { ConfigFailure.DecodeError(node, path, type).invalid() },
+          { ConfigFailure.DecodeError(node, type).invalid() },
           { it.valid() }
         )
       }
     }
 
-    return registry.decoder(t, path).flatMap { decoder ->
+    return registry.decoder(t).flatMap { decoder ->
       when (node) {
         is StringNode -> decode(node, decoder)
         is ListNode -> decode(node, decoder)
-        else -> ConfigFailure.DecodeError(node, path, type).invalid()
+        else -> ConfigFailure.DecodeError(node, type).invalid()
       }
     }
   }

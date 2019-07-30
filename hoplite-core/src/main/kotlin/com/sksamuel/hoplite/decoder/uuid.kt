@@ -14,11 +14,10 @@ class UUIDDecoder : NonNullableDecoder<UUID> {
   override fun supports(type: KType): Boolean = type.classifier == UUID::class
   override fun safeDecode(node: Node,
                           type: KType,
-                          registry: DecoderRegistry,
-                          path: String): ConfigResult<UUID> = when (node) {
+                          registry: DecoderRegistry): ConfigResult<UUID> = when (node) {
     is StringNode ->
       Try { UUID.fromString(node.value) }
-        .toValidated { ConfigFailure.DecodeError(node, path, type) }
-    else -> ConfigFailure.DecodeError(node, path, type).invalid()
+        .toValidated { ConfigFailure.DecodeError(node, type) }
+    else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }

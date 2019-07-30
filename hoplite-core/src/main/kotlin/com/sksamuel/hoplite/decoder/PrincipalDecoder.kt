@@ -13,10 +13,9 @@ class PrincipalDecoder : NonNullableDecoder<Principal> {
   override fun supports(type: KType): Boolean = type.classifier == Principal::class
   override fun safeDecode(node: Node,
                           type: KType,
-                          registry: DecoderRegistry,
-                          path: String): ConfigResult<Principal> = when (node) {
+                          registry: DecoderRegistry): ConfigResult<Principal> = when (node) {
     is StringNode -> BasicPrincipal(node.value).valid()
-    else -> ConfigFailure.DecodeError(node, path, type).invalid()
+    else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }
 

@@ -15,11 +15,10 @@ class MaskedDecoder : NonNullableDecoder<Masked> {
   override fun supports(type: KType): Boolean = type.classifier == Masked::class
   override fun safeDecode(node: Node,
                           type: KType,
-                          registry: DecoderRegistry,
-                          path: String): ConfigResult<Masked> = when (node) {
+                          registry: DecoderRegistry): ConfigResult<Masked> = when (node) {
     is StringNode -> Masked(node.value).valid()
     is LongNode -> Masked(node.value.toString()).valid()
     is DoubleNode -> Masked(node.value.toString()).valid()
-    else -> ConfigFailure.DecodeError(node, path, type).invalid()
+    else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }

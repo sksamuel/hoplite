@@ -15,10 +15,9 @@ class URLDecoder : NonNullableDecoder<URL> {
   override fun supports(type: KType): Boolean = type.classifier == URL::class
   override fun safeDecode(node: Node,
                           type: KType,
-                          registry: DecoderRegistry,
-                          path: String): ConfigResult<URL> = when (node) {
-    is StringNode -> Try { URL(node.value) }.toValidated { ConfigFailure.DecodeError(node, path, type) }
-    else -> ConfigFailure.DecodeError(node, path, type).invalid()
+                          registry: DecoderRegistry): ConfigResult<URL> = when (node) {
+    is StringNode -> Try { URL(node.value) }.toValidated { ConfigFailure.DecodeError(node, type) }
+    else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }
 
@@ -26,9 +25,8 @@ class URIDecoder : NonNullableDecoder<URI> {
   override fun supports(type: KType): Boolean = type.classifier == URI::class
   override fun safeDecode(node: Node,
                           type: KType,
-                          registry: DecoderRegistry,
-                          path: String): ConfigResult<URI> = when (node) {
-    is StringNode -> Try { URI.create(node.value) }.toValidated { ConfigFailure.DecodeError(node, path, type) }
-    else -> ConfigFailure.DecodeError(node, path, type).invalid()
+                          registry: DecoderRegistry): ConfigResult<URI> = when (node) {
+    is StringNode -> Try { URI.create(node.value) }.toValidated { ConfigFailure.DecodeError(node, type) }
+    else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }

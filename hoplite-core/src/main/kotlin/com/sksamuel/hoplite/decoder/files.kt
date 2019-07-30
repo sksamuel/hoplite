@@ -15,10 +15,9 @@ class FileDecoder : NonNullableDecoder<File> {
   override fun supports(type: KType): Boolean = type.classifier == File::class
   override fun safeDecode(node: Node,
                           type: KType,
-                          registry: DecoderRegistry,
-                          path: String): ConfigResult<File> = when (node) {
+                          registry: DecoderRegistry): ConfigResult<File> = when (node) {
     is StringNode -> File(node.value).valid()
-    else -> ConfigFailure.DecodeError(node, path, type).invalid()
+    else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }
 
@@ -26,9 +25,8 @@ class PathDecoder : NonNullableDecoder<Path> {
   override fun supports(type: KType): Boolean = type.classifier == Path::class
   override fun safeDecode(node: Node,
                           type: KType,
-                          registry: DecoderRegistry,
-                          path: String): ConfigResult<Path> = when (node) {
+                          registry: DecoderRegistry): ConfigResult<Path> = when (node) {
     is StringNode -> Paths.get(node.value).valid()
-    else -> ConfigFailure.DecodeError(node, path, type).invalid()
+    else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }

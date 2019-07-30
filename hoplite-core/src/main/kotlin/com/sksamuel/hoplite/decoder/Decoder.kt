@@ -9,21 +9,20 @@ import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.UndefinedNode
-import java.lang.reflect.ParameterizedType
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.createType
 
-inline fun <reified T : Any> DecoderRegistry.decoder(path: String): ConfigResult<Decoder<T>> = decoder(T::class, path)
+inline fun <reified T : Any> DecoderRegistry.decoder(): ConfigResult<Decoder<T>> = decoder(T::class)
 
 /**
  * An immutable registry for providing instances of a [Decoder] for a given type.
  */
 interface DecoderRegistry {
 
-  fun <T : Any> decoder(t: KClass<T>, path: String): ConfigResult<Decoder<T>>
-  fun decoder(type: KType, path: String): ConfigResult<Decoder<*>>
+  fun <T : Any> decoder(t: KClass<T>): ConfigResult<Decoder<T>>
+  fun decoder(type: KType): ConfigResult<Decoder<*>>
   fun register(decoder: Decoder<*>): DecoderRegistry
 
   companion object {
@@ -34,12 +33,12 @@ interface DecoderRegistry {
 @Suppress("UNCHECKED_CAST")
 class DefaultDecoderRegistry(private val decoders: List<Decoder<*>>) : DecoderRegistry {
 
-  override fun <T : Any> decoder(t: KClass<T>, path: String): ConfigResult<Decoder<T>> {
-    return decoder(t.createType(), path).map { it as Decoder<T> }
+  override fun <T : Any> decoder(t: KClass<T>): ConfigResult<Decoder<T>> {
+    return decoder(t.createType()).map { it as Decoder<T> }
   }
 
-  override fun decoder(type: KType, path: String): ConfigResult<Decoder<*>> =
-    decoders.find { it.supports(type) }?.valid() ?: ConfigFailure.NoSuchDecoder(type, path).invalid()
+  override fun decoder(type: KType): ConfigResult<Decoder<*>> =
+    decoders.find { it.supports(type) }?.valid() ?: ConfigFailure.NoSuchDecoder(type).invalid()
 
   override fun register(decoder: Decoder<*>): DecoderRegistry = DefaultDecoderRegistry(decoders + decoder)
 }
@@ -62,12 +61,10 @@ interface Decoder<T> {
    * @param node contains the value for the current dot path
    * @param type the concrete type required by the caller
    * @param registry used to lookup decoders for types that have nested types
-   * @param path dot seperated path to the field currently being decoded.
    */
   fun decode(node: Node,
              type: KType,
-             registry: DecoderRegistry,
-             path: String): ConfigResult<T>
+             registry: DecoderRegistry): ConfigResult<T>
 }
 
 /**
@@ -76,21 +73,23 @@ interface Decoder<T> {
 @Suppress("UNCHECKED_CAST")
 interface NonNullableDecoder<T> : Decoder<T> {
 
-  private fun decode(node: NullNode, path: String, type: KType): Validated<ConfigFailure, *> {
+  private fun decode(node: NullNode, type: KType): Validated<ConfigFailure, *> {
     return if (type.isMarkedNullable) Valid(null) else
-      ConfigFailure.NullValueForNonNullField(node, path).invalid()
+      ConfigFailure.NullValueForNonNullField(node).invalid()
   }
 
-  private fun decode(path: String, type: KType): Validated<ConfigFailure, *> {
+  private fun decode(type: KType): Validated<ConfigFailure, *> {
     return if (type.isMarkedNullable) Valid(null) else
-      ConfigFailure.MissingValue(path).invalid()
+      ConfigFailure.MissingValue.invalid()
   }
 
-  override fun decode(node: Node, type: KType, registry: DecoderRegistry, path: String): Validated<ConfigFailure, T> =
+  override fun decode(node: Node,
+                      type: KType,
+                      registry: DecoderRegistry): Validated<ConfigFailure, T> =
     when (node) {
-      is UndefinedNode -> decode(path, type).map { it as T }
-      is NullNode -> decode(node, path, type).map { it as T }
-      else -> safeDecode(node, type, registry, path)
+      is UndefinedNode -> decode(type).map { it as T }
+      is NullNode -> decode(node, type).map { it as T }
+      else -> safeDecode(node, type, registry)
     }
 
   /**
@@ -99,21 +98,8 @@ interface NonNullableDecoder<T> : Decoder<T> {
    * @param node contains the value for the current dot path
    * @param type the concrete type required by the caller
    * @param registry used to lookup decoders for types that have nested types
-   * @param path dot seperated path to the field currently being decoded.
    */
   fun safeDecode(node: Node,
                  type: KType,
-                 registry: DecoderRegistry,
-                 path: String): ConfigResult<T>
+                 registry: DecoderRegistry): ConfigResult<T>
 }
-
-val Any.typeParameters: List<Class<*>?>
-  get() {
-    val ptype = this.javaClass.genericSuperclass as ParameterizedType
-    return ptype.actualTypeArguments.map {
-      when (it) {
-        is Class<*> -> it
-        else -> null
-      }
-    }
-  }

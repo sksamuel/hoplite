@@ -15,10 +15,9 @@ class InetAddressDecoder : NonNullableDecoder<InetAddress> {
   override fun supports(type: KType): Boolean = type.classifier == InetAddress::class
   override fun safeDecode(node: Node,
                           type: KType,
-                          registry: DecoderRegistry,
-                          path: String): ConfigResult<InetAddress> = when (node) {
+                          registry: DecoderRegistry): ConfigResult<InetAddress> = when (node) {
     is StringNode -> Try { InetAddress.getByName(node.value) }.toValidated { ThrowableFailure(it) }
-    else -> ConfigFailure.DecodeError(node, path, type).invalid()
+    else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }
 

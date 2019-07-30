@@ -14,9 +14,8 @@ class RegexDecoder : NonNullableDecoder<Regex> {
 
   override fun safeDecode(node: Node,
                           type: KType,
-                          registry: DecoderRegistry,
-                          path: String): ConfigResult<Regex> = when (node) {
+                          registry: DecoderRegistry): ConfigResult<Regex> = when (node) {
     is StringNode -> node.value.toRegex().valid()
-    else -> ConfigFailure.DecodeError(node, path, type).invalid()
+    else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }

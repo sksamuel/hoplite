@@ -18,27 +18,26 @@ class ListDecoder : Decoder<List<*>> {
 
   override fun decode(node: Node,
                       type: KType,
-                      registry: DecoderRegistry,
-                      path: String): ConfigResult<List<*>> {
+                      registry: DecoderRegistry): ConfigResult<List<*>> {
     require(type.arguments.size == 1)
     val t = type.arguments[0].type!!
 
     fun <T> decode(node: ListNode, decoder: Decoder<T>): ConfigResult<List<T>> {
-      return node.elements.map { decoder.decode(it, t, registry, path) }.sequence()
+      return node.elements.map { decoder.decode(it, t, registry) }.sequence()
         .leftMap { ConfigFailure.CollectionElementErrors(node, it) }
     }
 
     fun <T> decode(node: StringNode, decoder: Decoder<T>): ConfigResult<List<T>> {
       val tokens = node.value.split(",").map { StringNode(it.trim(), node.pos, node.dotpath) }
-      return tokens.map { decoder.decode(it, t, registry, path) }.sequence()
+      return tokens.map { decoder.decode(it, t, registry) }.sequence()
         .leftMap { ConfigFailure.CollectionElementErrors(node, it) }
     }
 
-    return registry.decoder(t, path).flatMap { decoder ->
+    return registry.decoder(t).flatMap { decoder ->
       when (node) {
         is ListNode -> decode(node, decoder)
         is StringNode -> decode(node, decoder)
-        else -> ConfigFailure.UnsupportedCollectionType(node, path, "List").invalid()
+        else -> ConfigFailure.UnsupportedCollectionType(node, "List").invalid()
       }
     }
   }

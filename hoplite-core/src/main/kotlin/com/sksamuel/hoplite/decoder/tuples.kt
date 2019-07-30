@@ -18,15 +18,14 @@ class Tuple2Decoder : NonNullableDecoder<Tuple2<*, *>> {
 
   override fun safeDecode(node: Node,
                           type: KType,
-                          registry: DecoderRegistry,
-                          path: String): ConfigResult<Tuple2<*, *>> {
+                          registry: DecoderRegistry): ConfigResult<Tuple2<*, *>> {
 
     fun decode(node: ListNode): ConfigResult<Tuple2<Any?, Any?>> {
       return if (node.elements.size == 2) {
         val aType = type.arguments[0].type!!
         val bType = type.arguments[1].type!!
-        val adecoder = registry.decoder(aType, path).flatMap { it.decode(node.atIndex(0), aType, registry, path) }
-        val bdecoder = registry.decoder(bType, path).flatMap { it.decode(node.atIndex(1), bType, registry, path) }
+        val adecoder = registry.decoder(aType).flatMap { it.decode(node.atIndex(0), aType, registry) }
+        val bdecoder = registry.decoder(bType).flatMap { it.decode(node.atIndex(1), bType, registry) }
         arrow.data.extensions.validated.applicative.map(NonEmptyList.semigroup(),
           adecoder.toValidatedNel(),
           bdecoder.toValidatedNel()) { it }
@@ -36,7 +35,7 @@ class Tuple2Decoder : NonNullableDecoder<Tuple2<*, *>> {
 
     return when (node) {
       is ListNode -> decode(node)
-      else -> ConfigFailure.DecodeError(node, path, type).invalid()
+      else -> ConfigFailure.DecodeError(node, type).invalid()
     }
   }
 }
@@ -47,17 +46,16 @@ class Tuple3Decoder : NonNullableDecoder<Tuple3<*, *, *>> {
 
   override fun safeDecode(node: Node,
                           type: KType,
-                          registry: DecoderRegistry,
-                          path: String): ConfigResult<Tuple3<*, *, *>> {
+                          registry: DecoderRegistry): ConfigResult<Tuple3<*, *, *>> {
 
     fun decode(node: ListNode): ConfigResult<Tuple3<Any?, Any?, Any?>> {
       return if (node.elements.size == 3) {
         val aType = type.arguments[0].type!!
         val bType = type.arguments[1].type!!
         val cType = type.arguments[2].type!!
-        val adecoder = registry.decoder(aType, path).flatMap { it.decode(node.atIndex(0), aType, registry, path) }
-        val bdecoder = registry.decoder(bType, path).flatMap { it.decode(node.atIndex(1), bType, registry, path) }
-        val cdecoder = registry.decoder(cType, path).flatMap { it.decode(node.atIndex(2), cType, registry, path) }
+        val adecoder = registry.decoder(aType).flatMap { it.decode(node.atIndex(0), aType, registry) }
+        val bdecoder = registry.decoder(bType).flatMap { it.decode(node.atIndex(1), bType, registry) }
+        val cdecoder = registry.decoder(cType).flatMap { it.decode(node.atIndex(2), cType, registry) }
         arrow.data.extensions.validated.applicative.map(NonEmptyList.semigroup(),
           adecoder.toValidatedNel(),
           bdecoder.toValidatedNel(),
@@ -68,7 +66,7 @@ class Tuple3Decoder : NonNullableDecoder<Tuple3<*, *, *>> {
 
     return when (node) {
       is ListNode -> decode(node)
-      else -> ConfigFailure.DecodeError(node, path, type).invalid()
+      else -> ConfigFailure.DecodeError(node, type).invalid()
     }
   }
 }

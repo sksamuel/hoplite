@@ -18,11 +18,10 @@ class BigDecimalDecoder : NonNullableDecoder<BigDecimal> {
   override fun supports(type: KType): Boolean = type.classifier == BigDecimal::class
   override fun safeDecode(node: Node,
                           type: KType,
-                          registry: DecoderRegistry,
-                          path: String): ConfigResult<BigDecimal> = when (node) {
+                          registry: DecoderRegistry): ConfigResult<BigDecimal> = when (node) {
     is StringNode -> Try { node.value.toDouble().toBigDecimal() }.toValidated { ThrowableFailure(it) }
     is LongNode -> node.value.toBigDecimal().valid()
     is DoubleNode -> node.value.toBigDecimal().valid()
-    else -> ConfigFailure.DecodeError(node, path, type).invalid()
+    else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }

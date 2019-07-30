@@ -19,15 +19,14 @@ class EnumDecoder<T : Any> : NonNullableDecoder<T> {
 
   override fun safeDecode(node: Node,
                           type: KType,
-                          registry: DecoderRegistry,
-                          path: String): ConfigResult<T> {
+                          registry: DecoderRegistry): ConfigResult<T> {
 
     val klass = type.classifier as KClass<*>
 
     fun decode(value: String): ConfigResult<T> {
       val t = klass.java.enumConstants.find { it.toString() == value }
       return if (t == null)
-        ConfigFailure.InvalidEnumConstant(node, path, type, value).invalid()
+        ConfigFailure.InvalidEnumConstant(node, type, value).invalid()
       else
         (t as T).valid()
     }
@@ -37,7 +36,7 @@ class EnumDecoder<T : Any> : NonNullableDecoder<T> {
       is BooleanNode -> decode(node.value.toString())
       is LongNode -> decode(node.value.toString())
       is DoubleNode -> decode(node.value.toString())
-      else -> ConfigFailure.DecodeError(node, path, type).invalid()
+      else -> ConfigFailure.DecodeError(node, type).invalid()
     }
   }
 }

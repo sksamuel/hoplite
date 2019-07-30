@@ -1,6 +1,5 @@
 package com.sksamuel.hoplite.yaml
 
-import arrow.data.NonEmptyList
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigLoader
 import io.kotlintest.assertions.arrow.validation.shouldBeInvalid
@@ -13,7 +12,7 @@ class ResourceTest : FunSpec({
   test("return failure for missing resource") {
     data class Foo(val a: String)
     ConfigLoader().loadConfig<Foo>("/missing.yml").shouldBeInvalid {
-      it.e shouldBe NonEmptyList.just(ConfigFailure.UnknownSource("/missing.yml"))
+      it.e shouldBe ConfigFailure.UnknownSource("/missing.yml")
     }
   }
 
