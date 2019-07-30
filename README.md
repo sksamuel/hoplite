@@ -111,7 +111,8 @@ The format that hoplite uses to parse a file is determined by the file extension
 | Json | [`hoplite-json`](https://search.maven.org/search?q=hoplite-json) | .json |
 | [Yaml](https://yaml.org/) | [`hoplite-yaml`](https://search.maven.org/search?q=hoplite-yaml) | .yml, .yaml |
 | [Toml](https://github.com/toml-lang/toml) | [`hoplite-toml`](https://search.maven.org/search?q=hoplite-toml) | .toml |
-| Java Properties files | [`hoplite-props`](https://search.maven.org/search?q=hoplite-props) | .props |
+| [Hocon](https://github.com/lightbend/config) | [`hoplite-hocon`](https://search.maven.org/search?q=hoplite-hocon) | .conf |
+| Java Properties files | [`hoplite-props`](https://search.maven.org/search?q=hoplite-props) | .props, .properties |
 
 If you wish to add another format you can extend `Parser` and provide an instance of that implementation to the `ConfigLoader` via `withFileExtensionMapping`.
 
@@ -167,6 +168,8 @@ There are built in decoders for all the standard day to day types, such as primi
 | `LocalDate` |
 | `Duration` | Converts a String into a Duration, where the string uses a value and unit such as "10 seconds" or "5m". Also supports a long value which will be interpreted as a Duration of milliseconds. |
 | `Instant` |  |
+| `Year` | |
+| `java.util.Date` | |
 | `Regex` | |
 | `UUID` | Creates a `java.util.UUID` from a String |
 | `List<A>` | Creates a List from either an array or a string delimited by commas. 
