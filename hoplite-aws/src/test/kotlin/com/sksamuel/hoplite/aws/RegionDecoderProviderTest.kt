@@ -1,6 +1,6 @@
 package com.sksamuel.hoplite.aws
 
-import arrow.data.invalidNel
+import arrow.data.invalid
 import arrow.data.valid
 import com.amazonaws.regions.Region
 import com.amazonaws.regions.Regions
@@ -28,7 +28,7 @@ class RegionDecoderProviderTest : StringSpec() {
         DecoderRegistry.zero,
         ""
       ) shouldBe
-        ConfigFailure.Generic("Cannot create region from us-qwewqe-1").invalidNel()
+        ConfigFailure.Generic("Cannot create region from us-qwewqe-1").invalid()
     }
   }
 }

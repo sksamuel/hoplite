@@ -69,7 +69,7 @@ Another is to return an `arrow.data.Validated` via the `loadConfig<T>` function.
 For most cases, when you are resolving config at application startup, the exception based approach is better. 
 This is because you typically want any errors in config to abort application bootstrapping, dumping errors to the console.
 
-### Beautiful Errors
+## Beautiful Errors
 
 When an error does occur, if you choose to throw an exception, the errors will be formatted in a human readable way along with as much location information as possible. 
 No more trying to track down a `NumberFormatException` in a 400 line config file.
