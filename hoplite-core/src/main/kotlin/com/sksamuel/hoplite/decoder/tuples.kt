@@ -4,7 +4,7 @@ import arrow.core.Tuple2
 import arrow.core.Tuple3
 import arrow.data.NonEmptyList
 import arrow.data.extensions.nonemptylist.semigroup.semigroup
-import arrow.data.invalidNel
+import arrow.data.invalid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.ListNode
@@ -27,13 +27,16 @@ class Tuple2Decoder : NonNullableDecoder<Tuple2<*, *>> {
         val bType = type.arguments[1].type!!
         val adecoder = registry.decoder(aType, path).flatMap { it.decode(node.atIndex(0), aType, registry, path) }
         val bdecoder = registry.decoder(bType, path).flatMap { it.decode(node.atIndex(1), bType, registry, path) }
-        arrow.data.extensions.validated.applicative.map(NonEmptyList.semigroup(), adecoder, bdecoder) { it }
-      } else ConfigFailure.Generic("Tuple2 requires a list of two elements but list had size ${node.elements.size}").invalidNel()
+        arrow.data.extensions.validated.applicative.map(NonEmptyList.semigroup(),
+          adecoder.toValidatedNel(),
+          bdecoder.toValidatedNel()) { it }
+          .leftMap { ConfigFailure.TupleErrors(node, it) }
+      } else ConfigFailure.Generic("Tuple2 requires a list of two elements but list had size ${node.elements.size}").invalid()
     }
 
     return when (node) {
       is ListNode -> decode(node)
-      else -> ConfigFailure.TypeConversionFailure(node, path, type).invalidNel()
+      else -> ConfigFailure.DecodeError(node, path, type).invalid()
     }
   }
 }
@@ -55,13 +58,17 @@ class Tuple3Decoder : NonNullableDecoder<Tuple3<*, *, *>> {
         val adecoder = registry.decoder(aType, path).flatMap { it.decode(node.atIndex(0), aType, registry, path) }
         val bdecoder = registry.decoder(bType, path).flatMap { it.decode(node.atIndex(1), bType, registry, path) }
         val cdecoder = registry.decoder(cType, path).flatMap { it.decode(node.atIndex(2), cType, registry, path) }
-        arrow.data.extensions.validated.applicative.map(NonEmptyList.semigroup(), adecoder, bdecoder, cdecoder) { it }
-      } else ConfigFailure.Generic("Tuple3 requires a list of three elements but list had size ${node.elements.size}").invalidNel()
+        arrow.data.extensions.validated.applicative.map(NonEmptyList.semigroup(),
+          adecoder.toValidatedNel(),
+          bdecoder.toValidatedNel(),
+          cdecoder.toValidatedNel()) { it }
+          .leftMap { ConfigFailure.TupleErrors(node, it) }
+      } else ConfigFailure.Generic("Tuple3 requires a list of three elements but list had size ${node.elements.size}").invalid()
     }
 
     return when (node) {
       is ListNode -> decode(node)
-      else -> ConfigFailure.TypeConversionFailure(node, path, type).invalidNel()
+      else -> ConfigFailure.DecodeError(node, path, type).invalid()
     }
   }
 }

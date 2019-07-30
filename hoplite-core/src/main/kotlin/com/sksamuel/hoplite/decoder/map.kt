@@ -1,8 +1,6 @@
 package com.sksamuel.hoplite.decoder
 
-import arrow.data.NonEmptyList
-import arrow.data.extensions.nonemptylist.semigroup.semigroup
-import arrow.data.invalidNel
+import arrow.data.invalid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.MapNode
@@ -19,9 +17,9 @@ class MapDecoder : NonNullableDecoder<Map<*, *>> {
   override fun supports(type: KType): Boolean = type.isSubtypeOf(Map::class.starProjectedType)
 
   override fun safeDecode(node: Node,
-                      type: KType,
-                      registry: DecoderRegistry,
-                      path: String): ConfigResult<Map<*, *>> {
+                          type: KType,
+                          registry: DecoderRegistry,
+                          path: String): ConfigResult<Map<*, *>> {
     require(type.arguments.size == 2)
 
     val kType = type.arguments[0].type!!
@@ -33,18 +31,21 @@ class MapDecoder : NonNullableDecoder<Map<*, *>> {
                       registry: DecoderRegistry): ConfigResult<Map<*, *>> {
 
       return node.map.entries.map { (k, v) ->
-        arrow.data.extensions.validated.applicative.map(
-          NonEmptyList.semigroup(),
-          kdecoder.decode(StringNode(k, node.pos, node.dotpath), kType, registry, path),
-          vdecoder.decode(v, vType, registry, path)) { (a, b) -> a to b }
-      }.sequence().map { it.toMap() }
+        kdecoder.decode(StringNode(k, node.pos, node.dotpath), kType, registry, path).flatMap { kk ->
+          vdecoder.decode(v, vType, registry, path).map { vv ->
+            kk to vv
+          }
+        }
+      }.sequence()
+        .leftMap { ConfigFailure.CollectionElementErrors(node, it) }
+        .map { it.toMap() }
     }
 
     return registry.decoder(kType, path).flatMap { kdecoder ->
       registry.decoder(vType, path).flatMap { vdecoder ->
         when (node) {
           is MapNode -> decode(node, kdecoder, vdecoder, registry)
-          else -> ConfigFailure("Unsupported map type $vType").invalidNel()
+          else -> ConfigFailure.UnsupportedCollectionType(node, path, "Map").invalid()
         }
       }
     }

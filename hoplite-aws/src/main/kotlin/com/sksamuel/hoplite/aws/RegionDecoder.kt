@@ -1,11 +1,11 @@
 package com.sksamuel.hoplite.aws
 
 import arrow.core.Try
+import arrow.data.invalid
 import com.amazonaws.regions.Region
 import com.amazonaws.regions.Regions
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
-import com.sksamuel.hoplite.ConfigResults
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.arrow.toValidated
@@ -20,12 +20,11 @@ class RegionDecoder : NonNullableDecoder<Region> {
   override fun safeDecode(node: Node, type: KType, registry: DecoderRegistry, path: String): ConfigResult<Region> {
     fun regionFromName(name: String): ConfigResult<Region> =
         Try { Region.getRegion(Regions.fromName(name)) }
-            .toValidated { ConfigFailure("Cannot create region from $name") }
-            .toValidatedNel()
+          .toValidated { ConfigFailure.Generic("Cannot create region from $name") }
 
     return when (node) {
       is StringNode -> regionFromName(node.value)
-      else -> ConfigResults.decodeFailure(node, path, Region::class)
+      else -> ConfigFailure.DecodeError(node, path, type).invalid()
     }
   }
 }

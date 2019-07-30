@@ -1,7 +1,7 @@
 package com.sksamuel.hoplite.decoder
 
-import arrow.data.invalidNel
-import arrow.data.validNel
+import arrow.data.invalid
+import arrow.data.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Node
@@ -15,8 +15,8 @@ class PrincipalDecoder : NonNullableDecoder<Principal> {
                           type: KType,
                           registry: DecoderRegistry,
                           path: String): ConfigResult<Principal> = when (node) {
-    is StringNode -> BasicPrincipal(node.value).validNel()
-    else -> ConfigFailure.conversionFailure<Principal>(node).invalidNel()
+    is StringNode -> BasicPrincipal(node.value).valid()
+    else -> ConfigFailure.DecodeError(node, path, type).invalid()
   }
 }
 

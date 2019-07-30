@@ -3,7 +3,7 @@ package com.sksamuel.hoplite.decoder
 import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
-import arrow.data.invalidNel
+import arrow.data.invalid
 import arrow.data.valid
 import com.sksamuel.hoplite.BooleanNode
 import com.sksamuel.hoplite.ConfigFailure
@@ -36,7 +36,7 @@ class OptionDecoder : Decoder<Option<*>> {
       when (node) {
         is UndefinedNode, is NullNode -> None.valid()
         is StringNode, is LongNode, is DoubleNode, is BooleanNode -> decode(node, decoder)
-        else -> ConfigFailure.UnsupportedListType(node, path).invalidNel()
+        else -> ConfigFailure.DecodeError(node, path, type).invalid()
       }
     }
   }

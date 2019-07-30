@@ -1,6 +1,6 @@
 package com.sksamuel.hoplite
 
-import kotlin.reflect.KClass
+import arrow.data.NonEmptyList
 import kotlin.reflect.KType
 
 val KType.simpleName: String
@@ -19,85 +19,74 @@ sealed class ConfigFailure {
    */
   abstract fun description(): String
 
-  /**
-   * The optional location of the failure.
-   */
-  abstract fun pos(): Pos
-
-  companion object {
-    @Deprecated("Use sealed type")
-    operator fun invoke(description: String): ConfigFailure = GenericFailure(description)
-    inline fun <reified T> conversionFailure(v: Any?): ConfigFailure = ConversionFailure(T::class, v)
-  }
-
   data class NoSuchParser(val file: String) : ConfigFailure() {
     override fun description(): String = "Could not detect parser for file extension $file"
-    override fun pos(): Pos = Pos.NoPos
   }
 
   data class UnknownSource(val source: String) : ConfigFailure() {
     override fun description(): String = "Could not find config file $source"
-    override fun pos(): Pos = Pos.NoPos
   }
 
-  data class TypeConversionFailure(val node: Node, val path: String, val target: KType) : ConfigFailure() {
-    override fun description(): String = "$path was defined as a ${target.simpleName} but was a ${node.simpleName} in config"
-    override fun pos(): Pos = node.pos
+  data class MultipleFailures(val failures: NonEmptyList<ConfigFailure>) : ConfigFailure() {
+    override fun description(): String = failures.map { it.description() }.all.joinToString("\n\n")
   }
 
-  data class UnsupportedListType(val node: Node, val path: String) : ConfigFailure() {
-    override fun description(): String = "$path was defined as a list but ${node.simpleName} cannot be converted to a list"
-    override fun pos(): Pos = node.pos
+  /**
+   * A [ConfigFailure] used when a target type could not be created from a given value.
+   * For example, if a field in data class was an int, but at runtime the configuration
+   * tried to pass "hello" then this would result in a conversion failure.
+   */
+  data class DecodeError(val node: Node, val param: String, val target: KType) : ConfigFailure() {
+    override fun description(): String = "Required type ${target.simpleName} could not be decoded from a ${node.simpleName} ${node.pos.loc()}"
+  }
+
+  data class UnsupportedCollectionType(val node: Node, val param: String, val type: String) : ConfigFailure() {
+    override fun description(): String = "Defined as a $type but a ${node.simpleName} cannot be converted to a collection ${node.pos.loc()}"
   }
 
   data class NullValueForNonNullField(val node: NullNode, val path: String) : ConfigFailure() {
-    override fun description(): String = "Null value provided for non null path $node"
-    override fun pos(): Pos = node.pos
+    override fun description(): String = "Type defined as not-null but null was loaded from config ${node.pos.loc()}"
   }
 
-  data class NoSuchDecoder(val type: KType, val path: String) : ConfigFailure() {
-    override fun description(): String = "Unable to locate decoder for type $type defined at $path"
-    override fun pos(): Pos = Pos.NoPos
+  data class NoSuchDecoder(val type: KType, val param: String) : ConfigFailure() {
+    override fun description(): String = "Unable to locate a decoder for $type"
   }
 
   data class MissingValue(val path: String) : ConfigFailure() {
-    override fun description(): String = "$path was missing from config"
-    override fun pos(): Pos = Pos.NoPos
+    override fun description(): String = "Missing from config"
   }
 
   data class Generic(val msg: String) : ConfigFailure() {
     override fun description(): String = msg
-    override fun pos(): Pos = Pos.NoPos
+  }
+
+  data class CollectionElementErrors(val node: Node, val errors: NonEmptyList<ConfigFailure>) : ConfigFailure() {
+    override fun description(): String = "collection errors"
+  }
+
+  data class TupleErrors(val node: Node, val errors: NonEmptyList<ConfigFailure>) : ConfigFailure() {
+    override fun description(): String = "collection errors"
   }
 
   data class InvalidEnumConstant(val node: Node,
                                  val path: String,
                                  val type: KType,
                                  val value: String) : ConfigFailure() {
-    override fun description(): String = "Enum constant $value is not valid for ${node.dotpath}"
-    override fun pos(): Pos = node.pos
+    override fun description(): String = "Required a value for the Enum type $type but given value was $value ${node.pos.loc()}"
+  }
+
+  data class DataClassFieldErrors(val errors: NonEmptyList<ConfigFailure>,
+                                  val type: KType,
+                                  val pos: Pos) : ConfigFailure() {
+    override fun description(): String = "- Could not instantiate '$type' because:\n\n" +
+      errors.all.joinToString("\n\n") { it.description().prependIndent("    ") }
+  }
+
+  data class ParamFailure(val param: String, val error: ConfigFailure) : ConfigFailure() {
+    override fun description(): String = "- '$param': ${error.description()}"
   }
 }
 
 data class ThrowableFailure(val throwable: Throwable) : ConfigFailure() {
   override fun description() = "${throwable.message}.${throwable.stackTrace.toList()}"
-  override fun pos(): Pos = Pos.NoPos
-}
-
-data class GenericFailure(val description: String) : ConfigFailure() {
-  override fun description(): String = description
-  override fun pos(): Pos = Pos.NoPos
-}
-
-/**
- * A [ConfigFailure] used when a target type could not be created from a given value.
- * For example, if a field in data class was an int, but at runtime the configuration
- * tried to pass "hello" then this would result in a conversion failure.
- */
-data class ConversionFailure(val description: String) : ConfigFailure() {
-  constructor(klass: KClass<*>, value: Any?) :
-    this("Cannot convert ${value?.javaClass?.name}:$value to ${klass.qualifiedName}")
-
-  override fun description() = description
-  override fun pos(): Pos = Pos.NoPos
 }

@@ -1,7 +1,5 @@
 package com.sksamuel.hoplite
 
-import arrow.data.validNel
-
 /**
  * An ADT that models the tree returned from config files.
  */
@@ -64,14 +62,6 @@ interface Node {
   val simpleName: String
 }
 
-/**
- * The file system location of a ConfigValue, represented by a url and a line
- * number
- *
- * @param url the URL describing the origin of the ConfigValue
- * @param lineNumber the line number (starting at 0), where the given
- *                   ConfigValue definition starts
- */
 sealed class Pos {
 
   abstract val line: Int
@@ -84,9 +74,13 @@ sealed class Pos {
     override val line: Int = -1
   }
 
-  data class LineColPos(override val line: Int, val col: Int, val source: String) : Pos() {
-    override fun toString(): String = "($source:$line:$col)"
-  }
+  data class LineColPos(override val line: Int, val col: Int, val source: String) : Pos()
+}
+
+fun Pos.loc() = when (this) {
+  is Pos.NoPos -> ""
+  is Pos.FilePos -> "($source)"
+  is Pos.LineColPos -> "($source:$line:$col)"
 }
 
 sealed class PrimitiveNode : Node {
@@ -98,21 +92,21 @@ sealed class PrimitiveNode : Node {
 sealed class NumberNode : PrimitiveNode()
 
 data class StringNode(override val value: String, override val pos: Pos, override val dotpath: String) : PrimitiveNode() {
-  override val simpleName: String = "string"
+  override val simpleName: String = "String"
 }
 
 data class BooleanNode(override val value: Boolean,
                        override val pos: Pos,
                        override val dotpath: String) : PrimitiveNode() {
-  override val simpleName: String = "boolean"
+  override val simpleName: String = "Boolean"
 }
 
 data class LongNode(override val value: Long, override val pos: Pos, override val dotpath: String) : NumberNode() {
-  override val simpleName: String = "long"
+  override val simpleName: String = "Long"
 }
 
 data class DoubleNode(override val value: Double, override val pos: Pos, override val dotpath: String) : NumberNode() {
-  override val simpleName: String = "double"
+  override val simpleName: String = "Double"
 }
 
 data class NullNode(override val pos: Pos, override val dotpath: String) : PrimitiveNode() {
@@ -129,14 +123,14 @@ data class UndefinedNode(override val pos: Pos, override val dotpath: String) : 
 sealed class ContainerNode : Node
 
 data class MapNode(val map: Map<String, Node>, override val pos: Pos, override val dotpath: String) : ContainerNode() {
-  override val simpleName: String = "map"
+  override val simpleName: String = "Map"
   override fun atKey(key: String): Node = get(key)
   override fun atIndex(index: Int): Node = UndefinedNode(pos, "$dotpath$[$index]")
   operator fun get(key: String): Node = map.getOrDefault(key, UndefinedNode(pos, "$dotpath.$key"))
 }
 
 data class ListNode(val elements: List<Node>, override val pos: Pos, override val dotpath: String) : ContainerNode() {
-  override val simpleName: String = "list"
+  override val simpleName: String = "List"
   override fun atKey(key: String): Node = UndefinedNode(pos, "$dotpath.$key")
   override fun atIndex(index: Int): Node = elements.getOrElse(index) { UndefinedNode(pos, "$dotpath$[$index]") }
   operator fun get(index: Int): Node = atIndex(index)

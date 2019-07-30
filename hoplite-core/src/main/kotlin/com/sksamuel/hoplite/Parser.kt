@@ -1,7 +1,7 @@
 package com.sksamuel.hoplite
 
 import arrow.core.toOption
-import arrow.data.invalidNel
+import arrow.data.invalid
 import arrow.data.valid
 import java.io.InputStream
 import java.util.*
@@ -23,9 +23,11 @@ interface ParserRegistry {
 }
 
 class DefaultParserRegistry(private val map: Map<String, Parser>) : ParserRegistry {
+
   override fun locate(ext: String): ConfigResult<Parser> {
-    return map[ext].toOption().fold({ ConfigFailure.NoSuchParser(ext).invalidNel() }, { it.valid() })
+    return map[ext].toOption().fold({ ConfigFailure.NoSuchParser(ext).invalid() }, { it.valid() })
   }
+
   override fun register(ext: String, parser: Parser): ParserRegistry = DefaultParserRegistry(map.plus(ext to parser))
 }
 

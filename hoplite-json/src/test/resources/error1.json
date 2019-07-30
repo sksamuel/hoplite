@@ -1,4 +1,15 @@
 {
   "wrongType": 123,
-  "notalist": true
+  "notalist": true,
+  "notaset": 123,
+  "notamap": 6666.666,
+  "notnull": null,
+  "duration" : "10 grams",
+  "season": "Fun",
+  "nested": {
+    "a": "qwqwe",
+    "b": "qwqwe",
+    "c": "qwqwe",
+    "d": "qwqwe"
+  }
 }

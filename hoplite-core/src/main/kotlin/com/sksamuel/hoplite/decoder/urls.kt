@@ -1,7 +1,7 @@
 package com.sksamuel.hoplite.decoder
 
 import arrow.core.Try
-import arrow.data.invalidNel
+import arrow.data.invalid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Node
@@ -17,10 +17,8 @@ class URLDecoder : NonNullableDecoder<URL> {
                           type: KType,
                           registry: DecoderRegistry,
                           path: String): ConfigResult<URL> = when (node) {
-    is StringNode -> Try { URL(node.value) }.toValidated {
-      ConfigFailure.TypeConversionFailure(node, path, type)
-    }.toValidatedNel()
-    else -> ConfigFailure.conversionFailure<URL>(node).invalidNel()
+    is StringNode -> Try { URL(node.value) }.toValidated { ConfigFailure.DecodeError(node, path, type) }
+    else -> ConfigFailure.DecodeError(node, path, type).invalid()
   }
 }
 
@@ -30,9 +28,7 @@ class URIDecoder : NonNullableDecoder<URI> {
                           type: KType,
                           registry: DecoderRegistry,
                           path: String): ConfigResult<URI> = when (node) {
-    is StringNode -> Try { URI.create(node.value) }.toValidated {
-      ConfigFailure.TypeConversionFailure(node, path, type)
-    }.toValidatedNel()
-    else -> ConfigFailure.conversionFailure<Short>(node).invalidNel()
+    is StringNode -> Try { URI.create(node.value) }.toValidated { ConfigFailure.DecodeError(node, path, type) }
+    else -> ConfigFailure.DecodeError(node, path, type).invalid()
   }
 }

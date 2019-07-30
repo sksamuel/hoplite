@@ -1,8 +1,8 @@
 package com.sksamuel.hoplite.decoder
 
 import arrow.core.Try
-import arrow.data.invalidNel
-import arrow.data.validNel
+import arrow.data.invalid
+import arrow.data.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DoubleNode
@@ -20,11 +20,9 @@ class BigDecimalDecoder : NonNullableDecoder<BigDecimal> {
                           type: KType,
                           registry: DecoderRegistry,
                           path: String): ConfigResult<BigDecimal> = when (node) {
-    is StringNode -> Try { node.value.toDouble().toBigDecimal() }.toValidated {
-      ThrowableFailure(it)
-    }.toValidatedNel()
-    is LongNode -> node.value.toBigDecimal().validNel()
-    is DoubleNode -> node.value.toBigDecimal().validNel()
-    else -> ConfigFailure.conversionFailure<Short>(node).invalidNel()
+    is StringNode -> Try { node.value.toDouble().toBigDecimal() }.toValidated { ThrowableFailure(it) }
+    is LongNode -> node.value.toBigDecimal().valid()
+    is DoubleNode -> node.value.toBigDecimal().valid()
+    else -> ConfigFailure.DecodeError(node, path, type).invalid()
   }
 }

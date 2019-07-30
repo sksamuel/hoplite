@@ -1,6 +1,6 @@
 package com.sksamuel.hoplite.decoder
 
-import arrow.data.invalidNel
+import arrow.data.invalid
 import arrow.data.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
@@ -17,6 +17,6 @@ class RegexDecoder : NonNullableDecoder<Regex> {
                           registry: DecoderRegistry,
                           path: String): ConfigResult<Regex> = when (node) {
     is StringNode -> node.value.toRegex().valid()
-    else -> ConfigFailure.TypeConversionFailure(node, path, type).invalidNel()
+    else -> ConfigFailure.DecodeError(node, path, type).invalid()
   }
 }

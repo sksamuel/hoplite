@@ -1,7 +1,7 @@
 package com.sksamuel.hoplite.decoder
 
 import arrow.core.Try
-import arrow.data.invalidNel
+import arrow.data.invalid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Node
@@ -17,10 +17,8 @@ class InetAddressDecoder : NonNullableDecoder<InetAddress> {
                           type: KType,
                           registry: DecoderRegistry,
                           path: String): ConfigResult<InetAddress> = when (node) {
-    is StringNode -> Try { InetAddress.getByName(node.value) }.toValidated {
-      ThrowableFailure(it)
-    }.toValidatedNel()
-    else -> ConfigFailure.conversionFailure<Short>(node).invalidNel()
+    is StringNode -> Try { InetAddress.getByName(node.value) }.toValidated { ThrowableFailure(it) }
+    else -> ConfigFailure.DecodeError(node, path, type).invalid()
   }
 }
 

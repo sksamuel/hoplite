@@ -1,6 +1,6 @@
 package com.sksamuel.hoplite.hdfs
 
-import arrow.data.invalidNel
+import arrow.data.invalid
 import arrow.data.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
@@ -19,7 +19,7 @@ class PathDecoder : NonNullableDecoder<Path> {
   override fun safeDecode(node: Node, type: KType, registry: DecoderRegistry, path: String): ConfigResult<Path> {
     return when (node) {
       is StringNode -> Path(node.value).valid()
-      else -> ConfigFailure.TypeConversionFailure(node, path, Path::class.createType()).invalidNel()
+      else -> ConfigFailure.DecodeError(node, path, Path::class.createType()).invalid()
     }
   }
 }

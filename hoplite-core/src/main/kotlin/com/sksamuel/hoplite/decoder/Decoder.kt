@@ -1,7 +1,9 @@
 package com.sksamuel.hoplite.decoder
 
-import arrow.data.invalidNel
-import arrow.data.validNel
+import arrow.data.Valid
+import arrow.data.Validated
+import arrow.data.invalid
+import arrow.data.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Node
@@ -37,7 +39,7 @@ class DefaultDecoderRegistry(private val decoders: List<Decoder<*>>) : DecoderRe
   }
 
   override fun decoder(type: KType, path: String): ConfigResult<Decoder<*>> =
-    decoders.find { it.supports(type) }?.validNel() ?: ConfigFailure.NoSuchDecoder(type, path).invalidNel()
+    decoders.find { it.supports(type) }?.valid() ?: ConfigFailure.NoSuchDecoder(type, path).invalid()
 
   override fun register(decoder: Decoder<*>): DecoderRegistry = DefaultDecoderRegistry(decoders + decoder)
 }
@@ -74,25 +76,22 @@ interface Decoder<T> {
 @Suppress("UNCHECKED_CAST")
 interface NonNullableDecoder<T> : Decoder<T> {
 
-  private fun decode(node: NullNode, path: String, type: KType): ConfigResult<*> {
-    return if (type.isMarkedNullable)
-      null.validNel()
-    else
-      ConfigFailure.NullValueForNonNullField(node, path).invalidNel()
+  private fun decode(node: NullNode, path: String, type: KType): Validated<ConfigFailure, *> {
+    return if (type.isMarkedNullable) Valid(null) else
+      ConfigFailure.NullValueForNonNullField(node, path).invalid()
   }
 
-  private fun decode(path: String, type: KType): ConfigResult<*> {
-    return if (type.isMarkedNullable)
-      null.validNel()
-    else
-      ConfigFailure.MissingValue(path).invalidNel()
+  private fun decode(path: String, type: KType): Validated<ConfigFailure, *> {
+    return if (type.isMarkedNullable) Valid(null) else
+      ConfigFailure.MissingValue(path).invalid()
   }
 
-  override fun decode(node: Node, type: KType, registry: DecoderRegistry, path: String): ConfigResult<T> = when (node) {
-    is UndefinedNode -> decode(path, type).map { it as T }
-    is NullNode -> decode(node, path, type).map { it as T }
-    else -> safeDecode(node, type, registry, path)
-  }
+  override fun decode(node: Node, type: KType, registry: DecoderRegistry, path: String): Validated<ConfigFailure, T> =
+    when (node) {
+      is UndefinedNode -> decode(path, type).map { it as T }
+      is NullNode -> decode(node, path, type).map { it as T }
+      else -> safeDecode(node, type, registry, path)
+    }
 
   /**
    * Attempts to decode the given node into an instance of the given [KType].

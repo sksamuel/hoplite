@@ -1,7 +1,7 @@
 package com.sksamuel.hoplite.decoder
 
-import arrow.data.invalidNel
-import arrow.data.validNel
+import arrow.data.invalid
+import arrow.data.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DoubleNode
@@ -17,9 +17,9 @@ class MaskedDecoder : NonNullableDecoder<Masked> {
                           type: KType,
                           registry: DecoderRegistry,
                           path: String): ConfigResult<Masked> = when (node) {
-    is StringNode -> Masked(node.value).validNel()
-    is LongNode -> Masked(node.value.toString()).validNel()
-    is DoubleNode -> Masked(node.value.toString()).validNel()
-    else -> ConfigFailure.conversionFailure<Masked>(node).invalidNel()
+    is StringNode -> Masked(node.value).valid()
+    is LongNode -> Masked(node.value.toString()).valid()
+    is DoubleNode -> Masked(node.value.toString()).valid()
+    else -> ConfigFailure.DecodeError(node, path, type).invalid()
   }
 }

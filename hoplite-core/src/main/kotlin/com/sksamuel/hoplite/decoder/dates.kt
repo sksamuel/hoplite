@@ -2,14 +2,13 @@ package com.sksamuel.hoplite.decoder
 
 import arrow.core.Try
 import arrow.core.getOrElse
-import arrow.data.invalidNel
+import arrow.data.invalid
 import arrow.data.valid
-import arrow.data.validNel
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.LongNode
-import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.parseDuration
 import java.time.Duration
 import java.time.Instant
@@ -25,9 +24,11 @@ class LocalDateTimeDecoder : NonNullableDecoder<LocalDateTime> {
                           type: KType,
                           registry: DecoderRegistry,
                           path: String): ConfigResult<LocalDateTime> = when (node) {
-    is LongNode -> LocalDateTime.ofInstant(Instant.ofEpochMilli(node.value), ZoneOffset.UTC).validNel()
-    is StringNode -> LocalDateTime.parse(node.value, DateTimeFormatter.ISO_DATE_TIME).validNel()
-    else -> ConfigFailure.conversionFailure<LocalDateTime>(node).invalidNel()
+    is LongNode -> LocalDateTime.ofInstant(Instant.ofEpochMilli(node.value), ZoneOffset.UTC).valid()
+    is StringNode ->
+      Try { LocalDateTime.parse(node.value, DateTimeFormatter.ISO_DATE_TIME).valid() }
+        .getOrElse { ConfigFailure.DecodeError(node, path, type).invalid() }
+    else -> ConfigFailure.DecodeError(node, path, type).invalid()
   }
 }
 
@@ -37,8 +38,10 @@ class LocalDateDecoder : NonNullableDecoder<LocalDate> {
                           type: KType,
                           registry: DecoderRegistry,
                           path: String): ConfigResult<LocalDate> = when (node) {
-    is StringNode -> LocalDate.parse(node.value).validNel()
-    else -> ConfigFailure.conversionFailure<LocalDateTime>(node).invalidNel()
+    is StringNode ->
+      Try { LocalDate.parse(node.value).valid() }
+        .getOrElse { ConfigFailure.DecodeError(node, path, type).invalid() }
+    else -> ConfigFailure.DecodeError(node, path, type).invalid()
   }
 }
 
@@ -48,9 +51,9 @@ class DurationDecoder : NonNullableDecoder<Duration> {
                           type: KType,
                           registry: DecoderRegistry,
                           path: String): ConfigResult<Duration> = when (node) {
-    is StringNode -> parseDuration(node.value)
+    is StringNode -> parseDuration(node.value).leftMap { ConfigFailure.DecodeError(node, path, type) }
     is LongNode -> Duration.ofMillis(node.value).valid()
-    else -> ConfigFailure.conversionFailure<LocalDateTime>(node).invalidNel()
+    else -> ConfigFailure.DecodeError(node, path, type).invalid()
   }
 }
 
@@ -61,8 +64,8 @@ class InstantDecoder : NonNullableDecoder<Instant> {
                           registry: DecoderRegistry,
                           path: String): ConfigResult<Instant> = when (node) {
     is StringNode -> Try { Instant.ofEpochMilli(node.value.toLong()).valid() }
-      .getOrElse { ConfigFailure.conversionFailure<Instant>(node).invalidNel() }
+      .getOrElse { ConfigFailure.DecodeError(node, path, type).invalid() }
     is LongNode -> Instant.ofEpochMilli(node.value).valid()
-    else -> ConfigFailure.conversionFailure<Instant>(node).invalidNel()
+    else -> ConfigFailure.DecodeError(node, path, type).invalid()
   }
 }

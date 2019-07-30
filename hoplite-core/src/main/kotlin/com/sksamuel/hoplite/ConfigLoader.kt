@@ -2,7 +2,7 @@ package com.sksamuel.hoplite
 
 import arrow.core.Try
 import arrow.core.toOption
-import arrow.data.invalidNel
+import arrow.data.invalid
 import arrow.data.valid
 import com.sksamuel.hoplite.arrow.flatMap
 import com.sksamuel.hoplite.arrow.sequence
@@ -46,21 +46,7 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
    * This function implements fallback, such that the first resource is scanned first, and the second
    * resource is scanned if the first does not contain a given path, and so on.
    */
-  inline fun <reified A : Any> loadConfigOrThrow(vararg resources: String): A =
-    loadConfig<A>(*resources).fold(
-      { errors ->
-        val err = "Error loading config into type ${A::class.java.name}\n" +
-          errors.all.joinToString("\n") {
-            val pos = when (it.pos()) {
-              is Pos.NoPos -> ""
-              else -> " " + it.pos().toString()
-            }
-            " - " + it.description() + pos
-          }
-        throw ConfigException(err)
-      },
-      { it }
-    )
+  inline fun <reified A : Any> loadConfigOrThrow(vararg resources: String): A = loadConfig<A>(*resources).returnOrThrow()
 
   /**
    * Attempts to load config from the specified resources on the class path and returns
@@ -73,10 +59,12 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
     require(A::class.isData) { "Can only decode into data classes [was ${A::class}]" }
     return resources.map { resource ->
       this.javaClass.getResourceAsStream(resource).toOption().fold(
-        { ConfigFailure.UnknownSource(resource).invalidNel() },
+        { ConfigFailure.UnknownSource(resource).invalid() },
         { InputSource(resource, it).valid() }
       )
-    }.sequence().flatMap { loadConfig(A::class, it) }
+    }.sequence()
+      .leftMap { ConfigFailure.MultipleFailures(it) }
+      .flatMap { loadConfig(A::class, it) }
   }
 
 
@@ -91,10 +79,12 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
     require(A::class.isData) { "Can only decode into data classes [was ${A::class}]" }
     return paths.map { path ->
       Try { Files.newInputStream(path) }.fold(
-        { ConfigFailure.UnknownSource(path.toString()).invalidNel() },
+        { ConfigFailure.UnknownSource(path.toString()).invalid() },
         { InputSource(path.toString(), it).valid() }
       )
-    }.sequence().flatMap { loadConfig(A::class, it) }
+    }.sequence()
+      .leftMap { ConfigFailure.MultipleFailures(it) }
+      .flatMap { loadConfig(A::class, it) }
   }
 
   /**
@@ -104,21 +94,15 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
    * This function implements fallback, such that the first resource is scanned first, and the second
    * resource is scanned if the first does not contain a given path, and so on.
    */
-  inline fun <reified A : Any> loadConfigOrThrow(vararg paths: Path): A =
-    loadConfig<A>(*paths).fold(
-      { errors ->
-        val err = "Error loading config into type ${A::class.java.name}\n" +
-          errors.all.joinToString("\n") {
-            val pos = when (it.pos()) {
-              is Pos.NoPos -> ""
-              else -> " " + it.pos().toString()
-            }
-            " - " + it.description() + pos
-          }
-        throw ConfigException(err)
-      },
-      { it }
-    )
+  inline fun <reified A : Any> loadConfigOrThrow(vararg paths: Path): A = loadConfig<A>(*paths).returnOrThrow()
+
+  fun <A : Any> ConfigResult<A>.returnOrThrow(): A = this.fold(
+    {
+      val err = "Error loading config because:\n\n" + it.description().prependIndent("    ")
+      throw ConfigException(err)
+    },
+    { it }
+  )
 
   fun <A : Any> loadConfig(klass: KClass<A>, sources: List<InputSource>): ConfigResult<A> {
     val path = klass.java.name
@@ -134,6 +118,7 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
     return sources.map { it.parse() }.sequence()
       .map { it.preprocessAll() }
       .map { it.reduce { acc, b -> acc.withFallback(b) } }
+      .leftMap { ConfigFailure.MultipleFailures(it) }
       .flatMap { it.decode() }
   }
 }

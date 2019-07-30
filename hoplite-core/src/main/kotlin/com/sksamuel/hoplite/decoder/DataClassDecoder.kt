@@ -21,13 +21,15 @@ class DataClassDecoder : Decoder<Any> {
     val klass = type.classifier as KClass<*>
 
     val args: ValidatedNel<ConfigFailure, List<Any?>> = klass.constructors.first().parameters.map { param ->
-      val paramPath = "$path.${param.name}"
+      val paramName = param.name ?: "<anon>"
       val n = node.atKey(param.name!!)
-      registry.decoder(param.type, paramPath).flatMap { it.decode(n, param.type, registry, paramPath) }
+      registry.decoder(param.type, paramName)
+        .flatMap { it.decode(n, param.type, registry, paramName) }
+        .leftMap { ConfigFailure.ParamFailure(paramName, it) }
     }.sequence()
 
-    return args.map {
-      klass.constructors.first().call(*it.toTypedArray())
-    }
+    return args
+      .leftMap { ConfigFailure.DataClassFieldErrors(it, type, node.pos) }
+      .map { klass.constructors.first().call(*it.toTypedArray()) }
   }
 }

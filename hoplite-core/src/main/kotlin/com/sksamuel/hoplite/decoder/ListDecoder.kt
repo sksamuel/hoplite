@@ -1,6 +1,6 @@
 package com.sksamuel.hoplite.decoder
 
-import arrow.data.invalidNel
+import arrow.data.invalid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.ListNode
@@ -25,18 +25,20 @@ class ListDecoder : Decoder<List<*>> {
 
     fun <T> decode(node: ListNode, decoder: Decoder<T>): ConfigResult<List<T>> {
       return node.elements.map { decoder.decode(it, t, registry, path) }.sequence()
+        .leftMap { ConfigFailure.CollectionElementErrors(node, it) }
     }
 
     fun <T> decode(node: StringNode, decoder: Decoder<T>): ConfigResult<List<T>> {
-      val tokens = node.value.split(",").map { it.trim() }
-      return tokens.map { decoder.decode(StringNode(it, node.pos, node.dotpath), t, registry, path) }.sequence()
+      val tokens = node.value.split(",").map { StringNode(it.trim(), node.pos, node.dotpath) }
+      return tokens.map { decoder.decode(it, t, registry, path) }.sequence()
+        .leftMap { ConfigFailure.CollectionElementErrors(node, it) }
     }
 
     return registry.decoder(t, path).flatMap { decoder ->
       when (node) {
         is ListNode -> decode(node, decoder)
         is StringNode -> decode(node, decoder)
-        else -> ConfigFailure.UnsupportedListType(node, path).invalidNel()
+        else -> ConfigFailure.UnsupportedCollectionType(node, path, "List").invalid()
       }
     }
   }

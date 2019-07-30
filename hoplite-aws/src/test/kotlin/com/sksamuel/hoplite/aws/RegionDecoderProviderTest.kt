@@ -28,7 +28,7 @@ class RegionDecoderProviderTest : StringSpec() {
         DecoderRegistry.zero,
         ""
       ) shouldBe
-        ConfigFailure("Cannot create region from us-qwewqe-1").invalidNel()
+        ConfigFailure.Generic("Cannot create region from us-qwewqe-1").invalidNel()
     }
   }
 }

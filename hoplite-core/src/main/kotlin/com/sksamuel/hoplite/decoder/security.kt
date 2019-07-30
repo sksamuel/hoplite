@@ -1,6 +1,6 @@
 package com.sksamuel.hoplite.decoder
 
-import arrow.data.invalidNel
+import arrow.data.invalid
 import arrow.data.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
@@ -14,7 +14,7 @@ import kotlin.reflect.KType
 fun <T> viaString(node: Node, path: String, type: KType, f: (String) -> T): ConfigResult<T> {
   return when (node) {
     is StringNode -> f(node.value).valid()
-    else -> ConfigFailure.TypeConversionFailure(node, path, type).invalidNel()
+    else -> ConfigFailure.DecodeError(node, path, type).invalid()
   }
 }
 

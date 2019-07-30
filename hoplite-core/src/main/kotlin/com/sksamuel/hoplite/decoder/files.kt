@@ -1,7 +1,7 @@
 package com.sksamuel.hoplite.decoder
 
-import arrow.data.invalidNel
-import arrow.data.validNel
+import arrow.data.invalid
+import arrow.data.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Node
@@ -17,8 +17,8 @@ class FileDecoder : NonNullableDecoder<File> {
                           type: KType,
                           registry: DecoderRegistry,
                           path: String): ConfigResult<File> = when (node) {
-    is StringNode -> File(node.value).validNel()
-    else -> ConfigFailure.TypeConversionFailure(node, path, type).invalidNel()
+    is StringNode -> File(node.value).valid()
+    else -> ConfigFailure.DecodeError(node, path, type).invalid()
   }
 }
 
@@ -28,7 +28,7 @@ class PathDecoder : NonNullableDecoder<Path> {
                           type: KType,
                           registry: DecoderRegistry,
                           path: String): ConfigResult<Path> = when (node) {
-    is StringNode -> Paths.get(node.value).validNel()
-    else -> ConfigFailure.TypeConversionFailure(node, path, type).invalidNel()
+    is StringNode -> Paths.get(node.value).valid()
+    else -> ConfigFailure.DecodeError(node, path, type).invalid()
   }
 }

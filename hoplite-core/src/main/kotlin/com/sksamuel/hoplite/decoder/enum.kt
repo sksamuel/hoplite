@@ -1,6 +1,6 @@
 package com.sksamuel.hoplite.decoder
 
-import arrow.data.invalidNel
+import arrow.data.invalid
 import arrow.data.valid
 import com.sksamuel.hoplite.BooleanNode
 import com.sksamuel.hoplite.ConfigFailure
@@ -27,7 +27,7 @@ class EnumDecoder<T : Any> : NonNullableDecoder<T> {
     fun decode(value: String): ConfigResult<T> {
       val t = klass.java.enumConstants.find { it.toString() == value }
       return if (t == null)
-        ConfigFailure.InvalidEnumConstant(node, path, type, value).invalidNel()
+        ConfigFailure.InvalidEnumConstant(node, path, type, value).invalid()
       else
         (t as T).valid()
     }
@@ -37,7 +37,7 @@ class EnumDecoder<T : Any> : NonNullableDecoder<T> {
       is BooleanNode -> decode(node.value.toString())
       is LongNode -> decode(node.value.toString())
       is DoubleNode -> decode(node.value.toString())
-      else -> ConfigFailure.TypeConversionFailure(node, path, type).invalidNel()
+      else -> ConfigFailure.DecodeError(node, path, type).invalid()
     }
   }
 }

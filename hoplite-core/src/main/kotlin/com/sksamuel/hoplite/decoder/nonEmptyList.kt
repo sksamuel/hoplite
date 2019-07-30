@@ -1,9 +1,10 @@
 package com.sksamuel.hoplite.decoder
 
 import arrow.data.NonEmptyList
-import arrow.data.validNel
+import arrow.data.invalid
+import arrow.data.valid
+import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
-import com.sksamuel.hoplite.ConfigResults
 import com.sksamuel.hoplite.ListNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
@@ -27,19 +28,17 @@ class NonEmptyListDecoder : NonNullableDecoder<NonEmptyList<*>> {
     fun <T> decode(node: StringNode, decoder: Decoder<T>): ConfigResult<NonEmptyList<T>> {
       return node.value.split(",").map { it.trim() }
         .map { decoder.decode(StringNode(it, node.pos, node.dotpath), type, registry, path) }.sequence()
+        .leftMap { ConfigFailure.CollectionElementErrors(node, it) }
         .map { NonEmptyList.fromListUnsafe(it) }
     }
 
     fun <T> decode(node: ListNode, decoder: Decoder<T>): ConfigResult<NonEmptyList<T>> {
-      return node.elements.map { decoder.decode(it, type, registry, path) }.sequence().flatMap { ts ->
+      return node.elements.map { decoder.decode(it, type, registry, path) }.sequence()
+        .leftMap { ConfigFailure.CollectionElementErrors(node, it) }
+        .flatMap { ts ->
         NonEmptyList.fromList(ts).fold(
-          {
-            val err = "Cannot convert empty list to NonEmptyList<${this.typeParameters[0]}>"
-            ConfigResults.decodeFailure(node, err)
-          },
-          {
-            it.validNel()
-          }
+          { ConfigFailure.DecodeError(node, path, type).invalid() },
+          { it.valid() }
         )
       }
     }
@@ -48,7 +47,7 @@ class NonEmptyListDecoder : NonNullableDecoder<NonEmptyList<*>> {
       when (node) {
         is StringNode -> decode(node, decoder)
         is ListNode -> decode(node, decoder)
-        else -> ConfigResults.decodeFailure(node, this.typeParameters[0])
+        else -> ConfigFailure.DecodeError(node, path, type).invalid()
       }
     }
   }

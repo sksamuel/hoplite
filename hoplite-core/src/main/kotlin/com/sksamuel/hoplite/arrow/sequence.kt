@@ -8,5 +8,6 @@ import arrow.data.extensions.nonemptylist.semigroup.semigroup
 import arrow.data.extensions.validated.applicative.applicative
 import arrow.data.fix
 
-fun <E, A> List<ValidatedNel<E, A>>.sequence(): ValidatedNel<E, List<A>> =
-    this.sequence(Validated.applicative(NonEmptyList.semigroup<E>())).fix().map { a -> a.fix().toList() }
+fun <E, A> List<Validated<E, A>>.sequence(): ValidatedNel<E, List<A>> =
+  this.map { it.toValidatedNel() }
+    .sequence(Validated.applicative(NonEmptyList.semigroup<E>())).fix().map { a -> a.fix().toList() }

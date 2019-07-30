@@ -1,8 +1,8 @@
 package com.sksamuel.hoplite.decoder
 
 import arrow.core.Try
-import arrow.data.invalidNel
-import arrow.data.validNel
+import arrow.data.invalid
+import arrow.data.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.LongNode
@@ -19,11 +19,9 @@ class BigIntegerDecoder : NonNullableDecoder<BigInteger> {
                           type: KType,
                           registry: DecoderRegistry,
                           path: String): ConfigResult<BigInteger> = when (node) {
-    is StringNode -> Try { node.value.toLong().toBigInteger() }.toValidated {
-      ThrowableFailure(it)
-    }.toValidatedNel()
-    is LongNode -> node.value.toBigInteger().validNel()
-    else -> ConfigFailure.conversionFailure<Short>(node).invalidNel()
+    is StringNode -> Try { node.value.toLong().toBigInteger() }.toValidated { ThrowableFailure(it) }
+    is LongNode -> node.value.toBigInteger().valid()
+    else -> ConfigFailure.DecodeError(node, path, type).invalid()
   }
 }
 
