@@ -25,8 +25,19 @@ sealed class ConfigFailure {
   abstract fun pos(): Pos
 
   companion object {
+    @Deprecated("Use sealed type")
     operator fun invoke(description: String): ConfigFailure = GenericFailure(description)
     inline fun <reified T> conversionFailure(v: Any?): ConfigFailure = ConversionFailure(T::class, v)
+  }
+
+  data class NoSuchParser(val file: String) : ConfigFailure() {
+    override fun description(): String = "Could not detect parser for file extension $file"
+    override fun pos(): Pos = Pos.NoPos
+  }
+
+  data class UnknownSource(val source: String) : ConfigFailure() {
+    override fun description(): String = "Could not find config file $source"
+    override fun pos(): Pos = Pos.NoPos
   }
 
   data class TypeConversionFailure(val node: Node, val path: String, val target: KType) : ConfigFailure() {

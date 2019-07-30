@@ -1,8 +1,9 @@
 package com.sksamuel.hoplite
 
+import arrow.core.Try
 import arrow.core.toOption
 import arrow.data.invalidNel
-import arrow.data.validNel
+import arrow.data.valid
 import com.sksamuel.hoplite.arrow.flatMap
 import com.sksamuel.hoplite.arrow.sequence
 import com.sksamuel.hoplite.decoder.Decoder
@@ -11,10 +12,13 @@ import com.sksamuel.hoplite.decoder.defaultDecoderRegistry
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.preprocessor.defaultPreprocessors
 import java.io.InputStream
+import java.nio.file.Files
+import java.nio.file.Path
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
-class ConfigException(private val msg: String) : java.lang.RuntimeException(msg)
+class ConfigException(msg: String) : java.lang.RuntimeException(msg)
+data class InputSource(val resource: String, val stream: InputStream)
 
 class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoderRegistry(),
                    private val parserRegistry: ParserRegistry = defaultParserRegistry(),
@@ -65,44 +69,72 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
    * This function implements fallback, such that the first resource is scanned first, and the second
    * resource is scanned if the first does not contain a given path, and so on.
    */
-  inline fun <reified A : Any> loadConfig(vararg resources: String): ConfigResult<A> = loadConfig(A::class, *resources)
+  inline fun <reified A : Any> loadConfig(vararg resources: String): ConfigResult<A> {
+    require(A::class.isData) { "Can only decode into data classes [was ${A::class}]" }
+    return resources.map { resource ->
+      this.javaClass.getResourceAsStream(resource).toOption().fold(
+        { ConfigFailure.UnknownSource(resource).invalidNel() },
+        { InputSource(resource, it).valid() }
+      )
+    }.sequence().flatMap { loadConfig(A::class, it) }
+  }
+
 
   /**
-   * Attempts to load config from the specified resources on the class path and returns
+   * Attempts to load config from the specified Paths and returns
    * a [ConfigResult] with either the errors during load, or the successfully created instance A.
    *
    * This function implements fallback, such that the first resource is scanned first, and the second
    * resource is scanned if the first does not contain a given path, and so on.
    */
-  fun <A : Any> loadConfig(klass: KClass<A>, vararg resources: String): ConfigResult<A> {
-    require(klass.isData) { "Can only decode into data classes [was $klass]" }
-
-    data class Input(val resource: String, val stream: InputStream, val parser: Parser, val ext: String)
-
-    val streams = resources.map { resource ->
-      this.javaClass.getResourceAsStream(resource).toOption().fold(
-        { ConfigFailure("Could not find resource $resource").invalidNel() },
-        { stream ->
-          val ext = resource.split('.').last()
-          val parser = parserRegistry.locate(ext)?.validNel() ?: ConfigResults.NoSuchParser(ext)
-          parser.map { Input(resource, stream, it, ext) }
-        }
+  inline fun <reified A : Any> loadConfig(vararg paths: Path): ConfigResult<A> {
+    require(A::class.isData) { "Can only decode into data classes [was ${A::class}]" }
+    return paths.map { path ->
+      Try { Files.newInputStream(path) }.fold(
+        { ConfigFailure.UnknownSource(path.toString()).invalidNel() },
+        { InputSource(path.toString(), it).valid() }
       )
-    }.sequence()
+    }.sequence().flatMap { loadConfig(A::class, it) }
+  }
 
-    val root = streams.map {
-      it.map { input -> input.parser.load(input.stream, input.resource) }
-    }.map { cs ->
-      cs.map { c ->
-        preprocessors.fold(c) { acc, p -> acc.transform(p::process) }
-      }.reduce { acc, b -> acc.withFallback(b) }
-    }
+  /**
+   * Attempts to load config from the specified resources on the class path and returns
+   * an instance of <A> if the values can be appropriately converted.
+   *
+   * This function implements fallback, such that the first resource is scanned first, and the second
+   * resource is scanned if the first does not contain a given path, and so on.
+   */
+  inline fun <reified A : Any> loadConfigOrThrow(vararg paths: Path): A =
+    loadConfig<A>(*paths).fold(
+      { errors ->
+        val err = "Error loading config into type ${A::class.java.name}\n" +
+          errors.all.joinToString("\n") {
+            val pos = when (it.pos()) {
+              is Pos.NoPos -> ""
+              else -> " " + it.pos().toString()
+            }
+            " - " + it.description() + pos
+          }
+        throw ConfigException(err)
+      },
+      { it }
+    )
 
+  fun <A : Any> loadConfig(klass: KClass<A>, sources: List<InputSource>): ConfigResult<A> {
     val path = klass.java.name
-    return root.flatMap { node ->
-      decoderRegistry.decoder(klass, path).flatMap { decoder ->
-        decoder.decode(node, klass.createType(), decoderRegistry, path)
-      }
+
+    fun InputSource.ext() = this.resource.split('.').last()
+    fun InputSource.parse() = parserRegistry.locate(ext()).map { it.load(stream, resource) }
+    fun Node.preprocess() = preprocessors.fold(this) { acc, p -> acc.transform(p::process) }
+    fun List<Node>.preprocessAll() = this.map { it.preprocess() }
+    fun Node.decode() = decoderRegistry.decoder(klass, path).flatMap { decoder ->
+      decoder.decode(this, klass.createType(), decoderRegistry, path)
     }
+
+    return sources.map { it.parse() }.sequence()
+      .map { it.preprocessAll() }
+      .map { it.reduce { acc, b -> acc.withFallback(b) } }
+      .flatMap { it.decode() }
   }
 }
+
