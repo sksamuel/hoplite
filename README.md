@@ -22,6 +22,8 @@ Add Hoplite to your build:
 implementation 'com.sksamuel.hoplite:hoplite-core:<version>'
 ```
 
+You will also need to include a module for the [format(s)](#supported-formats) you to use.
+
 Next define the data classes that are going to contain the config. 
 You should create a top level class which can be named simply Config, or ProjectNameConfig. This class then defines a field for each config value you need. It can include nested data classes for grouping together related configs.
 
