@@ -240,6 +240,12 @@ And corresponding json config:
 
 And then the output of the Database config class via `toString` would be `Database(host=localhost, user=root, password=****)`
 
+Note: The masking effect only happens if you use `toString`.
+If you marshall your config to a String using a reflection based tool like Jackson, it will still be able to see the underlying value. 
+In these cases, you would need to register a custom serializer. 
+For the Jackson project, a `HopliteModule` object is available in the `hoplite-json` module.
+Register this with your Jackson mapper, like `mapper.registerModule(HopliteModule)` and then `Masked` values will be ouputted into Json as "****"
+
 ## License
 ```
 This software is licensed under the Apache 2 license, quoted below.
