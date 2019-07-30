@@ -69,6 +69,37 @@ Another is to return an `arrow.data.Validated` via the `loadConfig<T>` function.
 For most cases, when you are resolving config at application startup, the exception based approach is better. 
 This is because you typically want any errors in config to abort application bootstrapping, dumping errors to the console.
 
+### Beautiful Errors
+
+When an error does occur, if you choose to throw an exception, the errors will be formatted in a human readable way along with as much location information as possible. 
+No more trying to track down a `NumberFormatException` in a 400 line config file.
+
+Here is an example of the error formatting for a test file used by the unit tests.
+
+```
+Error loading config because:
+
+    - Could not instantiate 'com.sksamuel.hoplite.json.Foo' because:
+    
+        - 'wrongType': Required type Boolean could not be decoded from a Long (/error1.json:2:19)
+    
+        - 'whereAmI': Missing from config
+    
+        - 'notnull': Type defined as not-null but null was loaded from config (/error1.json:6:18)
+    
+        - 'season': Required a value for the Enum type com.sksamuel.hoplite.json.Season but given value was Fun (/error1.json:8:18)
+    
+        - 'notalist': Defined as a List but a Boolean cannot be converted to a collection (/error1.json:3:19)
+    
+        - 'duration': Required type java.time.Duration could not be decoded from a String (/error1.json:7:26)
+    
+        - 'nested': - Could not instantiate 'com.sksamuel.hoplite.json.Wibble' because:
+    
+            - 'a': Required type java.time.LocalDateTime could not be decoded from a String (/error1.json:10:17)
+    
+            - 'b': Unable to locate a decoder for java.time.LocalTime
+```
+
 ## Supported Formats
 
 Hoplite supports config files in several formats. You can mix and match formats if you really want to.
