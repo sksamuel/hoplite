@@ -67,6 +67,13 @@ interface Decoder<T> {
              registry: DecoderRegistry): ConfigResult<T>
 }
 
+inline fun <T, reified U> Decoder<T>.map(crossinline f: (T) -> U): Decoder<U> = object : Decoder<U> {
+  override fun supports(type: KType): Boolean = U::class.createType() == type
+  override fun decode(node: Node, type: KType, registry: DecoderRegistry): ConfigResult<U> {
+    return this@map.decode(node, type, registry).map { f(it) }
+  }
+}
+
 /**
  * Extends [Decoder] for types which will not handle nulls.
  */
