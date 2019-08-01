@@ -80,5 +80,20 @@ class DataClassDecoderTest : StringSpec() {
       DataClassDecoder().decode(node, Foo::class.createType(), defaultDecoderRegistry()) shouldBe
         Foo(Year.of(1991), expectedDate).valid()
     }
+
+    "support ranges" {
+      data class Foo(val a: IntRange, val b: LongRange, val c: CharRange)
+
+      val node = MapNode(
+        mapOf(
+          "a" to StringNode("1..4", Pos.NoPos, dotpath = ""),
+          "b" to StringNode("50..60", Pos.NoPos, dotpath = ""),
+          "c" to StringNode("d..g", Pos.NoPos, dotpath = "")
+        ),
+        Pos.NoPos, dotpath = ""
+      )
+      DataClassDecoder().decode(node, Foo::class.createType(), defaultDecoderRegistry()) shouldBe
+        Foo(IntRange(1, 4), LongRange(50, 60), CharRange('d', 'g')).valid()
+    }
   }
 }
