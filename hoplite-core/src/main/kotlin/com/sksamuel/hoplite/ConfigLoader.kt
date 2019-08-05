@@ -57,35 +57,11 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
    */
   inline fun <reified A : Any> loadConfig(vararg resources: String): ConfigResult<A> {
     require(A::class.isData) { "Can only decode into data classes [was ${A::class}]" }
-    return resources.map { resource ->
-      this.javaClass.getResourceAsStream(resource).toOption().fold(
-        { ConfigFailure.UnknownSource(resource).invalid() },
-        { InputSource(resource, it).valid() }
-      )
-    }.sequence()
-      .leftMap { ConfigFailure.MultipleFailures(it) }
-      .flatMap { loadConfig(A::class, it) }
+    return resourcesToInputs(resources.toList()).flatMap { loadConfig(A::class, it) }
   }
 
-
-  /**
-   * Attempts to load config from the specified Paths and returns
-   * a [ConfigResult] with either the errors during load, or the successfully created instance A.
-   *
-   * This function implements fallback, such that the first resource is scanned first, and the second
-   * resource is scanned if the first does not contain a given path, and so on.
-   */
-  inline fun <reified A : Any> loadConfig(vararg paths: Path): ConfigResult<A> {
-    require(A::class.isData) { "Can only decode into data classes [was ${A::class}]" }
-    return paths.map { path ->
-      Try { Files.newInputStream(path) }.fold(
-        { ConfigFailure.UnknownSource(path.toString()).invalid() },
-        { InputSource(path.toString(), it).valid() }
-      )
-    }.sequence()
-      .leftMap { ConfigFailure.MultipleFailures(it) }
-      .flatMap { loadConfig(A::class, it) }
-  }
+  fun loadNodeOrThrow(vararg resources: String): Node =
+    resourcesToInputs(resources.toList()).flatMap { loadNode(it) }.returnOrThrow()
 
   /**
    * Attempts to load config from the specified resources on the class path and returns
@@ -96,6 +72,21 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
    */
   inline fun <reified A : Any> loadConfigOrThrow(vararg paths: Path): A = loadConfig<A>(*paths).returnOrThrow()
 
+  fun loadNodeOrThrow(vararg paths: Path): Node =
+    pathsToInputs(paths.toList()).flatMap { loadNode(it) }.returnOrThrow()
+
+  /**
+   * Attempts to load config from the specified Paths and returns
+   * a [ConfigResult] with either the errors during load, or the successfully created instance A.
+   *
+   * This function implements fallback, such that the first resource is scanned first, and the second
+   * resource is scanned if the first does not contain a given path, and so on.
+   */
+  inline fun <reified A : Any> loadConfig(vararg paths: Path): ConfigResult<A> {
+    require(A::class.isData) { "Can only decode into data classes [was ${A::class}]" }
+    return pathsToInputs(paths.toList()).flatMap { loadConfig(A::class, it) }
+  }
+
   fun <A : Any> ConfigResult<A>.returnOrThrow(): A = this.fold(
     {
       val err = "Error loading config because:\n\n" + it.description().prependIndent("    ")
@@ -104,22 +95,42 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
     { it }
   )
 
-  fun <A : Any> loadConfig(klass: KClass<A>, sources: List<InputSource>): ConfigResult<A> {
-    val path = klass.java.name
-
-    fun InputSource.ext() = this.resource.split('.').last()
-    fun InputSource.parse() = parserRegistry.locate(ext()).map { it.load(stream, resource) }
-    fun Node.preprocess() = preprocessors.fold(this) { acc, p -> acc.transform(p::process) }
-    fun List<Node>.preprocessAll() = this.map { it.preprocess() }
+  fun <A : Any> loadConfig(klass: KClass<A>, inputs: List<InputSource>): ConfigResult<A> {
     fun Node.decode() = decoderRegistry.decoder(klass).flatMap { decoder ->
       decoder.decode(this, klass.createType(), decoderRegistry)
     }
+    return loadNode(inputs).flatMap { it.decode() }
+  }
 
-    return sources.map { it.parse() }.sequence()
+  fun pathsToInputs(paths: List<Path>): ConfigResult<List<InputSource>> {
+    return paths.map { path ->
+      Try { Files.newInputStream(path) }.fold(
+        { ConfigFailure.UnknownSource(path.toString()).invalid() },
+        { InputSource(path.toString(), it).valid() }
+      )
+    }.sequence()
+      .leftMap { ConfigFailure.MultipleFailures(it) }
+  }
+
+  fun resourcesToInputs(resources: List<String>): ConfigResult<List<InputSource>> {
+    return resources.map { resource ->
+      this.javaClass.getResourceAsStream(resource).toOption().fold(
+        { ConfigFailure.UnknownSource(resource).invalid() },
+        { InputSource(resource, it).valid() }
+      )
+    }.sequence()
+      .leftMap { ConfigFailure.MultipleFailures(it) }
+  }
+
+  fun loadNode(inputs: List<InputSource>): ConfigResult<Node> {
+    fun InputSource.ext() = this.resource.split('.').last()
+    fun Node.preprocess() = preprocessors.fold(this) { acc, p -> acc.transform(p::process) }
+    fun InputSource.parse() = parserRegistry.locate(ext()).map { it.load(stream, resource) }
+    fun List<Node>.preprocessAll() = this.map { it.preprocess() }
+    return inputs.map { it.parse() }.sequence()
       .map { it.preprocessAll() }
       .map { it.reduce { acc, b -> acc.withFallback(b) } }
       .leftMap { ConfigFailure.MultipleFailures(it) }
-      .flatMap { it.decode() }
   }
 }
 

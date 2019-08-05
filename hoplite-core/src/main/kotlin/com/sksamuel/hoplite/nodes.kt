@@ -34,6 +34,8 @@ interface Node {
    */
   fun atIndex(index: Int): Node
 
+  fun hasKeyAt(key: String): Boolean = false
+
   fun atPath(path: String): Node {
     val parts = path.split('.')
     return parts.fold(this, { acc, part -> acc.atKey(part) })
@@ -129,6 +131,7 @@ data class MapNode(val map: Map<String, Node>, override val pos: Pos, override v
   override fun atKey(key: String): Node = get(key)
   override fun atIndex(index: Int): Node = UndefinedNode(pos, "$dotpath$[$index]")
   operator fun get(key: String): Node = map.getOrDefault(key, UndefinedNode(pos, "$dotpath.$key"))
+  override fun hasKeyAt(key: String): Boolean = map.containsKey(key)
 }
 
 data class ListNode(val elements: List<Node>, override val pos: Pos, override val dotpath: String) : ContainerNode() {
