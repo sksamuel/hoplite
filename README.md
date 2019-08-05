@@ -251,6 +251,16 @@ In these cases, you would need to register a custom serializer.
 For the Jackson project, a `HopliteModule` object is available in the `hoplite-json` module.
 Register this with your Jackson mapper, like `mapper.registerModule(HopliteModule)` and then `Masked` values will be ouputted into Json as "****"
 
+## Add on Modules
+
+Hoplite makes available several other modules that add functionality outside of the main core module. They are in seperate modules because they bring in dependencies from those projects and so the modules are optional.
+
+| Module        | Function          |
+|:--------------|:------------------|
+| hoplite-aws   | Provides decoder for aws `Region` |
+| hoplite-hdfs  | Provides decoder for hadoop `Path` |
+| hoplite-ktor  | Adaptor from `ConfigLoader` into Ktor `ApplicationConfig` |
+
 ## License
 ```
 This software is licensed under the Apache 2 license, quoted below.
