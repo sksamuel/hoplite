@@ -47,7 +47,7 @@ class HopliteApplicationConfigValue(private val node: Node) : ApplicationConfigV
 
 @KtorExperimentalAPI
 fun ConfigLoader.loadApplicationConfig(first: String, vararg tail: String): ApplicationConfig =
-  loadApplicationConfig(first + tail)
+  loadApplicationConfig(listOf(first) + tail)
 
 @KtorExperimentalAPI
 fun ConfigLoader.loadApplicationConfig(resources: List<String>): ApplicationConfig {
@@ -57,7 +57,7 @@ fun ConfigLoader.loadApplicationConfig(resources: List<String>): ApplicationConf
 
 @KtorExperimentalAPI
 fun ConfigLoader.loadApplicationConfig(first: Path, vararg tail: Path): ApplicationConfig =
-  loadApplicationConfig(first + tail)
+  loadApplicationConfig(listOf(path) + tail)
 
 @KtorExperimentalAPI
 @JvmName("loadApplicationConfigFromPaths")
