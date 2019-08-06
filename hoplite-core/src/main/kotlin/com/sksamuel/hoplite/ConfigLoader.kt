@@ -46,7 +46,9 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
    * This function implements fallback, such that the first resource is scanned first, and the second
    * resource is scanned if the first does not contain a given path, and so on.
    */
-  inline fun <reified A : Any> loadConfigOrThrow(vararg resources: String): A = loadConfig<A>(*resources).returnOrThrow()
+  inline fun <reified A : Any> loadConfigOrThrow(vararg resources: String): A = loadConfigOrThrow(resources.toList())
+
+  inline fun <reified A : Any> loadConfigOrThrow(resources: List<String>): A = loadConfig<A>(resources).returnOrThrow()
 
   /**
    * Attempts to load config from the specified resources on the class path and returns
@@ -55,7 +57,10 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
    * This function implements fallback, such that the first resource is scanned first, and the second
    * resource is scanned if the first does not contain a given path, and so on.
    */
-  inline fun <reified A : Any> loadConfig(vararg resources: String): ConfigResult<A> {
+  inline fun <reified A : Any> loadConfig(vararg resources: String): ConfigResult<A> = loadConfig(resources.toList())
+
+  @JvmName("loadConfigFromResources")
+  inline fun <reified A : Any> loadConfig(resources: List<String>): ConfigResult<A> {
     require(A::class.isData) { "Can only decode into data classes [was ${A::class}]" }
     return resourcesToInputs(resources.toList()).flatMap { loadConfig(A::class, it) }
   }
@@ -70,7 +75,10 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
    * This function implements fallback, such that the first resource is scanned first, and the second
    * resource is scanned if the first does not contain a given path, and so on.
    */
-  inline fun <reified A : Any> loadConfigOrThrow(vararg paths: Path): A = loadConfig<A>(*paths).returnOrThrow()
+  inline fun <reified A : Any> loadConfigOrThrow(vararg paths: Path): A = loadConfigOrThrow(paths.toList())
+
+  @JvmName("loadConfigOrThrowFromPaths")
+  inline fun <reified A : Any> loadConfigOrThrow(paths: List<Path>): A = loadConfig<A>(paths).returnOrThrow()
 
   fun loadNodeOrThrow(vararg paths: Path): Node =
     pathsToInputs(paths.toList()).flatMap { loadNode(it) }.returnOrThrow()
@@ -82,7 +90,10 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
    * This function implements fallback, such that the first resource is scanned first, and the second
    * resource is scanned if the first does not contain a given path, and so on.
    */
-  inline fun <reified A : Any> loadConfig(vararg paths: Path): ConfigResult<A> {
+  inline fun <reified A : Any> loadConfig(vararg paths: Path): ConfigResult<A> = loadConfig(paths.toList())
+
+  @JvmName("loadConfigFromPaths")
+  inline fun <reified A : Any> loadConfig(paths: List<Path>): ConfigResult<A> {
     require(A::class.isData) { "Can only decode into data classes [was ${A::class}]" }
     return pathsToInputs(paths.toList()).flatMap { loadConfig(A::class, it) }
   }
