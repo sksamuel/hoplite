@@ -12,6 +12,7 @@ import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.ThrowableFailure
 import com.sksamuel.hoplite.arrow.toValidated
+import java.lang.NumberFormatException
 import kotlin.reflect.KType
 
 class StringDecoder : NonNullableDecoder<String> {
@@ -32,7 +33,12 @@ class DoubleDecoder : NonNullableDecoder<Double> {
   override fun safeDecode(node: Node,
                           type: KType,
                           registry: DecoderRegistry): ConfigResult<Double> = when (node) {
-    is StringNode -> Try { node.value.toDouble() }.toValidated { ThrowableFailure(it) }
+    is StringNode -> Try { node.value.toDouble() }.toValidated {
+      when (it) {
+        is NumberFormatException -> ConfigFailure.NumberConversionError(node, type)
+        else -> ThrowableFailure(it)
+      }
+    }
     is DoubleNode -> node.value.valid()
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
@@ -43,7 +49,12 @@ class FloatDecoder : NonNullableDecoder<Float> {
   override fun safeDecode(node: Node,
                           type: KType,
                           registry: DecoderRegistry): ConfigResult<Float> = when (node) {
-    is StringNode -> Try { node.value.toFloat() }.toValidated { ThrowableFailure(it) }
+    is StringNode -> Try { node.value.toFloat() }.toValidated {
+      when (it) {
+        is NumberFormatException -> ConfigFailure.NumberConversionError(node, type)
+        else -> ThrowableFailure(it)
+      }
+    }
     is DoubleNode -> node.value.toFloat().valid()
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
@@ -54,7 +65,12 @@ class LongDecoder : NonNullableDecoder<Long> {
   override fun safeDecode(node: Node,
                           type: KType,
                           registry: DecoderRegistry): ConfigResult<Long> = when (node) {
-    is StringNode -> Try { node.value.toLong() }.toValidated { ThrowableFailure(it) }
+    is StringNode -> Try { node.value.toLong() }.toValidated {
+      when (it) {
+        is NumberFormatException -> ConfigFailure.NumberConversionError(node, type)
+        else -> ThrowableFailure(it)
+      }
+    }
     is LongNode -> node.value.valid()
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
@@ -65,7 +81,12 @@ class IntDecoder : NonNullableDecoder<Int> {
   override fun safeDecode(node: Node,
                           type: KType,
                           registry: DecoderRegistry): ConfigResult<Int> = when (node) {
-    is StringNode -> Try { node.value.toInt() }.toValidated { ThrowableFailure(it) }
+    is StringNode -> Try { node.value.toInt() }.toValidated {
+      when (it) {
+        is NumberFormatException -> ConfigFailure.NumberConversionError(node, type)
+        else -> ThrowableFailure(it)
+      }
+    }
     is DoubleNode -> node.value.toInt().valid()
     is LongNode -> node.value.toInt().valid()
     else -> ConfigFailure.DecodeError(node, type).invalid()
@@ -77,7 +98,12 @@ class ByteDecoder : NonNullableDecoder<Byte> {
   override fun safeDecode(node: Node,
                           type: KType,
                           registry: DecoderRegistry): ConfigResult<Byte> = when (node) {
-    is StringNode -> Try { node.value.toByte() }.toValidated { ThrowableFailure(it) }
+    is StringNode -> Try { node.value.toByte() }.toValidated {
+      when (it) {
+        is NumberFormatException -> ConfigFailure.NumberConversionError(node, type)
+        else -> ThrowableFailure(it)
+      }
+    }
     is DoubleNode -> Try { node.value.toByte() }.toValidated { ThrowableFailure(it) }
     is LongNode -> node.value.toByte().valid()
     else -> ConfigFailure.DecodeError(node, type).invalid()

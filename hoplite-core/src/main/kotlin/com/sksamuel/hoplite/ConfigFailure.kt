@@ -7,7 +7,9 @@ val KType.simpleName: String
   get() = when (this.classifier) {
     String::class -> "String"
     Long::class -> "Long"
+    Int::class -> "Int"
     Double::class -> "Double"
+    Float::class -> "Float"
     Boolean::class -> "Boolean"
     else -> this.toString()
   }
@@ -37,7 +39,10 @@ sealed class ConfigFailure {
    * tried to pass "hello" then this would result in a conversion failure.
    */
   data class DecodeError(val node: Node, val target: KType) : ConfigFailure() {
-    override fun description(): String = "Required type ${target.simpleName} could not be decoded from a ${node.simpleName} ${node.pos.loc()}"
+    override fun description(): String = when (node) {
+      is PrimitiveNode -> "Required type ${target.simpleName} could not be decoded from a ${node.simpleName} value: ${node.value} ${node.pos.loc()}"
+      else -> "Required type ${target.simpleName} could not be decoded from a ${node.simpleName} ${node.pos.loc()}"
+    }
   }
 
   data class UnsupportedCollectionType(val node: Node, val type: String) : ConfigFailure() {
@@ -52,6 +57,13 @@ sealed class ConfigFailure {
     override fun description(): String = "Unable to locate a decoder for $type"
   }
 
+  data class NumberConversionError(val node: Node, val type: KType) : ConfigFailure() {
+    override fun description(): String = when (node) {
+      is PrimitiveNode -> "Could not decode ${node.value} into a ${type.simpleName} ${node.pos.loc()}"
+      else -> "Could not decode a ${node.simpleName} into a number ${node.pos.loc()}"
+    }
+  }
+
   object MissingValue : ConfigFailure() {
     override fun description(): String = "Missing from config"
   }
@@ -61,11 +73,11 @@ sealed class ConfigFailure {
   }
 
   data class CollectionElementErrors(val node: Node, val errors: NonEmptyList<ConfigFailure>) : ConfigFailure() {
-    override fun description(): String = "collection errors"
+    override fun description(): String = "Collection element decode failure"
   }
 
   data class TupleErrors(val node: Node, val errors: NonEmptyList<ConfigFailure>) : ConfigFailure() {
-    override fun description(): String = "collection errors"
+    override fun description(): String = "Collection element decode failure"
   }
 
   data class InvalidEnumConstant(val node: Node,
