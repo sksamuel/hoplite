@@ -2,13 +2,18 @@ package com.sksamuel.hoplite.ktor
 
 import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.ListNode
+import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.UndefinedNode
 import io.ktor.config.ApplicationConfig
 import io.ktor.config.ApplicationConfigValue
+import io.ktor.server.engine.ApplicationEngineEnvironment
+import io.ktor.server.engine.applicationEngineEnvironment
+import io.ktor.server.engine.connector
 import io.ktor.util.KtorExperimentalAPI
-import java.lang.IllegalArgumentException
+import org.slf4j.LoggerFactory
 import java.nio.file.Path
 
 @KtorExperimentalAPI
@@ -22,7 +27,6 @@ class HopliteApplicationConfig(private val node: Node) : ApplicationConfig {
 
   override fun propertyOrNull(path: String): ApplicationConfigValue? =
     if (node.hasKeyAt(path)) property(path) else null
-
 }
 
 @KtorExperimentalAPI
@@ -46,22 +50,51 @@ class HopliteApplicationConfigValue(private val node: Node) : ApplicationConfigV
 }
 
 @KtorExperimentalAPI
-fun ConfigLoader.loadApplicationConfig(first: String, vararg tail: String): ApplicationConfig =
-  loadApplicationConfig(listOf(first) + tail)
+fun ConfigLoader.loadApplicationEngineEnvironment(first: String, vararg tail: String): ApplicationEngineEnvironment =
+  loadApplicationEngineEnvironment(listOf(first) + tail)
 
 @KtorExperimentalAPI
-fun ConfigLoader.loadApplicationConfig(resources: List<String>): ApplicationConfig {
+fun ConfigLoader.loadApplicationEngineEnvironment(resources: List<String>): ApplicationEngineEnvironment {
   val node = loadNodeOrThrow(resources)
-  return HopliteApplicationConfig(node)
+  return hopliteApplicationEngineEnvironment(node)
 }
 
 @KtorExperimentalAPI
-fun ConfigLoader.loadApplicationConfig(first: Path, vararg tail: Path): ApplicationConfig =
-  loadApplicationConfig(listOf(path) + tail)
+fun ConfigLoader.loadApplicationEngineEnvironment(first: Path, vararg tail: Path): ApplicationEngineEnvironment =
+  loadApplicationEngineEnvironment(listOf(first) + tail)
 
 @KtorExperimentalAPI
 @JvmName("loadApplicationConfigFromPaths")
-fun ConfigLoader.loadApplicationConfig(paths: List<Path>): ApplicationConfig {
+fun ConfigLoader.loadApplicationEngineEnvironment(paths: List<Path>): ApplicationEngineEnvironment {
   val node = loadNodeOrThrow(paths)
-  return HopliteApplicationConfig(node)
+  return hopliteApplicationEngineEnvironment(node)
 }
+
+fun hopliteApplicationEngineEnvironment(node: Node): ApplicationEngineEnvironment = applicationEngineEnvironment {
+
+  val hostConfigPath = "ktor.deployment.host"
+  val portConfigPath = "ktor.deployment.port"
+  val applicationIdPath = "ktor.application.id"
+
+  val applicationId = when (val n = node.atPath(applicationIdPath)) {
+    is StringNode -> n.value
+    is UndefinedNode -> "Application"
+    else -> throw RuntimeException("Invalid value for $applicationIdPath")
+  }
+
+  log = LoggerFactory.getLogger(applicationId)
+  config = HopliteApplicationConfig(node)
+
+  connector {
+    host = when (val n = node.atPath(hostConfigPath)) {
+      is StringNode -> n.value
+      is UndefinedNode -> "0.0.0.0"
+      else -> throw RuntimeException("Invalid value for host: $n")
+    }
+    port = when (val n = node.atPath(portConfigPath)) {
+      is LongNode -> n.value.toInt()
+      else -> throw RuntimeException("$portConfigPath is not defined or is not a number")
+    }
+  }
+}
+
