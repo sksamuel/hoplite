@@ -22,22 +22,32 @@ data class InputSource(val resource: String, val stream: InputStream)
 
 class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoderRegistry(),
                    private val parserRegistry: ParserRegistry = defaultParserRegistry(),
-                   private val preprocessors: List<Preprocessor> = defaultPreprocessors()) {
+                   private val preprocessors: List<Preprocessor> = defaultPreprocessors(),
+                   private val keyMappers: List<KeyMapper> = defaultKeyMappers()) {
 
   fun withPreprocessor(preprocessor: Preprocessor) = ConfigLoader(
     decoderRegistry,
     parserRegistry,
-    preprocessors + preprocessor)
+    preprocessors + preprocessor,
+    keyMappers)
 
   fun withDecoder(decoder: Decoder<*>) = ConfigLoader(
     decoderRegistry.register(decoder),
     parserRegistry,
-    preprocessors)
+    preprocessors,
+    keyMappers)
 
   fun withFileExtensionMapping(ext: String, parser: Parser) = ConfigLoader(
     decoderRegistry,
     parserRegistry.register(ext, parser),
-    preprocessors)
+    preprocessors,
+    keyMappers)
+
+  fun withKeyMapper(mapper: KeyMapper) = ConfigLoader(
+    decoderRegistry,
+    parserRegistry,
+    preprocessors,
+    keyMappers + mapper)
 
   /**
    * Attempts to load config from the specified resources on the class path and returns
@@ -135,11 +145,14 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
 
   fun loadNode(inputs: List<InputSource>): ConfigResult<Node> {
     fun InputSource.ext() = this.resource.split('.').last()
-    fun Node.preprocess() = preprocessors.fold(this) { acc, p -> acc.transform(p::process) }
+    fun Node.preprocess() = preprocessors.fold(this) { node, preprocessor -> node.transform(preprocessor::process) }
+    fun Node.keymapped() = keyMappers.fold(this) { node, mapper -> node.mapKey(mapper::map) }
     fun InputSource.parse() = parserRegistry.locate(ext()).map { it.load(stream, resource) }
     fun List<Node>.preprocessAll() = this.map { it.preprocess() }
+    fun List<Node>.keyMapAll() = this.map { it.keymapped() }
     return inputs.map { it.parse() }.sequence()
       .map { it.preprocessAll() }
+      .map { it.keyMapAll() }
       .map { it.reduce { acc, b -> acc.withFallback(b) } }
       .leftMap { ConfigFailure.MultipleFailures(it) }
   }

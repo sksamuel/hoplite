@@ -41,10 +41,21 @@ interface Node {
     return parts.fold(this, { acc, part -> acc.atKey(part) })
   }
 
+  /**
+   * Applies the given function to all string values, recursively calling into lists and maps.
+   */
   fun transform(f: (String) -> String): Node = when (this) {
     is StringNode -> StringNode(f(value), pos, dotpath)
     is MapNode -> MapNode(map.map { f(it.key) to it.value.transform(f) }.toMap(), pos, dotpath)
     is ListNode -> ListNode(elements.map { it.transform(f) }, pos, dotpath)
+    else -> this
+  }
+
+  /**
+   * Applies the given function to all key names, recursively calling into lists and maps.
+   */
+  fun mapKey(f: (String) -> String): Node = when (this) {
+    is MapNode -> this.copy(map = this.map.mapKeys { f(it.key) })
     else -> this
   }
 

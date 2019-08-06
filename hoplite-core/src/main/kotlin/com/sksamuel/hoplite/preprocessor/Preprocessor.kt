@@ -1,7 +1,8 @@
 package com.sksamuel.hoplite.preprocessor
 
 /**
- * Takes a raw config value and processes it.
+ * A [Preprocessor] applies a function to every string value in config,
+ * returning a new string value which replaces the existing one.
  */
 interface Preprocessor {
   fun process(value: String): String
