@@ -34,10 +34,10 @@ class HopliteApplicationConfigValue(private val node: Node) : ApplicationConfigV
   }
 
   override fun getList(): List<String> = when (node) {
-    is ListNode -> node.elements.map {
-      when (node) {
-        is PrimitiveNode -> node.value.toString()
-        else -> throw IllegalArgumentException("${node.simpleName} cannot be converted to string")
+    is ListNode -> node.elements.map { element ->
+      when (element) {
+        is PrimitiveNode -> element.value.toString()
+        else -> throw IllegalArgumentException("${element.simpleName} cannot be converted to string")
       }
     }
     is StringNode -> node.value.split(',').toList()
