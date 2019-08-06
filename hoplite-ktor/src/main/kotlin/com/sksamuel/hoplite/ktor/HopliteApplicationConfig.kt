@@ -93,6 +93,7 @@ fun hopliteApplicationEngineEnvironment(node: Node): ApplicationEngineEnvironmen
     }
     port = when (val n = node.atPath(portConfigPath)) {
       is LongNode -> n.value.toInt()
+      is StringNode -> n.value.toInt()
       else -> throw RuntimeException("$portConfigPath is not defined or is not a number")
     }
   }
