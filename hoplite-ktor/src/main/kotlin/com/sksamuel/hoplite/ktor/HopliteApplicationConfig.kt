@@ -44,13 +44,22 @@ class HopliteApplicationConfigValue(private val node: Node) : ApplicationConfigV
 }
 
 @KtorExperimentalAPI
-fun ConfigLoader.loadApplicationConfig(vararg resources: String): ApplicationConfig {
-  val node = loadNodeOrThrow(* resources)
+fun ConfigLoader.loadApplicationConfig(first: String, vararg tail: String): ApplicationConfig =
+  loadApplicationConfig(first + tail)
+
+@KtorExperimentalAPI
+fun ConfigLoader.loadApplicationConfig(resources: List<String>): ApplicationConfig {
+  val node = loadNodeOrThrow(resources)
   return HopliteApplicationConfig(node)
 }
 
 @KtorExperimentalAPI
-fun ConfigLoader.loadApplicationConfig(vararg paths: Path): ApplicationConfig {
-  val node = loadNodeOrThrow(* paths)
+fun ConfigLoader.loadApplicationConfig(first: Path, vararg tail: Path): ApplicationConfig =
+  loadApplicationConfig(first + tail)
+
+@KtorExperimentalAPI
+@JvmName("loadApplicationConfigFromPaths")
+fun ConfigLoader.loadApplicationConfig(paths: List<Path>): ApplicationConfig {
+  val node = loadNodeOrThrow(paths)
   return HopliteApplicationConfig(node)
 }

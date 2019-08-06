@@ -75,7 +75,7 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
     return resourcesToInputs(resources.toList()).flatMap { loadConfig(A::class, it) }
   }
 
-  fun loadNodeOrThrow(vararg resources: String): Node =
+  fun loadNodeOrThrow(resources: List<String>): Node =
     resourcesToInputs(resources.toList()).flatMap { loadNode(it) }.returnOrThrow()
 
   /**
@@ -90,7 +90,8 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
   @JvmName("loadConfigOrThrowFromPaths")
   inline fun <reified A : Any> loadConfigOrThrow(paths: List<Path>): A = loadConfig<A>(paths).returnOrThrow()
 
-  fun loadNodeOrThrow(vararg paths: Path): Node =
+  @JvmName("loadNodeOrThrowFromPaths")
+  fun loadNodeOrThrow(paths: List<Path>): Node =
     pathsToInputs(paths.toList()).flatMap { loadNode(it) }.returnOrThrow()
 
   /**
