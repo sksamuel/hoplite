@@ -7,8 +7,9 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
-import java.time.Year
 import java.time.format.DateTimeFormatter
+import java.time.Year
+import java.time.YearMonth
 import java.util.Date
 
 import arrow.core.Try
@@ -90,6 +91,17 @@ class JavaUtilDateDecoder : NonNullableDecoder<java.util.Date> {
     is StringNode -> Try { java.util.Date(node.value.toLong()).valid() }
       .getOrElse { ConfigFailure.DecodeError(node, type).invalid() }
     is LongNode -> java.util.Date(node.value).valid()
+    else -> ConfigFailure.DecodeError(node, type).invalid()
+  }
+}
+
+class YearMonthDecoder : NonNullableDecoder<YearMonth> {
+  override fun supports(type: KType): Boolean = type.classifier == YearMonth::class
+  override fun safeDecode(node: Node,
+                          type: KType,
+                          registry: DecoderRegistry): ConfigResult<YearMonth> = when (node) {
+    is StringNode -> Try { YearMonth.parse(node.value).valid() }
+      .getOrElse { ConfigFailure.DecodeError(node, type).invalid() }
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }
