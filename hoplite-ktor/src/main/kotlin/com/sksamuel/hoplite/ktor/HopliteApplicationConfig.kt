@@ -4,6 +4,7 @@ import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.ListNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PrimitiveNode
+import com.sksamuel.hoplite.StringNode
 import io.ktor.config.ApplicationConfig
 import io.ktor.config.ApplicationConfigValue
 import io.ktor.util.KtorExperimentalAPI
@@ -29,17 +30,18 @@ class HopliteApplicationConfigValue(private val node: Node) : ApplicationConfigV
 
   override fun getString(): String = when (node) {
     is PrimitiveNode -> node.value.toString()
-    else -> throw IllegalArgumentException("$node cannot be converted to string")
+    else -> throw IllegalArgumentException("${node.simpleName} cannot be converted to string")
   }
 
   override fun getList(): List<String> = when (node) {
     is ListNode -> node.elements.map {
       when (node) {
         is PrimitiveNode -> node.value.toString()
-        else -> throw IllegalArgumentException("$node cannot be converted to string")
+        else -> throw IllegalArgumentException("${node.simpleName} cannot be converted to string")
       }
     }
-    else -> throw IllegalArgumentException("$node cannot be converted to list")
+    is StringNode -> node.value.split(',').toList()
+    else -> throw IllegalArgumentException("${node.simpleName} cannot be converted to list")
   }
 }
 
