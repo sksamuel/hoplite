@@ -11,6 +11,7 @@ import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 import java.time.LocalDate
 import java.time.Year
+import java.time.YearMonth
 import java.time.ZoneOffset
 import kotlin.reflect.full.createType
 
@@ -63,7 +64,7 @@ class DataClassDecoderTest : StringSpec() {
     }
 
     "support Date types" {
-      data class Foo(val a: Year, val b: java.util.Date)
+      data class Foo(val a: Year, val b: java.util.Date, val c: YearMonth)
 
       val millis = LocalDate.parse("2011-08-17")
         .atStartOfDay()
@@ -73,12 +74,13 @@ class DataClassDecoderTest : StringSpec() {
       val node = MapNode(
         mapOf(
           "a" to StringNode("1991", Pos.NoPos, dotpath = ""),
-          "b" to LongNode(millis.toEpochMilli(), Pos.NoPos, dotpath = "")
+          "b" to LongNode(millis.toEpochMilli(), Pos.NoPos, dotpath = ""),
+          "c" to StringNode("2007-12", Pos.NoPos, dotpath = "")
         ),
         Pos.NoPos, dotpath = ""
       )
       DataClassDecoder().decode(node, Foo::class.createType(), defaultDecoderRegistry()) shouldBe
-        Foo(Year.of(1991), expectedDate).valid()
+        Foo(Year.of(1991), expectedDate, YearMonth.parse("2007-12")).valid()
     }
 
     "support ranges" {
