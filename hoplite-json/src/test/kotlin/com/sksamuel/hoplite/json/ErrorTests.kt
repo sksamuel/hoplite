@@ -33,7 +33,7 @@ class ErrorTests : StringSpec({
 
     - Could not instantiate 'com.sksamuel.hoplite.json.Foo' because:
     
-        - 'wrongType': Required type Boolean could not be decoded from a Long (/error1.json:2:19)
+        - 'wrongType': Required type Boolean could not be decoded from a Long value: 123 (/error1.json:2:19)
     
         - 'whereAmI': Missing from config
     
@@ -47,15 +47,15 @@ class ErrorTests : StringSpec({
     
         - 'notaset': Defined as a Set but a Long cannot be converted to a collection (/error1.json:4:17)
     
-        - 'duration': Required type java.time.Duration could not be decoded from a String (/error1.json:7:26)
+        - 'duration': Required type java.time.Duration could not be decoded from a String value: 10 grams (/error1.json:7:26)
     
         - 'nested': - Could not instantiate 'com.sksamuel.hoplite.json.Wibble' because:
     
-            - 'a': Required type java.time.LocalDateTime could not be decoded from a String (/error1.json:10:17)
+            - 'a': Required type java.time.LocalDateTime could not be decoded from a String value: qwqwe (/error1.json:10:17)
     
-            - 'b': Required type java.time.LocalDate could not be decoded from a String (/error1.json:11:17)
+            - 'b': Required type java.time.LocalDate could not be decoded from a String value: qwqwe (/error1.json:11:17)
     
-            - 'c': Required type java.time.Instant could not be decoded from a String (/error1.json:12:17)
+            - 'c': Required type java.time.Instant could not be decoded from a String value: qwqwe (/error1.json:12:17)
     
             - 'd': Unable to locate a decoder for java.time.LocalTime"""
   }
