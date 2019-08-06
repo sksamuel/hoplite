@@ -97,5 +97,19 @@ class DataClassDecoderTest : StringSpec() {
       DataClassDecoder().decode(node, Foo::class.createType(), defaultDecoderRegistry()) shouldBe
         Foo(IntRange(1, 4), LongRange(50, 60), CharRange('d', 'g')).valid()
     }
+
+    "support default values" {
+      data class Foo(val a: String = "default a", val b: String = "default b", val c: Boolean = false)
+
+      val node = MapNode(
+        mapOf(
+          "a" to StringNode("value", Pos.NoPos, dotpath = "")
+        ),
+        Pos.NoPos, dotpath = ""
+      )
+
+      DataClassDecoder().decode(node, Foo::class.createType(), defaultDecoderRegistry()) shouldBe
+        Foo("value", "default b", false).valid()
+    }
   }
 }
