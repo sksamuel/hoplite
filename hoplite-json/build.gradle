@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    compile project(":hoplite-core")
+    api project(":hoplite-core")
     implementation 'com.fasterxml.jackson:jackson-bom:2.9.9'
     implementation 'com.fasterxml.jackson.core:jackson-core:2.9.9'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.9'

@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    compile project(":hoplite-core")
+    api project(":hoplite-core")
     implementation 'com.typesafe:config:1.3.4'
     testImplementation "io.kotlintest:kotlintest-runner-junit5:3.4.0"
     testImplementation "io.kotlintest:kotlintest-assertions-arrow:3.4.0"
