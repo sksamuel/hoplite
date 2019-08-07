@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
     compile project(":hoplite-core")
-    api 'com.amazonaws:aws-java-sdk-core:1.11.598'
+    api 'com.amazonaws:aws-java-sdk-core:1.11.605'
     testImplementation "io.kotlintest:kotlintest-runner-junit5:3.4.0"
     testImplementation "io.kotlintest:kotlintest-assertions-arrow:3.4.0"
 }

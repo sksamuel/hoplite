@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
     compile project(":hoplite-core")
-    compile 'org.tomlj:tomlj:1.0.0'
+    implementation 'org.tomlj:tomlj:1.0.0'
     testImplementation "io.kotlintest:kotlintest-runner-junit5:3.4.0"
     testImplementation "io.kotlintest:kotlintest-assertions-arrow:3.4.0"
 }
