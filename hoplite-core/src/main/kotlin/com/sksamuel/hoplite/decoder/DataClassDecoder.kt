@@ -1,6 +1,7 @@
 package com.sksamuel.hoplite.decoder
 
 import arrow.data.ValidatedNel
+import arrow.data.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Node
@@ -23,16 +24,18 @@ class DataClassDecoder : Decoder<Any> {
 
     val constructor = klass.constructors.first()
 
-    val args: ValidatedNel<ConfigFailure.ParamFailure, List<Pair<KParameter, Any?>>> = constructor.parameters.mapNotNull { param ->
+    val args: ValidatedNel<ConfigFailure.ParamFailure, List<Pair<KParameter, Any?>>> = constructor.parameters.map { param ->
       val paramName = param.name ?: "<anon>"
       val n = node.atKey(paramName)
 
       if (param.isOptional && n is UndefinedNode) {
-        null // skip this parameter and let the default value be filled in
-      } else registry.decoder(param.type)
-        .flatMap { it.decode(n, param.type, registry) }
-        .map { param to it }
-        .leftMap { ConfigFailure.ParamFailure(paramName, it) }
+        (param to null).valid() // skip this parameter and let the default value be filled in
+      } else {
+        registry.decoder(param.type)
+          .flatMap { it.decode(n, param.type, registry) }
+          .map { param to it }
+          .leftMap { ConfigFailure.ParamFailure(paramName, it) }
+      }
     }.sequence()
 
     return args
