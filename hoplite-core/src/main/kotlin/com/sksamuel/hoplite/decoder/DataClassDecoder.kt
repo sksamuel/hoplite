@@ -21,15 +21,14 @@ class DataClassDecoder : Decoder<Any> {
                       registry: DecoderRegistry): ConfigResult<Any> {
 
     val klass = type.classifier as KClass<*>
-
     val constructor = klass.constructors.first()
 
-    val args: ValidatedNel<ConfigFailure.ParamFailure, List<Pair<KParameter, Any?>>> = constructor.parameters.map { param ->
+    val args: ValidatedNel<ConfigFailure.ParamFailure, List<Pair<KParameter, Any?>>> = constructor.parameters.mapNotNull { param ->
       val paramName = param.name ?: "<anon>"
       val n = node.atKey(paramName)
 
       if (param.isOptional && n is UndefinedNode) {
-        (param to null).valid() // skip this parameter and let the default value be filled in
+        null // skip this parameter and let the default value be filled in
       } else {
         registry.decoder(param.type)
           .flatMap { it.decode(n, param.type, registry) }
