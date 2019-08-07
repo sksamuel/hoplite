@@ -4,9 +4,11 @@ import arrow.data.ValidatedNel
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.UndefinedNode
 import com.sksamuel.hoplite.arrow.flatMap
 import com.sksamuel.hoplite.arrow.sequence
 import kotlin.reflect.KClass
+import kotlin.reflect.KParameter
 import kotlin.reflect.KType
 
 class DataClassDecoder : Decoder<Any> {
@@ -19,16 +21,22 @@ class DataClassDecoder : Decoder<Any> {
 
     val klass = type.classifier as KClass<*>
 
-    val args: ValidatedNel<ConfigFailure, List<Any?>> = klass.constructors.first().parameters.map { param ->
+    val constructor = klass.constructors.first()
+
+    val args: ValidatedNel<ConfigFailure.ParamFailure, List<Pair<KParameter, Any?>>> = constructor.parameters.mapNotNull { param ->
       val paramName = param.name ?: "<anon>"
       val n = node.atKey(paramName)
-      registry.decoder(param.type)
+
+      if (param.isOptional && n is UndefinedNode) {
+        null // skip this parameter and let the default value be filled in
+      } else registry.decoder(param.type)
         .flatMap { it.decode(n, param.type, registry) }
+        .map { param to it }
         .leftMap { ConfigFailure.ParamFailure(paramName, it) }
     }.sequence()
 
     return args
       .leftMap { ConfigFailure.DataClassFieldErrors(it, type, node.pos) }
-      .map { klass.constructors.first().call(*it.toTypedArray()) }
+      .map { constructor.callBy(it.toMap()) }
   }
 }
