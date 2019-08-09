@@ -4,7 +4,7 @@ import com.sksamuel.hoplite.ConfigLoader
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 
-data class Database(val server: String, val ports: List<Int>, val connection_max: Int, val enabled: Boolean)
+data class Database(val server: String, val ports: List<Int>, val connectionMax: Int, val enabled: Boolean)
 data class Server(val ip: String, val dc: String)
 data class Servers(val alpha: Server, val beta: Server)
 data class Owner(val name: String,
