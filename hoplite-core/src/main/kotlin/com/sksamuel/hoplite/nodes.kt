@@ -55,7 +55,7 @@ interface Node {
    * Applies the given function to all key names, recursively calling into lists and maps.
    */
   fun mapKey(f: (String) -> String): Node = when (this) {
-    is MapNode -> this.copy(map = this.map.mapKeys { f(it.key) })
+    is MapNode -> this.copy(map = this.map.map { f(it.key) to it.value.mapKey(f) }.toMap())
     else -> this
   }
 
