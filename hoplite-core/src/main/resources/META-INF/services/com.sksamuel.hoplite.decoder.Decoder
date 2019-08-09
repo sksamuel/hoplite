@@ -5,6 +5,7 @@ com.sksamuel.hoplite.decoder.UUIDDecoder
 com.sksamuel.hoplite.decoder.LocalDateDecoder
 com.sksamuel.hoplite.decoder.LocalDateTimeDecoder
 com.sksamuel.hoplite.decoder.DurationDecoder
+com.sksamuel.hoplite.decoder.PeriodDecoder
 com.sksamuel.hoplite.decoder.EnumDecoder
 com.sksamuel.hoplite.decoder.StringDecoder
 com.sksamuel.hoplite.decoder.IntDecoder

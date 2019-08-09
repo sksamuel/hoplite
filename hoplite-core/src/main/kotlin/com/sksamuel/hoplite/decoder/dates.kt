@@ -22,6 +22,8 @@ import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.parseDuration
+import com.sksamuel.hoplite.parsePeriod
+import java.time.Period
 
 class LocalDateTimeDecoder : NonNullableDecoder<LocalDateTime> {
   override fun supports(type: KType): Boolean = type.classifier == LocalDateTime::class
@@ -102,6 +104,16 @@ class YearMonthDecoder : NonNullableDecoder<YearMonth> {
                           registry: DecoderRegistry): ConfigResult<YearMonth> = when (node) {
     is StringNode -> Try { YearMonth.parse(node.value).valid() }
       .getOrElse { ConfigFailure.DecodeError(node, type).invalid() }
+    else -> ConfigFailure.DecodeError(node, type).invalid()
+  }
+}
+
+class PeriodDecoder : NonNullableDecoder<Period> {
+  override fun supports(type: KType): Boolean = type.classifier == Period::class
+  override fun safeDecode(node: Node,
+                          type: KType,
+                          registry: DecoderRegistry): ConfigResult<Period> = when (node) {
+    is StringNode -> parsePeriod(node.value).leftMap { ConfigFailure.DecodeError(node, type) }
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }
