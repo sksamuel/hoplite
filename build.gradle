@@ -43,7 +43,7 @@ allprojects {
     }
 
     task sourcesJar(type: Jar) {
-       // from sourceSets.main.kotlin
+        from sourceSets.main.kotlin
         archiveClassifier = 'sources'
     }
 
