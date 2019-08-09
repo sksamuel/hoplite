@@ -37,16 +37,6 @@ allprojects {
         version "1.0.3"
     }
 
-    task javadocJar(type: Jar) {
-        from javadoc.destinationDir
-        archiveClassifier = 'javadoc'
-    }
-
-    task sourcesJar(type: Jar) {
-        from sourceSets.main.kotlin
-        archiveClassifier = 'sources'
-    }
-
     tasks.withType(Javadoc) {
         onlyIf { isReleaseVersion }
     }
@@ -67,73 +57,82 @@ allprojects {
             url "https://oss.sonatype.org/content/repositories/snapshots"
         }
     }
+}
 
-    publishing {
-        repositories {
-            maven {
+task javadocJar(type: Jar) {
+    from javadoc.destinationDir
+    archiveClassifier = 'javadoc'
+}
 
-                def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-                def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+task sourcesJar(type: Jar) {
+    from sourceSets.main.kotlin
+    archiveClassifier = 'sources'
+}
 
-                name 'deploy'
+publishing {
+    repositories {
+        maven {
 
-                url = isTravis ? snapshotsRepoUrl : releasesRepoUrl
+            def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
 
-                credentials {
-                    username = System.getenv("OSSRH_USERNAME") ?: ossrhUsername
-                    password = System.getenv("OSSRH_PASSWORD") ?: ossrhPassword
-                }
+            name 'deploy'
+
+            url = isTravis ? snapshotsRepoUrl : releasesRepoUrl
+
+            credentials {
+                username = System.getenv("OSSRH_USERNAME") ?: ossrhUsername
+                password = System.getenv("OSSRH_PASSWORD") ?: ossrhPassword
             }
         }
-        publications {
-            mavenJava(MavenPublication) {
+    }
+    publications {
+        mavenJava(MavenPublication) {
 
-                from components.java
+            from components.java
 
-                if (isReleaseVersion) {
-                    artifact sourcesJar
-                    artifact javadocJar
-                }
+            if (isReleaseVersion) {
+                artifact sourcesJar
+                artifact javadocJar
+            }
 
-                pom {
-                    name = 'hoplite'
-                    description = 'Configuration for Kotlin'
+            pom {
+                name = 'hoplite'
+                description = 'Configuration for Kotlin'
+                url = 'http://www.github.com/sksamuel/hoplite'
+
+                scm {
+                    connection = 'scm:git:http://www.github.com/sksamuel/hoplite'
+                    developerConnection = 'scm:git:http://github.com/sksamuel'
                     url = 'http://www.github.com/sksamuel/hoplite'
+                }
 
-                    scm {
-                        connection = 'scm:git:http://www.github.com/sksamuel/hoplite'
-                        developerConnection = 'scm:git:http://github.com/sksamuel'
-                        url = 'http://www.github.com/sksamuel/hoplite'
+                licenses {
+                    license {
+                        name = 'The Apache 2.0 License'
+                        url = 'https://opensource.org/licenses/Apache-2.0'
                     }
+                }
 
-                    licenses {
-                        license {
-                            name = 'The Apache 2.0 License'
-                            url = 'https://opensource.org/licenses/Apache-2.0'
-                        }
-                    }
-
-                    developers {
-                        developer {
-                            id = 'sksamuel'
-                            name = 'Stephen Samuel'
-                            email = 'sam@sksamuel.com'
-                        }
+                developers {
+                    developer {
+                        id = 'sksamuel'
+                        name = 'Stephen Samuel'
+                        email = 'sam@sksamuel.com'
                     }
                 }
             }
         }
     }
+}
 
-    signing {
-        useGpgCmd()
-        sign publishing.publications.mavenJava
-    }
+signing {
+    useGpgCmd()
+    sign publishing.publications.mavenJava
+}
 
-    tasks.withType(Sign) {
-        onlyIf { isReleaseVersion }
-    }
-
+tasks.withType(Sign) {
+    onlyIf { isReleaseVersion }
 }
 
 project(":") {
