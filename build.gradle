@@ -34,7 +34,7 @@ allprojects {
     if (isTravis) {
         version "1.1.0." + travisBuildNumber + "-SNAPSHOT"
     } else {
-        version "1.0.3"
+        version "1.0.4"
     }
 
     tasks.withType(Javadoc) {
@@ -58,83 +58,6 @@ allprojects {
         }
     }
 }
-
-task javadocJar(type: Jar) {
-    from javadoc.destinationDir
-    archiveClassifier = 'javadoc'
-}
-
-task sourcesJar(type: Jar) {
-    from sourceSets.main.kotlin
-    archiveClassifier = 'sources'
-}
-
-publishing {
-    repositories {
-        maven {
-
-            def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-            def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
-
-            name 'deploy'
-
-            url = isTravis ? snapshotsRepoUrl : releasesRepoUrl
-
-            credentials {
-                username = System.getenv("OSSRH_USERNAME") ?: ossrhUsername
-                password = System.getenv("OSSRH_PASSWORD") ?: ossrhPassword
-            }
-        }
-    }
-    publications {
-        mavenJava(MavenPublication) {
-
-            from components.java
-
-            if (isReleaseVersion) {
-                artifact sourcesJar
-                artifact javadocJar
-            }
-
-            pom {
-                name = 'hoplite'
-                description = 'Configuration for Kotlin'
-                url = 'http://www.github.com/sksamuel/hoplite'
-
-                scm {
-                    connection = 'scm:git:http://www.github.com/sksamuel/hoplite'
-                    developerConnection = 'scm:git:http://github.com/sksamuel'
-                    url = 'http://www.github.com/sksamuel/hoplite'
-                }
-
-                licenses {
-                    license {
-                        name = 'The Apache 2.0 License'
-                        url = 'https://opensource.org/licenses/Apache-2.0'
-                    }
-                }
-
-                developers {
-                    developer {
-                        id = 'sksamuel'
-                        name = 'Stephen Samuel'
-                        email = 'sam@sksamuel.com'
-                    }
-                }
-            }
-        }
-    }
-}
-
-signing {
-    useGpgCmd()
-    sign publishing.publications.mavenJava
-}
-
-tasks.withType(Sign) {
-    onlyIf { isReleaseVersion }
-}
-
 project(":") {
     publish.enabled = false
 }

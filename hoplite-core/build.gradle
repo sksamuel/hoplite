@@ -9,3 +9,5 @@ dependencies {
     implementation 'io.arrow-kt:arrow-core-extensions:0.9.0'
     testImplementation "io.kotlintest:kotlintest-runner-junit5:3.4.0"
 }
+
+apply from: '../publish.gradle'
