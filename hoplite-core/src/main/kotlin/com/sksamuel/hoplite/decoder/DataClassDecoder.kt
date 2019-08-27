@@ -1,7 +1,6 @@
 package com.sksamuel.hoplite.decoder
 
 import arrow.data.ValidatedNel
-import arrow.data.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Node

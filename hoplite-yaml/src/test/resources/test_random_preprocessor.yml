@@ -1,2 +1,8 @@
 a: $RANDOM_STRING(6)
 b: hello $RANDOM_STRING(12)
+c: ${random.int}
+d: ${random.boolean}
+e: ${random.int(9)}
+f: ${random.int(100,999)}
+g: ${random.long}
+h: ${random.double}
