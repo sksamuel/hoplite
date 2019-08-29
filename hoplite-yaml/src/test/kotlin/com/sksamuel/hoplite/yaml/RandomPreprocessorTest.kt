@@ -2,6 +2,7 @@ package com.sksamuel.hoplite.yaml
 
 import com.sksamuel.hoplite.ConfigLoader
 import io.kotlintest.matchers.numerics.shouldBePositive
+import io.kotlintest.matchers.string.shouldHaveLength
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.FunSpec
 
@@ -14,7 +15,8 @@ class RandomPreprocessorTest : FunSpec() {
                   val e: String,
                   val f: String,
                   val g: String,
-                  val h: Double
+                  val h: Double,
+                  val i: String
   )
 
   init {
@@ -26,6 +28,7 @@ class RandomPreprocessorTest : FunSpec() {
         test.c.shouldBePositive()
         test.e.length shouldBe 1
         test.f.length shouldBe 3
+        test.i.shouldHaveLength(20)
       }
 
       (1..100).map {

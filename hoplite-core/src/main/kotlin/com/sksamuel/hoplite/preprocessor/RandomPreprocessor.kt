@@ -56,7 +56,25 @@ object RandomPreprocessor : Preprocessor {
     regex.replace(it) { Random.nextLong().toString() }
   }
 
-  private val rules = listOf(oldRule, intRule, longRule, intWithMaxRule, booleanRule, doubleRule, intWithRangeRule)
+  private val stringRule: Rule = {
+    val regex = "\\$\\{random.string\\(\\s*(\\d+)\\s*\\)}".toRegex()
+    regex.replace(it) { match ->
+      val length = match.groupValues[1].toInt()
+      val chars = CharArray(length) { Random.nextInt(a, z).toChar() }
+      String(chars)
+    }
+  }
+
+  private val rules = listOf(
+    oldRule,
+    intRule,
+    longRule,
+    intWithMaxRule,
+    booleanRule,
+    doubleRule,
+    intWithRangeRule,
+    stringRule
+  )
 
   override fun process(value: String): String = rules.fold(value) { str, rule -> rule(str) }
 }

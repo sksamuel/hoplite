@@ -6,3 +6,4 @@ e: ${random.int(9)}
 f: ${random.int(100,999)}
 g: ${random.long}
 h: ${random.double}
+i: hello ${random.string(14)}

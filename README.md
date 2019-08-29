@@ -218,8 +218,28 @@ These built-in preprocessors are registered automatically.
 |:--------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | EnvVar Preprocessor | Replaces any strings of the form ${VAR} with the environment variable $VAR if defined. These replacement strings can occur between other strings.<br/><br/>For example `foo: hello ${USERNAME}!` would result in foo being assigned the value `hello Sam!` assuming the env var `USERNAME` was set to `SAM` |
 | System Property Preprocessor | Replaces any strings of the form ${VAR} with the system property $VAR if defined. These replacement strings can occur between other strings.<br/><br/>For example `debug: ${DEBUG}` would result in debug being assigned the value `true` assuming the application had been started with `-Ddebug=true` |
-| Random Preprocessor | Inserts random strings into the config whenever you use the placeholder `$RANDOM_STRING(length)` where length is the length of the generated random string. |
+| Random Preprocessor | Inserts random strings into the config. See the section on Random Preprocessor for syntax. |
 | UUID Preprocessor | Generates UUIDS and replaces placeholders of the form `$uuid()`.<br/><br/>For example, the config `foo: $uuid()` would result in foo being assigned a generated UUID. |
+
+
+### Random Preprocessor
+
+The random preprocessor replaces placeholder strings with random values.
+
+| Placeholder           | Generated random value                                                                                                                                                                                                                                                                                |
+|:----------------------|:------------------------------------------------------------|
+| ${random.int}         | A random int |
+| ${random.int(k)}      | A positive random int between 0 and k |
+| ${random.int(k, j)}   | A random int between k and j |
+| ${random.double}      | A random double |
+| ${random.boolean      | A random boolean |
+| ${random.string(k)}      | A random alphanumeric string of length k |
+
+my.number=${random.int}
+my.bignumber=${random.long}
+my.uuid=${random.uuid}
+my.number.less.than.ten=${random.int(10)}
+my.number.in.range=${random.int[1024,65536]}
 
 ## Masked values
 
