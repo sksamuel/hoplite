@@ -9,14 +9,20 @@ import com.sksamuel.hoplite.preprocessor.Preprocessor
 object ParameterStorePreprocessor : Preprocessor {
 
   private val client by lazy { AWSSimpleSystemsManagementClientBuilder.defaultClient() }
+  private val regex = "\\$\\{paramstore:(.+?)}".toRegex()
 
   private fun fetchParameterStoreValue(key: String): Try<String> = Try {
     val req = GetParameterRequest().withName(key).withWithDecryption(true)
     client.getParameter(req).parameter.value
   }
 
-  override fun process(value: String): String = when {
-    value.startsWith("paramstore:") -> fetchParameterStoreValue(value.drop(4)).getOrElse { throw it }
-    else -> value
+  override fun process(value: String): String {
+    return when (val match = regex.matchEntire(value)) {
+      null -> value
+      else -> {
+        val key = match.groupValues[1]
+        fetchParameterStoreValue(key).getOrElse { throw it }
+      }
+    }
   }
 }

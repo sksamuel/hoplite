@@ -220,7 +220,7 @@ These built-in preprocessors are registered automatically.
 | System Property Preprocessor | Replaces any strings of the form ${VAR} with the system property $VAR if defined. These replacement strings can occur between other strings.<br/><br/>For example `debug: ${DEBUG}` would result in debug being assigned the value `true` assuming the application had been started with `-Ddebug=true` |
 | Random Preprocessor | Inserts random strings into the config. See the section on Random Preprocessor for syntax. |
 | UUID Preprocessor | Generates UUIDS and replaces placeholders of the form `$uuid()`.<br/><br/>For example, the config `foo: $uuid()` would result in foo being assigned a generated UUID. |
-
+| Parameter Store Preprocessor | Replaces strings of the form ${paramstore:key} by looking up the value of key from the AWS parameter store.<br/><br/>This preprocessor requires the `hoplite-aws` module to be added to the classpath. |
 
 ### Random Preprocessor
 
@@ -277,7 +277,7 @@ Hoplite makes available several other modules that add functionality outside of 
 
 | Module        | Function          |
 |:--------------|:------------------|
-| hoplite-aws   | Provides decoder for aws `Region` |
+| hoplite-aws   | Provides decoder for aws `Region` and a preprocessor for Amazon's parameter store |
 | hoplite-hdfs  | Provides decoder for hadoop `Path` |
 | hoplite-ktor  | Adaptor from `ConfigLoader` into Ktor `ApplicationConfig` |
 
