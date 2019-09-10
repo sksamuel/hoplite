@@ -30,6 +30,23 @@ class JsonParserTest : FunSpec() {
         )
     }
 
+    test("parsing basic json with comments") {
+      JsonParser().load(javaClass.getResourceAsStream("/basic_with_comments.json"), source = "a.json") shouldBe
+        MapNode(
+          mapOf(
+            "a" to StringNode(value = "hello", pos = LineColPos(line = 3, col = 15, source = "a.json"),
+              dotpath = "<root>.a"),
+            "b" to LongNode(value = 1, pos = LineColPos(line = 5, col = 9, source = "a.json"), dotpath = "<root>.b"),
+            "c" to BooleanNode(value = true, pos = LineColPos(line = 7, col = 12, source = "a.json"),
+              dotpath = "<root>.c"),
+            "d" to DoubleNode(value = 2.3, pos = LineColPos(line = 9, col = 11, source = "a.json"),
+              dotpath = "<root>.d")
+          ),
+          pos = LineColPos(line = 1, col = 2, source = "a.json"),
+          dotpath = "<root>"
+        )
+    }
+
     test("parsing nested basic arrays") {
       JsonParser().load(javaClass.getResourceAsStream("/nested_basic_arrays.json"), source = "a.json") shouldBe
         MapNode(

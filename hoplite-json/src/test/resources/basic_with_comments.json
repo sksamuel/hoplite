@@ -1,0 +1,10 @@
+{
+  // The 'a' property
+  "a": "hello",
+  // The 'b' property
+  "b": 1,
+  // The 'c' property
+  "c": true,
+  // The 'd' property
+  "d": 2.3
+}
