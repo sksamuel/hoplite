@@ -22,7 +22,7 @@ class JsonParser : Parser {
   private val jsonFactory = JsonFactory()
 
   override fun load(input: InputStream, source: String): Node {
-    val parser = jsonFactory.createParser(input)
+    val parser = jsonFactory.createParser(input).configure(JsonParser.Feature.ALLOW_COMMENTS, true)
     parser.nextToken()
     return TokenProduction(parser, "<root>", source)
   }
