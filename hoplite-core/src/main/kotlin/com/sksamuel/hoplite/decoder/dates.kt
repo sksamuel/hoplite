@@ -117,3 +117,15 @@ class PeriodDecoder : NonNullableDecoder<Period> {
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }
+
+class SqlTimestampDecoder : NonNullableDecoder<java.sql.Timestamp> {
+  override fun supports(type: KType): Boolean = type.classifier == java.sql.Timestamp::class
+  override fun safeDecode(node: Node,
+                          type: KType,
+                          registry: DecoderRegistry): ConfigResult<java.sql.Timestamp> = when (node) {
+    is StringNode -> Try { java.sql.Timestamp(node.value.toLong()).valid() }
+      .getOrElse { ConfigFailure.DecodeError(node, type).invalid() }
+    is LongNode -> java.sql.Timestamp(node.value).valid()
+    else -> ConfigFailure.DecodeError(node, type).invalid()
+  }
+}
