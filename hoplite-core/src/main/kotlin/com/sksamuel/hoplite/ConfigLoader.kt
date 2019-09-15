@@ -2,6 +2,7 @@
 
 package com.sksamuel.hoplite
 
+import arrow.data.valueOr
 import com.sksamuel.hoplite.arrow.ap
 import com.sksamuel.hoplite.arrow.flatMap
 import com.sksamuel.hoplite.arrow.sequence
@@ -117,13 +118,10 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
     return FileSource.fromPaths(paths.toList()).flatMap { loadConfig(A::class, it) }
   }
 
-  fun <A : Any> ConfigResult<A>.returnOrThrow(): A = this.fold(
-    {
-      val err = "Error loading config because:\n\n" + it.description().prependIndent(Constants.indent)
-      throw ConfigException(err)
-    },
-    { it }
-  )
+  fun <A : Any> ConfigResult<A>.returnOrThrow(): A = this.valueOr {
+    val err = "Error loading config because:\n\n" + it.description().prependIndent(Constants.indent)
+    throw ConfigException(err)
+  }
 
   fun <A : Any> loadConfig(klass: KClass<A>, inputs: List<FileSource>): ConfigResult<A> {
     fun Node.decode() = decoderRegistry.decoder(klass).flatMap { decoder ->
