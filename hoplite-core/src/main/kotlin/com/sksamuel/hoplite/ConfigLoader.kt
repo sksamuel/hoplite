@@ -1,9 +1,8 @@
+@file:Suppress("unused")
+
 package com.sksamuel.hoplite
 
-import arrow.core.Try
-import arrow.core.toOption
-import arrow.data.invalid
-import arrow.data.valid
+import com.sksamuel.hoplite.arrow.ap
 import com.sksamuel.hoplite.arrow.flatMap
 import com.sksamuel.hoplite.arrow.sequence
 import com.sksamuel.hoplite.decoder.Decoder
@@ -11,43 +10,52 @@ import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.decoder.defaultDecoderRegistry
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.preprocessor.defaultPreprocessors
-import java.io.InputStream
-import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
 class ConfigException(msg: String) : java.lang.RuntimeException(msg)
-data class InputSource(val resource: String, val stream: InputStream)
 
 class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoderRegistry(),
+                   private val sources: List<PropertySource> = defaultPropertySources(),
                    private val parserRegistry: ParserRegistry = defaultParserRegistry(),
                    private val preprocessors: List<Preprocessor> = defaultPreprocessors(),
                    private val keyMappers: List<KeyMapper> = defaultKeyMappers()) {
 
   fun withPreprocessor(preprocessor: Preprocessor) = ConfigLoader(
     decoderRegistry,
+    sources,
     parserRegistry,
     preprocessors + preprocessor,
     keyMappers)
 
   fun withDecoder(decoder: Decoder<*>) = ConfigLoader(
     decoderRegistry.register(decoder),
+    sources,
     parserRegistry,
     preprocessors,
     keyMappers)
 
   fun withFileExtensionMapping(ext: String, parser: Parser) = ConfigLoader(
     decoderRegistry,
+    sources,
     parserRegistry.register(ext, parser),
     preprocessors,
     keyMappers)
 
   fun withKeyMapper(mapper: KeyMapper) = ConfigLoader(
     decoderRegistry,
+    sources,
     parserRegistry,
     preprocessors,
     keyMappers + mapper)
+
+  fun withPropertySource(source: PropertySource) = ConfigLoader(
+    decoderRegistry,
+    sources + source,
+    parserRegistry,
+    preprocessors,
+    keyMappers)
 
   /**
    * Attempts to load config from the specified resources on the class path and returns
@@ -72,11 +80,11 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
   @JvmName("loadConfigFromResources")
   inline fun <reified A : Any> loadConfig(resources: List<String>): ConfigResult<A> {
     require(A::class.isData) { "Can only decode into data classes [was ${A::class}]" }
-    return resourcesToInputs(resources.toList()).flatMap { loadConfig(A::class, it) }
+    return FileSource.fromClasspathResources(resources.toList()).flatMap { loadConfig(A::class, it) }
   }
 
   fun loadNodeOrThrow(resources: List<String>): Node =
-    resourcesToInputs(resources.toList()).flatMap { loadNode(it) }.returnOrThrow()
+    FileSource.fromClasspathResources(resources.toList()).flatMap { loadNode(it) }.returnOrThrow()
 
   /**
    * Attempts to load config from the specified resources on the class path and returns
@@ -92,7 +100,7 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
 
   @JvmName("loadNodeOrThrowFromPaths")
   fun loadNodeOrThrow(paths: List<Path>): Node =
-    pathsToInputs(paths.toList()).flatMap { loadNode(it) }.returnOrThrow()
+    FileSource.fromPaths(paths.toList()).flatMap { loadNode(it) }.returnOrThrow()
 
   /**
    * Attempts to load config from the specified Paths and returns
@@ -106,51 +114,36 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
   @JvmName("loadConfigFromPaths")
   inline fun <reified A : Any> loadConfig(paths: List<Path>): ConfigResult<A> {
     require(A::class.isData) { "Can only decode into data classes [was ${A::class}]" }
-    return pathsToInputs(paths.toList()).flatMap { loadConfig(A::class, it) }
+    return FileSource.fromPaths(paths.toList()).flatMap { loadConfig(A::class, it) }
   }
 
   fun <A : Any> ConfigResult<A>.returnOrThrow(): A = this.fold(
     {
-      val err = "Error loading config because:\n\n" + it.description().prependIndent("    ")
+      val err = "Error loading config because:\n\n" + it.description().prependIndent(Constants.indent)
       throw ConfigException(err)
     },
     { it }
   )
 
-  fun <A : Any> loadConfig(klass: KClass<A>, inputs: List<InputSource>): ConfigResult<A> {
+  fun <A : Any> loadConfig(klass: KClass<A>, inputs: List<FileSource>): ConfigResult<A> {
     fun Node.decode() = decoderRegistry.decoder(klass).flatMap { decoder ->
       decoder.decode(this, klass.createType(), decoderRegistry)
     }
     return loadNode(inputs).flatMap { it.decode() }
   }
 
-  fun pathsToInputs(paths: List<Path>): ConfigResult<List<InputSource>> {
-    return paths.map { path ->
-      Try { Files.newInputStream(path) }.fold(
-        { ConfigFailure.UnknownSource(path.toString()).invalid() },
-        { InputSource(path.toString(), it).valid() }
-      )
-    }.sequence()
-      .leftMap { ConfigFailure.MultipleFailures(it) }
-  }
+  private fun loadNode(inputs: List<FileSource>): ConfigResult<Node> {
 
-  fun resourcesToInputs(resources: List<String>): ConfigResult<List<InputSource>> {
-    return resources.map { resource ->
-      this.javaClass.getResourceAsStream(resource).toOption().fold(
-        { ConfigFailure.UnknownSource(resource).invalid() },
-        { InputSource(resource, it).valid() }
-      )
-    }.sequence()
-      .leftMap { ConfigFailure.MultipleFailures(it) }
-  }
+    fun FileSource.parse(): ConfigResult<Node> = ap(parserRegistry.locate(this.ext()), open()) {
+      it.a.load(it.b, describe())
+    }
 
-  fun loadNode(inputs: List<InputSource>): ConfigResult<Node> {
-    fun InputSource.ext() = this.resource.split('.').last()
     fun Node.preprocess() = preprocessors.fold(this) { node, preprocessor -> node.transform(preprocessor::process) }
     fun Node.keymapped() = keyMappers.fold(this) { node, mapper -> node.mapKey(mapper::map) }
-    fun InputSource.parse() = parserRegistry.locate(ext()).map { it.load(stream, resource) }
+
     fun List<Node>.preprocessAll() = this.map { it.preprocess() }
     fun List<Node>.keyMapAll() = this.map { it.keymapped() }
+
     return inputs.map { it.parse() }.sequence()
       .map { it.preprocessAll() }
       .map { it.keyMapAll() }

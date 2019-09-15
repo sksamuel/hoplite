@@ -75,6 +75,18 @@ interface Node {
   val simpleName: String
 }
 
+class LazyNode(override val dotpath: String,
+               private val prefix: String) : Node {
+
+  override val pos: Pos = Pos.NoPos
+
+  override fun atKey(key: String): Node = LazyNode("$dotpath.$key", "$prefix.$key")
+
+  override fun atIndex(index: Int): Node = LazyNode("$dotpath.[$index]", "$prefix.[$index]")
+
+  override val simpleName: String = "LazyNode"
+}
+
 sealed class Pos {
 
   abstract val line: Int

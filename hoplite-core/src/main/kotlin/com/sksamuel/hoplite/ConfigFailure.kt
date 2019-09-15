@@ -90,7 +90,7 @@ sealed class ConfigFailure {
                                   val type: KType,
                                   val pos: Pos) : ConfigFailure() {
     override fun description(): String = "- Could not instantiate '$type' because:\n\n" +
-      errors.all.joinToString("\n\n") { it.description().prependIndent("    ") }
+      errors.all.joinToString("\n\n") { it.description().prependIndent(Constants.indent) }
   }
 
   data class ParamFailure(val param: String, val error: ConfigFailure) : ConfigFailure() {
