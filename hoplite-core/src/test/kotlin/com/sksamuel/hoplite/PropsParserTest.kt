@@ -1,8 +1,6 @@
-package com.sksamuel.hoplite.props
+package com.sksamuel.hoplite
 
-import com.sksamuel.hoplite.MapNode
-import com.sksamuel.hoplite.Pos
-import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.parsers.PropsParser
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 

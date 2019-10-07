@@ -10,10 +10,10 @@ import com.sksamuel.hoplite.ListNode
 import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.NullNode
-import com.sksamuel.hoplite.Parser
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.parsers.Parser
 import java.io.InputStream
 import java.lang.UnsupportedOperationException
 

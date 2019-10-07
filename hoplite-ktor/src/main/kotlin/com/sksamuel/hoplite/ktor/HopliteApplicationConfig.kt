@@ -7,6 +7,7 @@ import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.UndefinedNode
+import com.sksamuel.hoplite.hasKeyAt
 import io.ktor.config.ApplicationConfig
 import io.ktor.config.ApplicationConfigValue
 import io.ktor.server.engine.ApplicationEngineEnvironment

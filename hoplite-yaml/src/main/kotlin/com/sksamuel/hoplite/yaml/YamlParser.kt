@@ -3,10 +3,10 @@ package com.sksamuel.hoplite.yaml
 import com.sksamuel.hoplite.ListNode
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.NullNode
-import com.sksamuel.hoplite.Parser
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.parsers.Parser
 import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.SafeConstructor
@@ -111,7 +111,7 @@ object MapProduction {
       obj[fieldName] = value
     }
     require(stream.current().`is`(Event.ID.MappingEnd))
-    return MapNode(obj, mark.toPos(source), path)
+    return MapNode(obj, mark.toPos(source), path, null)
   }
 }
 

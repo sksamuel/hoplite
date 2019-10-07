@@ -1,4 +1,4 @@
-package com.sksamuel.hoplite.props
+package com.sksamuel.hoplite.decoder
 
 import com.sksamuel.hoplite.ConfigLoader
 import io.kotlintest.assertions.arrow.validation.shouldBeValid

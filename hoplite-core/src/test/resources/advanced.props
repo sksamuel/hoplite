@@ -1,0 +1,7 @@
+a = foo
+a.b.c = wibble
+a.b.d = 123
+a.d = true
+e = 5.5
+e.f = 6
+e.f.g = goo

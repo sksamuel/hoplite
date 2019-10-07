@@ -3,12 +3,14 @@
 package com.sksamuel.hoplite
 
 import arrow.data.valueOr
-import com.sksamuel.hoplite.arrow.ap
 import com.sksamuel.hoplite.arrow.flatMap
 import com.sksamuel.hoplite.arrow.sequence
 import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.decoder.defaultDecoderRegistry
+import com.sksamuel.hoplite.parsers.Parser
+import com.sksamuel.hoplite.parsers.ParserRegistry
+import com.sksamuel.hoplite.parsers.defaultParserRegistry
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.preprocessor.defaultPreprocessors
 import java.nio.file.Path
@@ -68,6 +70,8 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
   inline fun <reified A : Any> loadConfigOrThrow(vararg resources: String): A = loadConfigOrThrow(resources.toList())
 
   inline fun <reified A : Any> loadConfigOrThrow(resources: List<String>): A = loadConfig<A>(resources).returnOrThrow()
+
+  inline fun <reified A : Any> loadConfigOrThrow(): A = loadConfig(A::class, emptyList()).returnOrThrow()
 
   /**
    * Attempts to load config from the specified resources on the class path and returns
@@ -132,17 +136,14 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
 
   private fun loadNode(inputs: List<FileSource>): ConfigResult<Node> {
 
-    fun FileSource.parse(): ConfigResult<Node> = ap(parserRegistry.locate(this.ext()), open()) {
-      it.a.load(it.b, describe())
-    }
-
     fun Node.preprocess() = preprocessors.fold(this) { node, preprocessor -> node.transform(preprocessor::process) }
     fun Node.keymapped() = keyMappers.fold(this) { node, mapper -> node.mapKey(mapper::map) }
 
     fun List<Node>.preprocessAll() = this.map { it.preprocess() }
     fun List<Node>.keyMapAll() = this.map { it.keymapped() }
 
-    return inputs.map { it.parse() }.sequence()
+    val sources = defaultPropertySources() + inputs.map { ConfigFilePropertySource(it, parserRegistry) }
+    return sources.map { it.node() }.sequence()
       .map { it.preprocessAll() }
       .map { it.keyMapAll() }
       .map { it.reduce { acc, b -> acc.withFallback(b) } }

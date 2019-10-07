@@ -1,8 +1,11 @@
-package com.sksamuel.hoplite
+package com.sksamuel.hoplite.parsers
 
 import arrow.core.toOption
 import arrow.data.invalid
 import arrow.data.valid
+import com.sksamuel.hoplite.ConfigFailure
+import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.Node
 import java.io.InputStream
 import java.util.*
 
@@ -28,7 +31,8 @@ class DefaultParserRegistry(private val map: Map<String, Parser>) : ParserRegist
     return map[ext].toOption().fold({ ConfigFailure.NoSuchParser(ext).invalid() }, { it.valid() })
   }
 
-  override fun register(ext: String, parser: Parser): ParserRegistry = DefaultParserRegistry(map.plus(ext to parser))
+  override fun register(ext: String, parser: Parser): ParserRegistry = DefaultParserRegistry(
+    map.plus(ext to parser))
 }
 
 fun defaultParserRegistry(): ParserRegistry {
