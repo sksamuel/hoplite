@@ -1,12 +1,12 @@
 package com.sksamuel.hoplite.parsers
 
-import com.sksamuel.hoplite.MapNode
-import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.MapValue
+import com.sksamuel.hoplite.Value
 import com.sksamuel.hoplite.Pos
 import java.util.*
 
 @Suppress("UNCHECKED_CAST")
-fun loadProps(props: Properties, source: String): Node {
+fun loadProps(props: Properties, source: String): Value {
 
   val root = mutableMapOf<String, Any>()
   props.stringPropertyNames().toList().map { key ->
@@ -20,7 +20,7 @@ fun loadProps(props: Properties, source: String): Node {
 
   val pos = Pos.FilePos(source)
 
-  fun Map<String, Any>.toNode(path: String): MapNode {
+  fun Map<String, Any>.toNode(path: String): MapValue {
     val maps = filterValues { it is MutableMap<*, *> }.mapValues {
       when (val v = it.value) {
         is MutableMap<*, *> -> (v as MutableMap<String, Any>).toNode("$path.${it.key}")
@@ -28,7 +28,7 @@ fun loadProps(props: Properties, source: String): Node {
       }
     }
     val value = this["____value"]
-    return MapNode(maps.toMap(), pos, "<root>", value)
+    return MapValue(maps.toMap(), pos, "<root>", value)
   }
 
   return root.toNode("<root>")

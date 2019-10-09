@@ -1,11 +1,11 @@
 package com.sksamuel.hoplite.yaml
 
-import com.sksamuel.hoplite.ListNode
-import com.sksamuel.hoplite.MapNode
-import com.sksamuel.hoplite.NullNode
+import com.sksamuel.hoplite.ListValue
+import com.sksamuel.hoplite.MapValue
+import com.sksamuel.hoplite.NullValue
 import com.sksamuel.hoplite.Pos
-import com.sksamuel.hoplite.StringNode
-import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.StringValue
+import com.sksamuel.hoplite.Value
 import com.sksamuel.hoplite.parsers.Parser
 import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.Yaml
@@ -28,7 +28,7 @@ import java.io.InputStreamReader
 class YamlParser : Parser {
   override fun defaultFileExtensions(): List<String> = listOf("yml", "yaml")
   private val yaml = Yaml(SafeConstructor())
-  override fun load(input: InputStream, source: String): Node {
+  override fun load(input: InputStream, source: String): Value {
     val reader = InputStreamReader(input)
     val events = yaml.parse(reader).iterator()
     val stream = TokenStream(events)
@@ -74,7 +74,7 @@ fun Event.id() = when (this) {
 object TokenProduction {
   operator fun invoke(stream: TokenStream<Event>,
                       path: String,
-                      source: String): Node {
+                      source: String): Value {
     return when (val event = stream.current()) {
       is MappingStartEvent -> MapProduction(stream, path, source)
       is SequenceStartEvent -> SequenceProduction(stream, path, source)
@@ -88,9 +88,9 @@ object TokenProduction {
       //    { n, FALSE, No, off }    : Boolean false
       is ScalarEvent -> {
         if (event.value == "null" && event.scalarStyle == DumperOptions.ScalarStyle.PLAIN)
-          NullNode(event.startMark.toPos(source), path)
+          NullValue(event.startMark.toPos(source), path)
         else
-          StringNode(event.value, event.startMark.toPos(source), path)
+          StringValue(event.value, event.startMark.toPos(source), path)
       }
       else -> throw java.lang.UnsupportedOperationException("Invalid YAML event ${stream.current().id()} at ${stream.current().startMark}")
     }
@@ -98,10 +98,10 @@ object TokenProduction {
 }
 
 object MapProduction {
-  operator fun invoke(stream: TokenStream<Event>, path: String, source: String): Node {
+  operator fun invoke(stream: TokenStream<Event>, path: String, source: String): Value {
     require(stream.current().`is`(Event.ID.MappingStart))
     val mark = stream.current().startMark
-    val obj = mutableMapOf<String, Node>()
+    val obj = mutableMapOf<String, Value>()
     while (stream.next().id() != Event.ID.MappingEnd) {
       require(stream.current().id() == Event.ID.Scalar)
       val field = stream.current() as ScalarEvent
@@ -111,15 +111,15 @@ object MapProduction {
       obj[fieldName] = value
     }
     require(stream.current().`is`(Event.ID.MappingEnd))
-    return MapNode(obj, mark.toPos(source), path, null)
+    return MapValue(obj, mark.toPos(source), path, null)
   }
 }
 
 object SequenceProduction {
-  operator fun invoke(stream: TokenStream<Event>, path: String, source: String): Node {
+  operator fun invoke(stream: TokenStream<Event>, path: String, source: String): Value {
     require(stream.current().`is`(Event.ID.SequenceStart))
     val mark = stream.current().startMark
-    val list = mutableListOf<Node>()
+    val list = mutableListOf<Value>()
     var index = 0
     while (stream.next().id() != Event.ID.SequenceEnd) {
       val value = TokenProduction(stream, "$path[$index]", source)
@@ -127,7 +127,7 @@ object SequenceProduction {
       index++
     }
     require(stream.current().`is`(Event.ID.SequenceEnd))
-    return ListNode(list.toList(), mark.toPos(source), path)
+    return ListValue(list.toList(), mark.toPos(source), path)
   }
 }
 

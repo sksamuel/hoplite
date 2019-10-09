@@ -1,14 +1,14 @@
 package com.sksamuel.hoplite.hocon
 
-import com.sksamuel.hoplite.BooleanNode
-import com.sksamuel.hoplite.DoubleNode
-import com.sksamuel.hoplite.ListNode
-import com.sksamuel.hoplite.LongNode
-import com.sksamuel.hoplite.MapNode
-import com.sksamuel.hoplite.Node
-import com.sksamuel.hoplite.NullNode
+import com.sksamuel.hoplite.BooleanValue
+import com.sksamuel.hoplite.DoubleValue
+import com.sksamuel.hoplite.ListValue
+import com.sksamuel.hoplite.LongValue
+import com.sksamuel.hoplite.MapValue
+import com.sksamuel.hoplite.Value
+import com.sksamuel.hoplite.NullValue
 import com.sksamuel.hoplite.Pos
-import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.StringValue
 import com.sksamuel.hoplite.parsers.Parser
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigList
@@ -22,7 +22,7 @@ import java.lang.RuntimeException
 
 class HoconParser : Parser {
 
-  override fun load(input: InputStream, source: String): Node {
+  override fun load(input: InputStream, source: String): Value {
     val config = ConfigFactory.parseReader(InputStreamReader(input))
     return MapProduction(config.root(), "<root>", config.origin(), source)
   }
@@ -36,44 +36,44 @@ object MapProduction {
   operator fun invoke(config: ConfigObject,
                       path: String,
                       origin: ConfigOrigin,
-                      source: String): Node {
-    val obj = mutableMapOf<String, Node>()
+                      source: String): Value {
+    val obj = mutableMapOf<String, Value>()
     config.entries.forEach {
       val value = ValueProduction(it.value, "$path.${it.key}", source)
       obj[it.key] = value
     }
-    return MapNode(obj, origin.toPos(source), path)
+    return MapValue(obj, origin.toPos(source), path)
   }
 }
 
 object ValueProduction {
-  operator fun invoke(value: ConfigValue, path: String, source: String): Node {
+  operator fun invoke(value: ConfigValue, path: String, source: String): Value {
     return when (value.valueType()) {
       ConfigValueType.OBJECT -> MapProduction(value as ConfigObject, path, value.origin(), source)
       ConfigValueType.NUMBER -> when (val v = value.unwrapped()) {
-        is Double -> DoubleNode(v, value.origin().toPos(source), path)
-        is Float -> DoubleNode(v.toDouble(), value.origin().toPos(source), path)
-        is Long -> LongNode(v, value.origin().toPos(source), path)
-        is Int -> LongNode(v.toLong(), value.origin().toPos(source), path)
+        is Double -> DoubleValue(v, value.origin().toPos(source), path)
+        is Float -> DoubleValue(v.toDouble(), value.origin().toPos(source), path)
+        is Long -> LongValue(v, value.origin().toPos(source), path)
+        is Int -> LongValue(v.toLong(), value.origin().toPos(source), path)
         else -> throw RuntimeException("Unexpected element type for ConfigValueType.NUMBER: $v")
       }
       ConfigValueType.LIST -> ListProduction(value as ConfigList, path, value.origin(), source)
       ConfigValueType.BOOLEAN ->
         when (val v = value.unwrapped()) {
-          is Boolean -> BooleanNode(v, value.origin().toPos(source), path)
+          is Boolean -> BooleanValue(v, value.origin().toPos(source), path)
           else -> throw RuntimeException("Unexpected element type for ConfigValueType.BOOLEAN: $v")
         }
-      ConfigValueType.STRING -> StringNode(value.unwrapped().toString(), value.origin().toPos(source), path)
-      ConfigValueType.NULL -> NullNode(value.origin().toPos(source), path)
+      ConfigValueType.STRING -> StringValue(value.unwrapped().toString(), value.origin().toPos(source), path)
+      ConfigValueType.NULL -> NullValue(value.origin().toPos(source), path)
     }
   }
 }
 
 object ListProduction {
-  operator fun invoke(config: ConfigList, path: String, origin: ConfigOrigin, source: String): ListNode {
+  operator fun invoke(config: ConfigList, path: String, origin: ConfigOrigin, source: String): ListValue {
     val elements = (0 until config.size).map {
       ValueProduction(config[it], "$path[$it]", source)
     }
-    return ListNode(elements, origin.toPos(source), path)
+    return ListValue(elements, origin.toPos(source), path)
   }
 }

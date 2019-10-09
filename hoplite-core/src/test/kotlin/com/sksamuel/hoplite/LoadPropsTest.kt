@@ -12,20 +12,20 @@ class LoadPropsTest : FunSpec({
     val props = Properties()
     props.load(javaClass.getResourceAsStream("/advanced.props"))
 
-    val expected = MapNode(
+    val expected = MapValue(
       mapOf(
-        "a" to MapNode(
+        "a" to MapValue(
           mapOf(
-            "b" to MapNode(
+            "b" to MapValue(
               mapOf(
-                "c" to MapNode(mapOf(), pos = Pos.FilePos(source = "source"), dotpath = "<root>", value = "wibble"),
-                "d" to MapNode(mapOf(), pos = Pos.FilePos(source = "source"), dotpath = "<root>", value = "123")
+                "c" to MapValue(mapOf(), pos = Pos.FilePos(source = "source"), dotpath = "<root>", value = "wibble"),
+                "d" to MapValue(mapOf(), pos = Pos.FilePos(source = "source"), dotpath = "<root>", value = "123")
               ),
               pos = Pos.FilePos(source = "source"),
               dotpath = "<root>",
               value = null
             ),
-            "d" to MapNode(
+            "d" to MapValue(
               mapOf(),
               pos = Pos.FilePos(source = "source"),
               dotpath = "<root>",
@@ -36,11 +36,11 @@ class LoadPropsTest : FunSpec({
           dotpath = "<root>",
           value = "foo"
         ),
-        "e" to MapNode(
+        "e" to MapValue(
           mapOf(
-            "f" to MapNode(
+            "f" to MapValue(
               mapOf(
-                "g" to MapNode(
+                "g" to MapValue(
                   emptyMap(),
                   pos = Pos.FilePos(source = "source"),
                   dotpath = "<root>",

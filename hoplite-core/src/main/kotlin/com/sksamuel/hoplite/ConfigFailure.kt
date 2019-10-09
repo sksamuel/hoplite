@@ -38,18 +38,18 @@ sealed class ConfigFailure {
    * For example, if a field in data class was an int, but at runtime the configuration
    * tried to pass "hello" then this would result in a conversion failure.
    */
-  data class DecodeError(val node: Node, val target: KType) : ConfigFailure() {
-    override fun description(): String = when (node) {
-      is PrimitiveNode -> "Required type ${target.simpleName} could not be decoded from a ${node.simpleName} value: ${node.value} ${node.pos.loc()}"
-      else -> "Required type ${target.simpleName} could not be decoded from a ${node.simpleName} ${node.pos.loc()}"
+  data class DecodeError(val value: Value, val target: KType) : ConfigFailure() {
+    override fun description(): String = when (value) {
+      is PrimitiveValue -> "Required type ${target.simpleName} could not be decoded from a ${value.simpleName} value: ${value.value} ${value.pos.loc()}"
+      else -> "Required type ${target.simpleName} could not be decoded from a ${value.simpleName} ${value.pos.loc()}"
     }
   }
 
-  data class UnsupportedCollectionType(val node: Node, val type: String) : ConfigFailure() {
-    override fun description(): String = "Defined as a $type but a ${node.simpleName} cannot be converted to a collection ${node.pos.loc()}"
+  data class UnsupportedCollectionType(val value: Value, val type: String) : ConfigFailure() {
+    override fun description(): String = "Defined as a $type but a ${value.simpleName} cannot be converted to a collection ${value.pos.loc()}"
   }
 
-  data class NullValueForNonNullField(val node: NullNode) : ConfigFailure() {
+  data class NullValueForNonNullField(val node: NullValue) : ConfigFailure() {
     override fun description(): String = "Type defined as not-null but null was loaded from config ${node.pos.loc()}"
   }
 
@@ -57,10 +57,10 @@ sealed class ConfigFailure {
     override fun description(): String = "Unable to locate a decoder for $type"
   }
 
-  data class NumberConversionError(val node: Node, val type: KType) : ConfigFailure() {
-    override fun description(): String = when (node) {
-      is PrimitiveNode -> "Could not decode ${node.value} into a ${type.simpleName} ${node.pos.loc()}"
-      else -> "Could not decode a ${node.simpleName} into a number ${node.pos.loc()}"
+  data class NumberConversionError(val value: Value, val type: KType) : ConfigFailure() {
+    override fun description(): String = when (value) {
+      is PrimitiveValue -> "Could not decode ${value.value} into a ${type.simpleName} ${value.pos.loc()}"
+      else -> "Could not decode a ${value.simpleName} into a number ${value.pos.loc()}"
     }
   }
 
@@ -72,15 +72,15 @@ sealed class ConfigFailure {
     override fun description(): String = msg
   }
 
-  data class CollectionElementErrors(val node: Node, val errors: NonEmptyList<ConfigFailure>) : ConfigFailure() {
+  data class CollectionElementErrors(val value: Value, val errors: NonEmptyList<ConfigFailure>) : ConfigFailure() {
     override fun description(): String = "Collection element decode failure"
   }
 
-  data class TupleErrors(val node: Node, val errors: NonEmptyList<ConfigFailure>) : ConfigFailure() {
+  data class TupleErrors(val value: Value, val errors: NonEmptyList<ConfigFailure>) : ConfigFailure() {
     override fun description(): String = "Collection element decode failure"
   }
 
-  data class InvalidEnumConstant(val node: Node,
+  data class InvalidEnumConstant(val node: Value,
                                  val type: KType,
                                  val value: String) : ConfigFailure() {
     override fun description(): String = "Required a value for the Enum type $type but given value was $value ${node.pos.loc()}"

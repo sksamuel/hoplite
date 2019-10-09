@@ -3,9 +3,9 @@ package com.sksamuel.hoplite.decoder
 import arrow.data.invalid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
-import com.sksamuel.hoplite.MapNode
-import com.sksamuel.hoplite.Node
-import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.MapValue
+import com.sksamuel.hoplite.Value
+import com.sksamuel.hoplite.StringValue
 import com.sksamuel.hoplite.arrow.flatMap
 import com.sksamuel.hoplite.arrow.sequence
 import kotlin.reflect.KType
@@ -16,7 +16,7 @@ class MapDecoder : NonNullableDecoder<Map<*, *>> {
 
   override fun supports(type: KType): Boolean = type.isSubtypeOf(Map::class.starProjectedType)
 
-  override fun safeDecode(node: Node,
+  override fun safeDecode(value: Value,
                           type: KType,
                           registry: DecoderRegistry): ConfigResult<Map<*, *>> {
     require(type.arguments.size == 2)
@@ -24,13 +24,13 @@ class MapDecoder : NonNullableDecoder<Map<*, *>> {
     val kType = type.arguments[0].type!!
     val vType = type.arguments[1].type!!
 
-    fun <K, V> decode(node: MapNode,
+    fun <K, V> decode(node: MapValue,
                       kdecoder: Decoder<K>,
                       vdecoder: Decoder<V>,
                       registry: DecoderRegistry): ConfigResult<Map<*, *>> {
 
       return node.map.entries.map { (k, v) ->
-        kdecoder.decode(StringNode(k, node.pos, node.dotpath), kType, registry).flatMap { kk ->
+        kdecoder.decode(StringValue(k, node.pos, node.dotpath), kType, registry).flatMap { kk ->
           vdecoder.decode(v, vType, registry).map { vv ->
             kk to vv
           }
@@ -42,9 +42,9 @@ class MapDecoder : NonNullableDecoder<Map<*, *>> {
 
     return registry.decoder(kType).flatMap { kdecoder ->
       registry.decoder(vType).flatMap { vdecoder ->
-        when (node) {
-          is MapNode -> decode(node, kdecoder, vdecoder, registry)
-          else -> ConfigFailure.UnsupportedCollectionType(node, "Map").invalid()
+        when (value) {
+          is MapValue -> decode(value, kdecoder, vdecoder, registry)
+          else -> ConfigFailure.UnsupportedCollectionType(value, "Map").invalid()
         }
       }
     }

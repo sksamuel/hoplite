@@ -7,8 +7,8 @@ import arrow.data.extensions.nonemptylist.semigroup.semigroup
 import arrow.data.invalid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
-import com.sksamuel.hoplite.ListNode
-import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.ListValue
+import com.sksamuel.hoplite.Value
 import com.sksamuel.hoplite.arrow.flatMap
 import kotlin.reflect.KType
 
@@ -16,11 +16,11 @@ class Tuple2Decoder : NonNullableDecoder<Tuple2<*, *>> {
 
   override fun supports(type: KType): Boolean = type.classifier == Tuple2::class
 
-  override fun safeDecode(node: Node,
+  override fun safeDecode(value: Value,
                           type: KType,
                           registry: DecoderRegistry): ConfigResult<Tuple2<*, *>> {
 
-    fun decode(node: ListNode): ConfigResult<Tuple2<Any?, Any?>> {
+    fun decode(node: ListValue): ConfigResult<Tuple2<Any?, Any?>> {
       return if (node.elements.size == 2) {
         val aType = type.arguments[0].type!!
         val bType = type.arguments[1].type!!
@@ -33,9 +33,9 @@ class Tuple2Decoder : NonNullableDecoder<Tuple2<*, *>> {
       } else ConfigFailure.Generic("Tuple2 requires a list of two elements but list had size ${node.elements.size}").invalid()
     }
 
-    return when (node) {
-      is ListNode -> decode(node)
-      else -> ConfigFailure.DecodeError(node, type).invalid()
+    return when (value) {
+      is ListValue -> decode(value)
+      else -> ConfigFailure.DecodeError(value, type).invalid()
     }
   }
 }
@@ -44,11 +44,11 @@ class Tuple3Decoder : NonNullableDecoder<Tuple3<*, *, *>> {
 
   override fun supports(type: KType): Boolean = type.classifier == Tuple3::class
 
-  override fun safeDecode(node: Node,
+  override fun safeDecode(value: Value,
                           type: KType,
                           registry: DecoderRegistry): ConfigResult<Tuple3<*, *, *>> {
 
-    fun decode(node: ListNode): ConfigResult<Tuple3<Any?, Any?, Any?>> {
+    fun decode(node: ListValue): ConfigResult<Tuple3<Any?, Any?, Any?>> {
       return if (node.elements.size == 3) {
         val aType = type.arguments[0].type!!
         val bType = type.arguments[1].type!!
@@ -64,9 +64,9 @@ class Tuple3Decoder : NonNullableDecoder<Tuple3<*, *, *>> {
       } else ConfigFailure.Generic("Tuple3 requires a list of three elements but list had size ${node.elements.size}").invalid()
     }
 
-    return when (node) {
-      is ListNode -> decode(node)
-      else -> ConfigFailure.DecodeError(node, type).invalid()
+    return when (value) {
+      is ListValue -> decode(value)
+      else -> ConfigFailure.DecodeError(value, type).invalid()
     }
   }
 }

@@ -5,7 +5,7 @@ import java.lang.IllegalStateException
 /**
  * An ADT that models values returned from a [PropertySource].
  */
-interface Node {
+interface Value {
 
   /**
    * Returns the positional information of this node.
@@ -13,7 +13,7 @@ interface Node {
   val pos: Pos
 
   /**
-   * Returns the dot path to this [Node].
+   * Returns the dot path to this [Value].
    */
   val dotpath: String
 
@@ -21,22 +21,22 @@ interface Node {
     get() = dotpath.replace("<root>.", "")
 
   /**
-   * Returns the [Node] stored at the given key of this node.
+   * Returns the [Value] stored at the given key of this node.
    *
-   * Returns [UndefinedNode] if this Node is not a container type,
+   * Returns [UndefinedValue] if this Node is not a container type,
    * or does not have a subnode under the given key.
    */
-  fun atKey(key: String): Node
+  fun atKey(key: String): Value
 
   /**
-   * Returns the [Node] stored at the index of this value.
+   * Returns the [Value] stored at the index of this value.
    *
-   * Returns [UndefinedNode] if this Node does not contain an
+   * Returns [UndefinedValue] if this Node does not contain an
    * element at the given index, or is not a sequence type.
    */
-  fun atIndex(index: Int): Node
+  fun atIndex(index: Int): Value
 
-  fun atPath(path: String): Node {
+  fun atPath(path: String): Value {
     val parts = path.split('.')
     return parts.fold(this, { acc, part -> acc.atKey(part) })
   }
@@ -49,56 +49,44 @@ interface Node {
   fun value(): Any?
 }
 
-fun Node.recover(node: Node): Node = when (this) {
-  is UndefinedNode -> node
+fun Value.recover(value: Value): Value = when (this) {
+  is UndefinedValue -> value
   else -> this
 }
 
-val Node.isDefined: Boolean
-  get() = this !is UndefinedNode
+val Value.isDefined: Boolean
+  get() = this !is UndefinedValue
 
-fun Node.hasKeyAt(key: String): Boolean = atKey(key).isDefined
+fun Value.hasKeyAt(key: String): Boolean = atKey(key).isDefined
 
 /**
  * Applies the given function to all string values, recursively calling into lists and maps.
  */
-fun Node.transform(f: (String) -> String): Node = when (this) {
-  is StringNode -> StringNode(f(value), pos, dotpath)
-  is MapNode -> MapNode(map.map { f(it.key) to it.value.transform(f) }.toMap(), pos, dotpath, null)
-  is ListNode -> ListNode(elements.map { it.transform(f) }, pos, dotpath)
+fun Value.transform(f: (String) -> String): Value = when (this) {
+  is StringValue -> StringValue(f(value), pos, dotpath)
+  is MapValue -> MapValue(map.map { f(it.key) to it.value.transform(f) }.toMap(), pos, dotpath, null)
+  is ListValue -> ListValue(elements.map { it.transform(f) }, pos, dotpath)
   else -> this
 }
 
 /**
  * Applies the given function to all key names, recursively calling into lists and maps.
  */
-fun Node.mapKey(f: (String) -> String): Node = when (this) {
-  is MapNode -> this.copy(map = this.map.map { f(it.key) to it.value.mapKey(f) }.toMap())
+fun Value.mapKey(f: (String) -> String): Value = when (this) {
+  is MapValue -> this.copy(map = this.map.map { f(it.key) to it.value.mapKey(f) }.toMap())
   else -> this
 }
 
-fun Node.withFallback(fallback: Node): Node {
+fun Value.withFallback(fallback: Value): Value {
   val self = this
-  return object : Node {
+  return object : Value {
     override fun value(): Any? = if (self.isDefined) self.value() else fallback.value()
     override val simpleName: String = self.simpleName
     override val dotpath: String = self.dotpath
     override val pos: Pos = self.pos
-    override fun atKey(key: String): Node = self.atKey(key).recover(fallback.atKey(key))
-    override fun atIndex(index: Int): Node = self.atIndex(index).recover(fallback.atIndex(index))
+    override fun atKey(key: String): Value = self.atKey(key).recover(fallback.atKey(key))
+    override fun atIndex(index: Int): Value = self.atIndex(index).recover(fallback.atIndex(index))
   }
-}
-
-class SimpleNode(override val value: Any?,
-                 override val pos: Pos,
-                 private val elements: List<Node>,
-                 private val children: Map<String, Node>) : Node {
-
-  override val simpleName: String = "simplenode"
-  override val dotpath: String = "dotpath"
-
-  override fun atKey(key: String): Node = children.getOrDefault(key, UndefinedNode(pos, "$dotpath.$key"))
-  override fun atIndex(index: Int): Node = elements.getOrElse(index) { UndefinedNode(pos, "$dotpath$[$index]") }
 }
 
 sealed class Pos {
@@ -124,68 +112,68 @@ fun Pos.loc() = when (this) {
   is Pos.LinePos -> "($source:$line)"
 }
 
-sealed class PrimitiveNode : Node {
-  override fun atIndex(index: Int): Node = UndefinedNode(pos, "$dotpath$[$index]")
-  override fun atKey(key: String): Node = UndefinedNode(pos, "$dotpath.$key")
+sealed class PrimitiveValue : Value {
+  override fun atIndex(index: Int): Value = UndefinedValue(pos, "$dotpath$[$index]")
+  override fun atKey(key: String): Value = UndefinedValue(pos, "$dotpath.$key")
 }
 
-sealed class NumberNode : PrimitiveNode()
+sealed class NumberValue : PrimitiveValue()
 
-data class StringNode(val value: String,
-                      override val pos: Pos,
-                      override val dotpath: String) : PrimitiveNode() {
+data class StringValue(val value: String,
+                       override val pos: Pos,
+                       override val dotpath: String) : PrimitiveValue() {
   override val simpleName: String = "String"
   override fun value() = value
 }
 
-data class BooleanNode(val value: Boolean,
-                       override val pos: Pos,
-                       override val dotpath: String) : PrimitiveNode() {
+data class BooleanValue(val value: Boolean,
+                        override val pos: Pos,
+                        override val dotpath: String) : PrimitiveValue() {
   override val simpleName: String = "Boolean"
   override fun value() = value
 }
 
-data class LongNode(val value: Long, override val pos: Pos, override val dotpath: String) : NumberNode() {
+data class LongValue(val value: Long, override val pos: Pos, override val dotpath: String) : NumberValue() {
   override val simpleName: String = "Long"
   override fun value() = value
 }
 
-data class DoubleNode(val value: Double, override val pos: Pos, override val dotpath: String) : NumberNode() {
+data class DoubleValue(val value: Double, override val pos: Pos, override val dotpath: String) : NumberValue() {
   override val simpleName: String = "Double"
   override fun value() = value
 }
 
-data class NullNode(override val pos: Pos, override val dotpath: String) : PrimitiveNode() {
+data class NullValue(override val pos: Pos, override val dotpath: String) : PrimitiveValue() {
   override fun value(): Any? = null
   override val simpleName: String = "null"
 }
 
-data class UndefinedNode(override val pos: Pos, override val dotpath: String) : Node {
+data class UndefinedValue(override val pos: Pos, override val dotpath: String) : Value {
   override val simpleName: String = "undefined"
   override fun value() = throw IllegalStateException("Undefined node has no value")
-  override fun atKey(key: String): Node = this
-  override fun atIndex(index: Int): Node = this
+  override fun atKey(key: String): Value = this
+  override fun atIndex(index: Int): Value = this
 }
 
-sealed class ContainerNode : Node
+sealed class ContainerValue : Value
 
-data class MapNode(val map: Map<String, Node>,
-                   override val pos: Pos,
-                   override val dotpath: String,
-                   val value: Any? = null) : ContainerNode() {
+data class MapValue(val map: Map<String, Value>,
+                    override val pos: Pos,
+                    override val dotpath: String,
+                    val value: Any? = null) : ContainerValue() {
   override val simpleName: String = "Map"
-  override fun atKey(key: String): Node = get(key)
-  override fun atIndex(index: Int): Node = UndefinedNode(pos, "$dotpath$[$index]")
-  operator fun get(key: String): Node = map.getOrDefault(key, UndefinedNode(pos, "$dotpath.$key"))
+  override fun atKey(key: String): Value = get(key)
+  override fun atIndex(index: Int): Value = UndefinedValue(pos, "$dotpath$[$index]")
+  operator fun get(key: String): Value = map.getOrDefault(key, UndefinedValue(pos, "$dotpath.$key"))
   override fun value(): Any? = value
 }
 
-data class ListNode(val elements: List<Node>,
-                    override val pos: Pos,
-                    override val dotpath: String) : ContainerNode() {
+data class ListValue(val elements: List<Value>,
+                     override val pos: Pos,
+                     override val dotpath: String) : ContainerValue() {
   override val simpleName: String = "List"
   override fun value(): Any? = null
-  override fun atKey(key: String): Node = UndefinedNode(pos, "$dotpath.$key")
-  override fun atIndex(index: Int): Node = elements.getOrElse(index) { UndefinedNode(pos, "$dotpath$[$index]") }
-  operator fun get(index: Int): Node = atIndex(index)
+  override fun atKey(key: String): Value = UndefinedValue(pos, "$dotpath.$key")
+  override fun atIndex(index: Int): Value = elements.getOrElse(index) { UndefinedValue(pos, "$dotpath$[$index]") }
+  operator fun get(index: Int): Value = atIndex(index)
 }

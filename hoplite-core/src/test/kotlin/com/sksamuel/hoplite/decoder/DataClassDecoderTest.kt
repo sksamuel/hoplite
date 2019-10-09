@@ -1,12 +1,12 @@
 package com.sksamuel.hoplite.decoder
 
 import arrow.data.valid
-import com.sksamuel.hoplite.BooleanNode
-import com.sksamuel.hoplite.LongNode
-import com.sksamuel.hoplite.MapNode
-import com.sksamuel.hoplite.NullNode
+import com.sksamuel.hoplite.BooleanValue
+import com.sksamuel.hoplite.LongValue
+import com.sksamuel.hoplite.MapValue
+import com.sksamuel.hoplite.NullValue
 import com.sksamuel.hoplite.Pos
-import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.StringValue
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 import java.time.LocalDate
@@ -20,11 +20,11 @@ class DataClassDecoderTest : StringSpec() {
     "convert basic data class" {
       data class Foo(val a: String, val b: Long, val c: Boolean)
 
-      val node = MapNode(
+      val node = MapValue(
         mapOf(
-          "a" to StringNode("hello", Pos.NoPos, dotpath = ""),
-          "b" to LongNode(123L, Pos.NoPos, dotpath = ""),
-          "c" to BooleanNode(true, Pos.NoPos, dotpath = "")
+          "a" to StringValue("hello", Pos.NoPos, dotpath = ""),
+          "b" to LongValue(123L, Pos.NoPos, dotpath = ""),
+          "c" to BooleanValue(true, Pos.NoPos, dotpath = "")
         ),
         Pos.NoPos, dotpath = ""
       )
@@ -35,11 +35,11 @@ class DataClassDecoderTest : StringSpec() {
     "support nulls" {
       data class Foo(val a: String?, val b: Long?, val c: Boolean?)
 
-      val node = MapNode(
+      val node = MapValue(
         mapOf(
-          "a" to NullNode(Pos.NoPos, dotpath = ""),
-          "b" to NullNode(Pos.NoPos, dotpath = ""),
-          "c" to NullNode(Pos.NoPos, dotpath = "")
+          "a" to NullValue(Pos.NoPos, dotpath = ""),
+          "b" to NullValue(Pos.NoPos, dotpath = ""),
+          "c" to NullValue(Pos.NoPos, dotpath = "")
         ),
         Pos.NoPos, dotpath = ""
       )
@@ -51,11 +51,11 @@ class DataClassDecoderTest : StringSpec() {
     "specified values should override null params" {
       data class Foo(val a: String?, val b: Long?, val c: Boolean?)
 
-      val node = MapNode(
+      val node = MapValue(
         mapOf(
-          "a" to StringNode("hello", Pos.NoPos, dotpath = ""),
-          "b" to LongNode(123L, Pos.NoPos, dotpath = ""),
-          "c" to BooleanNode(true, Pos.NoPos, dotpath = "")
+          "a" to StringValue("hello", Pos.NoPos, dotpath = ""),
+          "b" to LongValue(123L, Pos.NoPos, dotpath = ""),
+          "c" to BooleanValue(true, Pos.NoPos, dotpath = "")
         ),
         Pos.NoPos, dotpath = ""
       )
@@ -72,12 +72,12 @@ class DataClassDecoderTest : StringSpec() {
       val expectedDate = java.util.Date.from(millis)
       val expectedSqlTimestamp = java.sql.Timestamp(millis.toEpochMilli())
 
-      val node = MapNode(
+      val node = MapValue(
         mapOf(
-          "a" to StringNode("1991", Pos.NoPos, dotpath = ""),
-          "b" to LongNode(millis.toEpochMilli(), Pos.NoPos, dotpath = ""),
-          "c" to StringNode("2007-12", Pos.NoPos, dotpath = ""),
-          "d" to LongNode(millis.toEpochMilli(), Pos.NoPos, dotpath = "")
+          "a" to StringValue("1991", Pos.NoPos, dotpath = ""),
+          "b" to LongValue(millis.toEpochMilli(), Pos.NoPos, dotpath = ""),
+          "c" to StringValue("2007-12", Pos.NoPos, dotpath = ""),
+          "d" to LongValue(millis.toEpochMilli(), Pos.NoPos, dotpath = "")
         ),
         Pos.NoPos, dotpath = ""
       )
@@ -88,11 +88,11 @@ class DataClassDecoderTest : StringSpec() {
     "support ranges" {
       data class Foo(val a: IntRange, val b: LongRange, val c: CharRange)
 
-      val node = MapNode(
+      val node = MapValue(
         mapOf(
-          "a" to StringNode("1..4", Pos.NoPos, dotpath = ""),
-          "b" to StringNode("50..60", Pos.NoPos, dotpath = ""),
-          "c" to StringNode("d..g", Pos.NoPos, dotpath = "")
+          "a" to StringValue("1..4", Pos.NoPos, dotpath = ""),
+          "b" to StringValue("50..60", Pos.NoPos, dotpath = ""),
+          "c" to StringValue("d..g", Pos.NoPos, dotpath = "")
         ),
         Pos.NoPos, dotpath = ""
       )
@@ -103,9 +103,9 @@ class DataClassDecoderTest : StringSpec() {
     "support default values" {
       data class Foo(val a: String = "default a", val b: String = "default b", val c: Boolean = false)
 
-      val node = MapNode(
+      val node = MapValue(
         mapOf(
-          "a" to StringNode("value", Pos.NoPos, dotpath = "")
+          "a" to StringValue("value", Pos.NoPos, dotpath = "")
         ),
         Pos.NoPos, dotpath = ""
       )

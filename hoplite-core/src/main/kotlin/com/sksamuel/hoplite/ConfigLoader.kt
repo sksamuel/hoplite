@@ -88,7 +88,7 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
     return FileSource.fromClasspathResources(resources.toList()).flatMap { loadConfig(A::class, it) }
   }
 
-  fun loadNodeOrThrow(resources: List<String>): Node =
+  fun loadNodeOrThrow(resources: List<String>): Value =
     FileSource.fromClasspathResources(resources.toList()).flatMap { loadNode(it) }.returnOrThrow()
 
   /**
@@ -104,7 +104,7 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
   inline fun <reified A : Any> loadConfigOrThrow(paths: List<Path>): A = loadConfig<A>(paths).returnOrThrow()
 
   @JvmName("loadNodeOrThrowFromPaths")
-  fun loadNodeOrThrow(paths: List<Path>): Node =
+  fun loadNodeOrThrow(paths: List<Path>): Value =
     FileSource.fromPaths(paths.toList()).flatMap { loadNode(it) }.returnOrThrow()
 
   /**
@@ -128,19 +128,19 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
   }
 
   fun <A : Any> loadConfig(klass: KClass<A>, inputs: List<FileSource>): ConfigResult<A> {
-    fun Node.decode() = decoderRegistry.decoder(klass).flatMap { decoder ->
+    fun Value.decode() = decoderRegistry.decoder(klass).flatMap { decoder ->
       decoder.decode(this, klass.createType(), decoderRegistry)
     }
     return loadNode(inputs).flatMap { it.decode() }
   }
 
-  private fun loadNode(inputs: List<FileSource>): ConfigResult<Node> {
+  private fun loadNode(inputs: List<FileSource>): ConfigResult<Value> {
 
-    fun Node.preprocess() = preprocessors.fold(this) { node, preprocessor -> node.transform(preprocessor::process) }
-    fun Node.keymapped() = keyMappers.fold(this) { node, mapper -> node.mapKey(mapper::map) }
+    fun Value.preprocess() = preprocessors.fold(this) { node, preprocessor -> node.transform(preprocessor::process) }
+    fun Value.keymapped() = keyMappers.fold(this) { node, mapper -> node.mapKey(mapper::map) }
 
-    fun List<Node>.preprocessAll() = this.map { it.preprocess() }
-    fun List<Node>.keyMapAll() = this.map { it.keymapped() }
+    fun List<Value>.preprocessAll() = this.map { it.preprocess() }
+    fun List<Value>.keyMapAll() = this.map { it.keymapped() }
 
     val sources = defaultPropertySources() + inputs.map { ConfigFilePropertySource(it, parserRegistry) }
     return sources.map { it.node() }.sequence()
