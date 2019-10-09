@@ -3,7 +3,7 @@ package com.sksamuel.hoplite
 import java.lang.IllegalStateException
 
 /**
- * An ADT that models the tree returned from config files.
+ * An ADT that models values returned from a [PropertySource].
  */
 interface Node {
 
