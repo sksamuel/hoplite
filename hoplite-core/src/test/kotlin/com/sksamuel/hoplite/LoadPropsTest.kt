@@ -12,53 +12,46 @@ class LoadPropsTest : FunSpec({
     val props = Properties()
     props.load(javaClass.getResourceAsStream("/advanced.props"))
 
-    val expected = MapValue(
+    val expected = MapNode(
       mapOf(
-        "a" to MapValue(
+        "a" to MapNode(
           mapOf(
-            "b" to MapValue(
+            "b" to MapNode(
               mapOf(
-                "c" to MapValue(mapOf(), pos = Pos.FilePos(source = "source"), dotpath = "<root>", value = "wibble"),
-                "d" to MapValue(mapOf(), pos = Pos.FilePos(source = "source"), dotpath = "<root>", value = "123")
+                "c" to MapNode(mapOf(), pos = Pos.FilePos(source = "source"), value = "wibble"),
+                "d" to MapNode(mapOf(), pos = Pos.FilePos(source = "source"), value = "123")
               ),
               pos = Pos.FilePos(source = "source"),
-              dotpath = "<root>",
               value = null
             ),
-            "d" to MapValue(
+            "d" to MapNode(
               mapOf(),
               pos = Pos.FilePos(source = "source"),
-              dotpath = "<root>",
               value = "true"
             )
           ),
           pos = Pos.FilePos(source = "source"),
-          dotpath = "<root>",
           value = "foo"
         ),
-        "e" to MapValue(
+        "e" to MapNode(
           mapOf(
-            "f" to MapValue(
+            "f" to MapNode(
               mapOf(
-                "g" to MapValue(
+                "g" to MapNode(
                   emptyMap(),
                   pos = Pos.FilePos(source = "source"),
-                  dotpath = "<root>",
                   value = "goo"
                 )
               ),
               pos = Pos.FilePos(source = "source"),
-              dotpath = "<root>",
               value = "6"
             )
           ),
           pos = Pos.FilePos(source = "source"),
-          dotpath = "<root>",
           value = "5.5"
         )
       ),
       pos = Pos.FilePos(source = "source"),
-      dotpath = "<root>",
       value = null
     )
 

@@ -1,14 +1,14 @@
 package com.sksamuel.hoplite.hocon
 
-import com.sksamuel.hoplite.BooleanValue
-import com.sksamuel.hoplite.DoubleValue
-import com.sksamuel.hoplite.ListValue
-import com.sksamuel.hoplite.LongValue
-import com.sksamuel.hoplite.MapValue
-import com.sksamuel.hoplite.Value
-import com.sksamuel.hoplite.NullValue
+import com.sksamuel.hoplite.BooleanNode
+import com.sksamuel.hoplite.DoubleNode
+import com.sksamuel.hoplite.ArrayNode
+import com.sksamuel.hoplite.LongNode
+import com.sksamuel.hoplite.MapNode
+import com.sksamuel.hoplite.TreeNode
+import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.Pos
-import com.sksamuel.hoplite.StringValue
+import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.parsers.Parser
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigList
@@ -22,9 +22,9 @@ import java.lang.RuntimeException
 
 class HoconParser : Parser {
 
-  override fun load(input: InputStream, source: String): Value {
+  override fun load(input: InputStream, source: String): TreeNode {
     val config = ConfigFactory.parseReader(InputStreamReader(input))
-    return MapProduction(config.root(), "<root>", config.origin(), source)
+    return MapProduction(config.root(), config.origin(), source)
   }
 
   override fun defaultFileExtensions(): List<String> = listOf("conf")
@@ -34,46 +34,46 @@ fun ConfigOrigin.toPos(source: String): Pos = Pos.LinePos(this.lineNumber(), sou
 
 object MapProduction {
   operator fun invoke(config: ConfigObject,
-                      path: String,
                       origin: ConfigOrigin,
-                      source: String): Value {
-    val obj = mutableMapOf<String, Value>()
+                      source: String): TreeNode {
+    val obj = mutableMapOf<String, TreeNode>()
     config.entries.forEach {
-      val value = ValueProduction(it.value, "$path.${it.key}", source)
+      val value = ValueProduction(it.value, source)
       obj[it.key] = value
     }
-    return MapValue(obj, origin.toPos(source), path)
+    return MapNode(obj, origin.toPos(source))
   }
 }
 
+@Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
 object ValueProduction {
-  operator fun invoke(value: ConfigValue, path: String, source: String): Value {
+  operator fun invoke(value: ConfigValue, source: String): TreeNode {
     return when (value.valueType()) {
-      ConfigValueType.OBJECT -> MapProduction(value as ConfigObject, path, value.origin(), source)
+      ConfigValueType.OBJECT -> MapProduction(value as ConfigObject, value.origin(), source)
       ConfigValueType.NUMBER -> when (val v = value.unwrapped()) {
-        is Double -> DoubleValue(v, value.origin().toPos(source), path)
-        is Float -> DoubleValue(v.toDouble(), value.origin().toPos(source), path)
-        is Long -> LongValue(v, value.origin().toPos(source), path)
-        is Int -> LongValue(v.toLong(), value.origin().toPos(source), path)
+        is Double -> DoubleNode(v, value.origin().toPos(source))
+        is Float -> DoubleNode(v.toDouble(), value.origin().toPos(source))
+        is Long -> LongNode(v, value.origin().toPos(source))
+        is Int -> LongNode(v.toLong(), value.origin().toPos(source))
         else -> throw RuntimeException("Unexpected element type for ConfigValueType.NUMBER: $v")
       }
-      ConfigValueType.LIST -> ListProduction(value as ConfigList, path, value.origin(), source)
+      ConfigValueType.LIST -> ListProduction(value as ConfigList, value.origin(), source)
       ConfigValueType.BOOLEAN ->
         when (val v = value.unwrapped()) {
-          is Boolean -> BooleanValue(v, value.origin().toPos(source), path)
+          is Boolean -> BooleanNode(v, value.origin().toPos(source))
           else -> throw RuntimeException("Unexpected element type for ConfigValueType.BOOLEAN: $v")
         }
-      ConfigValueType.STRING -> StringValue(value.unwrapped().toString(), value.origin().toPos(source), path)
-      ConfigValueType.NULL -> NullValue(value.origin().toPos(source), path)
+      ConfigValueType.STRING -> StringNode(value.unwrapped().toString(), value.origin().toPos(source))
+      ConfigValueType.NULL -> NullNode(value.origin().toPos(source))
     }
   }
 }
 
 object ListProduction {
-  operator fun invoke(config: ConfigList, path: String, origin: ConfigOrigin, source: String): ListValue {
+  operator fun invoke(config: ConfigList,origin: ConfigOrigin, source: String): ArrayNode {
     val elements = (0 until config.size).map {
-      ValueProduction(config[it], "$path[$it]", source)
+      ValueProduction(config[it], source)
     }
-    return ListValue(elements, origin.toPos(source), path)
+    return ArrayNode(elements, origin.toPos(source))
   }
 }

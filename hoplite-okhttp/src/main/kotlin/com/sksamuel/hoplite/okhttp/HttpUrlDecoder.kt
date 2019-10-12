@@ -5,7 +5,7 @@ import arrow.data.invalid
 import arrow.data.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
-import com.sksamuel.hoplite.Value
+import com.sksamuel.hoplite.TreeNode
 import com.sksamuel.hoplite.arrow.flatMap
 import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.decoder.NonNullableDecoder
@@ -16,7 +16,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 class HttpUrlDecoder : NonNullableDecoder<HttpUrl> {
   override fun supports(type: KType): Boolean = HttpUrl::class == type.classifier
-  override fun safeDecode(value: Value, type: KType, registry: DecoderRegistry): ConfigResult<HttpUrl> {
+  override fun safeDecode(value: TreeNode, type: KType, registry: DecoderRegistry): ConfigResult<HttpUrl> {
     return StringDecoder().safeDecode(value, type, registry).flatMap {
       it.toHttpUrlOrNull().toOption().fold({ ConfigFailure.DecodeError(value, type).invalid() }, { url -> url.valid() })
     }
@@ -25,7 +25,7 @@ class HttpUrlDecoder : NonNullableDecoder<HttpUrl> {
 
 class HttpUrlBuilderDecoder : NonNullableDecoder<HttpUrl.Builder> {
   override fun supports(type: KType): Boolean = HttpUrl.Builder::class == type.classifier
-  override fun safeDecode(value: Value, type: KType, registry: DecoderRegistry): ConfigResult<HttpUrl.Builder> {
+  override fun safeDecode(value: TreeNode, type: KType, registry: DecoderRegistry): ConfigResult<HttpUrl.Builder> {
     return StringDecoder().safeDecode(value, type, registry).flatMap {
       it.toHttpUrlOrNull().toOption().fold({ ConfigFailure.DecodeError(value, type).invalid() },
         { url -> url.newBuilder().valid() })

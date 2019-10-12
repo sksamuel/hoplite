@@ -7,8 +7,8 @@ import arrow.data.extensions.nonemptylist.semigroup.semigroup
 import arrow.data.invalid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
-import com.sksamuel.hoplite.ListValue
-import com.sksamuel.hoplite.Value
+import com.sksamuel.hoplite.ArrayNode
+import com.sksamuel.hoplite.TreeNode
 import com.sksamuel.hoplite.arrow.flatMap
 import kotlin.reflect.KType
 
@@ -16,11 +16,11 @@ class Tuple2Decoder : NonNullableDecoder<Tuple2<*, *>> {
 
   override fun supports(type: KType): Boolean = type.classifier == Tuple2::class
 
-  override fun safeDecode(value: Value,
+  override fun safeDecode(value: TreeNode,
                           type: KType,
                           registry: DecoderRegistry): ConfigResult<Tuple2<*, *>> {
 
-    fun decode(node: ListValue): ConfigResult<Tuple2<Any?, Any?>> {
+    fun decode(node: ArrayNode): ConfigResult<Tuple2<Any?, Any?>> {
       return if (node.elements.size == 2) {
         val aType = type.arguments[0].type!!
         val bType = type.arguments[1].type!!
@@ -34,7 +34,7 @@ class Tuple2Decoder : NonNullableDecoder<Tuple2<*, *>> {
     }
 
     return when (value) {
-      is ListValue -> decode(value)
+      is ArrayNode -> decode(value)
       else -> ConfigFailure.DecodeError(value, type).invalid()
     }
   }
@@ -44,11 +44,11 @@ class Tuple3Decoder : NonNullableDecoder<Tuple3<*, *, *>> {
 
   override fun supports(type: KType): Boolean = type.classifier == Tuple3::class
 
-  override fun safeDecode(value: Value,
+  override fun safeDecode(value: TreeNode,
                           type: KType,
                           registry: DecoderRegistry): ConfigResult<Tuple3<*, *, *>> {
 
-    fun decode(node: ListValue): ConfigResult<Tuple3<Any?, Any?, Any?>> {
+    fun decode(node: ArrayNode): ConfigResult<Tuple3<Any?, Any?, Any?>> {
       return if (node.elements.size == 3) {
         val aType = type.arguments[0].type!!
         val bType = type.arguments[1].type!!
@@ -65,7 +65,7 @@ class Tuple3Decoder : NonNullableDecoder<Tuple3<*, *, *>> {
     }
 
     return when (value) {
-      is ListValue -> decode(value)
+      is ArrayNode -> decode(value)
       else -> ConfigFailure.DecodeError(value, type).invalid()
     }
   }

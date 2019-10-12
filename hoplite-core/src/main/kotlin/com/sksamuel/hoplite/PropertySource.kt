@@ -1,32 +1,24 @@
 package com.sksamuel.hoplite
 
-import arrow.data.invalid
 import arrow.data.valid
-import com.sksamuel.hoplite.arrow.ap
 import com.sksamuel.hoplite.parsers.ParserRegistry
 import com.sksamuel.hoplite.parsers.loadProps
 
 /**
  * Represents a path to a config value.
  */
-data class Key(val components: List<String>) {
+data class Path(val components: List<String>) {
   companion object {
-    val root = Key(emptyList())
+    val root = Path(emptyList())
   }
 }
 
 /**
- * A [PropertySource] provides [Value]s.
+ * A [PropertySource] provides [TreeNode]s.
  * A source may retrieve its values from a config file, or env variables, and so on.
  */
 interface PropertySource {
-
-  /**
-   * Looks up a value in this source at the given key.
-   */
-  fun lookup(key: Key): ConfigResult<Value> = ConfigFailure.NoSuchParser("todo").invalid()
-
-  fun node(): ConfigResult<Value>
+  fun node(): ConfigResult<TreeNode>
 }
 
 fun defaultPropertySources(): List<PropertySource> =
@@ -38,40 +30,16 @@ fun defaultPropertySources(): List<PropertySource> =
   )
 
 object SystemPropertiesPropertySource : PropertySource {
-  override fun lookup(key: Key): ConfigResult<Value> {
-    val k = key.join(".")
-    return when (val value = System.getProperties().getProperty(k)) {
-      null -> UndefinedValue(Pos.NoPos, k).valid()
-      else -> StringValue(value, Pos.NoPos, k).valid()
-    }
-  }
-  override fun node(): ConfigResult<Value> = loadProps(System.getProperties(), "sysprops").valid()
+  override fun node(): ConfigResult<TreeNode> = loadProps(System.getProperties(), "sysprops").valid()
 }
 
-fun Key.join(sep: String): String = components.joinToString(sep)
-
-object JndiPropertySource : PropertySource {
-  override fun node(): ConfigResult<Value> {
-    TODO()
-  }
-}
+object JndiPropertySource
 
 object EnvironmentVariablesPropertySource : PropertySource {
-  override fun lookup(key: Key): ConfigResult<Value> {
-    val k = key.join(".")
-    return when (val value = System.getenv()[k]) {
-      null -> UndefinedValue(Pos.NoPos, k).valid()
-      else -> StringValue(value, Pos.NoPos, k).valid()
-    }
-  }
-  override fun node(): ConfigResult<Value> = loadProps(System.getProperties(), "sysprops").valid()
+  override fun node(): ConfigResult<TreeNode> = loadProps(System.getProperties(), "sysprops").valid()
 }
 
-object UserSettingsPropertySource : PropertySource {
-  override fun node(): ConfigResult<Value> {
-    TODO()
-  }
-}
+object UserSettingsPropertySource
 
 /**
  * An implementation of [PropertySource] that loads values from a file located
@@ -80,8 +48,5 @@ object UserSettingsPropertySource : PropertySource {
  */
 class ConfigFilePropertySource(private val file: FileSource,
                                private val parserRegistry: ParserRegistry) : PropertySource {
-
-  override fun node(): ConfigResult<Value> = ap(parserRegistry.locate(file.ext()), file.open()) {
-    it.a.load(it.b, file.describe())
-  }
+  override fun node(): ConfigResult<TreeNode> = TODO()
 }

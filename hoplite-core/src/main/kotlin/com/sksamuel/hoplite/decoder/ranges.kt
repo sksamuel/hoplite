@@ -8,15 +8,15 @@ import arrow.data.invalid
 import arrow.data.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
-import com.sksamuel.hoplite.Value
-import com.sksamuel.hoplite.StringValue
+import com.sksamuel.hoplite.TreeNode
+import com.sksamuel.hoplite.StringNode
 
 class IntRangeDecoder : NonNullableDecoder<IntRange> {
   override fun supports(type: KType): Boolean = type.classifier == IntRange::class
-  override fun safeDecode(node: Value,
+  override fun safeDecode(node: TreeNode,
                           type: KType,
                           registry: DecoderRegistry): ConfigResult<IntRange> = when (node) {
-    is StringValue -> RangeDecoders.intRange(node.value).map { it.valid() }
+    is StringNode -> RangeDecoders.intRange(node.value).map { it.valid() }
       .getOrElse { ConfigFailure.DecodeError(node, type).invalid() }
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
@@ -24,10 +24,10 @@ class IntRangeDecoder : NonNullableDecoder<IntRange> {
 
 class LongRangeDecoder : NonNullableDecoder<LongRange> {
   override fun supports(type: KType): Boolean = type.classifier == LongRange::class
-  override fun safeDecode(node: Value,
+  override fun safeDecode(node: TreeNode,
                           type: KType,
                           registry: DecoderRegistry): ConfigResult<LongRange> = when (node) {
-    is StringValue -> RangeDecoders.longRange(node.value).map { it.valid() }
+    is StringNode -> RangeDecoders.longRange(node.value).map { it.valid() }
         .getOrElse { ConfigFailure.DecodeError(node, type).invalid() }
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
@@ -35,10 +35,10 @@ class LongRangeDecoder : NonNullableDecoder<LongRange> {
 
 class CharRangeDecoder : NonNullableDecoder<CharRange> {
   override fun supports(type: KType): Boolean = type.classifier == CharRange::class
-  override fun safeDecode(node: Value,
+  override fun safeDecode(node: TreeNode,
                           type: KType,
                           registry: DecoderRegistry): ConfigResult<CharRange> = when (node) {
-    is StringValue -> RangeDecoders.charRange(node.value).map { it.valid() }
+    is StringNode -> RangeDecoders.charRange(node.value).map { it.valid() }
       .getOrElse { ConfigFailure.DecodeError(node, type).invalid() }
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }

@@ -1,12 +1,12 @@
 package com.sksamuel.hoplite.ktor
 
 import com.sksamuel.hoplite.ConfigLoader
-import com.sksamuel.hoplite.ListValue
-import com.sksamuel.hoplite.LongValue
-import com.sksamuel.hoplite.Value
-import com.sksamuel.hoplite.PrimitiveValue
-import com.sksamuel.hoplite.StringValue
-import com.sksamuel.hoplite.UndefinedValue
+import com.sksamuel.hoplite.ArrayNode
+import com.sksamuel.hoplite.LongNode
+import com.sksamuel.hoplite.TreeNode
+import com.sksamuel.hoplite.PrimitiveNode
+import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.hasKeyAt
 import io.ktor.config.ApplicationConfig
 import io.ktor.config.ApplicationConfigValue
@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory
 import java.nio.file.Path
 
 @KtorExperimentalAPI
-class HopliteApplicationConfig(private val value: Value) : ApplicationConfig {
+class HopliteApplicationConfig(private val value: TreeNode) : ApplicationConfig {
 
   override fun config(path: String): ApplicationConfig = HopliteApplicationConfig(value.atKey(path))
 
@@ -31,21 +31,21 @@ class HopliteApplicationConfig(private val value: Value) : ApplicationConfig {
 }
 
 @KtorExperimentalAPI
-class HopliteApplicationConfigValue(private val value: Value) : ApplicationConfigValue {
+class HopliteApplicationConfigValue(private val value: TreeNode) : ApplicationConfigValue {
 
   override fun getString(): String = when (value) {
-    is PrimitiveValue -> value.value.toString()
+    is PrimitiveNode -> value.value().toString()
     else -> throw IllegalArgumentException("${value.simpleName} cannot be converted to string")
   }
 
   override fun getList(): List<String> = when (value) {
-    is ListValue -> value.elements.map { element ->
+    is ArrayNode -> value.elements.map { element ->
       when (element) {
-        is PrimitiveValue -> element.value.toString()
+        is PrimitiveNode -> element.value().toString()
         else -> throw IllegalArgumentException("${element.simpleName} cannot be converted to string")
       }
     }
-    is StringValue -> value.value.split(',').toList()
+    is StringNode -> value.value.split(',').toList()
     else -> throw IllegalArgumentException("${value.simpleName} cannot be converted to list")
   }
 }
@@ -71,15 +71,15 @@ fun ConfigLoader.loadApplicationEngineEnvironment(paths: List<Path>): Applicatio
   return hopliteApplicationEngineEnvironment(node)
 }
 
-fun hopliteApplicationEngineEnvironment(node: Value): ApplicationEngineEnvironment = applicationEngineEnvironment {
+fun hopliteApplicationEngineEnvironment(node: TreeNode): ApplicationEngineEnvironment = applicationEngineEnvironment {
 
   val hostConfigPath = "ktor.deployment.host"
   val portConfigPath = "ktor.deployment.port"
   val applicationIdPath = "ktor.application.id"
 
   val applicationId = when (val n = node.atPath(applicationIdPath)) {
-    is StringValue -> n.value
-    is UndefinedValue -> "Application"
+    is StringNode -> n.value
+    is Undefined -> "Application"
     else -> throw RuntimeException("Invalid value for $applicationIdPath")
   }
 
@@ -88,13 +88,13 @@ fun hopliteApplicationEngineEnvironment(node: Value): ApplicationEngineEnvironme
 
   connector {
     host = when (val n = node.atPath(hostConfigPath)) {
-      is StringValue -> n.value
-      is UndefinedValue -> "0.0.0.0"
+      is StringNode -> n.value
+      is Undefined -> "0.0.0.0"
       else -> throw RuntimeException("Invalid value for host: $n")
     }
     port = when (val n = node.atPath(portConfigPath)) {
-      is LongValue -> n.value.toInt()
-      is StringValue -> n.value.toInt()
+      is LongNode -> n.value.toInt()
+      is StringNode -> n.value.toInt()
       else -> throw RuntimeException("$portConfigPath is not defined or is not a number")
     }
   }

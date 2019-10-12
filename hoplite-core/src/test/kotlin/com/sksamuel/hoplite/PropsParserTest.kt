@@ -8,27 +8,24 @@ class PropsParserTest : StringSpec() {
   init {
     "parse java style properties files" {
       PropsParser().load(javaClass.getResourceAsStream("/basic.props"), source = "a.props") shouldBe
-        MapValue(
+        MapNode(
           mapOf(
-            "a" to MapValue(
+            "a" to MapNode(
               mapOf(
-                "b" to MapValue(
+                "b" to MapNode(
                   map = mapOf(
-                    "c" to StringValue(value = "wibble", pos = Pos.FilePos(source = "a.props"), dotpath = "<root>.a.b.c"),
-                    "d" to StringValue(value = "123", pos = Pos.FilePos(source = "a.props"), dotpath = "<root>.a.b.d")
+                    "c" to StringNode(value = "wibble", pos = Pos.FilePos(source = "a.props")),
+                    "d" to StringNode(value = "123", pos = Pos.FilePos(source = "a.props"))
                   ),
-                  pos = Pos.FilePos(source = "a.props"),
-                  dotpath = "<root>.a.b"
+                  pos = Pos.FilePos(source = "a.props")
                 ),
-                "d" to StringValue(value = "true", pos = Pos.FilePos(source = "a.props"), dotpath = "<root>.a.d")
+                "d" to StringNode(value = "true", pos = Pos.FilePos(source = "a.props"))
               ),
-              pos = Pos.FilePos(source = "a.props"),
-              dotpath = "<root>.a"
+              pos = Pos.FilePos(source = "a.props")
             ),
-            "e" to StringValue(value = "5.5", pos = Pos.FilePos(source = "a.props"), dotpath = "<root>.e")
+            "e" to StringNode(value = "5.5", pos = Pos.FilePos(source = "a.props"))
           ),
-          pos = Pos.FilePos(source = "a.props"),
-          dotpath = "<root>"
+          pos = Pos.FilePos(source = "a.props")
         )
     }
   }

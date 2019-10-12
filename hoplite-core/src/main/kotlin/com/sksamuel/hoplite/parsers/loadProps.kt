@@ -1,12 +1,12 @@
 package com.sksamuel.hoplite.parsers
 
-import com.sksamuel.hoplite.MapValue
-import com.sksamuel.hoplite.Value
+import com.sksamuel.hoplite.MapNode
+import com.sksamuel.hoplite.TreeNode
 import com.sksamuel.hoplite.Pos
 import java.util.*
 
 @Suppress("UNCHECKED_CAST")
-fun loadProps(props: Properties, source: String): Value {
+fun loadProps(props: Properties, source: String): TreeNode {
 
   val root = mutableMapOf<String, Any>()
   props.stringPropertyNames().toList().map { key ->
@@ -20,16 +20,16 @@ fun loadProps(props: Properties, source: String): Value {
 
   val pos = Pos.FilePos(source)
 
-  fun Map<String, Any>.toNode(path: String): MapValue {
+  fun Map<String, Any>.toNode(): MapNode {
     val maps = filterValues { it is MutableMap<*, *> }.mapValues {
       when (val v = it.value) {
-        is MutableMap<*, *> -> (v as MutableMap<String, Any>).toNode("$path.${it.key}")
+        is MutableMap<*, *> -> (v as MutableMap<String, Any>).toNode()
         else -> throw java.lang.RuntimeException("Bug: unsupported state $it")
       }
     }
     val value = this["____value"]
-    return MapValue(maps.toMap(), pos, "<root>", value)
+    return MapNode(maps.toMap(), pos, value)
   }
 
-  return root.toNode("<root>")
+  return root.toNode()
 }

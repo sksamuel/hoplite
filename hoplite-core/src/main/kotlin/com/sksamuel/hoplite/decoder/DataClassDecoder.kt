@@ -3,8 +3,8 @@ package com.sksamuel.hoplite.decoder
 import arrow.data.ValidatedNel
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
-import com.sksamuel.hoplite.Value
-import com.sksamuel.hoplite.UndefinedValue
+import com.sksamuel.hoplite.TreeNode
+import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.arrow.flatMap
 import com.sksamuel.hoplite.arrow.sequence
 import kotlin.reflect.KClass
@@ -15,7 +15,7 @@ class DataClassDecoder : Decoder<Any> {
 
   override fun supports(type: KType): Boolean = type.classifier is KClass<*> && (type.classifier as KClass<*>).isData
 
-  override fun decode(value: Value,
+  override fun decode(value: TreeNode,
                       type: KType,
                       registry: DecoderRegistry): ConfigResult<Any> {
 
@@ -26,7 +26,7 @@ class DataClassDecoder : Decoder<Any> {
       val paramName = param.name ?: "<anon>"
       val n = value.atKey(paramName)
 
-      if (param.isOptional && n is UndefinedValue) {
+      if (param.isOptional && n is Undefined) {
         null // skip this parameter and let the default value be filled in
       } else {
         registry.decoder(param.type)

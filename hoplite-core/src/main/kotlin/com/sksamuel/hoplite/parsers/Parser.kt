@@ -5,13 +5,12 @@ import arrow.data.invalid
 import arrow.data.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
-import com.sksamuel.hoplite.Key
-import com.sksamuel.hoplite.Value
+import com.sksamuel.hoplite.TreeNode
 import java.io.InputStream
 import java.util.*
 
 interface Parser {
-  fun load(input: InputStream, source: String): Map<Key, Value>
+  fun load(input: InputStream, source: String): TreeNode
   fun defaultFileExtensions(): List<String>
 }
 

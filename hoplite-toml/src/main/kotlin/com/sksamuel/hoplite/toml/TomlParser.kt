@@ -1,14 +1,13 @@
 package com.sksamuel.hoplite.toml
 
-import com.sksamuel.hoplite.BooleanValue
-import com.sksamuel.hoplite.DoubleValue
-import com.sksamuel.hoplite.Key
-import com.sksamuel.hoplite.ListValue
-import com.sksamuel.hoplite.LongValue
-import com.sksamuel.hoplite.MapValue
-import com.sksamuel.hoplite.Value
+import com.sksamuel.hoplite.BooleanNode
+import com.sksamuel.hoplite.DoubleNode
+import com.sksamuel.hoplite.ArrayNode
+import com.sksamuel.hoplite.LongNode
+import com.sksamuel.hoplite.MapNode
+import com.sksamuel.hoplite.TreeNode
 import com.sksamuel.hoplite.Pos
-import com.sksamuel.hoplite.StringValue
+import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.parsers.Parser
 import org.tomlj.Toml
 import org.tomlj.TomlArray
@@ -17,60 +16,47 @@ import java.io.InputStream
 
 class TomlParser : Parser {
   override fun defaultFileExtensions(): List<String> = listOf("toml")
-  override fun load(input: InputStream, source: String): Map<Key, Value> {
+  override fun load(input: InputStream, source: String): TreeNode {
     val result = Toml.parse(input)
-    return TableProduction(result, Pos.NoPos, Key.root, source)
+    return TableProduction(result, Pos.NoPos, source)
   }
 }
 
 object TableProduction {
-  operator fun invoke(table: TomlTable, pos: Pos, path: Key, source: String): Map<Key, Value> {
-    table.keySet().map { key ->
-      val fieldPos = table.toPos(key, source)
-      val value = when {
-        table.isBoolean(key) -> BooleanValue(table.getBoolean(key)!!, fieldPos, fieldPath)
-        table.isDouble(key) -> DoubleValue(table.getDouble(key)!!, fieldPos, fieldPath)
-        table.isLong(key) -> LongValue(table.getLong(key)!!, fieldPos, fieldPath)
-        table.isString(key) -> StringValue(table.getString(key)!!, fieldPos, fieldPath)
-        table.isArray(key) -> ListProduction(table.getArray(key)!!, fieldPos, fieldPath, source)
-        table.isTable(key) -> TableProduction(table.getTable(key)!!, fieldPos, fieldPath, source)
-        else -> StringValue(table.get(path).toString(), fieldPos, fieldPath)
-      }
-    }
-
-    val obj = mutableMapOf<String, Value>()
+  operator fun invoke(table: TomlTable, pos: Pos, source: String): TreeNode {
+    val obj = mutableMapOf<String, TreeNode>()
     for (key in table.keySet()) {
       val fieldPos = table.toPos(key, source)
-      val fieldPath = "$path.$key"
       val value = when {
-        table.isBoolean(key) -> BooleanValue(table.getBoolean(key)!!, fieldPos, fieldPath)
-        table.isDouble(key) -> DoubleValue(table.getDouble(key)!!, fieldPos, fieldPath)
-        table.isLong(key) -> LongValue(table.getLong(key)!!, fieldPos, fieldPath)
-        table.isString(key) -> StringValue(table.getString(key)!!, fieldPos, fieldPath)
-        table.isArray(key) -> ListProduction(table.getArray(key)!!, fieldPos, fieldPath, source)
-        table.isTable(key) -> TableProduction(table.getTable(key)!!, fieldPos, fieldPath, source)
-        else -> StringValue(table.get(key).toString(), fieldPos, fieldPath)
+        table.isBoolean(key) -> BooleanNode(table.getBoolean(key)!!, fieldPos)
+        table.isDouble(key) -> DoubleNode(table.getDouble(key)!!, fieldPos)
+        table.isLong(key) -> LongNode(table.getLong(key)!!, fieldPos)
+        table.isString(key) -> StringNode(table.getString(key)!!, fieldPos)
+        table.isArray(key) -> ListProduction(table.getArray(key)!!, fieldPos, source)
+        table.isTable(key) -> TableProduction(table.getTable(key)!!, fieldPos, source)
+        else -> StringNode(table.get(key).toString(), fieldPos)
       }
       obj[key] = value
     }
-    return MapValue(obj, pos, path)
+
+    return MapNode(obj, pos)
   }
 }
 
 object ListProduction {
-  operator fun invoke(array: TomlArray, pos: Pos, path: String, source: String): ListValue {
+  operator fun invoke(array: TomlArray, pos: Pos, source: String): ArrayNode {
     val elements = (0 until array.size()).map { k ->
       when {
-        array.containsBooleans() -> BooleanValue(array.getBoolean(k), pos, path)
-        array.containsDoubles() -> DoubleValue(array.getDouble(k), pos, path)
-        array.containsLongs() -> LongValue(array.getLong(k), pos, path)
-        array.containsStrings() -> StringValue(array.getString(k), pos, path)
-        array.containsArrays() -> ListProduction(array.getArray(k), pos, path, source)
-        array.containsTables() -> TableProduction(array.getTable(k), pos, path, source)
-        else -> StringValue(array[k].toString(), pos, path)
+        array.containsBooleans() -> BooleanNode(array.getBoolean(k), pos)
+        array.containsDoubles() -> DoubleNode(array.getDouble(k), pos)
+        array.containsLongs() -> LongNode(array.getLong(k), pos)
+        array.containsStrings() -> StringNode(array.getString(k), pos)
+        array.containsArrays() -> ListProduction(array.getArray(k), pos, source)
+        array.containsTables() -> TableProduction(array.getTable(k), pos, source)
+        else -> StringNode(array[k].toString(), pos)
       }
     }
-    return ListValue(elements, pos, path)
+    return ArrayNode(elements, pos)
   }
 }
 

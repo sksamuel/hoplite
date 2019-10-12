@@ -6,9 +6,9 @@ import arrow.data.invalid
 import arrow.data.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
-import com.sksamuel.hoplite.Value
-import com.sksamuel.hoplite.NullValue
-import com.sksamuel.hoplite.UndefinedValue
+import com.sksamuel.hoplite.TreeNode
+import com.sksamuel.hoplite.NullNode
+import com.sksamuel.hoplite.Undefined
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -49,7 +49,7 @@ fun defaultDecoderRegistry(): DecoderRegistry {
 }
 
 /**
- * A typeclass for decoding a [Value] into a specified type.
+ * A typeclass for decoding a [TreeNode] into a specified type.
  */
 interface Decoder<T> {
 
@@ -62,14 +62,14 @@ interface Decoder<T> {
    * @param type the concrete type required by the caller
    * @param registry used to lookup decoders for types that have nested types
    */
-  fun decode(value: Value,
+  fun decode(value: TreeNode,
              type: KType,
              registry: DecoderRegistry): ConfigResult<T>
 }
 
 inline fun <T, reified U> Decoder<T>.map(crossinline f: (T) -> U): Decoder<U> = object : Decoder<U> {
   override fun supports(type: KType): Boolean = U::class.createType() == type
-  override fun decode(value: Value, type: KType, registry: DecoderRegistry): ConfigResult<U> {
+  override fun decode(value: TreeNode, type: KType, registry: DecoderRegistry): ConfigResult<U> {
     return this@map.decode(value, type, registry).map { f(it) }
   }
 }
@@ -80,7 +80,7 @@ inline fun <T, reified U> Decoder<T>.map(crossinline f: (T) -> U): Decoder<U> = 
 @Suppress("UNCHECKED_CAST")
 interface NonNullableDecoder<T> : Decoder<T> {
 
-  private fun decode(node: NullValue, type: KType): Validated<ConfigFailure, *> {
+  private fun decode(node: NullNode, type: KType): Validated<ConfigFailure, *> {
     return if (type.isMarkedNullable) Valid(null) else
       ConfigFailure.NullValueForNonNullField(node).invalid()
   }
@@ -90,12 +90,12 @@ interface NonNullableDecoder<T> : Decoder<T> {
       ConfigFailure.MissingValue.invalid()
   }
 
-  override fun decode(value: Value,
+  override fun decode(value: TreeNode,
                       type: KType,
                       registry: DecoderRegistry): Validated<ConfigFailure, T> =
     when (value) {
-      is UndefinedValue -> decode(type).map { it as T }
-      is NullValue -> decode(value, type).map { it as T }
+      is Undefined -> decode(type).map { it as T }
+      is NullNode -> decode(value, type).map { it as T }
       else -> safeDecode(value, type, registry)
     }
 
@@ -106,7 +106,7 @@ interface NonNullableDecoder<T> : Decoder<T> {
    * @param type the concrete type required by the caller
    * @param registry used to lookup decoders for types that have nested types
    */
-  fun safeDecode(value: Value,
+  fun safeDecode(value: TreeNode,
                  type: KType,
                  registry: DecoderRegistry): ConfigResult<T>
 }

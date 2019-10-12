@@ -122,9 +122,11 @@ That same function can be used to map non-default file extensions to an existing
 
 `ConfigLoader().withFileExtensionMapping("data", YamlParser)`
 
+
+
 ## Cascading Config
 
-Hoplite has the concept of cascading or layered config. 
+Hoplite has the concept of cascading or layered or fallback config. 
 This means you can pass more than one config file to the ConfigLoader.
 When the config is resolved into Kotlin classes, a lookup will cascade or fall through one file to another in the order they were passed to the loader, until the first file that defines that key.
 
@@ -151,6 +153,71 @@ elasticsearch.port = 9202 // the value in application-prod.yaml takes priority o
 elasticsearch.host = production-elasticsearch.mycompany.internal 
 elasitcsearch.clusterName = product-search // not defined in application-prod.yaml so falls through to application.yaml
 ```
+
+Let's see a more complicated example. In JSON this time.
+
+`default.json`
+```json
+{
+  "a": "alice",
+  "b": {
+    "c": true,
+    "d": 123
+  },
+  "e": [
+    {
+      "x": 1,
+      "y": true
+    },
+    {
+      "x": 2,
+      "y": false
+    }
+  ],
+  "f": "Fall"
+}
+```
+
+`prod.json`
+```json
+{
+  "a": "bob",
+  "b": {
+    "d": 999
+  },
+  "e": [
+    {
+      "y": true
+    }
+  ]
+}
+```
+
+And we will parse the above config files into these data classes:
+
+```kotlin
+enum class Season { Fall, Winter, Spring, Summer }
+data class Foo(val c: Boolean, val d: Int)
+data class Bar(val x: Int?, val y: Boolean)
+data class Config(val a: String, val b: Foo, val e: List<Bar>, val f: Season)
+```
+
+```kotlin
+val config = ConfigLoader.load("prod.json", "default.json")
+println(config)
+```
+
+The resolution rules are as follows:
+
+- "a" is present in both files and so is resolved from the first file - which was "prod.json"
+- "b" is present in both files and therefore resolved from the file file as well
+- "c" is a nested value of "b" and is not present in the first file so is resolved from the second file "default.json"
+- "d" is a nested value of "b" present in both files and therefore resolved from the first file
+- "e" is present in both files and so the entire list is resolved from the first file. This means that the list only contains a single element, and x is null despite being present in the list in the first file. List's cannot be merged.
+- "f" is only present in the second file and so is resolved from the second file.
+
+
+
 
 ## Decoders
 
