@@ -1,14 +1,11 @@
 package com.sksamuel.hoplite.hocon
 
-import com.sksamuel.hoplite.BooleanNode
-import com.sksamuel.hoplite.DoubleNode
 import com.sksamuel.hoplite.ArrayNode
-import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.TreeNode
-import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.Pos
-import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.PrimitiveNode
+import com.sksamuel.hoplite.Value
 import com.sksamuel.hoplite.parsers.Parser
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigList
@@ -51,20 +48,20 @@ object ValueProduction {
     return when (value.valueType()) {
       ConfigValueType.OBJECT -> MapProduction(value as ConfigObject, value.origin(), source)
       ConfigValueType.NUMBER -> when (val v = value.unwrapped()) {
-        is Double -> DoubleNode(v, value.origin().toPos(source))
-        is Float -> DoubleNode(v.toDouble(), value.origin().toPos(source))
-        is Long -> LongNode(v, value.origin().toPos(source))
-        is Int -> LongNode(v.toLong(), value.origin().toPos(source))
+        is Double -> PrimitiveNode(Value.DoubleNode(v), value.origin().toPos(source))
+        is Float -> PrimitiveNode(Value.DoubleNode(v.toDouble()), value.origin().toPos(source))
+        is Long ->PrimitiveNode( Value.LongNode(v), value.origin().toPos(source))
+        is Int -> PrimitiveNode(Value.LongNode(v.toLong()), value.origin().toPos(source))
         else -> throw RuntimeException("Unexpected element type for ConfigValueType.NUMBER: $v")
       }
       ConfigValueType.LIST -> ListProduction(value as ConfigList, value.origin(), source)
       ConfigValueType.BOOLEAN ->
         when (val v = value.unwrapped()) {
-          is Boolean -> BooleanNode(v, value.origin().toPos(source))
+          is Boolean -> PrimitiveNode(Value.BooleanNode(v), value.origin().toPos(source))
           else -> throw RuntimeException("Unexpected element type for ConfigValueType.BOOLEAN: $v")
         }
-      ConfigValueType.STRING -> StringNode(value.unwrapped().toString(), value.origin().toPos(source))
-      ConfigValueType.NULL -> NullNode(value.origin().toPos(source))
+      ConfigValueType.STRING -> PrimitiveNode(Value.StringNode(value.unwrapped().toString()), value.origin().toPos(source))
+      ConfigValueType.NULL -> PrimitiveNode(Value.NullValue, value.origin().toPos(source))
     }
   }
 }

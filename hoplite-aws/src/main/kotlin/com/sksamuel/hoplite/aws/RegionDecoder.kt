@@ -7,7 +7,7 @@ import com.amazonaws.regions.Regions
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.TreeNode
-import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.Value
 import com.sksamuel.hoplite.arrow.toValidated
 import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.decoder.NonNullableDecoder
@@ -24,8 +24,8 @@ class RegionDecoder : NonNullableDecoder<Region> {
         Try { Region.getRegion(Regions.fromName(name)) }
           .toValidated { ConfigFailure.Generic("Cannot create region from $name") }
 
-    return when (node) {
-      is StringNode -> regionFromName(node.value)
+    return when (val v = node.value) {
+      is Value.StringNode -> regionFromName(v.value)
       else -> ConfigFailure.DecodeError(node, type).invalid()
     }
   }

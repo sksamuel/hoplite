@@ -14,16 +14,16 @@ class PropsParserTest : StringSpec() {
               mapOf(
                 "b" to MapNode(
                   map = mapOf(
-                    "c" to StringNode(value = "wibble", pos = Pos.FilePos(source = "a.props")),
-                    "d" to StringNode(value = "123", pos = Pos.FilePos(source = "a.props"))
+                    "c" to PrimitiveNode(Value.StringNode(value = "wibble"), pos = Pos.FilePos(source = "a.props")),
+                    "d" to PrimitiveNode(Value.StringNode(value = "123"), pos = Pos.FilePos(source = "a.props"))
                   ),
                   pos = Pos.FilePos(source = "a.props")
                 ),
-                "d" to StringNode(value = "true", pos = Pos.FilePos(source = "a.props"))
+                "d" to PrimitiveNode(Value.StringNode(value = "true"), pos = Pos.FilePos(source = "a.props"))
               ),
               pos = Pos.FilePos(source = "a.props")
             ),
-            "e" to StringNode(value = "5.5", pos = Pos.FilePos(source = "a.props"))
+            "e" to PrimitiveNode(Value.StringNode(value = "5.5"), pos = Pos.FilePos(source = "a.props"))
           ),
           pos = Pos.FilePos(source = "a.props")
         )

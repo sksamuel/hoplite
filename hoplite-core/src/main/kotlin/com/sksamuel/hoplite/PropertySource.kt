@@ -3,15 +3,7 @@ package com.sksamuel.hoplite
 import arrow.data.valid
 import com.sksamuel.hoplite.parsers.ParserRegistry
 import com.sksamuel.hoplite.parsers.loadProps
-
-/**
- * Represents a path to a config value.
- */
-data class Path(val components: List<String>) {
-  companion object {
-    val root = Path(emptyList())
-  }
-}
+import java.util.*
 
 /**
  * A [PropertySource] provides [TreeNode]s.
@@ -36,7 +28,11 @@ object SystemPropertiesPropertySource : PropertySource {
 object JndiPropertySource
 
 object EnvironmentVariablesPropertySource : PropertySource {
-  override fun node(): ConfigResult<TreeNode> = loadProps(System.getProperties(), "sysprops").valid()
+  override fun node(): ConfigResult<TreeNode> {
+    val props = Properties()
+    System.getenv().forEach { props[it.key] = it.value }
+    return loadProps(props, "envvars").valid()
+  }
 }
 
 object UserSettingsPropertySource

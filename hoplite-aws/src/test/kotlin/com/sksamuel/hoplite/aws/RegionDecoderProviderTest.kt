@@ -6,7 +6,8 @@ import com.amazonaws.regions.Region
 import com.amazonaws.regions.Regions
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.Pos
-import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.PrimitiveNode
+import com.sksamuel.hoplite.Value
 import com.sksamuel.hoplite.decoder.DecoderRegistry
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
@@ -16,13 +17,13 @@ class RegionDecoderProviderTest : StringSpec() {
   init {
     "region converter" {
       RegionDecoder().safeDecode(
-        StringNode("us-east-1", Pos.NoPos),
+        PrimitiveNode(Value.StringNode("us-east-1"), Pos.NoPos),
         Region::class.createType(),
         DecoderRegistry.zero
       ) shouldBe Region.getRegion(Regions.US_EAST_1).valid()
 
       RegionDecoder().safeDecode(
-        StringNode("us-qwewqe-1", Pos.NoPos),
+        PrimitiveNode(Value.StringNode("us-qwewqe-1"), Pos.NoPos),
         Region::class.createType(),
         DecoderRegistry.zero
       ) shouldBe

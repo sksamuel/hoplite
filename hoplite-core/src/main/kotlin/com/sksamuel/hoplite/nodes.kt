@@ -35,10 +35,12 @@ interface TreeNode {
   val simpleName: String
 
   /**
-   * Returns the value stored at this node. For [PrimitiveNode] instances that is
-   * the instance itself, for [MapNode]s it is the value stored at the map level.
+   * Returns the [Value] associated with this node.
+   * For a [PrimitiveNode] that is the underlying value, for a [MapNode]
+   * it is the value stored at the map level, and for [ArrayNode] it
+   * is [Value.NullValue].
    */
-  fun value(): Any?
+  val value: Value
 
   /**
    * Returns he number of child nodes this node contains. That is, for [ArrayNode] it is
@@ -62,8 +64,11 @@ fun TreeNode.hasKeyAt(key: String): Boolean = atKey(key).isDefined
  * Applies the given function to all string values, recursively calling into lists and maps.
  */
 fun TreeNode.transform(f: (String) -> String): TreeNode = when (this) {
-  is StringNode -> StringNode(f(value), pos)
-  is MapNode -> MapNode(map.map { f(it.key) to it.value.transform(f) }.toMap(), pos, null)
+  is PrimitiveNode -> when (val primitive = this.value) {
+    is Value.StringNode -> this.copy(value = Value.StringNode(f(primitive.value)))
+    else -> this
+  }
+  is MapNode -> MapNode(map.map { f(it.key) to it.value.transform(f) }.toMap(), pos, this.value)
   is ArrayNode -> ArrayNode(elements.map { it.transform(f) }, pos)
   else -> this
 }
@@ -80,7 +85,7 @@ fun TreeNode.withFallback(fallback: TreeNode): TreeNode {
   val self = this
   return object : TreeNode {
     override val size: Int = 0
-    override fun value(): Any? = if (self.isDefined) self.value() else fallback.value()
+    override val value: Value = TODO()
     override val simpleName: String = self.simpleName
     override val pos: Pos = self.pos
     override fun atKey(key: String): TreeNode = self.atKey(key).recover(fallback.atKey(key))
@@ -111,69 +116,67 @@ fun Pos.loc() = when (this) {
   is Pos.LinePos -> "($source:$line)"
 }
 
-sealed class PrimitiveNode : TreeNode {
-  override fun atIndex(index: Int): TreeNode = Undefined
-  override fun atKey(key: String): TreeNode = Undefined
-  override val size: Int = 0
-}
-
-sealed class NumberNode : PrimitiveNode()
-
-data class StringNode(val value: String,
-                      override val pos: Pos) : PrimitiveNode() {
-  override val simpleName: String = "String"
-  override fun value() = value
-}
-
-data class BooleanNode(val value: Boolean,
-                       override val pos: Pos) : PrimitiveNode() {
-  override val simpleName: String = "Boolean"
-  override fun value() = value
-}
-
-data class LongNode(val value: Long, override val pos: Pos) : NumberNode() {
-  override val simpleName: String = "Long"
-  override fun value() = value
-}
-
-data class DoubleNode(val value: Double, override val pos: Pos) : NumberNode() {
-  override val simpleName: String = "Double"
-  override fun value() = value
-}
-
-data class NullNode(override val pos: Pos) : PrimitiveNode() {
-  override fun value(): Any? = null
-  override val simpleName: String = "null"
-}
-
-object Undefined : TreeNode {
-  override val simpleName: String = "Undefined"
-  override val pos: Pos = Pos.NoPos
-  override fun value() = throw IllegalStateException("Undefined has no value")
-  override fun atKey(key: String): TreeNode = this
-  override fun atIndex(index: Int): TreeNode = this
-  override val size: Int = 0
-}
-
 sealed class ContainerNode : TreeNode
 
 data class MapNode(val map: Map<String, TreeNode>,
                    override val pos: Pos,
-                   val value: Any? = null) : ContainerNode() {
+                   override val value: Value = Value.NullValue) : ContainerNode() {
   override val simpleName: String = "Map"
   override fun atKey(key: String): TreeNode = get(key)
   override fun atIndex(index: Int): TreeNode = Undefined
   operator fun get(key: String): TreeNode = map.getOrDefault(key, Undefined)
-  override fun value(): Any? = value
   override val size: Int = map.size
 }
 
 data class ArrayNode(val elements: List<TreeNode>,
                      override val pos: Pos) : ContainerNode() {
   override val simpleName: String = "List"
-  override fun value(): Any? = null
+  override val value: Value = Value.NullValue
   override fun atKey(key: String): TreeNode = Undefined
   override fun atIndex(index: Int): TreeNode = elements.getOrElse(index) { Undefined }
   operator fun get(index: Int): TreeNode = atIndex(index)
   override val size: Int = elements.size
+}
+
+data class PrimitiveNode(override val value: Value, override val pos: Pos) : TreeNode {
+  override val simpleName: String = value.simpleName
+  override fun atKey(key: String): TreeNode = Undefined
+  override fun atIndex(index: Int): TreeNode = Undefined
+  override val size: Int = 0
+}
+
+sealed class Value {
+
+  abstract class NumberValue : Value()
+
+  abstract val simpleName: String
+
+  data class StringNode(val value: String) : Value() {
+    override val simpleName: String = "String"
+  }
+
+  data class BooleanNode(val value: Boolean) : Value() {
+    override val simpleName: String = "Boolean"
+  }
+
+  data class LongNode(val value: Long) : NumberValue() {
+    override val simpleName: String = "Long"
+  }
+
+  data class DoubleNode(val value: Double) : NumberValue() {
+    override val simpleName: String = "Double"
+  }
+
+  object NullValue : Value() {
+    override val simpleName: String = "null"
+  }
+}
+
+object Undefined : TreeNode {
+  override val simpleName: String = "Undefined"
+  override val pos: Pos = Pos.NoPos
+  override val value = throw IllegalStateException("Undefined has no value")
+  override fun atKey(key: String): TreeNode = this
+  override fun atIndex(index: Int): TreeNode = this
+  override val size: Int = 0
 }

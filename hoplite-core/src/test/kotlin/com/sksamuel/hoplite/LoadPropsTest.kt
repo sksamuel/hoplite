@@ -18,20 +18,20 @@ class LoadPropsTest : FunSpec({
           mapOf(
             "b" to MapNode(
               mapOf(
-                "c" to MapNode(mapOf(), pos = Pos.FilePos(source = "source"), value = "wibble"),
-                "d" to MapNode(mapOf(), pos = Pos.FilePos(source = "source"), value = "123")
+                "c" to MapNode(mapOf(), pos = Pos.FilePos(source = "source"), value = Value.StringNode("wibble")),
+                "d" to MapNode(mapOf(), pos = Pos.FilePos(source = "source"), value = Value.StringNode("123"))
               ),
               pos = Pos.FilePos(source = "source"),
-              value = null
+              value = Value.NullValue
             ),
             "d" to MapNode(
               mapOf(),
               pos = Pos.FilePos(source = "source"),
-              value = "true"
+              value = Value.StringNode("true")
             )
           ),
           pos = Pos.FilePos(source = "source"),
-          value = "foo"
+          value = Value.StringNode("foo")
         ),
         "e" to MapNode(
           mapOf(
@@ -40,19 +40,19 @@ class LoadPropsTest : FunSpec({
                 "g" to MapNode(
                   emptyMap(),
                   pos = Pos.FilePos(source = "source"),
-                  value = "goo"
+                  value = Value.StringNode("goo")
                 )
               ),
               pos = Pos.FilePos(source = "source"),
-              value = "6"
+              value = Value.StringNode("6")
             )
           ),
           pos = Pos.FilePos(source = "source"),
-          value = "5.5"
+          value = Value.StringNode("5.5")
         )
       ),
       pos = Pos.FilePos(source = "source"),
-      value = null
+      value = Value.NullValue
     )
 
     val actual = loadProps(props, "source")

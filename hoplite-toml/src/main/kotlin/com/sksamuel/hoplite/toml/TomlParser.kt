@@ -1,13 +1,11 @@
 package com.sksamuel.hoplite.toml
 
-import com.sksamuel.hoplite.BooleanNode
-import com.sksamuel.hoplite.DoubleNode
 import com.sksamuel.hoplite.ArrayNode
-import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.TreeNode
 import com.sksamuel.hoplite.Pos
-import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.PrimitiveNode
+import com.sksamuel.hoplite.Value
 import com.sksamuel.hoplite.parsers.Parser
 import org.tomlj.Toml
 import org.tomlj.TomlArray
@@ -28,13 +26,13 @@ object TableProduction {
     for (key in table.keySet()) {
       val fieldPos = table.toPos(key, source)
       val value = when {
-        table.isBoolean(key) -> BooleanNode(table.getBoolean(key)!!, fieldPos)
-        table.isDouble(key) -> DoubleNode(table.getDouble(key)!!, fieldPos)
-        table.isLong(key) -> LongNode(table.getLong(key)!!, fieldPos)
-        table.isString(key) -> StringNode(table.getString(key)!!, fieldPos)
+        table.isBoolean(key) -> PrimitiveNode(Value.BooleanNode(table.getBoolean(key)!!), fieldPos)
+        table.isDouble(key) -> PrimitiveNode(Value.DoubleNode(table.getDouble(key)!!), fieldPos)
+        table.isLong(key) -> PrimitiveNode(Value.LongNode(table.getLong(key)!!), fieldPos)
+        table.isString(key) -> PrimitiveNode(Value.StringNode(table.getString(key)!!), fieldPos)
         table.isArray(key) -> ListProduction(table.getArray(key)!!, fieldPos, source)
         table.isTable(key) -> TableProduction(table.getTable(key)!!, fieldPos, source)
-        else -> StringNode(table.get(key).toString(), fieldPos)
+        else ->  PrimitiveNode(Value.StringNode(table.get(key).toString()), fieldPos)
       }
       obj[key] = value
     }
@@ -47,13 +45,13 @@ object ListProduction {
   operator fun invoke(array: TomlArray, pos: Pos, source: String): ArrayNode {
     val elements = (0 until array.size()).map { k ->
       when {
-        array.containsBooleans() -> BooleanNode(array.getBoolean(k), pos)
-        array.containsDoubles() -> DoubleNode(array.getDouble(k), pos)
-        array.containsLongs() -> LongNode(array.getLong(k), pos)
-        array.containsStrings() -> StringNode(array.getString(k), pos)
+        array.containsBooleans() ->  PrimitiveNode(Value.BooleanNode(array.getBoolean(k)), pos)
+        array.containsDoubles() ->  PrimitiveNode(Value.DoubleNode(array.getDouble(k)), pos)
+        array.containsLongs() ->  PrimitiveNode(Value.LongNode(array.getLong(k)), pos)
+        array.containsStrings() ->  PrimitiveNode(Value.StringNode(array.getString(k)), pos)
         array.containsArrays() -> ListProduction(array.getArray(k), pos, source)
         array.containsTables() -> TableProduction(array.getTable(k), pos, source)
-        else -> StringNode(array[k].toString(), pos)
+        else ->  PrimitiveNode(Value.StringNode(array[k].toString()), pos)
       }
     }
     return ArrayNode(elements, pos)

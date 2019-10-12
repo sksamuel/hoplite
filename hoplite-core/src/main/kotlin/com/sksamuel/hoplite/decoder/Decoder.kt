@@ -7,8 +7,8 @@ import arrow.data.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.TreeNode
-import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.Undefined
+import com.sksamuel.hoplite.Value
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -58,19 +58,19 @@ interface Decoder<T> {
   /**
    * Attempts to decode the given node into an instance of the given [KType].
    *
-   * @param value contains the value for the current dot path
+   * @param node contains the value for the current dot path
    * @param type the concrete type required by the caller
    * @param registry used to lookup decoders for types that have nested types
    */
-  fun decode(value: TreeNode,
+  fun decode(node: TreeNode,
              type: KType,
              registry: DecoderRegistry): ConfigResult<T>
 }
 
 inline fun <T, reified U> Decoder<T>.map(crossinline f: (T) -> U): Decoder<U> = object : Decoder<U> {
   override fun supports(type: KType): Boolean = U::class.createType() == type
-  override fun decode(value: TreeNode, type: KType, registry: DecoderRegistry): ConfigResult<U> {
-    return this@map.decode(value, type, registry).map { f(it) }
+  override fun decode(node: TreeNode, type: KType, registry: DecoderRegistry): ConfigResult<U> {
+    return this@map.decode(node, type, registry).map { f(it) }
   }
 }
 
@@ -80,7 +80,7 @@ inline fun <T, reified U> Decoder<T>.map(crossinline f: (T) -> U): Decoder<U> = 
 @Suppress("UNCHECKED_CAST")
 interface NonNullableDecoder<T> : Decoder<T> {
 
-  private fun decode(node: NullNode, type: KType): Validated<ConfigFailure, *> {
+  private fun decode(node: TreeNode, type: KType): Validated<ConfigFailure, *> {
     return if (type.isMarkedNullable) Valid(null) else
       ConfigFailure.NullValueForNonNullField(node).invalid()
   }
@@ -90,23 +90,25 @@ interface NonNullableDecoder<T> : Decoder<T> {
       ConfigFailure.MissingValue.invalid()
   }
 
-  override fun decode(value: TreeNode,
+  override fun decode(node: TreeNode,
                       type: KType,
                       registry: DecoderRegistry): Validated<ConfigFailure, T> =
-    when (value) {
+    when (node) {
       is Undefined -> decode(type).map { it as T }
-      is NullNode -> decode(value, type).map { it as T }
-      else -> safeDecode(value, type, registry)
+      else -> when (node.value) {
+        is Value.NullValue -> decode(node, type).map { it as T }
+        else -> safeDecode(node, type, registry)
+      }
     }
 
   /**
    * Attempts to decode the given node into an instance of the given [KType].
    *
-   * @param value contains the value for the current dot path
+   * @param node contains the value for the current dot path
    * @param type the concrete type required by the caller
    * @param registry used to lookup decoders for types that have nested types
    */
-  fun safeDecode(value: TreeNode,
+  fun safeDecode(node: TreeNode,
                  type: KType,
                  registry: DecoderRegistry): ConfigResult<T>
 }
