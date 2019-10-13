@@ -1,10 +1,10 @@
 package com.sksamuel.hoplite
 
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
 import java.lang.IllegalStateException
 
-/**
- * An ADT that models values returned from a [PropertySource].
- */
 interface TreeNode {
 
   /**
@@ -13,20 +13,30 @@ interface TreeNode {
   val pos: Pos
 
   /**
-   * If this is a [MapNode] returns the [TreeNode] stored at the given key.
-   * Otherwise returns [Undefined] if this is not a [MapNode], or the
-   * map does not contain a value at the given key.
+   * Returns the [PrimitiveNode] at the given key.
+   * If this node is not a [MapNode] or the node contained at the
+   * given key is not a primitive, or the node does not contain
+   * the key at all, then this will return [Undefined].
    */
   fun atKey(key: String): TreeNode
 
   /**
+   * Returns the [MapNode] at the given key.
+   * If this node is not a [MapNode] or the node contained at the
+   * given key is not a map, or the node does not contain the
+   * key at all, then this will returned [Undefined]
+   */
+  fun subtree(key: String): Either<Undefined, MapNode> = Undefined.left()
+
+  /**
    * Returns the [TreeNode] stored at the given index of this node.
    *
-   * Returns [Undefined] if this value does not contain an
+   * Returns [Undefined] if this node does not contain an
    * element at the given index, or is not an [ArrayNode].
    */
   fun atIndex(index: Int): TreeNode
 
+  @Deprecated("tbm")
   fun atPath(path: String): TreeNode {
     val parts = path.split('.')
     return parts.fold(this, { acc, part -> acc.atKey(part) })
@@ -126,6 +136,13 @@ data class MapNode(val map: Map<String, TreeNode>,
   override fun atIndex(index: Int): TreeNode = Undefined
   operator fun get(key: String): TreeNode = map.getOrDefault(key, Undefined)
   override val size: Int = map.size
+
+  override fun subtree(key: String): Either<Undefined, MapNode> {
+    return when (val node = map[key]) {
+      is MapNode -> node.right()
+      else -> Undefined.left()
+    }
+  }
 }
 
 data class ArrayNode(val elements: List<TreeNode>,
