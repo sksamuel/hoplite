@@ -15,7 +15,7 @@ class SystemPropertySourceTest : FunSpec() {
     test("sys prop should override local file") {
       data class TestConfig(val foo: String, val woo: String)
       withSystemProperties(mapOf("foo" to "a")) {
-        ConfigLoader().loadConfigOrThrow<TestConfig>("sysproptest1.props") shouldBe TestConfig("a", "y")
+        ConfigLoader().loadConfigOrThrow<TestConfig>("/sysproptest1.props") shouldBe TestConfig("a", "y")
       }
     }
     test("nested sys prop should overwrite value") {
