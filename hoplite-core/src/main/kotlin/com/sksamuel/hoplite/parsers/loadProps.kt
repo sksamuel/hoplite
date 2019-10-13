@@ -1,28 +1,28 @@
 package com.sksamuel.hoplite.parsers
 
 import com.sksamuel.hoplite.MapNode
-import com.sksamuel.hoplite.NullValue
-import com.sksamuel.hoplite.TreeNode
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.TreeNode
+import com.sksamuel.hoplite.Undefined
 import java.util.*
 
 @Suppress("UNCHECKED_CAST")
-fun loadProps(props: Properties, source: String): TreeNode {
+fun Properties.toNode(source: String): TreeNode {
 
   val root = mutableMapOf<String, Any>()
-  props.stringPropertyNames().toList().map { key ->
+  stringPropertyNames().toList().map { key ->
 
     val components = key.split('.')
     val map = components.fold(root) { acc, k ->
       acc.getOrPut(k) { mutableMapOf<String, Any>() } as MutableMap<String, Any>
     }
-    map.put("____value", props.getProperty(key))
+    map.put("____value", getProperty(key))
   }
 
   val pos = Pos.FilePos(source)
 
-  fun Map<String, Any>.toNode(): MapNode {
+  fun Map<String, Any>.toNode(): TreeNode {
     val maps = filterValues { it is MutableMap<*, *> }.mapValues {
       when (val v = it.value) {
         is MutableMap<*, *> -> (v as MutableMap<String, Any>).toNode()
@@ -30,8 +30,12 @@ fun loadProps(props: Properties, source: String): TreeNode {
       }
     }
     val value = this["____value"]
-    val v = if (value == null) NullValue(Pos.NoPos) else StringNode(value.toString(), Pos.NoPos)
-    return MapNode(maps.toMap(), pos, v)
+    return when {
+      value == null && maps.isEmpty() -> throw java.lang.RuntimeException("Bug: unsupported state $this")
+      value == null && maps.isNotEmpty() -> MapNode(maps.toMap(), pos, Undefined)
+      maps.isEmpty() -> StringNode(value.toString(), pos)
+      else -> MapNode(maps.toMap(), pos, StringNode(value.toString(), pos))
+    }
   }
 
   return root.toNode()

@@ -1,6 +1,6 @@
 package com.sksamuel.hoplite
 
-import com.sksamuel.hoplite.parsers.loadProps
+import com.sksamuel.hoplite.parsers.toNode
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.FunSpec
 import java.util.*
@@ -18,44 +18,36 @@ class LoadPropsTest : FunSpec({
           mapOf(
             "b" to MapNode(
               mapOf(
-                "c" to MapNode(mapOf(), pos = Pos.FilePos(source = "source"), value = StringNode("wibble", Pos.NoPos)),
-                "d" to MapNode(mapOf(), pos = Pos.FilePos(source = "source"), value = StringNode("123", Pos.NoPos))
+                "c" to StringNode("wibble", pos = Pos.FilePos(source = "source")),
+                "d" to StringNode("123", pos = Pos.FilePos(source = "source"))
               ),
               pos = Pos.FilePos(source = "source"),
-              value = NullValue(Pos.NoPos)
+              value = Undefined
             ),
-            "d" to MapNode(
-              mapOf(),
-              pos = Pos.FilePos(source = "source"),
-              value = StringNode("true", Pos.NoPos)
-            )
+            "d" to StringNode("true", pos = Pos.FilePos(source = "source"))
           ),
           pos = Pos.FilePos(source = "source"),
-          value = StringNode("foo", Pos.NoPos)
+          value = StringNode("foo", Pos.FilePos(source = "source"))
         ),
         "e" to MapNode(
           mapOf(
             "f" to MapNode(
               mapOf(
-                "g" to MapNode(
-                  emptyMap(),
-                  pos = Pos.FilePos(source = "source"),
-                  value = StringNode("goo", Pos.NoPos)
-                )
+                "g" to StringNode("goo", pos = Pos.FilePos(source = "source"))
               ),
               pos = Pos.FilePos(source = "source"),
-              value = StringNode("6", Pos.NoPos)
+              value = StringNode("6", Pos.FilePos(source = "source"))
             )
           ),
           pos = Pos.FilePos(source = "source"),
-          value = StringNode("5.5", Pos.NoPos)
+          value = StringNode("5.5", Pos.FilePos(source = "source"))
         )
       ),
       pos = Pos.FilePos(source = "source"),
-      value = NullValue(Pos.NoPos)
+      value = Undefined
     )
 
-    val actual = loadProps(props, "source")
+    val actual = props.toNode("source")
     actual shouldBe expected
   }
 

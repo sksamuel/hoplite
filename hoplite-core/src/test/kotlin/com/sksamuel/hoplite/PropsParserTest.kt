@@ -17,9 +17,10 @@ class PropsParserTest : StringSpec() {
                     "c" to StringNode(value = "wibble", pos = Pos.FilePos(source = "a.props")),
                     "d" to StringNode(value = "123", pos = Pos.FilePos(source = "a.props"))
                   ),
-                  pos = Pos.FilePos(source = "a.props")
+                  pos = Pos.FilePos(source = "a.props"),
+                  value = StringNode("qqq", pos = Pos.FilePos(source = "a.props"))
                 ),
-                "d" to StringNode(value = "true", pos = Pos.FilePos(source = "a.props"))
+                "g" to StringNode(value = "true", pos = Pos.FilePos(source = "a.props"))
               ),
               pos = Pos.FilePos(source = "a.props")
             ),

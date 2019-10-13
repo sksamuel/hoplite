@@ -4,7 +4,7 @@ import arrow.data.valid
 import com.sksamuel.hoplite.arrow.ap
 import com.sksamuel.hoplite.parsers.Parser
 import com.sksamuel.hoplite.parsers.ParserRegistry
-import com.sksamuel.hoplite.parsers.loadProps
+import com.sksamuel.hoplite.parsers.toNode
 import java.util.*
 
 /**
@@ -24,7 +24,7 @@ fun defaultPropertySources(): List<PropertySource> =
   )
 
 object SystemPropertiesPropertySource : PropertySource {
-  override fun node(): ConfigResult<TreeNode> = loadProps(System.getProperties(), "sysprops").valid()
+  override fun node(): ConfigResult<TreeNode> = System.getProperties().toNode("sysprops").valid()
 }
 
 object JndiPropertySource
@@ -33,7 +33,7 @@ object EnvironmentVariablesPropertySource : PropertySource {
   override fun node(): ConfigResult<TreeNode> {
     val props = Properties()
     System.getenv().forEach { props[it.key] = it.value }
-    return loadProps(props, "envvars").valid()
+    return props.toNode("envars").valid()
   }
 }
 

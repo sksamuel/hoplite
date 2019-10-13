@@ -9,7 +9,7 @@ class PropsParser : Parser {
   override fun load(input: InputStream, source: String): TreeNode {
     val props = Properties()
     props.load(input)
-    return loadProps(props, source)
+    return props.toNode(source)
   }
 
   override fun defaultFileExtensions(): List<String> = listOf("props", "properties")
