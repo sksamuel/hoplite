@@ -5,11 +5,14 @@ import com.fasterxml.jackson.core.JsonLocation
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.JsonToken
 import com.sksamuel.hoplite.ArrayNode
+import com.sksamuel.hoplite.BooleanNode
+import com.sksamuel.hoplite.DoubleNode
+import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.MapNode
+import com.sksamuel.hoplite.NullValue
 import com.sksamuel.hoplite.Pos
-import com.sksamuel.hoplite.PrimitiveNode
+import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.TreeNode
-import com.sksamuel.hoplite.Value
 import com.sksamuel.hoplite.parsers.Parser
 import java.io.InputStream
 import java.lang.UnsupportedOperationException
@@ -34,15 +37,12 @@ object TokenProduction {
       JsonToken.NOT_AVAILABLE -> throw UnsupportedOperationException("Invalid json at ${parser.currentLocation}")
       JsonToken.START_OBJECT -> ObjectProduction(parser, source)
       JsonToken.START_ARRAY -> ArrayProduction(parser, source)
-      JsonToken.VALUE_STRING -> PrimitiveNode(Value.StringNode(parser.valueAsString),
-        parser.currentLocation.toPos(source))
-      JsonToken.VALUE_NUMBER_INT -> PrimitiveNode(Value.LongNode(parser.valueAsLong),
-        parser.currentLocation.toPos(source))
-      JsonToken.VALUE_NUMBER_FLOAT -> PrimitiveNode(Value.DoubleNode(parser.valueAsDouble),
-        parser.currentLocation.toPos(source))
-      JsonToken.VALUE_TRUE -> PrimitiveNode(Value.BooleanNode(true), parser.currentLocation.toPos(source))
-      JsonToken.VALUE_FALSE -> PrimitiveNode(Value.BooleanNode(false), parser.currentLocation.toPos(source))
-      JsonToken.VALUE_NULL -> PrimitiveNode(Value.NullValue, parser.currentLocation.toPos(source))
+      JsonToken.VALUE_STRING -> StringNode(parser.valueAsString, parser.currentLocation.toPos(source))
+      JsonToken.VALUE_NUMBER_INT -> LongNode(parser.valueAsLong, parser.currentLocation.toPos(source))
+      JsonToken.VALUE_NUMBER_FLOAT -> DoubleNode(parser.valueAsDouble, parser.currentLocation.toPos(source))
+      JsonToken.VALUE_TRUE -> BooleanNode(true, parser.currentLocation.toPos(source))
+      JsonToken.VALUE_FALSE -> BooleanNode(false, parser.currentLocation.toPos(source))
+      JsonToken.VALUE_NULL -> NullValue(parser.currentLocation.toPos(source))
       else -> throw UnsupportedOperationException("Invalid json at ${parser.currentLocation}; encountered unexpected token ${parser.currentToken}")
     }
   }

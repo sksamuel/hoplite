@@ -2,10 +2,11 @@ package com.sksamuel.hoplite.ktor
 
 import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.ArrayNode
+import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.TreeNode
 import com.sksamuel.hoplite.PrimitiveNode
+import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Undefined
-import com.sksamuel.hoplite.Value
 import com.sksamuel.hoplite.hasKeyAt
 import io.ktor.config.ApplicationConfig
 import io.ktor.config.ApplicationConfigValue
@@ -44,10 +45,7 @@ class HopliteApplicationConfigValue(private val node: TreeNode) : ApplicationCon
         else -> throw IllegalArgumentException("${element.simpleName} cannot be converted to string")
       }
     }
-    is PrimitiveNode -> when (val v = node.value) {
-      is Value.StringNode -> v.value.split(',').toList()
-      else -> throw IllegalArgumentException("${node.simpleName} cannot be converted to list")
-    }
+    is StringNode -> node.value.split(',').toList()
     else -> throw IllegalArgumentException("${node.simpleName} cannot be converted to list")
   }
 }
@@ -80,10 +78,7 @@ fun hopliteApplicationEngineEnvironment(node: TreeNode): ApplicationEngineEnviro
   val applicationIdPath = "ktor.application.id"
 
   val applicationId = when (val n = node.atPath(applicationIdPath)) {
-    is PrimitiveNode -> when (val v = n.value) {
-      is Value.StringNode -> v.value
-      else -> throw RuntimeException("Invalid value for $applicationIdPath")
-    }
+    is StringNode -> n.value
     is Undefined -> "Application"
     else -> throw RuntimeException("Invalid value for $applicationIdPath")
   }
@@ -93,19 +88,13 @@ fun hopliteApplicationEngineEnvironment(node: TreeNode): ApplicationEngineEnviro
 
   connector {
     host = when (val n = node.atPath(hostConfigPath)) {
-      is PrimitiveNode -> when (val v = n.value) {
-        is Value.StringNode -> v.value
-        else -> throw RuntimeException("Invalid value for host: $v")
-      }
+      is StringNode -> n.value
       is Undefined -> "0.0.0.0"
       else -> throw RuntimeException("Invalid value for host: $n")
     }
     port = when (val n = node.atPath(portConfigPath)) {
-      is PrimitiveNode -> when (val v = n.value) {
-        is Value.LongNode -> v.value.toInt()
-        is Value.StringNode -> v.value.toInt()
-        else -> throw RuntimeException("$portConfigPath is not defined or is not a number")
-      }
+      is LongNode -> n.value.toInt()
+      is StringNode -> n.value.toInt()
       else -> throw RuntimeException("$portConfigPath is not defined or is not a number")
     }
   }

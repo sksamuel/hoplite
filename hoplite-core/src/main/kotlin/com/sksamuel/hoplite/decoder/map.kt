@@ -4,9 +4,8 @@ import arrow.data.invalid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.MapNode
-import com.sksamuel.hoplite.PrimitiveNode
+import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.TreeNode
-import com.sksamuel.hoplite.Value
 import com.sksamuel.hoplite.arrow.flatMap
 import com.sksamuel.hoplite.arrow.sequence
 import kotlin.reflect.KType
@@ -31,7 +30,7 @@ class MapDecoder : NonNullableDecoder<Map<*, *>> {
                       registry: DecoderRegistry): ConfigResult<Map<*, *>> {
 
       return node.map.entries.map { (k, v) ->
-        kdecoder.decode(PrimitiveNode(Value.StringNode(k), node.pos), kType, registry).flatMap { kk ->
+        kdecoder.decode(StringNode(k, node.pos), kType, registry).flatMap { kk ->
           vdecoder.decode(v, vType, registry).map { vv ->
             kk to vv
           }

@@ -1,9 +1,10 @@
 package com.sksamuel.hoplite.parsers
 
 import com.sksamuel.hoplite.MapNode
+import com.sksamuel.hoplite.NullValue
 import com.sksamuel.hoplite.TreeNode
 import com.sksamuel.hoplite.Pos
-import com.sksamuel.hoplite.Value
+import com.sksamuel.hoplite.StringNode
 import java.util.*
 
 @Suppress("UNCHECKED_CAST")
@@ -29,7 +30,7 @@ fun loadProps(props: Properties, source: String): TreeNode {
       }
     }
     val value = this["____value"]
-    val v = if (value == null) Value.NullValue else Value.StringNode(value.toString())
+    val v = if (value == null) NullValue(Pos.NoPos) else StringNode(value.toString(), Pos.NoPos)
     return MapNode(maps.toMap(), pos, v)
   }
 

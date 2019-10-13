@@ -18,20 +18,20 @@ class LoadPropsTest : FunSpec({
           mapOf(
             "b" to MapNode(
               mapOf(
-                "c" to MapNode(mapOf(), pos = Pos.FilePos(source = "source"), value = Value.StringNode("wibble")),
-                "d" to MapNode(mapOf(), pos = Pos.FilePos(source = "source"), value = Value.StringNode("123"))
+                "c" to MapNode(mapOf(), pos = Pos.FilePos(source = "source"), value = StringNode("wibble", Pos.NoPos)),
+                "d" to MapNode(mapOf(), pos = Pos.FilePos(source = "source"), value = StringNode("123", Pos.NoPos))
               ),
               pos = Pos.FilePos(source = "source"),
-              value = Value.NullValue
+              value = NullValue(Pos.NoPos)
             ),
             "d" to MapNode(
               mapOf(),
               pos = Pos.FilePos(source = "source"),
-              value = Value.StringNode("true")
+              value = StringNode("true", Pos.NoPos)
             )
           ),
           pos = Pos.FilePos(source = "source"),
-          value = Value.StringNode("foo")
+          value = StringNode("foo", Pos.NoPos)
         ),
         "e" to MapNode(
           mapOf(
@@ -40,19 +40,19 @@ class LoadPropsTest : FunSpec({
                 "g" to MapNode(
                   emptyMap(),
                   pos = Pos.FilePos(source = "source"),
-                  value = Value.StringNode("goo")
+                  value = StringNode("goo", Pos.NoPos)
                 )
               ),
               pos = Pos.FilePos(source = "source"),
-              value = Value.StringNode("6")
+              value = StringNode("6", Pos.NoPos)
             )
           ),
           pos = Pos.FilePos(source = "source"),
-          value = Value.StringNode("5.5")
+          value = StringNode("5.5", Pos.NoPos)
         )
       ),
       pos = Pos.FilePos(source = "source"),
-      value = Value.NullValue
+      value = NullValue(Pos.NoPos)
     )
 
     val actual = loadProps(props, "source")

@@ -7,9 +7,8 @@ import arrow.data.invalid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.ArrayNode
-import com.sksamuel.hoplite.PrimitiveNode
+import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.TreeNode
-import com.sksamuel.hoplite.Value
 import com.sksamuel.hoplite.arrow.flatMap
 import kotlin.reflect.KType
 
@@ -63,20 +62,20 @@ class TripleDecoder : NonNullableDecoder<Triple<*, *, *>> {
         .leftMap { ConfigFailure.TupleErrors(node, it) }
     }
 
-    fun decode(value: Value.StringNode, node: TreeNode): ConfigResult<Triple<Any?, Any?, Any?>> {
-      val parts = value.value.split(',')
+    fun decode(node: StringNode): ConfigResult<Triple<Any?, Any?, Any?>> {
+      val parts = node.value.split(',')
       return if (parts.size == 3) {
-        val a = PrimitiveNode(Value.StringNode(parts[0]), node.pos)
-        val b = PrimitiveNode(Value.StringNode(parts[1]), node.pos)
-        val c = PrimitiveNode(Value.StringNode(parts[2]), node.pos)
+        val a = StringNode(parts[0], node.pos)
+        val b = StringNode(parts[1], node.pos)
+        val c = StringNode(parts[2], node.pos)
         decode(a, b, c)
       } else ConfigFailure.Generic("Triple requires a list of three elements but list had size ${parts.size}").invalid()
     }
 
     return when (node) {
       is ArrayNode -> decode(node.atIndex(0), node.atIndex(1), node.atIndex(2))
-      else -> when (val v = node.value) {
-        is Value.StringNode -> decode(v, node)
+      else -> when (node) {
+        is StringNode -> decode(node)
         else -> ConfigFailure.DecodeError(node, type).invalid()
       }
     }

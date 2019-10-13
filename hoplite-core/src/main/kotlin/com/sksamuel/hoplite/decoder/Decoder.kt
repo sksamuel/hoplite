@@ -6,9 +6,9 @@ import arrow.data.invalid
 import arrow.data.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.NullValue
 import com.sksamuel.hoplite.TreeNode
 import com.sksamuel.hoplite.Undefined
-import com.sksamuel.hoplite.Value
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -95,8 +95,8 @@ interface NonNullableDecoder<T> : Decoder<T> {
                       registry: DecoderRegistry): Validated<ConfigFailure, T> =
     when (node) {
       is Undefined -> decode(type).map { it as T }
-      else -> when (node.value) {
-        is Value.NullValue -> decode(node, type).map { it as T }
+      else -> when (node) {
+        is NullValue -> decode(node, type).map { it as T }
         else -> safeDecode(node, type, registry)
       }
     }

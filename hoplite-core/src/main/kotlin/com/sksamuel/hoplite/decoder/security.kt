@@ -4,16 +4,16 @@ import arrow.data.invalid
 import arrow.data.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.TreeNode
-import com.sksamuel.hoplite.Value
 import javax.management.remote.JMXPrincipal
 import javax.security.auth.kerberos.KerberosPrincipal
 import javax.security.auth.x500.X500Principal
 import kotlin.reflect.KType
 
 fun <T> viaString(node: TreeNode, type: KType, f: (String) -> T): ConfigResult<T> {
-  return when (val v = node.value) {
-    is Value.StringNode -> f(v.value).valid()
+  return when (node) {
+    is StringNode -> f(node.value).valid()
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }

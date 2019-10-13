@@ -5,8 +5,8 @@ import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.ArrayNode
 import com.sksamuel.hoplite.PrimitiveNode
+import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.TreeNode
-import com.sksamuel.hoplite.Value
 import com.sksamuel.hoplite.arrow.flatMap
 import com.sksamuel.hoplite.arrow.sequence
 import kotlin.reflect.KType
@@ -30,7 +30,7 @@ class ListDecoder : Decoder<List<*>> {
 
     fun <T> decode(node: PrimitiveNode, str: String, decoder: Decoder<T>): ConfigResult<List<T>> {
       val tokens = str.split(",").map {
-        PrimitiveNode(Value.StringNode(it.trim()), node.pos)
+        StringNode(it.trim(), node.pos)
       }
       return tokens.map { decoder.decode(it, t, registry) }.sequence()
         .leftMap { ConfigFailure.CollectionElementErrors(node, it) }
@@ -39,8 +39,8 @@ class ListDecoder : Decoder<List<*>> {
     return registry.decoder(t).flatMap { decoder ->
       when (node) {
         is ArrayNode -> decode(node, decoder)
-        is PrimitiveNode -> when (val v = node.value) {
-          is Value.StringNode -> decode(node, v.value, decoder)
+        is PrimitiveNode -> when (node) {
+          is StringNode -> decode(node, node.value, decoder)
           else -> ConfigFailure.UnsupportedCollectionType(node, "List").invalid()
         }
         else -> ConfigFailure.UnsupportedCollectionType(node, "List").invalid()

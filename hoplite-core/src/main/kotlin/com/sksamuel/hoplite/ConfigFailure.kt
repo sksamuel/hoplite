@@ -40,7 +40,7 @@ sealed class ConfigFailure {
    */
   data class DecodeError(val node: TreeNode, val target: KType) : ConfigFailure() {
     override fun description(): String = when (node) {
-      is PrimitiveNode -> "Required type ${target.simpleName} could not be decoded from a ${node.simpleName} value: ${node.value} ${node.pos.loc()}"
+      is PrimitiveNode -> "Required type ${target.simpleName} could not be decoded from a ${node.simpleName} value: $node ${node.pos.loc()}"
       else -> "Required type ${target.simpleName} could not be decoded from a ${node.simpleName} ${node.pos.loc()}"
     }
   }
@@ -59,7 +59,7 @@ sealed class ConfigFailure {
 
   data class NumberConversionError(val node: TreeNode, val type: KType) : ConfigFailure() {
     override fun description(): String = when (node) {
-      is PrimitiveNode -> "Could not decode ${node.value} into a ${type.simpleName} ${node.pos.loc()}"
+      is PrimitiveNode -> "Could not decode $node into a ${type.simpleName} ${node.pos.loc()}"
       else -> "Could not decode a ${node.simpleName} into a number ${node.pos.loc()}"
     }
   }

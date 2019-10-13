@@ -6,10 +6,8 @@ import arrow.data.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.ArrayNode
-import com.sksamuel.hoplite.PrimitiveNode
+import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.TreeNode
-import com.sksamuel.hoplite.Undefined.value
-import com.sksamuel.hoplite.Value
 import com.sksamuel.hoplite.arrow.flatMap
 import com.sksamuel.hoplite.arrow.sequence
 import kotlin.reflect.KType
@@ -26,10 +24,10 @@ class NonEmptyListDecoder : NonNullableDecoder<NonEmptyList<*>> {
     require(type.arguments.size == 1)
     val t = type.arguments[0].type!!
 
-    fun <T> decode(node: PrimitiveNode, str: String, decoder: Decoder<T>): ConfigResult<NonEmptyList<T>> {
-      return str.split(",").map { it.trim() }
-        .map { decoder.decode(PrimitiveNode(Value.StringNode(it), node.pos), type, registry) }.sequence()
-        .leftMap { ConfigFailure.CollectionElementErrors(value, it) }
+    fun <T> decode(node: StringNode, decoder: Decoder<T>): ConfigResult<NonEmptyList<T>> {
+      return node.value.split(",").map { it.trim() }
+        .map { decoder.decode(StringNode(it, node.pos), type, registry) }.sequence()
+        .leftMap { ConfigFailure.CollectionElementErrors(node, it) }
         .map { NonEmptyList.fromListUnsafe(it) }
     }
 
@@ -47,10 +45,7 @@ class NonEmptyListDecoder : NonNullableDecoder<NonEmptyList<*>> {
     return registry.decoder(t).flatMap { decoder ->
       when (node) {
         is ArrayNode -> decode(node, decoder)
-        is PrimitiveNode -> when (val v = node.value) {
-          is Value.StringNode -> decode(node, v.value, decoder)
-          else -> ConfigFailure.DecodeError(node, type).invalid()
-        }
+        is StringNode -> decode(node, decoder)
         else -> ConfigFailure.DecodeError(node, type).invalid()
       }
     }

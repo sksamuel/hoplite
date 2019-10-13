@@ -1,10 +1,12 @@
 package com.sksamuel.hoplite.decoder
 
 import arrow.data.valid
+import com.sksamuel.hoplite.BooleanNode
+import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.MapNode
+import com.sksamuel.hoplite.NullValue
 import com.sksamuel.hoplite.Pos
-import com.sksamuel.hoplite.PrimitiveNode
-import com.sksamuel.hoplite.Value
+import com.sksamuel.hoplite.StringNode
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 import java.time.LocalDate
@@ -20,9 +22,9 @@ class DataClassDecoderTest : StringSpec() {
 
       val node = MapNode(
         mapOf(
-          "a" to PrimitiveNode(Value.StringNode("hello"), Pos.NoPos),
-          "b" to PrimitiveNode(Value.LongNode(123L), Pos.NoPos),
-          "c" to PrimitiveNode(Value.BooleanNode(true), Pos.NoPos)
+          "a" to StringNode("hello", Pos.NoPos),
+          "b" to LongNode(123L, Pos.NoPos),
+          "c" to BooleanNode(true, Pos.NoPos)
         ),
         Pos.NoPos
       )
@@ -35,9 +37,9 @@ class DataClassDecoderTest : StringSpec() {
 
       val node = MapNode(
         mapOf(
-          "a" to PrimitiveNode(Value.NullValue, Pos.NoPos),
-          "b" to PrimitiveNode(Value.NullValue, Pos.NoPos),
-          "c" to PrimitiveNode(Value.NullValue, Pos.NoPos)
+          "a" to NullValue(Pos.NoPos),
+          "b" to NullValue(Pos.NoPos),
+          "c" to NullValue(Pos.NoPos)
         ),
         Pos.NoPos
       )
@@ -51,9 +53,9 @@ class DataClassDecoderTest : StringSpec() {
 
       val node = MapNode(
         mapOf(
-          "a" to PrimitiveNode(Value.StringNode("hello"), Pos.NoPos),
-          "b" to PrimitiveNode(Value.LongNode(123L), Pos.NoPos),
-          "c" to PrimitiveNode(Value.BooleanNode(true), Pos.NoPos)
+          "a" to StringNode("hello", Pos.NoPos),
+          "b" to LongNode(123L, Pos.NoPos),
+          "c" to BooleanNode(true, Pos.NoPos)
         ),
         Pos.NoPos
       )
@@ -72,10 +74,10 @@ class DataClassDecoderTest : StringSpec() {
 
       val node = MapNode(
         mapOf(
-          "a" to PrimitiveNode(Value.StringNode("1991"), Pos.NoPos),
-          "b" to PrimitiveNode(Value.LongNode(millis.toEpochMilli()), Pos.NoPos),
-          "c" to PrimitiveNode(Value.StringNode("2007-12"), Pos.NoPos),
-          "d" to PrimitiveNode(Value.LongNode(millis.toEpochMilli()), Pos.NoPos)
+          "a" to StringNode("1991", Pos.NoPos),
+          "b" to LongNode(millis.toEpochMilli(), Pos.NoPos),
+          "c" to StringNode("2007-12", Pos.NoPos),
+          "d" to LongNode(millis.toEpochMilli(), Pos.NoPos)
         ),
         Pos.NoPos
       )
@@ -88,9 +90,9 @@ class DataClassDecoderTest : StringSpec() {
 
       val node = MapNode(
         mapOf(
-          "a" to PrimitiveNode(Value.StringNode("1..4"), Pos.NoPos),
-          "b" to PrimitiveNode(Value.StringNode("50..60"), Pos.NoPos),
-          "c" to PrimitiveNode(Value.StringNode("d..g"), Pos.NoPos)
+          "a" to StringNode("1..4", Pos.NoPos),
+          "b" to StringNode("50..60", Pos.NoPos),
+          "c" to StringNode("d..g", Pos.NoPos)
         ),
         Pos.NoPos
       )
@@ -103,7 +105,7 @@ class DataClassDecoderTest : StringSpec() {
 
       val node = MapNode(
         mapOf(
-          "a" to PrimitiveNode(Value.StringNode("value"), Pos.NoPos)
+          "a" to StringNode("value", Pos.NoPos)
         ),
         Pos.NoPos
       )

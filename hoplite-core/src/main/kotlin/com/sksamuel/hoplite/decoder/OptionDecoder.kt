@@ -5,12 +5,15 @@ import arrow.core.Option
 import arrow.core.Some
 import arrow.data.invalid
 import arrow.data.valid
+import com.sksamuel.hoplite.BooleanNode
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
-import com.sksamuel.hoplite.PrimitiveNode
+import com.sksamuel.hoplite.DoubleNode
+import com.sksamuel.hoplite.LongNode
+import com.sksamuel.hoplite.NullValue
+import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.TreeNode
 import com.sksamuel.hoplite.Undefined
-import com.sksamuel.hoplite.Value
 import com.sksamuel.hoplite.arrow.flatMap
 import kotlin.reflect.KType
 
@@ -31,11 +34,8 @@ class OptionDecoder : Decoder<Option<*>> {
     return registry.decoder(t).flatMap { decoder ->
       when (node) {
         is Undefined -> None.valid()
-        is PrimitiveNode -> when (node.value) {
-          is Value.NullValue -> None.valid()
-          is Value.StringNode, is Value.LongNode, is Value.DoubleNode, is Value.BooleanNode -> decode(node, decoder)
-          else -> ConfigFailure.DecodeError(node, type).invalid()
-        }
+        is NullValue -> None.valid()
+        is StringNode, is LongNode, is DoubleNode, is BooleanNode -> decode(node, decoder)
         else -> ConfigFailure.DecodeError(node, type).invalid()
       }
     }

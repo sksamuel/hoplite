@@ -2,10 +2,10 @@ package com.sksamuel.hoplite.yaml
 
 import com.sksamuel.hoplite.ArrayNode
 import com.sksamuel.hoplite.MapNode
+import com.sksamuel.hoplite.NullValue
 import com.sksamuel.hoplite.Pos
-import com.sksamuel.hoplite.PrimitiveNode
+import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.TreeNode
-import com.sksamuel.hoplite.Value
 import com.sksamuel.hoplite.parsers.Parser
 import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.Yaml
@@ -87,9 +87,9 @@ object TokenProduction {
       //    { n, FALSE, No, off }    : Boolean false
       is ScalarEvent -> {
         if (event.value == "null" && event.scalarStyle == DumperOptions.ScalarStyle.PLAIN)
-          PrimitiveNode(Value.NullValue, event.startMark.toPos(source))
+          NullValue(event.startMark.toPos(source))
         else
-          PrimitiveNode(Value.StringNode(event.value), event.startMark.toPos(source))
+          StringNode(event.value, event.startMark.toPos(source))
       }
       else -> throw java.lang.UnsupportedOperationException("Invalid YAML event ${stream.current().id()} at ${stream.current().startMark}")
     }
@@ -110,7 +110,7 @@ object MapProduction {
       obj[fieldName] = value
     }
     require(stream.current().`is`(Event.ID.MappingEnd))
-    return MapNode(obj, mark.toPos(source), Value.NullValue)
+    return MapNode(obj, mark.toPos(source), NullValue(Pos.NoPos))
   }
 }
 
