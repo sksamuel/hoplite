@@ -6,6 +6,7 @@ import arrow.data.invalid
 import arrow.data.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.NullValue
 import com.sksamuel.hoplite.TreeNode
 import com.sksamuel.hoplite.Undefined
@@ -80,12 +81,14 @@ inline fun <T, reified U> Decoder<T>.map(crossinline f: (T) -> U): Decoder<U> = 
 @Suppress("UNCHECKED_CAST")
 interface NonNullableDecoder<T> : Decoder<T> {
 
-  private fun decode(node: TreeNode, type: KType): Validated<ConfigFailure, *> {
+  // if we have a nullable value and the type is nullable that is ok
+  private fun offerNull(node: TreeNode, type: KType): Validated<ConfigFailure, *> {
     return if (type.isMarkedNullable) Valid(null) else
       ConfigFailure.NullValueForNonNullField(node).invalid()
   }
 
-  private fun decode(type: KType): Validated<ConfigFailure, *> {
+  // if we have no value defined and the type is nullable, that is ok
+  private fun offerUndefined(type: KType): Validated<ConfigFailure, *> {
     return if (type.isMarkedNullable) Valid(null) else
       ConfigFailure.MissingValue.invalid()
   }
@@ -94,11 +97,9 @@ interface NonNullableDecoder<T> : Decoder<T> {
                       type: KType,
                       registry: DecoderRegistry): Validated<ConfigFailure, T> =
     when (node) {
-      is Undefined -> decode(type).map { it as T }
-      else -> when (node) {
-        is NullValue -> decode(node, type).map { it as T }
-        else -> safeDecode(node, type, registry)
-      }
+      is Undefined -> offerUndefined(type).map { it as T }
+      is NullValue -> offerNull(node, type).map { it as T }
+      else -> safeDecode(node, type, registry)
     }
 
   /**
@@ -111,4 +112,16 @@ interface NonNullableDecoder<T> : Decoder<T> {
   fun safeDecode(node: TreeNode,
                  type: KType,
                  registry: DecoderRegistry): ConfigResult<T>
+}
+
+interface NonNullableLeafDecoder<T> : NonNullableDecoder<T> {
+
+  fun safeLeafDecode(node: TreeNode, type: KType, registry: DecoderRegistry): ConfigResult<T>
+
+  override fun safeDecode(node: TreeNode, type: KType, registry: DecoderRegistry): ConfigResult<T> {
+    return when (node) {
+      is MapNode -> decode(node.value, type, registry)
+      else -> safeLeafDecode(node, type, registry)
+    }
+  }
 }

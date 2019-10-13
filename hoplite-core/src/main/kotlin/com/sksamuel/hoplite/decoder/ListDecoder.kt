@@ -4,7 +4,6 @@ import arrow.data.invalid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.ArrayNode
-import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.TreeNode
 import com.sksamuel.hoplite.arrow.flatMap
@@ -28,8 +27,8 @@ class ListDecoder : Decoder<List<*>> {
         .leftMap { ConfigFailure.CollectionElementErrors(node, it) }
     }
 
-    fun <T> decode(node: PrimitiveNode, str: String, decoder: Decoder<T>): ConfigResult<List<T>> {
-      val tokens = str.split(",").map {
+    fun <T> decode(node: StringNode, decoder: Decoder<T>): ConfigResult<List<T>> {
+      val tokens = node.value.split(",").map {
         StringNode(it.trim(), node.pos)
       }
       return tokens.map { decoder.decode(it, t, registry) }.sequence()
@@ -39,10 +38,7 @@ class ListDecoder : Decoder<List<*>> {
     return registry.decoder(t).flatMap { decoder ->
       when (node) {
         is ArrayNode -> decode(node, decoder)
-        is PrimitiveNode -> when (node) {
-          is StringNode -> decode(node, node.value, decoder)
-          else -> ConfigFailure.UnsupportedCollectionType(node, "List").invalid()
-        }
+        is StringNode -> decode(node,  decoder)
         else -> ConfigFailure.UnsupportedCollectionType(node, "List").invalid()
       }
     }

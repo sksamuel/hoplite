@@ -43,7 +43,7 @@ allprojects {
 
     dependencies {
         compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-        testCompile "io.kotlintest:kotlintest-runner-junit5:3.4.0"
+        testCompile "io.kotlintest:kotlintest-runner-junit5:3.4.2"
     }
 
     test {

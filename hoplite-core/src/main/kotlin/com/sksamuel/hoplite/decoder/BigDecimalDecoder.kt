@@ -14,9 +14,9 @@ import com.sksamuel.hoplite.arrow.toValidated
 import java.math.BigDecimal
 import kotlin.reflect.KType
 
-class BigDecimalDecoder : NonNullableDecoder<BigDecimal> {
+class BigDecimalDecoder : NonNullableLeafDecoder<BigDecimal> {
   override fun supports(type: KType): Boolean = type.classifier == BigDecimal::class
-  override fun safeDecode(node: TreeNode,
+  override fun safeLeafDecode(node: TreeNode,
                           type: KType,
                           registry: DecoderRegistry): ConfigResult<BigDecimal> = when (node) {
     is StringNode -> Try { node.value.toDouble().toBigDecimal() }.toValidated { ThrowableFailure(it) }

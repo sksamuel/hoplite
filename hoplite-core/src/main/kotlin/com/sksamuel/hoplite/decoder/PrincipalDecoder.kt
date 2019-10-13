@@ -9,9 +9,9 @@ import com.sksamuel.hoplite.TreeNode
 import java.security.Principal
 import kotlin.reflect.KType
 
-class PrincipalDecoder : NonNullableDecoder<Principal> {
+class PrincipalDecoder : NonNullableLeafDecoder<Principal> {
   override fun supports(type: KType): Boolean = type.classifier == Principal::class
-  override fun safeDecode(node: TreeNode,
+  override fun safeLeafDecode(node: TreeNode,
                           type: KType,
                           registry: DecoderRegistry): ConfigResult<Principal> = when (node) {
     is StringNode -> BasicPrincipal(node.value).valid()

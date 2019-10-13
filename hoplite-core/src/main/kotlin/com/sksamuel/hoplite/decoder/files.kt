@@ -4,6 +4,7 @@ import arrow.data.invalid
 import arrow.data.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.TreeNode
 import java.io.File
@@ -17,6 +18,7 @@ class FileDecoder : NonNullableDecoder<File> {
                           type: KType,
                           registry: DecoderRegistry): ConfigResult<File> = when (node) {
     is StringNode -> File(node.value).valid()
+    is MapNode -> safeDecode(node.value, type, registry)
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }
@@ -27,6 +29,7 @@ class PathDecoder : NonNullableDecoder<Path> {
                           type: KType,
                           registry: DecoderRegistry): ConfigResult<Path> = when (node) {
     is StringNode -> Paths.get(node.value).valid()
+    is MapNode -> safeDecode(node.value, type, registry)
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }
