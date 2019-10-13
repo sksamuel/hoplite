@@ -20,42 +20,42 @@ import kotlin.reflect.full.createType
 class ConfigException(msg: String) : java.lang.RuntimeException(msg)
 
 class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoderRegistry(),
-                   private val sources: List<PropertySource> = defaultPropertySources(),
+                   private val propertySources: List<PropertySource> = defaultPropertySources(),
                    private val parserRegistry: ParserRegistry = defaultParserRegistry(),
                    private val preprocessors: List<Preprocessor> = defaultPreprocessors(),
                    private val keyMappers: List<KeyMapper> = defaultKeyMappers()) {
 
   fun withPreprocessor(preprocessor: Preprocessor) = ConfigLoader(
     decoderRegistry,
-    sources,
+    propertySources,
     parserRegistry,
     preprocessors + preprocessor,
     keyMappers)
 
   fun withDecoder(decoder: Decoder<*>) = ConfigLoader(
     decoderRegistry.register(decoder),
-    sources,
+    propertySources,
     parserRegistry,
     preprocessors,
     keyMappers)
 
   fun withFileExtensionMapping(ext: String, parser: Parser) = ConfigLoader(
     decoderRegistry,
-    sources,
+    propertySources,
     parserRegistry.register(ext, parser),
     preprocessors,
     keyMappers)
 
   fun withKeyMapper(mapper: KeyMapper) = ConfigLoader(
     decoderRegistry,
-    sources,
+    propertySources,
     parserRegistry,
     preprocessors,
     keyMappers + mapper)
 
   fun withPropertySource(source: PropertySource) = ConfigLoader(
     decoderRegistry,
-    sources + source,
+    propertySources + source,
     parserRegistry,
     preprocessors,
     keyMappers)
@@ -134,7 +134,7 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
     return loadNode(inputs).flatMap { it.decode() }
   }
 
-  private fun loadNode(inputs: List<FileSource>): ConfigResult<TreeNode> {
+  private fun loadNode(files: List<FileSource>): ConfigResult<TreeNode> {
 
     fun TreeNode.preprocess() = preprocessors.fold(this) { node, preprocessor -> node.transform(preprocessor::process) }
     fun TreeNode.keymapped() = keyMappers.fold(this) { node, mapper -> node.mapKey(mapper::map) }
@@ -142,8 +142,8 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
     fun List<TreeNode>.preprocessAll() = this.map { it.preprocess() }
     fun List<TreeNode>.keyMapAll() = this.map { it.keymapped() }
 
-    val sources = defaultPropertySources() + inputs.map { ConfigFilePropertySource(it, parserRegistry) }
-    return sources.map { it.node() }.sequence()
+    val srcs = propertySources + files.map { ConfigFilePropertySource(it, parserRegistry) }
+    return srcs.map { it.node() }.sequence()
       .map { it.preprocessAll() }
       .map { it.keyMapAll() }
       .map { it.reduce { acc, b -> acc.withFallback(b) } }

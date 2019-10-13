@@ -1,5 +1,6 @@
-package com.sksamuel.hoplite
+package com.sksamuel.hoplite.json
 
+import com.sksamuel.hoplite.ConfigLoader
 import io.kotlintest.extensions.system.withSystemProperties
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.FunSpec
@@ -19,11 +20,11 @@ class SystemPropertySourceTest : FunSpec() {
       }
     }
     test("nested sys prop should overwrite value") {
-      data class Bar(val s: String, val t: String)
+      data class Bar(val s: Long, val t: Long)
       data class Foo(val bar: Bar)
       data class TestConfig(val foo: Foo)
-      withSystemProperties(mapOf("foo.bar.s" to "x")) {
-        ConfigLoader().loadConfigOrThrow<TestConfig>("/sysproptest2.json") shouldBe TestConfig(Foo(Bar("x", "b")))
+      withSystemProperties(mapOf("foo.bar.s" to "1")) {
+        ConfigLoader().loadConfigOrThrow<TestConfig>("/sysproptest2.json") shouldBe TestConfig(Foo(Bar(1, 2)))
       }
     }
     test("parent sys props should be ignored if not mapped to config") {

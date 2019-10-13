@@ -15,7 +15,7 @@ class DataClassDecoder : Decoder<Any> {
 
   override fun supports(type: KType): Boolean = type.classifier is KClass<*> && (type.classifier as KClass<*>).isData
 
-  override fun decode(value: TreeNode,
+  override fun decode(node: TreeNode,
                       type: KType,
                       registry: DecoderRegistry): ConfigResult<Any> {
 
@@ -24,7 +24,7 @@ class DataClassDecoder : Decoder<Any> {
 
     val args: ValidatedNel<ConfigFailure.ParamFailure, List<Pair<KParameter, Any?>>> = constructor.parameters.mapNotNull { param ->
       val paramName = param.name ?: "<anon>"
-      val n = value.atKey(paramName)
+      val n = node.atKey(paramName)
 
       if (param.isOptional && n is Undefined) {
         null // skip this parameter and let the default value be filled in
@@ -37,7 +37,7 @@ class DataClassDecoder : Decoder<Any> {
     }.sequence()
 
     return args
-      .leftMap { ConfigFailure.DataClassFieldErrors(it, type, value.pos) }
+      .leftMap { ConfigFailure.DataClassFieldErrors(it, type, node.pos) }
       .map { constructor.callBy(it.toMap()) }
   }
 }

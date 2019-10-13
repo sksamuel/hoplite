@@ -1,6 +1,7 @@
 package com.sksamuel.hoplite
 
 import arrow.data.NonEmptyList
+import com.sksamuel.hoplite.parsers.Parser
 import kotlin.reflect.KType
 
 val KType.simpleName: String
@@ -21,8 +22,9 @@ sealed class ConfigFailure {
    */
   abstract fun description(): String
 
-  data class NoSuchParser(val file: String) : ConfigFailure() {
-    override fun description(): String = "Could not detect parser for file extension $file"
+  data class NoSuchParser(val file: String,
+                          val map: Map<String, Parser>) : ConfigFailure() {
+    override fun description(): String = "Could not detect parser for file extension '.$file' - available parsers are $map"
   }
 
   data class UnknownSource(val source: String) : ConfigFailure() {
@@ -72,11 +74,11 @@ sealed class ConfigFailure {
     override fun description(): String = msg
   }
 
-  data class CollectionElementErrors(val value: TreeNode, val errors: NonEmptyList<ConfigFailure>) : ConfigFailure() {
+  data class CollectionElementErrors(val node: TreeNode, val errors: NonEmptyList<ConfigFailure>) : ConfigFailure() {
     override fun description(): String = "Collection element decode failure"
   }
 
-  data class TupleErrors(val value: TreeNode, val errors: NonEmptyList<ConfigFailure>) : ConfigFailure() {
+  data class TupleErrors(val node: TreeNode, val errors: NonEmptyList<ConfigFailure>) : ConfigFailure() {
     override fun description(): String = "Collection element decode failure"
   }
 

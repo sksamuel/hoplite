@@ -51,8 +51,8 @@ interface TreeNode {
   val size: Int
 }
 
-fun TreeNode.recover(value: TreeNode): TreeNode = when (this) {
-  is Undefined -> value
+fun TreeNode.recover(node: TreeNode): TreeNode = when (this) {
+  is Undefined -> node
   else -> this
 }
 

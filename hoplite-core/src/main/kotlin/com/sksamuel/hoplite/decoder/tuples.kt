@@ -16,7 +16,7 @@ class Tuple2Decoder : NonNullableDecoder<Tuple2<*, *>> {
 
   override fun supports(type: KType): Boolean = type.classifier == Tuple2::class
 
-  override fun safeDecode(value: TreeNode,
+  override fun safeDecode(node: TreeNode,
                           type: KType,
                           registry: DecoderRegistry): ConfigResult<Tuple2<*, *>> {
 
@@ -33,9 +33,9 @@ class Tuple2Decoder : NonNullableDecoder<Tuple2<*, *>> {
       } else ConfigFailure.Generic("Tuple2 requires a list of two elements but list had size ${node.elements.size}").invalid()
     }
 
-    return when (value) {
-      is ArrayNode -> decode(value)
-      else -> ConfigFailure.DecodeError(value, type).invalid()
+    return when (node) {
+      is ArrayNode -> decode(node)
+      else -> ConfigFailure.DecodeError(node, type).invalid()
     }
   }
 }
@@ -44,7 +44,7 @@ class Tuple3Decoder : NonNullableDecoder<Tuple3<*, *, *>> {
 
   override fun supports(type: KType): Boolean = type.classifier == Tuple3::class
 
-  override fun safeDecode(value: TreeNode,
+  override fun safeDecode(node: TreeNode,
                           type: KType,
                           registry: DecoderRegistry): ConfigResult<Tuple3<*, *, *>> {
 
@@ -64,9 +64,9 @@ class Tuple3Decoder : NonNullableDecoder<Tuple3<*, *, *>> {
       } else ConfigFailure.Generic("Tuple3 requires a list of three elements but list had size ${node.elements.size}").invalid()
     }
 
-    return when (value) {
-      is ArrayNode -> decode(value)
-      else -> ConfigFailure.DecodeError(value, type).invalid()
+    return when (node) {
+      is ArrayNode -> decode(node)
+      else -> ConfigFailure.DecodeError(node, type).invalid()
     }
   }
 }

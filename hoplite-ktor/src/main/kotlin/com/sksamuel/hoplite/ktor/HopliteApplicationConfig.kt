@@ -18,16 +18,16 @@ import org.slf4j.LoggerFactory
 import java.nio.file.Path
 
 @KtorExperimentalAPI
-class HopliteApplicationConfig(private val value: TreeNode) : ApplicationConfig {
+class HopliteApplicationConfig(private val node: TreeNode) : ApplicationConfig {
 
-  override fun config(path: String): ApplicationConfig = HopliteApplicationConfig(value.atKey(path))
+  override fun config(path: String): ApplicationConfig = HopliteApplicationConfig(node.atKey(path))
 
   override fun configList(path: String): List<ApplicationConfig> = emptyList()
 
-  override fun property(path: String): ApplicationConfigValue = HopliteApplicationConfigValue(value.atKey(path))
+  override fun property(path: String): ApplicationConfigValue = HopliteApplicationConfigValue(node.atKey(path))
 
   override fun propertyOrNull(path: String): ApplicationConfigValue? =
-    if (value.hasKeyAt(path)) property(path) else null
+    if (node.hasKeyAt(path)) property(path) else null
 }
 
 @KtorExperimentalAPI

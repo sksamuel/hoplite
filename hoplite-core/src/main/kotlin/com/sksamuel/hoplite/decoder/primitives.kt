@@ -8,6 +8,7 @@ import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DoubleNode
 import com.sksamuel.hoplite.LongNode
+import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.TreeNode
 import com.sksamuel.hoplite.ThrowableFailure
@@ -24,6 +25,7 @@ class StringDecoder : NonNullableDecoder<String> {
     is BooleanNode -> node.value.toString().valid()
     is LongNode -> node.value.toString().valid()
     is DoubleNode -> node.value.toString().valid()
+    is MapNode -> safeDecode(node.value, type, registry)
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }
@@ -40,6 +42,7 @@ class DoubleDecoder : NonNullableDecoder<Double> {
       }
     }
     is DoubleNode -> node.value.valid()
+    is MapNode -> safeDecode(node.value, type, registry)
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }
@@ -56,6 +59,7 @@ class FloatDecoder : NonNullableDecoder<Float> {
       }
     }
     is DoubleNode -> node.value.toFloat().valid()
+    is MapNode -> safeDecode(node.value, type, registry)
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }
@@ -72,6 +76,7 @@ class LongDecoder : NonNullableDecoder<Long> {
       }
     }
     is LongNode -> node.value.valid()
+    is MapNode -> safeDecode(node.value, type, registry)
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }
@@ -89,6 +94,7 @@ class IntDecoder : NonNullableDecoder<Int> {
     }
     is DoubleNode -> node.value.toInt().valid()
     is LongNode -> node.value.toInt().valid()
+    is MapNode -> safeDecode(node.value, type, registry)
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }
@@ -106,6 +112,7 @@ class ByteDecoder : NonNullableDecoder<Byte> {
     }
     is DoubleNode -> Try { node.value.toByte() }.toValidated { ThrowableFailure(it) }
     is LongNode -> node.value.toByte().valid()
+    is MapNode -> safeDecode(node.value, type, registry)
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }
@@ -117,6 +124,7 @@ class ShortDecoder : NonNullableDecoder<Short> {
                           registry: DecoderRegistry): ConfigResult<Short> = when (node) {
     is StringNode -> Try { node.value.toShort() }.toValidated { ThrowableFailure(it) }
     is LongNode -> node.value.toShort().valid()
+    is MapNode -> safeDecode(node.value, type, registry)
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }
@@ -132,6 +140,7 @@ class BooleanDecoder : NonNullableDecoder<Boolean> {
       else -> ConfigFailure.DecodeError(node, type).invalid()
     }
     is BooleanNode -> node.value.valid()
+    is MapNode -> safeDecode(node.value, type, registry)
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }

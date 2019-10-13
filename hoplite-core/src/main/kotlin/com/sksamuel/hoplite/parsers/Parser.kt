@@ -28,7 +28,7 @@ interface ParserRegistry {
 class DefaultParserRegistry(private val map: Map<String, Parser>) : ParserRegistry {
 
   override fun locate(ext: String): ConfigResult<Parser> {
-    return map[ext].toOption().fold({ ConfigFailure.NoSuchParser(ext).invalid() }, { it.valid() })
+    return map[ext].toOption().fold({ ConfigFailure.NoSuchParser(ext, map).invalid() }, { it.valid() })
   }
 
   override fun register(ext: String, parser: Parser): ParserRegistry = DefaultParserRegistry(

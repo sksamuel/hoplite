@@ -16,18 +16,18 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 class HttpUrlDecoder : NonNullableDecoder<HttpUrl> {
   override fun supports(type: KType): Boolean = HttpUrl::class == type.classifier
-  override fun safeDecode(value: TreeNode, type: KType, registry: DecoderRegistry): ConfigResult<HttpUrl> {
-    return StringDecoder().safeDecode(value, type, registry).flatMap {
-      it.toHttpUrlOrNull().toOption().fold({ ConfigFailure.DecodeError(value, type).invalid() }, { url -> url.valid() })
+  override fun safeDecode(node: TreeNode, type: KType, registry: DecoderRegistry): ConfigResult<HttpUrl> {
+    return StringDecoder().safeDecode(node, type, registry).flatMap {
+      it.toHttpUrlOrNull().toOption().fold({ ConfigFailure.DecodeError(node, type).invalid() }, { url -> url.valid() })
     }
   }
 }
 
 class HttpUrlBuilderDecoder : NonNullableDecoder<HttpUrl.Builder> {
   override fun supports(type: KType): Boolean = HttpUrl.Builder::class == type.classifier
-  override fun safeDecode(value: TreeNode, type: KType, registry: DecoderRegistry): ConfigResult<HttpUrl.Builder> {
-    return StringDecoder().safeDecode(value, type, registry).flatMap {
-      it.toHttpUrlOrNull().toOption().fold({ ConfigFailure.DecodeError(value, type).invalid() },
+  override fun safeDecode(node: TreeNode, type: KType, registry: DecoderRegistry): ConfigResult<HttpUrl.Builder> {
+    return StringDecoder().safeDecode(node, type, registry).flatMap {
+      it.toHttpUrlOrNull().toOption().fold({ ConfigFailure.DecodeError(node, type).invalid() },
         { url -> url.newBuilder().valid() })
     }
   }
