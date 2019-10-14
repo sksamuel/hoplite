@@ -16,7 +16,8 @@ class RandomPreprocessorTest : FunSpec() {
                   val f: String,
                   val g: String,
                   val h: Double,
-                  val i: String
+                  val i: String,
+                  val uuid: String
   )
 
   init {
@@ -29,6 +30,7 @@ class RandomPreprocessorTest : FunSpec() {
         test.e.length shouldBe 1
         test.f.length shouldBe 3
         test.i.shouldHaveLength(20)
+        test.uuid.shouldHaveLength(36)
       }
 
       (1..100).map {

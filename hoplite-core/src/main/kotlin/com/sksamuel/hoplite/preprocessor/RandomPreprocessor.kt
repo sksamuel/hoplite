@@ -1,5 +1,6 @@
 package com.sksamuel.hoplite.preprocessor
 
+import java.util.*
 import kotlin.math.abs
 import kotlin.random.Random
 
@@ -65,6 +66,13 @@ object RandomPreprocessor : Preprocessor {
     }
   }
 
+  private val uuidRule: Rule = {
+    val regex = "\\$\\{random.uuid}".toRegex()
+    regex.replace(it) {
+      UUID.randomUUID().toString()
+    }
+  }
+
   private val rules = listOf(
     oldRule,
     intRule,
@@ -73,7 +81,8 @@ object RandomPreprocessor : Preprocessor {
     booleanRule,
     doubleRule,
     intWithRangeRule,
-    stringRule
+    stringRule,
+    uuidRule
   )
 
   override fun process(value: String): String = rules.fold(value) { str, rule -> rule(str) }

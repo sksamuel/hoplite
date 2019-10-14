@@ -7,3 +7,4 @@ f: ${random.int(100,999)}
 g: ${random.long}
 h: ${random.double}
 i: hello ${random.string(14)}
+uuid: ${random.uuid}
