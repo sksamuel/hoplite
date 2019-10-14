@@ -19,11 +19,9 @@ interface PropertySource {
 
 fun defaultPropertySources(registry: ParserRegistry): List<PropertySource> =
   listOf(
+    EnvironmentVariablesPropertySource,
     SystemPropertiesPropertySource,
     UserSettingsPropertySource(registry)
-    //   JndiPropertySource,
-//    EnvironmentVaraiblesPropertySource
-    //  UserSettingsPropertySource
   )
 
 /**
@@ -50,7 +48,7 @@ object EnvironmentVariablesPropertySource : PropertySource {
   override fun node(): ConfigResult<Node> {
     val props = Properties()
     System.getenv().forEach { props[it.key] = it.value }
-    return props.toNode("envars").valid()
+    return props.toNode("env").valid()
   }
 }
 
