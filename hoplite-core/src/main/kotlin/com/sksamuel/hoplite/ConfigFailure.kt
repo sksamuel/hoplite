@@ -49,6 +49,17 @@ sealed class ConfigFailure {
     override fun description(): String = "Sealed class $type does not define any subclasses"
   }
 
+  data class MissingPrimaryConstructor(val type: KType) : ConfigFailure() {
+    override fun description(): String = "$type does not implement a primary constructor"
+  }
+
+  data class ValueTypeIncompatible(val type: KType, val node: Node) : ConfigFailure() {
+    override fun description(): String = when (node) {
+      is PrimitiveNode -> "Value type $type is incompatible with a ${node.simpleName} value: ${node.value} ${node.pos.loc()}"
+      else -> "Value type is incompatible with $node ${node.pos.loc()}"
+    }
+  }
+
   /**
    * A [ConfigFailure] used when a target type could not be created from a given value.
    * For example, if a field in data class was an int, but at runtime the configuration
