@@ -42,4 +42,5 @@ com.sksamuel.hoplite.decoder.IntRangeDecoder
 com.sksamuel.hoplite.decoder.LongRangeDecoder
 com.sksamuel.hoplite.decoder.CharRangeDecoder
 com.sksamuel.hoplite.decoder.YearMonthDecoder
+com.sksamuel.hoplite.decoder.SealedClassDecoder
 com.sksamuel.hoplite.decoder.DataClassDecoder

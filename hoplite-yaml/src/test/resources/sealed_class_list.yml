@@ -1,0 +1,12 @@
+databases:
+  - host: localhost
+    port: 9200
+    index: foo
+  - host: localhost
+    port: 9300
+    index: bar
+  - host: localhost
+    port: 5234
+    schema: public
+    table: faz
+

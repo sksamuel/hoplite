@@ -2,7 +2,9 @@ package com.sksamuel.hoplite
 
 import arrow.core.NonEmptyList
 import com.sksamuel.hoplite.parsers.Parser
+import kotlin.reflect.KClass
 import kotlin.reflect.KType
+import kotlin.reflect.jvm.jvmName
 
 val KType.simpleName: String
   get() = when (this.classifier) {
@@ -33,6 +35,17 @@ sealed class ConfigFailure {
 
   data class MultipleFailures(val failures: NonEmptyList<ConfigFailure>) : ConfigFailure() {
     override fun description(): String = failures.map { it.description() }.all.joinToString("\n\n")
+  }
+
+  data class NoSealedClassSubtype(val type: KClass<*>, val node: Node) : ConfigFailure() {
+    override fun description(): String {
+      val subclasses = type.sealedSubclasses.joinToString(", ") { it.jvmName }
+      return "Could not find appropriate subclass of $type: Tried $subclasses ${node.pos.loc()}"
+    }
+  }
+
+  data class SealedClassWithoutImpls(val type: KClass<*>) : ConfigFailure() {
+    override fun description(): String = "Sealed class $type does not define any subclasses"
   }
 
   /**

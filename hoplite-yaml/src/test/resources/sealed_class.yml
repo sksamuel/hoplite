@@ -1,0 +1,4 @@
+database:
+  host: localhost
+  port: 9200
+  index: foo
