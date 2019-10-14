@@ -3,6 +3,7 @@ package com.sksamuel.hoplite
 import arrow.core.NonEmptyList
 import com.sksamuel.hoplite.parsers.Parser
 import kotlin.reflect.KClass
+import kotlin.reflect.KParameter
 import kotlin.reflect.KType
 import kotlin.reflect.jvm.jvmName
 
@@ -108,8 +109,8 @@ sealed class ConfigFailure {
       errors.all.joinToString("\n\n") { it.description().prependIndent(Constants.indent) }
   }
 
-  data class ParamFailure(val param: String, val error: ConfigFailure) : ConfigFailure() {
-    override fun description(): String = "- '$param': ${error.description()}"
+  data class ParamFailure(val param: KParameter, val error: ConfigFailure) : ConfigFailure() {
+    override fun description(): String = "- '${param.name}': ${error.description()}"
   }
 }
 

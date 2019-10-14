@@ -4,7 +4,6 @@ import arrow.core.Validated
 import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.decoder.DecoderRegistry
 import kotlin.reflect.KParameter
-import kotlin.reflect.KProperty1
 import kotlin.reflect.KType
 
 fun defaultParamMappers(): List<ParameterMapper> = listOf(
@@ -14,13 +13,11 @@ fun defaultParamMappers(): List<ParameterMapper> = listOf(
 )
 
 interface ParameterMapper {
-  fun name(param: KParameter): String = name(param.name ?: "<anon>")
-  fun name(param: KProperty1<*, *>): String = name(param.name)
-  fun name(name: String): String
+  fun map(param: KParameter): String
 }
 
 object DefaultParamMapper : ParameterMapper {
-  override fun name(name: String): String = name
+  override fun map(param: KParameter): String = param.name ?: "<anon>"
 }
 
 data class DecoderContext(val decoders: DecoderRegistry,

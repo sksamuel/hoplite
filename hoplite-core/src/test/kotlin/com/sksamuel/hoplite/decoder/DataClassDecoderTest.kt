@@ -8,6 +8,7 @@ import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.NullValue
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.defaultParamMappers
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 import java.time.LocalDate
@@ -32,7 +33,7 @@ class DataClassDecoderTest : StringSpec() {
       DataClassDecoder().decode(
         node,
         Foo::class.createType(),
-        DecoderContext(defaultDecoderRegistry(), emptyList())
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers())
       ) shouldBe Foo("hello", 123, true).valid()
     }
 
@@ -51,7 +52,7 @@ class DataClassDecoderTest : StringSpec() {
       DataClassDecoder().decode(
         node,
         Foo::class.createType(),
-        DecoderContext(defaultDecoderRegistry(), emptyList())
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers())
       ) shouldBe Foo(null, null, null).valid()
     }
 
@@ -69,7 +70,7 @@ class DataClassDecoderTest : StringSpec() {
       DataClassDecoder().decode(
         node,
         Foo::class.createType(),
-        DecoderContext(defaultDecoderRegistry(), emptyList())
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers())
       ) shouldBe Foo("hello", 123, true).valid()
     }
 
@@ -93,7 +94,7 @@ class DataClassDecoderTest : StringSpec() {
       )
       DataClassDecoder().decode(node,
         Foo::class.createType(),
-        DecoderContext(defaultDecoderRegistry(), emptyList())
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers())
       ) shouldBe Foo(Year.of(1991), expectedDate, YearMonth.parse("2007-12"), expectedSqlTimestamp).valid()
     }
 
@@ -111,7 +112,7 @@ class DataClassDecoderTest : StringSpec() {
       DataClassDecoder().decode(
         node,
         Foo::class.createType(),
-        DecoderContext(defaultDecoderRegistry(), emptyList())
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers())
       ) shouldBe Foo(IntRange(1, 4), LongRange(50, 60), CharRange('d', 'g')).valid()
     }
 
@@ -128,7 +129,7 @@ class DataClassDecoderTest : StringSpec() {
       DataClassDecoder().decode(
         node,
         Foo::class.createType(),
-        DecoderContext(defaultDecoderRegistry(), emptyList())
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers())
       ) shouldBe Foo("value", "default b", false).valid()
     }
   }

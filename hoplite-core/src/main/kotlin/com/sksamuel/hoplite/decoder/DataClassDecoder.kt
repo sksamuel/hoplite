@@ -52,9 +52,8 @@ class DataClassDecoder : Decoder<Any> {
 
     val args: ValidatedNel<ConfigFailure.ParamFailure, List<Pair<KParameter, Any?>>> = constructor.parameters.mapNotNull { param ->
 
-      val name = param.name ?: "<anon>"
       val n = context.paramMappers.fold<ParameterMapper, Node>(Undefined) { n, mapper ->
-        if (n.isDefined) n else node.atKey(mapper.name(name))
+        if (n.isDefined) n else node.atKey(mapper.map(param))
       }
 
       if (param.isOptional && n is Undefined) {
@@ -63,7 +62,7 @@ class DataClassDecoder : Decoder<Any> {
         context.decoder(param)
           .flatMap { it.decode(n, param.type, context) }
           .map { param to it }
-          .leftMap { ConfigFailure.ParamFailure(name, it) }
+          .leftMap { ConfigFailure.ParamFailure(param, it) }
       }
     }.sequence()
 

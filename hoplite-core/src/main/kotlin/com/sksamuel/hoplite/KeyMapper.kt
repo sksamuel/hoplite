@@ -1,5 +1,7 @@
 package com.sksamuel.hoplite
 
+import kotlin.reflect.KParameter
+
 /**
  * A [ParameterMapper] that will transform any snake case field names
  * into their camel case equivalent.
@@ -11,8 +13,8 @@ package com.sksamuel.hoplite
  */
 object SnakeCaseParamMapper : ParameterMapper {
 
-  override fun name(name: String): String {
-    return name.fold("") { acc, char ->
+  override fun map(param: KParameter): String {
+    return (param.name ?: "<anon>").fold("") { acc, char ->
       when {
         char.isUpperCase() && acc.isEmpty() -> char.toLowerCase().toString()
         char.isUpperCase() -> acc + "_" + char.toLowerCase()
@@ -33,8 +35,8 @@ object SnakeCaseParamMapper : ParameterMapper {
  */
 object KebabCaseParamMapper : ParameterMapper {
 
-  override fun name(name: String): String {
-    return name.fold("") { acc, char ->
+  override fun map(param: KParameter): String {
+    return (param.name ?: "<anon>").fold("") { acc, char ->
       when {
         char.isUpperCase() && acc.isEmpty() -> char.toLowerCase().toString()
         char.isUpperCase() -> acc + "-" + char.toLowerCase()
