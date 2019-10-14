@@ -17,14 +17,17 @@ fun defaultKeyMappers(): List<KeyMapper> = listOf(SnakeCaseKeyMapper, KebabCaseK
  */
 object SnakeCaseKeyMapper : KeyMapper {
 
-  private fun String.lowerFirst() = this[0].toLowerCase() + this.drop(1)
-  private fun String.upperFirst() = this[0].toUpperCase() + this.drop(1)
+
 
   override fun map(key: String): String {
+    if (key.isBlank()) return key
     val tokens = key.split('_')
     return tokens[0].lowerFirst() + tokens.drop(1).joinToString("") { it.upperFirst() }
   }
 }
+
+fun String.lowerFirst() = if (this.isBlank()) "" else this[0].toLowerCase() + this.drop(1)
+fun String.upperFirst() = if (this.isBlank()) "" else this[0].toUpperCase() + this.drop(1)
 
 /**
  * A [KeyMapper] that will transform any dash case field names
@@ -37,10 +40,8 @@ object SnakeCaseKeyMapper : KeyMapper {
  */
 object KebabCaseKeyMapper : KeyMapper {
 
-  private fun String.lowerFirst() = this[0].toLowerCase() + this.drop(1)
-  private fun String.upperFirst() = this[0].toUpperCase() + this.drop(1)
-
   override fun map(key: String): String {
+    if (key.isBlank()) return key
     val tokens = key.split('-')
     return tokens[0].lowerFirst() + tokens.drop(1).joinToString("") { it.upperFirst() }
   }

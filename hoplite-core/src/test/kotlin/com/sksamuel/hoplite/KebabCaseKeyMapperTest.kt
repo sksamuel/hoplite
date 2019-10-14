@@ -6,6 +6,7 @@ import io.kotlintest.specs.StringSpec
 class KebabCaseKeyMapperTest : StringSpec() {
   init {
     "mapping kebab case to camel case" {
+      KebabCaseKeyMapper.map("") shouldBe ""
       KebabCaseKeyMapper.map("hello-world") shouldBe "helloWorld"
       KebabCaseKeyMapper.map("helloworld") shouldBe "helloworld"
       KebabCaseKeyMapper.map("hello-World") shouldBe "helloWorld"
