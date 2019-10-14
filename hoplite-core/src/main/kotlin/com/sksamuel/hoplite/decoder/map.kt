@@ -3,6 +3,7 @@ package com.sksamuel.hoplite.decoder
 import arrow.core.invalid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
@@ -18,7 +19,7 @@ class MapDecoder : NonNullableDecoder<Map<*, *>> {
 
   override fun safeDecode(node: Node,
                           type: KType,
-                          registry: DecoderRegistry): ConfigResult<Map<*, *>> {
+                          context: DecoderContext): ConfigResult<Map<*, *>> {
     require(type.arguments.size == 2)
 
     val kType = type.arguments[0].type!!
@@ -27,11 +28,11 @@ class MapDecoder : NonNullableDecoder<Map<*, *>> {
     fun <K, V> decode(node: MapNode,
                       kdecoder: Decoder<K>,
                       vdecoder: Decoder<V>,
-                      registry: DecoderRegistry): ConfigResult<Map<*, *>> {
+                      context: DecoderContext): ConfigResult<Map<*, *>> {
 
       return node.map.entries.map { (k, v) ->
-        kdecoder.decode(StringNode(k, node.pos), kType, registry).flatMap { kk ->
-          vdecoder.decode(v, vType, registry).map { vv ->
+        kdecoder.decode(StringNode(k, node.pos), kType, context).flatMap { kk ->
+          vdecoder.decode(v, vType, context).map { vv ->
             kk to vv
           }
         }
@@ -40,10 +41,10 @@ class MapDecoder : NonNullableDecoder<Map<*, *>> {
         .map { it.toMap() }
     }
 
-    return registry.decoder(kType).flatMap { kdecoder ->
-      registry.decoder(vType).flatMap { vdecoder ->
+    return context.decoder(kType).flatMap { kdecoder ->
+      context.decoder(vType).flatMap { vdecoder ->
         when (node) {
-          is MapNode -> decode(node, kdecoder, vdecoder, registry)
+          is MapNode -> decode(node, kdecoder, vdecoder, context)
           else -> ConfigFailure.UnsupportedCollectionType(node, "Map").invalid()
         }
       }

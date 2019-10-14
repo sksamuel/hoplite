@@ -23,7 +23,7 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry,
                    private val propertySources: List<PropertySource>,
                    private val parserRegistry: ParserRegistry,
                    private val preprocessors: List<Preprocessor>,
-                   private val keyMappers: List<KeyMapper>) {
+                   private val paramMappers: List<ParameterMapper>) {
 
   companion object {
     operator fun invoke(): ConfigLoader {
@@ -31,7 +31,7 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry,
       val parsers = defaultParserRegistry()
       val sources = defaultPropertySources(parsers)
       val preprocessors = defaultPreprocessors()
-      val mappers = defaultKeyMappers()
+      val mappers = defaultParamMappers()
       return ConfigLoader(decoders, sources, parsers, preprocessors, mappers)
     }
   }
@@ -41,35 +41,35 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry,
     propertySources,
     parserRegistry,
     preprocessors + preprocessor,
-    keyMappers)
+    paramMappers)
 
   fun withDecoder(decoder: Decoder<*>) = ConfigLoader(
     decoderRegistry.register(decoder),
     propertySources,
     parserRegistry,
     preprocessors,
-    keyMappers)
+    paramMappers)
 
   fun withFileExtensionMapping(ext: String, parser: Parser) = ConfigLoader(
     decoderRegistry,
     propertySources,
     parserRegistry.register(ext, parser),
     preprocessors,
-    keyMappers)
+    paramMappers)
 
-  fun withKeyMapper(mapper: KeyMapper) = ConfigLoader(
+  fun withParameterMapper(mapper: ParameterMapper) = ConfigLoader(
     decoderRegistry,
     propertySources,
     parserRegistry,
     preprocessors,
-    keyMappers + mapper)
+    paramMappers + mapper)
 
   fun withPropertySource(source: PropertySource) = ConfigLoader(
     decoderRegistry,
     propertySources + source,
     parserRegistry,
     preprocessors,
-    keyMappers)
+    paramMappers)
 
   /**
    * Attempts to load config from the specified resources on the class path and returns
@@ -140,7 +140,7 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry,
 
   fun <A : Any> loadConfig(klass: KClass<A>, inputs: List<FileSource>): ConfigResult<A> {
     fun Node.decode() = decoderRegistry.decoder(klass).flatMap { decoder ->
-      decoder.decode(this, klass.createType(), decoderRegistry)
+      decoder.decode(this, klass.createType(), DecoderContext(decoderRegistry, paramMappers))
     }
     return loadNode(inputs).flatMap { it.decode() }
   }
@@ -148,15 +148,11 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry,
   private fun loadNode(files: List<FileSource>): ConfigResult<Node> {
 
     fun Node.preprocess() = preprocessors.fold(this) { node, preprocessor -> node.transform(preprocessor::process) }
-    fun Node.keymapped() = keyMappers.fold(this) { node, mapper -> node.mapKey(mapper::map) }
-
     fun List<Node>.preprocessAll() = this.map { it.preprocess() }
-    fun List<Node>.keyMapAll() = this.map { it.keymapped() }
 
     val srcs = propertySources + files.map { ConfigFilePropertySource(it, parserRegistry) }
     return srcs.map { it.node() }.sequence()
       .map { it.preprocessAll() }
-      .map { it.keyMapAll() }
       .map { it.reduce { acc, b -> acc.fallback(b) } }
       .leftMap { ConfigFailure.MultipleFailures(it) }
   }

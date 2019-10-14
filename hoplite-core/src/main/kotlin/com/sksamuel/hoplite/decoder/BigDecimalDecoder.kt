@@ -5,6 +5,7 @@ import arrow.core.invalid
 import arrow.core.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.DoubleNode
 import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.StringNode
@@ -18,7 +19,7 @@ class BigDecimalDecoder : NonNullableLeafDecoder<BigDecimal> {
   override fun supports(type: KType): Boolean = type.classifier == BigDecimal::class
   override fun safeLeafDecode(node: Node,
                               type: KType,
-                              registry: DecoderRegistry): ConfigResult<BigDecimal> = when (node) {
+                              context: DecoderContext): ConfigResult<BigDecimal> = when (node) {
     is StringNode -> Try { node.value.toDouble().toBigDecimal() }.toValidated { ThrowableFailure(it) }
     is LongNode -> node.value.toBigDecimal().valid()
     is DoubleNode -> node.value.toBigDecimal().valid()

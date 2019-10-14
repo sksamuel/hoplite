@@ -4,6 +4,7 @@ import arrow.core.invalid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.ArrayNode
+import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.arrow.flatMap
@@ -18,13 +19,13 @@ class SetDecoder : NonNullableDecoder<Set<*>> {
 
   override fun safeDecode(node: Node,
                           type: KType,
-                          registry: DecoderRegistry): ConfigResult<Set<*>> {
+                          context: DecoderContext): ConfigResult<Set<*>> {
     require(type.arguments.size == 1)
 
     val t = type.arguments[0].type!!
 
     fun <T> decode(node: ArrayNode, decoder: Decoder<T>): ConfigResult<Set<T>> {
-      return node.elements.map { decoder.decode(it, type, registry) }.sequence()
+      return node.elements.map { decoder.decode(it, type, context) }.sequence()
         .leftMap { ConfigFailure.CollectionElementErrors(node, it) }
         .map { it.toSet() }
     }
@@ -33,12 +34,12 @@ class SetDecoder : NonNullableDecoder<Set<*>> {
       val tokens = node.value.split(",").map {
         StringNode(it.trim(), node.pos)
       }
-      return tokens.map { decoder.decode(it, type, registry) }.sequence()
+      return tokens.map { decoder.decode(it, type, context) }.sequence()
         .leftMap { ConfigFailure.CollectionElementErrors(node, it) }
         .map { it.toSet() }
     }
 
-    return registry.decoder(t).flatMap { decoder ->
+    return context.decoder(t).flatMap { decoder ->
       when (node) {
         is ArrayNode -> decode(node, decoder)
         is StringNode -> decode(node, decoder)

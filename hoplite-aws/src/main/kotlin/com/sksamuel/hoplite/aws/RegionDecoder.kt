@@ -6,10 +6,10 @@ import com.amazonaws.regions.Region
 import com.amazonaws.regions.Regions
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.arrow.toValidated
-import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.decoder.NonNullableDecoder
 import kotlin.reflect.KType
 
@@ -19,7 +19,7 @@ class RegionDecoder : NonNullableDecoder<Region> {
 
   override fun safeDecode(node: Node,
                           type: KType,
-                          registry: DecoderRegistry): ConfigResult<Region> {
+                          context: DecoderContext): ConfigResult<Region> {
     fun regionFromName(name: String): ConfigResult<Region> =
         Try { Region.getRegion(Regions.fromName(name)) }
           .toValidated { ConfigFailure.Generic("Cannot create region from $name") }

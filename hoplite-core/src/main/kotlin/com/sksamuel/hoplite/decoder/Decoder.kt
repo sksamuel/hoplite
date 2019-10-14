@@ -6,6 +6,7 @@ import arrow.core.invalid
 import arrow.core.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.NullValue
 import com.sksamuel.hoplite.Node
@@ -61,17 +62,17 @@ interface Decoder<T> {
    *
    * @param node contains the value for the current dot path
    * @param type the concrete type required by the caller
-   * @param registry used to lookup decoders for types that have nested types
+   * @param context used to lookup decoders for types that have nested types, and other context related things
    */
   fun decode(node: Node,
              type: KType,
-             registry: DecoderRegistry): ConfigResult<T>
+             context: DecoderContext): ConfigResult<T>
 }
 
 inline fun <T, reified U> Decoder<T>.map(crossinline f: (T) -> U): Decoder<U> = object : Decoder<U> {
   override fun supports(type: KType): Boolean = U::class.createType() == type
-  override fun decode(node: Node, type: KType, registry: DecoderRegistry): ConfigResult<U> {
-    return this@map.decode(node, type, registry).map { f(it) }
+  override fun decode(node: Node, type: KType, context: DecoderContext): ConfigResult<U> {
+    return this@map.decode(node, type, context).map { f(it) }
   }
 }
 
@@ -95,11 +96,11 @@ interface NonNullableDecoder<T> : Decoder<T> {
 
   override fun decode(node: Node,
                       type: KType,
-                      registry: DecoderRegistry): Validated<ConfigFailure, T> =
+                      context: DecoderContext): Validated<ConfigFailure, T> =
     when (node) {
       is Undefined -> offerUndefined(type).map { it as T }
       is NullValue -> offerNull(node, type).map { it as T }
-      else -> safeDecode(node, type, registry)
+      else -> safeDecode(node, type, context)
     }
 
   /**
@@ -107,21 +108,21 @@ interface NonNullableDecoder<T> : Decoder<T> {
    *
    * @param node contains the value for the current dot path
    * @param type the concrete type required by the caller
-   * @param registry used to lookup decoders for types that have nested types
+   * @param context used to lookup decoders for types that have nested types
    */
   fun safeDecode(node: Node,
                  type: KType,
-                 registry: DecoderRegistry): ConfigResult<T>
+                 context: DecoderContext): ConfigResult<T>
 }
 
 interface NonNullableLeafDecoder<T> : NonNullableDecoder<T> {
 
-  fun safeLeafDecode(node: Node, type: KType, registry: DecoderRegistry): ConfigResult<T>
+  fun safeLeafDecode(node: Node, type: KType, context: DecoderContext): ConfigResult<T>
 
-  override fun safeDecode(node: Node, type: KType, registry: DecoderRegistry): ConfigResult<T> {
+  override fun safeDecode(node: Node, type: KType, context: DecoderContext): ConfigResult<T> {
     return when (node) {
-      is MapNode -> decode(node.value, type, registry)
-      else -> safeLeafDecode(node, type, registry)
+      is MapNode -> decode(node.value, type, context)
+      else -> safeLeafDecode(node, type, context)
     }
   }
 }

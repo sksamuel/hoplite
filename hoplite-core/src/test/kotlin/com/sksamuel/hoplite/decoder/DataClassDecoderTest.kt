@@ -2,6 +2,7 @@ package com.sksamuel.hoplite.decoder
 
 import arrow.core.valid
 import com.sksamuel.hoplite.BooleanNode
+import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.NullValue
@@ -28,8 +29,11 @@ class DataClassDecoderTest : StringSpec() {
         ),
         Pos.NoPos
       )
-      DataClassDecoder().decode(node, Foo::class.createType(), defaultDecoderRegistry()) shouldBe
-        Foo("hello", 123, true).valid()
+      DataClassDecoder().decode(
+        node,
+        Foo::class.createType(),
+        DecoderContext(defaultDecoderRegistry(), emptyList())
+      ) shouldBe Foo("hello", 123, true).valid()
     }
 
     "support nulls" {
@@ -44,8 +48,11 @@ class DataClassDecoderTest : StringSpec() {
         Pos.NoPos
       )
 
-      DataClassDecoder().decode(node, Foo::class.createType(), defaultDecoderRegistry()) shouldBe
-        Foo(null, null, null).valid()
+      DataClassDecoder().decode(
+        node,
+        Foo::class.createType(),
+        DecoderContext(defaultDecoderRegistry(), emptyList())
+      ) shouldBe Foo(null, null, null).valid()
     }
 
     "specified values should override null params" {
@@ -59,8 +66,11 @@ class DataClassDecoderTest : StringSpec() {
         ),
         Pos.NoPos
       )
-      DataClassDecoder().decode(node, Foo::class.createType(), defaultDecoderRegistry()) shouldBe
-        Foo("hello", 123, true).valid()
+      DataClassDecoder().decode(
+        node,
+        Foo::class.createType(),
+        DecoderContext(defaultDecoderRegistry(), emptyList())
+      ) shouldBe Foo("hello", 123, true).valid()
     }
 
     "support Date types" {
@@ -81,8 +91,10 @@ class DataClassDecoderTest : StringSpec() {
         ),
         Pos.NoPos
       )
-      DataClassDecoder().decode(node, Foo::class.createType(), defaultDecoderRegistry()) shouldBe
-        Foo(Year.of(1991), expectedDate, YearMonth.parse("2007-12"), expectedSqlTimestamp).valid()
+      DataClassDecoder().decode(node,
+        Foo::class.createType(),
+        DecoderContext(defaultDecoderRegistry(), emptyList())
+      ) shouldBe Foo(Year.of(1991), expectedDate, YearMonth.parse("2007-12"), expectedSqlTimestamp).valid()
     }
 
     "support ranges" {
@@ -96,8 +108,11 @@ class DataClassDecoderTest : StringSpec() {
         ),
         Pos.NoPos
       )
-      DataClassDecoder().decode(node, Foo::class.createType(), defaultDecoderRegistry()) shouldBe
-        Foo(IntRange(1, 4), LongRange(50, 60), CharRange('d', 'g')).valid()
+      DataClassDecoder().decode(
+        node,
+        Foo::class.createType(),
+        DecoderContext(defaultDecoderRegistry(), emptyList())
+      ) shouldBe Foo(IntRange(1, 4), LongRange(50, 60), CharRange('d', 'g')).valid()
     }
 
     "support default values" {
@@ -110,8 +125,11 @@ class DataClassDecoderTest : StringSpec() {
         Pos.NoPos
       )
 
-      DataClassDecoder().decode(node, Foo::class.createType(), defaultDecoderRegistry()) shouldBe
-        Foo("value", "default b", false).valid()
+      DataClassDecoder().decode(
+        node,
+        Foo::class.createType(),
+        DecoderContext(defaultDecoderRegistry(), emptyList())
+      ) shouldBe Foo("value", "default b", false).valid()
     }
   }
 }

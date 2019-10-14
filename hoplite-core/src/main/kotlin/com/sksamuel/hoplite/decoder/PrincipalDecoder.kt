@@ -4,6 +4,7 @@ import arrow.core.invalid
 import arrow.core.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
 import java.security.Principal
@@ -13,7 +14,7 @@ class PrincipalDecoder : NonNullableLeafDecoder<Principal> {
   override fun supports(type: KType): Boolean = type.classifier == Principal::class
   override fun safeLeafDecode(node: Node,
                               type: KType,
-                              registry: DecoderRegistry): ConfigResult<Principal> = when (node) {
+                              context: DecoderContext): ConfigResult<Principal> = when (node) {
     is StringNode -> BasicPrincipal(node.value).valid()
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }

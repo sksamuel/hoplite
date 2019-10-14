@@ -1,13 +1,7 @@
 package com.sksamuel.hoplite
 
-interface KeyMapper {
-  fun map(key: String): String
-}
-
-fun defaultKeyMappers(): List<KeyMapper> = listOf(SnakeCaseKeyMapper, KebabCaseKeyMapper)
-
 /**
- * A [KeyMapper] that will transform any snake case field names
+ * A [ParameterMapper] that will transform any snake case field names
  * into their camel case equivalent.
  *
  * For example, snake_case_pilsen will become camelCasePilsen.
@@ -15,22 +9,21 @@ fun defaultKeyMappers(): List<KeyMapper> = listOf(SnakeCaseKeyMapper, KebabCaseK
  * This key mapper won't affect other camel case fields, so by using
  * this you can mix and match camel and snake case fields.
  */
-object SnakeCaseKeyMapper : KeyMapper {
+object SnakeCaseParamMapper : ParameterMapper {
 
-
-
-  override fun map(key: String): String {
-    if (key.isBlank()) return key
-    val tokens = key.split('_')
-    return tokens[0].lowerFirst() + tokens.drop(1).joinToString("") { it.upperFirst() }
+  override fun name(name: String): String {
+    return name.fold("") { acc, char ->
+      when {
+        char.isUpperCase() && acc.isEmpty() -> char.toLowerCase().toString()
+        char.isUpperCase() -> acc + "_" + char.toLowerCase()
+        else -> acc + char
+      }
+    }
   }
 }
 
-fun String.lowerFirst() = if (this.isBlank()) "" else this[0].toLowerCase() + this.drop(1)
-fun String.upperFirst() = if (this.isBlank()) "" else this[0].toUpperCase() + this.drop(1)
-
 /**
- * A [KeyMapper] that will transform any dash case field names
+ * A [ParameterMapper] that will transform any dash case field names
  * into their camel case equivalent.
  *
  * For example, dash-case-pilsen will become camelCasePilsen.
@@ -38,11 +31,16 @@ fun String.upperFirst() = if (this.isBlank()) "" else this[0].toUpperCase() + th
  * This key mapper won't affect other camel case fields, so by using
  * this you can mix and match camel and dash case fields.
  */
-object KebabCaseKeyMapper : KeyMapper {
+object KebabCaseParamMapper : ParameterMapper {
 
-  override fun map(key: String): String {
-    if (key.isBlank()) return key
-    val tokens = key.split('-')
-    return tokens[0].lowerFirst() + tokens.drop(1).joinToString("") { it.upperFirst() }
+  override fun name(name: String): String {
+    return name.fold("") { acc, char ->
+      when {
+        char.isUpperCase() && acc.isEmpty() -> char.toLowerCase().toString()
+        char.isUpperCase() -> acc + "-" + char.toLowerCase()
+        else -> acc + char
+      }
+    }
   }
+
 }

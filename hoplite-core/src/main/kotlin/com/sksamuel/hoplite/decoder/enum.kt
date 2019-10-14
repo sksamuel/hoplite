@@ -5,6 +5,7 @@ import arrow.core.valid
 import com.sksamuel.hoplite.BooleanNode
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.DoubleNode
 import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.StringNode
@@ -19,7 +20,7 @@ class EnumDecoder<T : Any> : NonNullableDecoder<T> {
 
   override fun safeDecode(node: Node,
                           type: KType,
-                          registry: DecoderRegistry): ConfigResult<T> {
+                          context: DecoderContext): ConfigResult<T> {
 
     val klass = type.classifier as KClass<*>
 

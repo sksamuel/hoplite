@@ -4,6 +4,7 @@ import arrow.core.invalid
 import arrow.core.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
 import javax.management.remote.JMXPrincipal
@@ -22,7 +23,7 @@ class KerberosPrincipalDecoder : NonNullableDecoder<KerberosPrincipal> {
   override fun supports(type: KType): Boolean = type.classifier == KerberosPrincipal::class
   override fun safeDecode(node: Node,
                           type: KType,
-                          registry: DecoderRegistry): ConfigResult<KerberosPrincipal> =
+                          context: DecoderContext): ConfigResult<KerberosPrincipal> =
     viaString(node, type) { KerberosPrincipal(it) }
 }
 
@@ -30,7 +31,7 @@ class JMXPrincipalDecoder : NonNullableDecoder<JMXPrincipal> {
   override fun supports(type: KType): Boolean = type.classifier == JMXPrincipal::class
   override fun safeDecode(node: Node,
                           type: KType,
-                          registry: DecoderRegistry): ConfigResult<JMXPrincipal> =
+                          context: DecoderContext): ConfigResult<JMXPrincipal> =
     viaString(node, type) { JMXPrincipal(it) }
 }
 
@@ -38,6 +39,6 @@ class X500PrincipalDecoder : NonNullableDecoder<X500Principal> {
   override fun supports(type: KType): Boolean = type.classifier == X500Principal::class
   override fun safeDecode(node: Node,
                           type: KType,
-                          registry: DecoderRegistry): ConfigResult<X500Principal> =
+                          context: DecoderContext): ConfigResult<X500Principal> =
     viaString(node, type) { X500Principal(it) }
 }

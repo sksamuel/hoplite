@@ -4,9 +4,9 @@ import arrow.core.invalid
 import arrow.core.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
-import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
-import com.sksamuel.hoplite.decoder.DecoderRegistry
+import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.decoder.NonNullableDecoder
 import org.apache.hadoop.fs.Path
 import kotlin.reflect.KType
@@ -18,7 +18,7 @@ class PathDecoder : NonNullableDecoder<Path> {
 
   override fun safeDecode(node: Node,
                           type: KType,
-                          registry: DecoderRegistry): ConfigResult<Path> {
+                          context: DecoderContext): ConfigResult<Path> {
     return when (node) {
       is StringNode -> Path(node.value).valid()
       else -> ConfigFailure.DecodeError(node, Path::class.createType()).invalid()

@@ -8,6 +8,7 @@ import arrow.core.invalid
 import arrow.core.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
 
@@ -15,7 +16,7 @@ class IntRangeDecoder : NonNullableDecoder<IntRange> {
   override fun supports(type: KType): Boolean = type.classifier == IntRange::class
   override fun safeDecode(node: Node,
                           type: KType,
-                          registry: DecoderRegistry): ConfigResult<IntRange> = when (node) {
+                          context: DecoderContext): ConfigResult<IntRange> = when (node) {
     is StringNode -> RangeDecoders.intRange(node.value).map { it.valid() }
       .getOrElse { ConfigFailure.DecodeError(node, type).invalid() }
     else -> ConfigFailure.DecodeError(node, type).invalid()
@@ -26,7 +27,7 @@ class LongRangeDecoder : NonNullableDecoder<LongRange> {
   override fun supports(type: KType): Boolean = type.classifier == LongRange::class
   override fun safeDecode(node: Node,
                           type: KType,
-                          registry: DecoderRegistry): ConfigResult<LongRange> = when (node) {
+                          context: DecoderContext): ConfigResult<LongRange> = when (node) {
     is StringNode -> RangeDecoders.longRange(node.value).map { it.valid() }
         .getOrElse { ConfigFailure.DecodeError(node, type).invalid() }
     else -> ConfigFailure.DecodeError(node, type).invalid()
@@ -37,7 +38,7 @@ class CharRangeDecoder : NonNullableDecoder<CharRange> {
   override fun supports(type: KType): Boolean = type.classifier == CharRange::class
   override fun safeDecode(node: Node,
                           type: KType,
-                          registry: DecoderRegistry): ConfigResult<CharRange> = when (node) {
+                          context: DecoderContext): ConfigResult<CharRange> = when (node) {
     is StringNode -> RangeDecoders.charRange(node.value).map { it.valid() }
       .getOrElse { ConfigFailure.DecodeError(node, type).invalid() }
     else -> ConfigFailure.DecodeError(node, type).invalid()

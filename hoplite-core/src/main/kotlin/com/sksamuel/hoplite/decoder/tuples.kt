@@ -11,6 +11,7 @@ import arrow.core.invalid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.ArrayNode
+import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.arrow.flatMap
 import kotlin.reflect.KType
@@ -21,14 +22,14 @@ class Tuple2Decoder : NonNullableDecoder<Tuple2<*, *>> {
 
   override fun safeDecode(node: Node,
                           type: KType,
-                          registry: DecoderRegistry): ConfigResult<Tuple2<*, *>> {
+                          context: DecoderContext): ConfigResult<Tuple2<*, *>> {
 
     fun decode(node: ArrayNode): ConfigResult<Tuple2<Any?, Any?>> {
       return if (node.elements.size == 2) {
         val aType = type.arguments[0].type!!
         val bType = type.arguments[1].type!!
-        val adecoder = registry.decoder(aType).flatMap { it.decode(node.atIndex(0), aType, registry) }
-        val bdecoder = registry.decoder(bType).flatMap { it.decode(node.atIndex(1), bType, registry) }
+        val adecoder = context.decoder(aType).flatMap { it.decode(node.atIndex(0), aType, context) }
+        val bdecoder = context.decoder(bType).flatMap { it.decode(node.atIndex(1), bType, context) }
         Validated.applicative(NonEmptyList.semigroup<ConfigFailure>()).map(
           adecoder.toValidatedNel(),
           bdecoder.toValidatedNel()) { it }
@@ -50,16 +51,16 @@ class Tuple3Decoder : NonNullableDecoder<Tuple3<*, *, *>> {
 
   override fun safeDecode(node: Node,
                           type: KType,
-                          registry: DecoderRegistry): ConfigResult<Tuple3<*, *, *>> {
+                          context: DecoderContext): ConfigResult<Tuple3<*, *, *>> {
 
     fun decode(node: ArrayNode): ConfigResult<Tuple3<Any?, Any?, Any?>> {
       return if (node.elements.size == 3) {
         val aType = type.arguments[0].type!!
         val bType = type.arguments[1].type!!
         val cType = type.arguments[2].type!!
-        val adecoder = registry.decoder(aType).flatMap { it.decode(node.atIndex(0), aType, registry) }
-        val bdecoder = registry.decoder(bType).flatMap { it.decode(node.atIndex(1), bType, registry) }
-        val cdecoder = registry.decoder(cType).flatMap { it.decode(node.atIndex(2), cType, registry) }
+        val adecoder = context.decoder(aType).flatMap { it.decode(node.atIndex(0), aType, context) }
+        val bdecoder = context.decoder(bType).flatMap { it.decode(node.atIndex(1), bType, context) }
+        val cdecoder = context.decoder(cType).flatMap { it.decode(node.atIndex(2), cType, context) }
         Validated.applicative(NonEmptyList.semigroup<ConfigFailure>()).map(
           adecoder.toValidatedNel(),
           bdecoder.toValidatedNel(),
