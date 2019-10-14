@@ -57,7 +57,7 @@ class ErrorTests : StringSpec({
     
             - 'c': Required type java.time.Instant could not be decoded from a String value: qwqwe (/error1.json:12:17)
     
-            - 'd': Unable to locate a decoder for java.time.LocalTime"""
+            - 'd': Unable to locate a decoder for class java.time.LocalTime: 47 are registered"""
   }
 
   "error handling for resource file failures" {
