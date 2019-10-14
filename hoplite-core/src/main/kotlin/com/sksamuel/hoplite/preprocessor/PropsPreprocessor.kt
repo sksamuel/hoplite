@@ -1,8 +1,7 @@
 package com.sksamuel.hoplite.preprocessor
 
-import java.nio.file.Files
+import java.io.InputStream
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.util.*
 
 /**
@@ -12,12 +11,14 @@ import java.util.*
  * When creating this class, you can specify the location of the properties file
  * either as a [Path] or as a resource on the classpath.
  */
-class PropsPreprocessor(private val path: Path) : Preprocessor {
+class PropsPreprocessor(private val input: InputStream) : Preprocessor {
 
   private val regex = "\\$\\{(.*?)}".toRegex()
 
   private val props = Properties().apply {
-    this.load(Files.newInputStream(path))
+    input.use {
+      this.load(input)
+    }
   }
 
   override fun process(value: String): String = regex.replace(value) {
@@ -26,6 +27,7 @@ class PropsPreprocessor(private val path: Path) : Preprocessor {
   }
 
   companion object {
-    operator fun invoke(resource: String) = PropsPreprocessor(Paths.get(javaClass.getResource(resource).path))
+    operator fun invoke(resource: String) = PropsPreprocessor(this::class.java.getResourceAsStream(resource))
+    operator fun invoke(path: Path) = PropsPreprocessor(path.toFile().inputStream())
   }
 }
