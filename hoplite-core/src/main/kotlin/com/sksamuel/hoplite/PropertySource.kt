@@ -24,7 +24,15 @@ fun defaultPropertySources(): List<PropertySource> =
   )
 
 object SystemPropertiesPropertySource : PropertySource {
-  override fun node(): ConfigResult<Node> = System.getProperties().toNode("sysprops").valid()
+  private const val prefix = "config.override."
+  override fun node(): ConfigResult<Node> {
+    val props = Properties()
+    System.getProperties()
+      .stringPropertyNames()
+      .filter { it.startsWith(prefix) }
+      .forEach { props[it.removePrefix(prefix)] = System.getProperty(it) }
+    return if (props.isEmpty) Undefined.valid() else props.toNode("sysprops").valid()
+  }
 }
 
 object JndiPropertySource

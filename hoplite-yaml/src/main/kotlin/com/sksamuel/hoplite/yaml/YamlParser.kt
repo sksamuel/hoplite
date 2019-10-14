@@ -6,6 +6,7 @@ import com.sksamuel.hoplite.NullValue
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.parsers.Parser
 import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.Yaml
@@ -110,7 +111,7 @@ object MapProduction {
       obj[fieldName] = value
     }
     require(stream.current().`is`(Event.ID.MappingEnd))
-    return MapNode(obj, mark.toPos(source), NullValue(Pos.NoPos))
+    return MapNode(obj, mark.toPos(source), Undefined)
   }
 }
 

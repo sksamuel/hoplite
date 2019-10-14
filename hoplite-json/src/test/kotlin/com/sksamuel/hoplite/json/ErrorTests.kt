@@ -41,11 +41,11 @@ class ErrorTests : StringSpec({
     
         - 'season': Required a value for the Enum type com.sksamuel.hoplite.json.Season but given value was Fun (/error1.json:8:18)
     
-        - 'notalist': Defined as a List but a Boolean cannot be converted to a collection (/error1.json:3:19)
+        - 'notalist': Required a List but a Boolean cannot be converted to a collection (/error1.json:3:19)
     
-        - 'notamap': Defined as a Map but a Double cannot be converted to a collection (/error1.json:5:22)
+        - 'notamap': Required a Map but a Double cannot be converted to a collection (/error1.json:5:22)
     
-        - 'notaset': Defined as a Set but a Long cannot be converted to a collection (/error1.json:4:17)
+        - 'notaset': Required a Set but a Long cannot be converted to a collection (/error1.json:4:17)
     
         - 'duration': Required type java.time.Duration could not be decoded from a String value: 10 grams (/error1.json:7:26)
     
