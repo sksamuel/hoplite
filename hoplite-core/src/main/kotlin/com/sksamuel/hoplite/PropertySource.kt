@@ -5,6 +5,8 @@ import com.sksamuel.hoplite.arrow.ap
 import com.sksamuel.hoplite.parsers.Parser
 import com.sksamuel.hoplite.parsers.ParserRegistry
 import com.sksamuel.hoplite.parsers.toNode
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.*
 
 /**
@@ -15,14 +17,21 @@ interface PropertySource {
   fun node(): ConfigResult<Node>
 }
 
-fun defaultPropertySources(): List<PropertySource> =
+fun defaultPropertySources(registry: ParserRegistry): List<PropertySource> =
   listOf(
-    SystemPropertiesPropertySource
+    SystemPropertiesPropertySource,
+    UserSettingsPropertySource(registry)
     //   JndiPropertySource,
 //    EnvironmentVaraiblesPropertySource
     //  UserSettingsPropertySource
   )
 
+/**
+ * An implementation of [PropertySource] that provides config through system properties
+ * that are prefixed with 'config.override.'
+ * In other words, if a System property is defined 'config.override.user.name=sam' then
+ * the property 'user.name=sam' is made available.
+ */
 object SystemPropertiesPropertySource : PropertySource {
   private const val prefix = "config.override."
   override fun node(): ConfigResult<Node> {
@@ -45,8 +54,33 @@ object EnvironmentVariablesPropertySource : PropertySource {
   }
 }
 
-object UserSettingsPropertySource
+/**
+ * An implementation of [PropertySource] that provides config through a config file
+ * defined at ~/.userconfig.ext
+ *
+ * This file must use either the java properties format, or another format that you
+ * have included the correct module for.
+ *
+ * Eg, if you have included hoplite-yaml module in your build, then your file can be
+ * ~/.userconfig.yaml
+ */
+class UserSettingsPropertySource(private val parserRegistry: ParserRegistry) : PropertySource {
 
+  private fun path(ext: String): Path = Paths.get("~/.userconfig.$ext")
+
+  override fun node(): ConfigResult<Node> {
+    val ext = parserRegistry.registeredExtensions().firstOrNull {
+      path(it).toFile().exists()
+    }
+    return if (ext == null) Undefined.valid() else {
+      val path = path(ext)
+      val input = path.toFile().inputStream()
+      parserRegistry.locate(ext).map {
+        it.load(input, path.toString())
+      }
+    }
+  }
+}
 
 /**
  * An implementation of [PropertySource] that loads values from a file located

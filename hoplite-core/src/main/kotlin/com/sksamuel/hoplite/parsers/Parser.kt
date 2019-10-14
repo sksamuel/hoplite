@@ -20,6 +20,11 @@ interface ParserRegistry {
 
   fun register(ext: String, parser: Parser): ParserRegistry
 
+  /**
+   * Returns the currently supported file mappings
+   */
+  fun registeredExtensions(): Set<String>
+
   companion object {
     val zero: ParserRegistry = DefaultParserRegistry(emptyMap())
   }
@@ -30,6 +35,8 @@ class DefaultParserRegistry(private val map: Map<String, Parser>) : ParserRegist
   override fun locate(ext: String): ConfigResult<Parser> {
     return map[ext].toOption().fold({ ConfigFailure.NoSuchParser(ext, map).invalid() }, { it.valid() })
   }
+
+  override fun registeredExtensions(): Set<String> = map.keys
 
   override fun register(ext: String, parser: Parser): ParserRegistry = DefaultParserRegistry(
     map.plus(ext to parser))

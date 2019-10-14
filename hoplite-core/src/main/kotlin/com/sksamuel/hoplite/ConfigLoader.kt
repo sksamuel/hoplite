@@ -19,11 +19,22 @@ import kotlin.reflect.full.createType
 
 class ConfigException(msg: String) : java.lang.RuntimeException(msg)
 
-class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoderRegistry(),
-                   private val propertySources: List<PropertySource> = defaultPropertySources(),
-                   private val parserRegistry: ParserRegistry = defaultParserRegistry(),
-                   private val preprocessors: List<Preprocessor> = defaultPreprocessors(),
-                   private val keyMappers: List<KeyMapper> = defaultKeyMappers()) {
+class ConfigLoader(private val decoderRegistry: DecoderRegistry,
+                   private val propertySources: List<PropertySource>,
+                   private val parserRegistry: ParserRegistry,
+                   private val preprocessors: List<Preprocessor>,
+                   private val keyMappers: List<KeyMapper>) {
+
+  companion object {
+    operator fun invoke(): ConfigLoader {
+      val decoders = defaultDecoderRegistry()
+      val parsers = defaultParserRegistry()
+      val sources = defaultPropertySources(parsers)
+      val preprocessors = defaultPreprocessors()
+      val mappers = defaultKeyMappers()
+      return ConfigLoader(decoders, sources, parsers, preprocessors, mappers)
+    }
+  }
 
   fun withPreprocessor(preprocessor: Preprocessor) = ConfigLoader(
     decoderRegistry,
