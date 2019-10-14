@@ -1,15 +1,15 @@
 package com.sksamuel.hoplite.arrow
 
+import arrow.core.Invalid
+import arrow.core.NonEmptyList
 import arrow.core.Tuple2
-import arrow.data.Invalid
-import arrow.data.NonEmptyList
-import arrow.data.Valid
-import arrow.data.Validated
-import arrow.data.ValidatedNel
-import arrow.data.extensions.list.traverse.sequence
-import arrow.data.extensions.nonemptylist.semigroup.semigroup
-import arrow.data.extensions.validated.applicative.applicative
-import arrow.data.fix
+import arrow.core.Valid
+import arrow.core.Validated
+import arrow.core.ValidatedNel
+import arrow.core.extensions.nonemptylist.semigroup.semigroup
+import arrow.core.extensions.validated.applicative.applicative
+import arrow.core.fix
+import arrow.core.extensions.list.traverse.sequence
 
 fun <E, A> List<Validated<E, A>>.sequence(): ValidatedNel<E, List<A>> =
   this.map { it.toValidatedNel() }

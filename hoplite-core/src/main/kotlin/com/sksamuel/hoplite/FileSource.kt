@@ -1,10 +1,10 @@
 package com.sksamuel.hoplite
 
 import arrow.core.Try
+import arrow.core.Valid
 import arrow.core.toOption
-import arrow.data.Valid
-import arrow.data.invalid
-import arrow.data.valid
+import arrow.core.invalid
+import arrow.core.valid
 import com.sksamuel.hoplite.arrow.sequence
 import com.sksamuel.hoplite.arrow.toValidated
 import java.io.InputStream

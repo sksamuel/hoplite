@@ -1,7 +1,7 @@
 package com.sksamuel.hoplite.decoder
 
 import arrow.core.Try
-import arrow.data.invalid
+import arrow.core.invalid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.StringNode

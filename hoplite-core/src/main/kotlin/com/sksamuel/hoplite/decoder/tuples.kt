@@ -1,10 +1,13 @@
 package com.sksamuel.hoplite.decoder
 
+import arrow.core.NonEmptyList
 import arrow.core.Tuple2
 import arrow.core.Tuple3
-import arrow.data.NonEmptyList
-import arrow.data.extensions.nonemptylist.semigroup.semigroup
-import arrow.data.invalid
+import arrow.core.Validated
+import arrow.core.extensions.nonemptylist.semigroup.semigroup
+import arrow.core.extensions.validated.applicative.applicative
+import arrow.core.fix
+import arrow.core.invalid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.ArrayNode
@@ -26,9 +29,10 @@ class Tuple2Decoder : NonNullableDecoder<Tuple2<*, *>> {
         val bType = type.arguments[1].type!!
         val adecoder = registry.decoder(aType).flatMap { it.decode(node.atIndex(0), aType, registry) }
         val bdecoder = registry.decoder(bType).flatMap { it.decode(node.atIndex(1), bType, registry) }
-        arrow.data.extensions.validated.applicative.map(NonEmptyList.semigroup(),
+        Validated.applicative(NonEmptyList.semigroup<ConfigFailure>()).map(
           adecoder.toValidatedNel(),
           bdecoder.toValidatedNel()) { it }
+          .fix()
           .leftMap { ConfigFailure.TupleErrors(node, it) }
       } else ConfigFailure.Generic("Tuple2 requires a list of two elements but list had size ${node.elements.size}").invalid()
     }
@@ -56,10 +60,11 @@ class Tuple3Decoder : NonNullableDecoder<Tuple3<*, *, *>> {
         val adecoder = registry.decoder(aType).flatMap { it.decode(node.atIndex(0), aType, registry) }
         val bdecoder = registry.decoder(bType).flatMap { it.decode(node.atIndex(1), bType, registry) }
         val cdecoder = registry.decoder(cType).flatMap { it.decode(node.atIndex(2), cType, registry) }
-        arrow.data.extensions.validated.applicative.map(NonEmptyList.semigroup(),
+        Validated.applicative(NonEmptyList.semigroup<ConfigFailure>()).map(
           adecoder.toValidatedNel(),
           bdecoder.toValidatedNel(),
           cdecoder.toValidatedNel()) { it }
+          .fix()
           .leftMap { ConfigFailure.TupleErrors(node, it) }
       } else ConfigFailure.Generic("Tuple3 requires a list of three elements but list had size ${node.elements.size}").invalid()
     }

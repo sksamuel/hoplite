@@ -3,8 +3,8 @@ package com.sksamuel.hoplite.decoder
 import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
-import arrow.data.invalid
-import arrow.data.valid
+import arrow.core.invalid
+import arrow.core.valid
 import com.sksamuel.hoplite.BooleanNode
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult

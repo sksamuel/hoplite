@@ -2,7 +2,7 @@
 
 package com.sksamuel.hoplite
 
-import arrow.data.valueOr
+import arrow.core.valueOr
 import com.sksamuel.hoplite.arrow.flatMap
 import com.sksamuel.hoplite.arrow.sequence
 import com.sksamuel.hoplite.decoder.Decoder

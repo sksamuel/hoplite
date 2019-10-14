@@ -1,8 +1,8 @@
 package com.sksamuel.hoplite.parsers
 
 import arrow.core.toOption
-import arrow.data.invalid
-import arrow.data.valid
+import arrow.core.invalid
+import arrow.core.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Node

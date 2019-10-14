@@ -1,36 +1,35 @@
 package com.sksamuel.hoplite.yaml
 
 import com.sksamuel.hoplite.ConfigLoader
-import io.kotlintest.assertions.arrow.validation.shouldBeValid
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 
 class TruthyTest : StringSpec({
   "yes/no values" {
     data class Foo(val a: Boolean, val b: Boolean, val c: Boolean, val d: Boolean, val e: Boolean, val f: Boolean)
-    ConfigLoader().loadConfig<Foo>("/truthy_yesno.yml").shouldBeValid {
-      it.a.a shouldBe true
-      it.a.b shouldBe false
-      it.a.c shouldBe true
-      it.a.d shouldBe false
-      it.a.e shouldBe true
-      it.a.f shouldBe false
-    }
+
+    val config = ConfigLoader().loadConfigOrThrow<Foo>("/truthy_yesno.yml")
+    config.a shouldBe true
+    config.b shouldBe false
+    config.c shouldBe true
+    config.d shouldBe false
+    config.e shouldBe true
+    config.f shouldBe false
   }
   "1/0 values" {
     data class Foo(val a: Boolean, val b: Boolean)
-    ConfigLoader().loadConfig<Foo>("/truthy_10.yml").shouldBeValid {
-      it.a.a shouldBe true
-      it.a.b shouldBe false
-    }
+
+    val config = ConfigLoader().loadConfigOrThrow<Foo>("/truthy_10.yml")
+    config.a shouldBe true
+    config.b shouldBe false
   }
   "T/F values" {
     data class Foo(val a: Boolean, val b: Boolean, val c: Boolean, val d: Boolean)
-    ConfigLoader().loadConfig<Foo>("/truthy_TF.yml").shouldBeValid {
-      it.a.a shouldBe true
-      it.a.b shouldBe true
-      it.a.c shouldBe false
-      it.a.d shouldBe false
-    }
+
+    val config = ConfigLoader().loadConfigOrThrow<Foo>("/truthy_TF.yml")
+    config.a shouldBe true
+    config.b shouldBe true
+    config.c shouldBe false
+    config.d shouldBe false
   }
 })

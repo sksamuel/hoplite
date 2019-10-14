@@ -1,7 +1,7 @@
 package com.sksamuel.hoplite.aws
 
-import arrow.data.invalid
-import arrow.data.valid
+import arrow.core.invalid
+import arrow.core.valid
 import com.amazonaws.regions.Region
 import com.amazonaws.regions.Regions
 import com.sksamuel.hoplite.ConfigFailure

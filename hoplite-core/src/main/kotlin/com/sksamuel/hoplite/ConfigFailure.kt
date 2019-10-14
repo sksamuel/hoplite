@@ -1,6 +1,6 @@
 package com.sksamuel.hoplite
 
-import arrow.data.NonEmptyList
+import arrow.core.NonEmptyList
 import com.sksamuel.hoplite.parsers.Parser
 import kotlin.reflect.KType
 

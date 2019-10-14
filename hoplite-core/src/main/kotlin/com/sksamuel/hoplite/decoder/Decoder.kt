@@ -1,9 +1,9 @@
 package com.sksamuel.hoplite.decoder
 
-import arrow.data.Valid
-import arrow.data.Validated
-import arrow.data.invalid
-import arrow.data.valid
+import arrow.core.Valid
+import arrow.core.Validated
+import arrow.core.invalid
+import arrow.core.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.MapNode

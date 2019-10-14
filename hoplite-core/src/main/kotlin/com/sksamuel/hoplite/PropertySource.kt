@@ -1,6 +1,6 @@
 package com.sksamuel.hoplite
 
-import arrow.data.valid
+import arrow.core.valid
 import com.sksamuel.hoplite.arrow.ap
 import com.sksamuel.hoplite.parsers.Parser
 import com.sksamuel.hoplite.parsers.ParserRegistry
@@ -41,8 +41,6 @@ object SystemPropertiesPropertySource : PropertySource {
     return if (props.isEmpty) Undefined.valid() else props.toNode("sysprops").valid()
   }
 }
-
-object JndiPropertySource
 
 object EnvironmentVariablesPropertySource : PropertySource {
   override fun node(): ConfigResult<Node> {

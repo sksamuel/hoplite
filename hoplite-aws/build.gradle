@@ -1,5 +1,5 @@
 buildscript {
-    ext.awsVersion = "1.11.605"
+    ext.awsVersion = "1.11.651"
 }
 
 plugins {
@@ -8,6 +8,8 @@ plugins {
 
 dependencies {
     api project(":hoplite-core")
+    implementation 'io.arrow-kt:arrow-core-data:0.10.0'
+    implementation 'io.arrow-kt:arrow-validation:0.10.0'
     implementation "com.amazonaws:aws-java-sdk-core:$awsVersion"
     implementation "com.amazonaws:aws-java-sdk-ssm:$awsVersion"
     testImplementation "io.kotlintest:kotlintest-runner-junit5:3.4.0"

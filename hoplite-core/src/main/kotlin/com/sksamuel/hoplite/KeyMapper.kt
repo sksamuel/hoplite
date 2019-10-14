@@ -4,7 +4,7 @@ interface KeyMapper {
   fun map(key: String): String
 }
 
-fun defaultKeyMappers(): List<KeyMapper> = listOf(SnakeCaseKeyMapper, DashCaseKeyMapper)
+fun defaultKeyMappers(): List<KeyMapper> = listOf(SnakeCaseKeyMapper, KebabCaseKeyMapper)
 
 /**
  * A [KeyMapper] that will transform any snake case field names
@@ -22,7 +22,7 @@ object SnakeCaseKeyMapper : KeyMapper {
 
   override fun map(key: String): String {
     val tokens = key.split('_')
-    return tokens[0].lowerFirst() + tokens.drop(1).joinToString { it.upperFirst() }
+    return tokens[0].lowerFirst() + tokens.drop(1).joinToString("") { it.upperFirst() }
   }
 }
 
@@ -35,13 +35,13 @@ object SnakeCaseKeyMapper : KeyMapper {
  * This key mapper won't affect other camel case fields, so by using
  * this you can mix and match camel and dash case fields.
  */
-object DashCaseKeyMapper : KeyMapper {
+object KebabCaseKeyMapper : KeyMapper {
 
   private fun String.lowerFirst() = this[0].toLowerCase() + this.drop(1)
   private fun String.upperFirst() = this[0].toUpperCase() + this.drop(1)
 
   override fun map(key: String): String {
     val tokens = key.split('-')
-    return tokens[0].lowerFirst() + tokens.drop(1).joinToString { it.upperFirst() }
+    return tokens[0].lowerFirst() + tokens.drop(1).joinToString("") { it.upperFirst() }
   }
 }

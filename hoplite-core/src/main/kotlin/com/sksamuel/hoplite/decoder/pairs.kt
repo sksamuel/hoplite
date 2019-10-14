@@ -1,9 +1,12 @@
 package com.sksamuel.hoplite.decoder
 
+import arrow.core.NonEmptyList
+import arrow.core.Validated
+import arrow.core.extensions.nonemptylist.semigroup.semigroup
+import arrow.core.extensions.validated.applicative.applicative
+import arrow.core.fix
+import arrow.core.invalid
 import arrow.core.toPair
-import arrow.data.NonEmptyList
-import arrow.data.extensions.nonemptylist.semigroup.semigroup
-import arrow.data.invalid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.ArrayNode
@@ -26,9 +29,11 @@ class PairDecoder : NonNullableDecoder<Pair<*, *>> {
         val bType = type.arguments[1].type!!
         val adecoder = registry.decoder(aType).flatMap { it.decode(node.atIndex(0), aType, registry) }
         val bdecoder = registry.decoder(bType).flatMap { it.decode(node.atIndex(1), bType, registry) }
-        arrow.data.extensions.validated.applicative.map(NonEmptyList.semigroup(),
+        Validated.applicative(NonEmptyList.semigroup<ConfigFailure>()).map(
           adecoder.toValidatedNel(),
-          bdecoder.toValidatedNel()) { it.toPair() }
+          bdecoder.toValidatedNel()
+        ) { it.toPair() }
+          .fix()
           .leftMap { ConfigFailure.TupleErrors(node, it) }
       } else ConfigFailure.Generic("Pair requires a list of two elements but list had size ${node.elements.size}").invalid()
     }
@@ -55,10 +60,12 @@ class TripleDecoder : NonNullableDecoder<Triple<*, *, *>> {
       val adecoder = registry.decoder(aType).flatMap { it.decode(a, aType, registry) }
       val bdecoder = registry.decoder(bType).flatMap { it.decode(b, bType, registry) }
       val cdecoder = registry.decoder(cType).flatMap { it.decode(c, cType, registry) }
-      return arrow.data.extensions.validated.applicative.map(NonEmptyList.semigroup(),
+      return Validated.applicative(NonEmptyList.semigroup<ConfigFailure>()).map(
         adecoder.toValidatedNel(),
         bdecoder.toValidatedNel(),
-        cdecoder.toValidatedNel()) { Triple(it.a, it.b, it.c) }
+        cdecoder.toValidatedNel()
+      ) { Triple(it.a, it.b, it.c) }
+        .fix()
         .leftMap { ConfigFailure.TupleErrors(node, it) }
     }
 

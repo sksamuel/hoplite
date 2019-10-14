@@ -10,6 +10,8 @@ class SnakeCaseKeyMapperTest : StringSpec() {
       SnakeCaseKeyMapper.map("helloworld") shouldBe "helloworld"
       SnakeCaseKeyMapper.map("hello_World") shouldBe "helloWorld"
       SnakeCaseKeyMapper.map("Hello_World") shouldBe "helloWorld"
+      SnakeCaseKeyMapper.map("Hello_World_A_bbb") shouldBe "helloWorldABbb"
+      SnakeCaseKeyMapper.map("Hello_World11_AA_22") shouldBe "helloWorld11AA22"
     }
   }
 }

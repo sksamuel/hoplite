@@ -4,6 +4,5 @@ include 'hoplite-core',
         'hoplite-hocon',
         'hoplite-ktor',
         'hoplite-json',
-        'hoplite-okhttp',
         'hoplite-toml',
         'hoplite-yaml'
