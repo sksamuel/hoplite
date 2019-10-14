@@ -4,12 +4,12 @@ plugins {
 
 dependencies {
     api "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-    api 'io.arrow-kt:arrow-core-data:0.9.0'
-    api 'io.arrow-kt:arrow-validation:0.9.0'
-    implementation 'io.arrow-kt:arrow-core-extensions:0.9.0'
-    testApi 'io.kotlintest:kotlintest-assertions:3.4.1'
-    testApi 'io.kotlintest:kotlintest-assertions-arrow:3.4.1'
-    testApi "io.kotlintest:kotlintest-runner-junit5:3.4.1"
+    implementation 'io.arrow-kt:arrow-core-data:0.10.0'
+    implementation 'io.arrow-kt:arrow-validation:0.10.0'
+    implementation 'io.arrow-kt:arrow-core-extensions:0.10.0'
+    testImplementation 'io.kotlintest:kotlintest-assertions:3.4.2'
+    testImplementation 'io.kotlintest:kotlintest-assertions-arrow:3.4.2'
+    testImplementation "io.kotlintest:kotlintest-runner-junit5:3.4.2"
 }
 
 apply from: '../publish.gradle'
