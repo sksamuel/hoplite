@@ -294,20 +294,26 @@ These built-in preprocessors are registered automatically.
 
 The random preprocessor replaces placeholder strings with random values.
 
-| Placeholder           | Generated random value                                                                                                                                                                                                                                                                                |
+| Placeholder           | Generated random value |
 |:----------------------|:------------------------------------------------------------|
 | ${random.int}         | A random int |
 | ${random.int(k)}      | A positive random int between 0 and k |
 | ${random.int(k, j)}   | A random int between k and j |
 | ${random.double}      | A random double |
 | ${random.boolean      | A random boolean |
-| ${random.string(k)}      | A random alphanumeric string of length k |
+| ${random.string(k)}   | A random alphanumeric string of length k |
+| ${random.uuid}        | A randomly generated type 4 UUID |
 
+
+For example: 
+
+```
 my.number=${random.int}
 my.bignumber=${random.long}
 my.uuid=${random.uuid}
 my.number.less.than.ten=${random.int(10)}
 my.number.in.range=${random.int[1024,65536]}
+```
 
 ## Masked values
 
