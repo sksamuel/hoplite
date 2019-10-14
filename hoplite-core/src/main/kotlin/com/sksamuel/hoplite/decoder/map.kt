@@ -5,7 +5,7 @@ import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.StringNode
-import com.sksamuel.hoplite.TreeNode
+import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.arrow.flatMap
 import com.sksamuel.hoplite.arrow.sequence
 import kotlin.reflect.KType
@@ -16,7 +16,7 @@ class MapDecoder : NonNullableDecoder<Map<*, *>> {
 
   override fun supports(type: KType): Boolean = type.isSubtypeOf(Map::class.starProjectedType)
 
-  override fun safeDecode(node: TreeNode,
+  override fun safeDecode(node: Node,
                           type: KType,
                           registry: DecoderRegistry): ConfigResult<Map<*, *>> {
     require(type.arguments.size == 2)

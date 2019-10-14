@@ -3,7 +3,7 @@ package com.sksamuel.hoplite.decoder
 import arrow.data.ValidatedNel
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
-import com.sksamuel.hoplite.TreeNode
+import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.arrow.flatMap
 import com.sksamuel.hoplite.arrow.sequence
@@ -15,7 +15,7 @@ class DataClassDecoder : Decoder<Any> {
 
   override fun supports(type: KType): Boolean = type.classifier is KClass<*> && (type.classifier as KClass<*>).isData
 
-  override fun decode(node: TreeNode,
+  override fun decode(node: Node,
                       type: KType,
                       registry: DecoderRegistry): ConfigResult<Any> {
 

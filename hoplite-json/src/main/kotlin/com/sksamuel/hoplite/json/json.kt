@@ -12,7 +12,7 @@ import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.NullValue
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
-import com.sksamuel.hoplite.TreeNode
+import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.parsers.Parser
 import java.io.InputStream
 import java.lang.UnsupportedOperationException
@@ -21,7 +21,7 @@ class JsonParser : Parser {
 
   private val jsonFactory = JsonFactory()
 
-  override fun load(input: InputStream, source: String): TreeNode {
+  override fun load(input: InputStream, source: String): Node {
     val parser = jsonFactory.createParser(input).configure(JsonParser.Feature.ALLOW_COMMENTS, true)
     parser.nextToken()
     return TokenProduction(parser, source)
@@ -32,7 +32,7 @@ class JsonParser : Parser {
 
 @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
 object TokenProduction {
-  operator fun invoke(parser: JsonParser, source: String): TreeNode {
+  operator fun invoke(parser: JsonParser, source: String): Node {
     return when (parser.currentToken()) {
       JsonToken.NOT_AVAILABLE -> throw UnsupportedOperationException("Invalid json at ${parser.currentLocation}")
       JsonToken.START_OBJECT -> ObjectProduction(parser, source)
@@ -51,10 +51,10 @@ object TokenProduction {
 fun JsonLocation.toPos(source: String): Pos = Pos.LineColPos(this.lineNr, this.columnNr, source)
 
 object ObjectProduction {
-  operator fun invoke(parser: JsonParser, source: String): TreeNode {
+  operator fun invoke(parser: JsonParser, source: String): Node {
     require(parser.currentToken == JsonToken.START_OBJECT)
     val loc = parser.currentLocation
-    val obj = mutableMapOf<String, TreeNode>()
+    val obj = mutableMapOf<String, Node>()
     while (parser.nextToken() != JsonToken.END_OBJECT) {
       require(parser.currentToken() == JsonToken.FIELD_NAME)
       val fieldName = parser.currentName()
@@ -67,10 +67,10 @@ object ObjectProduction {
 }
 
 object ArrayProduction {
-  operator fun invoke(parser: JsonParser, source: String): TreeNode {
+  operator fun invoke(parser: JsonParser, source: String): Node {
     require(parser.currentToken == JsonToken.START_ARRAY)
     val loc = parser.currentLocation
-    val list = mutableListOf<TreeNode>()
+    val list = mutableListOf<Node>()
     var index = 0
     while (parser.nextToken() != JsonToken.END_ARRAY) {
       val value = TokenProduction(parser, source)

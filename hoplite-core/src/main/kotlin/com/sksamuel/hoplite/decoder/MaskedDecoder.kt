@@ -8,12 +8,12 @@ import com.sksamuel.hoplite.DoubleNode
 import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.Masked
 import com.sksamuel.hoplite.StringNode
-import com.sksamuel.hoplite.TreeNode
+import com.sksamuel.hoplite.Node
 import kotlin.reflect.KType
 
 class MaskedDecoder : NonNullableDecoder<Masked> {
   override fun supports(type: KType): Boolean = type.classifier == Masked::class
-  override fun safeDecode(node: TreeNode,
+  override fun safeDecode(node: Node,
                           type: KType,
                           registry: DecoderRegistry): ConfigResult<Masked> = when (node) {
     is StringNode -> Masked(node.value).valid()

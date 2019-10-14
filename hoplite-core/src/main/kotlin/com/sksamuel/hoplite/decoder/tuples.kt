@@ -8,7 +8,7 @@ import arrow.data.invalid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.ArrayNode
-import com.sksamuel.hoplite.TreeNode
+import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.arrow.flatMap
 import kotlin.reflect.KType
 
@@ -16,7 +16,7 @@ class Tuple2Decoder : NonNullableDecoder<Tuple2<*, *>> {
 
   override fun supports(type: KType): Boolean = type.classifier == Tuple2::class
 
-  override fun safeDecode(node: TreeNode,
+  override fun safeDecode(node: Node,
                           type: KType,
                           registry: DecoderRegistry): ConfigResult<Tuple2<*, *>> {
 
@@ -44,7 +44,7 @@ class Tuple3Decoder : NonNullableDecoder<Tuple3<*, *, *>> {
 
   override fun supports(type: KType): Boolean = type.classifier == Tuple3::class
 
-  override fun safeDecode(node: TreeNode,
+  override fun safeDecode(node: Node,
                           type: KType,
                           registry: DecoderRegistry): ConfigResult<Tuple3<*, *, *>> {
 

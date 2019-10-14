@@ -3,7 +3,7 @@ package com.sksamuel.hoplite.ktor
 import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.ArrayNode
 import com.sksamuel.hoplite.LongNode
-import com.sksamuel.hoplite.TreeNode
+import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Undefined
@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory
 import java.nio.file.Path
 
 @KtorExperimentalAPI
-class HopliteApplicationConfig(private val node: TreeNode) : ApplicationConfig {
+class HopliteApplicationConfig(private val node: Node) : ApplicationConfig {
 
   override fun config(path: String): ApplicationConfig = HopliteApplicationConfig(node.atKey(path))
 
@@ -31,7 +31,7 @@ class HopliteApplicationConfig(private val node: TreeNode) : ApplicationConfig {
 }
 
 @KtorExperimentalAPI
-class HopliteApplicationConfigValue(private val node: TreeNode) : ApplicationConfigValue {
+class HopliteApplicationConfigValue(private val node: Node) : ApplicationConfigValue {
 
   override fun getString(): String = when (node) {
     is PrimitiveNode -> node.value.toString()
@@ -71,7 +71,7 @@ fun ConfigLoader.loadApplicationEngineEnvironment(paths: List<Path>): Applicatio
   return hopliteApplicationEngineEnvironment(node)
 }
 
-fun hopliteApplicationEngineEnvironment(node: TreeNode): ApplicationEngineEnvironment = applicationEngineEnvironment {
+fun hopliteApplicationEngineEnvironment(node: Node): ApplicationEngineEnvironment = applicationEngineEnvironment {
 
   val hostConfigPath = "ktor.deployment.host"
   val portConfigPath = "ktor.deployment.port"

@@ -8,7 +8,7 @@ import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.ArrayNode
 import com.sksamuel.hoplite.StringNode
-import com.sksamuel.hoplite.TreeNode
+import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.arrow.flatMap
 import kotlin.reflect.KType
 
@@ -16,7 +16,7 @@ class PairDecoder : NonNullableDecoder<Pair<*, *>> {
 
   override fun supports(type: KType): Boolean = type.classifier == Pair::class
 
-  override fun safeDecode(node: TreeNode,
+  override fun safeDecode(node: Node,
                           type: KType,
                           registry: DecoderRegistry): ConfigResult<Pair<*, *>> {
 
@@ -44,11 +44,11 @@ class TripleDecoder : NonNullableDecoder<Triple<*, *, *>> {
 
   override fun supports(type: KType): Boolean = type.classifier == Triple::class
 
-  override fun safeDecode(node: TreeNode,
+  override fun safeDecode(node: Node,
                           type: KType,
                           registry: DecoderRegistry): ConfigResult<Triple<*, *, *>> {
 
-    fun decode(a: TreeNode, b: TreeNode, c: TreeNode): ConfigResult<Triple<Any?, Any?, Any?>> {
+    fun decode(a: Node, b: Node, c: Node): ConfigResult<Triple<Any?, Any?, Any?>> {
       val aType = type.arguments[0].type!!
       val bType = type.arguments[1].type!!
       val cType = type.arguments[2].type!!

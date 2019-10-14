@@ -5,7 +5,7 @@ import com.sksamuel.hoplite.BooleanNode
 import com.sksamuel.hoplite.DoubleNode
 import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.MapNode
-import com.sksamuel.hoplite.TreeNode
+import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.parsers.Parser
@@ -16,15 +16,15 @@ import java.io.InputStream
 
 class TomlParser : Parser {
   override fun defaultFileExtensions(): List<String> = listOf("toml")
-  override fun load(input: InputStream, source: String): TreeNode {
+  override fun load(input: InputStream, source: String): Node {
     val result = Toml.parse(input)
     return TableProduction(result, Pos.NoPos, source)
   }
 }
 
 object TableProduction {
-  operator fun invoke(table: TomlTable, pos: Pos, source: String): TreeNode {
-    val obj = mutableMapOf<String, TreeNode>()
+  operator fun invoke(table: TomlTable, pos: Pos, source: String): Node {
+    val obj = mutableMapOf<String, Node>()
     for (key in table.keySet()) {
       val fieldPos = table.toPos(key, source)
       val value = when {

@@ -8,11 +8,11 @@ import com.sksamuel.hoplite.parsers.toNode
 import java.util.*
 
 /**
- * A [PropertySource] provides [TreeNode]s.
+ * A [PropertySource] provides [Node]s.
  * A source may retrieve its values from a config file, or env variables, and so on.
  */
 interface PropertySource {
-  fun node(): ConfigResult<TreeNode>
+  fun node(): ConfigResult<Node>
 }
 
 fun defaultPropertySources(): List<PropertySource> =
@@ -24,13 +24,13 @@ fun defaultPropertySources(): List<PropertySource> =
   )
 
 object SystemPropertiesPropertySource : PropertySource {
-  override fun node(): ConfigResult<TreeNode> = System.getProperties().toNode("sysprops").valid()
+  override fun node(): ConfigResult<Node> = System.getProperties().toNode("sysprops").valid()
 }
 
 object JndiPropertySource
 
 object EnvironmentVariablesPropertySource : PropertySource {
-  override fun node(): ConfigResult<TreeNode> {
+  override fun node(): ConfigResult<Node> {
     val props = Properties()
     System.getenv().forEach { props[it.key] = it.value }
     return props.toNode("envars").valid()
@@ -47,7 +47,7 @@ object UserSettingsPropertySource
  */
 class ConfigFilePropertySource(private val file: FileSource,
                                private val parserRegistry: ParserRegistry) : PropertySource {
-  override fun node(): ConfigResult<TreeNode> {
+  override fun node(): ConfigResult<Node> {
     val parser = parserRegistry.locate(file.ext())
     val input = file.open()
     return ap(parser, input) {

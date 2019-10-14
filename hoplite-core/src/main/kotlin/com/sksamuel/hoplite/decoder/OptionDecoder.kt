@@ -12,7 +12,7 @@ import com.sksamuel.hoplite.DoubleNode
 import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.NullValue
 import com.sksamuel.hoplite.StringNode
-import com.sksamuel.hoplite.TreeNode
+import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.arrow.flatMap
 import kotlin.reflect.KType
@@ -21,13 +21,13 @@ class OptionDecoder : Decoder<Option<*>> {
 
   override fun supports(type: KType): Boolean = type.classifier == Option::class
 
-  override fun decode(node: TreeNode,
+  override fun decode(node: Node,
                       type: KType,
                       registry: DecoderRegistry): ConfigResult<Option<*>> {
     require(type.arguments.size == 1)
     val t = type.arguments[0].type!!
 
-    fun <T> decode(value: TreeNode, decoder: Decoder<T>): ConfigResult<Option<T>> {
+    fun <T> decode(value: Node, decoder: Decoder<T>): ConfigResult<Option<T>> {
       return decoder.decode(value, t, registry).map { Some(it) }
     }
 

@@ -3,12 +3,12 @@ package com.sksamuel.hoplite.parsers
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
-import com.sksamuel.hoplite.TreeNode
+import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.Undefined
 import java.util.*
 
 @Suppress("UNCHECKED_CAST")
-fun Properties.toNode(source: String): TreeNode {
+fun Properties.toNode(source: String): Node {
 
   val root = mutableMapOf<String, Any>()
   stringPropertyNames().toList().map { key ->
@@ -22,7 +22,7 @@ fun Properties.toNode(source: String): TreeNode {
 
   val pos = Pos.FilePos(source)
 
-  fun Map<String, Any>.toNode(): TreeNode {
+  fun Map<String, Any>.toNode(): Node {
     val maps = filterValues { it is MutableMap<*, *> }.mapValues {
       when (val v = it.value) {
         is MutableMap<*, *> -> (v as MutableMap<String, Any>).toNode()

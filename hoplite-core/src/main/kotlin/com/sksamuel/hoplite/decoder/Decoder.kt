@@ -8,7 +8,7 @@ import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.NullValue
-import com.sksamuel.hoplite.TreeNode
+import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.Undefined
 import java.util.*
 import kotlin.reflect.KClass
@@ -50,7 +50,7 @@ fun defaultDecoderRegistry(): DecoderRegistry {
 }
 
 /**
- * A typeclass for decoding a [TreeNode] into a specified type.
+ * A typeclass for decoding a [Node] into a specified type.
  */
 interface Decoder<T> {
 
@@ -63,14 +63,14 @@ interface Decoder<T> {
    * @param type the concrete type required by the caller
    * @param registry used to lookup decoders for types that have nested types
    */
-  fun decode(node: TreeNode,
+  fun decode(node: Node,
              type: KType,
              registry: DecoderRegistry): ConfigResult<T>
 }
 
 inline fun <T, reified U> Decoder<T>.map(crossinline f: (T) -> U): Decoder<U> = object : Decoder<U> {
   override fun supports(type: KType): Boolean = U::class.createType() == type
-  override fun decode(node: TreeNode, type: KType, registry: DecoderRegistry): ConfigResult<U> {
+  override fun decode(node: Node, type: KType, registry: DecoderRegistry): ConfigResult<U> {
     return this@map.decode(node, type, registry).map { f(it) }
   }
 }
@@ -82,7 +82,7 @@ inline fun <T, reified U> Decoder<T>.map(crossinline f: (T) -> U): Decoder<U> = 
 interface NonNullableDecoder<T> : Decoder<T> {
 
   // if we have a nullable value and the type is nullable that is ok
-  private fun offerNull(node: TreeNode, type: KType): Validated<ConfigFailure, *> {
+  private fun offerNull(node: Node, type: KType): Validated<ConfigFailure, *> {
     return if (type.isMarkedNullable) Valid(null) else
       ConfigFailure.NullValueForNonNullField(node).invalid()
   }
@@ -93,7 +93,7 @@ interface NonNullableDecoder<T> : Decoder<T> {
       ConfigFailure.MissingValue.invalid()
   }
 
-  override fun decode(node: TreeNode,
+  override fun decode(node: Node,
                       type: KType,
                       registry: DecoderRegistry): Validated<ConfigFailure, T> =
     when (node) {
@@ -109,16 +109,16 @@ interface NonNullableDecoder<T> : Decoder<T> {
    * @param type the concrete type required by the caller
    * @param registry used to lookup decoders for types that have nested types
    */
-  fun safeDecode(node: TreeNode,
+  fun safeDecode(node: Node,
                  type: KType,
                  registry: DecoderRegistry): ConfigResult<T>
 }
 
 interface NonNullableLeafDecoder<T> : NonNullableDecoder<T> {
 
-  fun safeLeafDecode(node: TreeNode, type: KType, registry: DecoderRegistry): ConfigResult<T>
+  fun safeLeafDecode(node: Node, type: KType, registry: DecoderRegistry): ConfigResult<T>
 
-  override fun safeDecode(node: TreeNode, type: KType, registry: DecoderRegistry): ConfigResult<T> {
+  override fun safeDecode(node: Node, type: KType, registry: DecoderRegistry): ConfigResult<T> {
     return when (node) {
       is MapNode -> decode(node.value, type, registry)
       else -> safeLeafDecode(node, type, registry)

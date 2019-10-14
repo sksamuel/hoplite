@@ -8,7 +8,7 @@ import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DoubleNode
 import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.StringNode
-import com.sksamuel.hoplite.TreeNode
+import com.sksamuel.hoplite.Node
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
@@ -17,7 +17,7 @@ class EnumDecoder<T : Any> : NonNullableDecoder<T> {
 
   override fun supports(type: KType): Boolean = type.classifier is KClass<*> && (type.classifier as KClass<*>).java.isEnum
 
-  override fun safeDecode(node: TreeNode,
+  override fun safeDecode(node: Node,
                           type: KType,
                           registry: DecoderRegistry): ConfigResult<T> {
 

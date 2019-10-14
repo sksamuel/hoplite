@@ -5,7 +5,7 @@ import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.NullValue
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
-import com.sksamuel.hoplite.TreeNode
+import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.parsers.Parser
 import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.Yaml
@@ -28,7 +28,7 @@ import java.io.InputStreamReader
 class YamlParser : Parser {
   override fun defaultFileExtensions(): List<String> = listOf("yml", "yaml")
   private val yaml = Yaml(SafeConstructor())
-  override fun load(input: InputStream, source: String): TreeNode {
+  override fun load(input: InputStream, source: String): Node {
     val reader = InputStreamReader(input)
     val events = yaml.parse(reader).iterator()
     val stream = TokenStream(events)
@@ -73,7 +73,7 @@ fun Event.id() = when (this) {
 
 object TokenProduction {
   operator fun invoke(stream: TokenStream<Event>,
-                      source: String): TreeNode {
+                      source: String): Node {
     return when (val event = stream.current()) {
       is MappingStartEvent -> MapProduction(stream, source)
       is SequenceStartEvent -> SequenceProduction(stream, source)
@@ -97,10 +97,10 @@ object TokenProduction {
 }
 
 object MapProduction {
-  operator fun invoke(stream: TokenStream<Event>, source: String): TreeNode {
+  operator fun invoke(stream: TokenStream<Event>, source: String): Node {
     require(stream.current().`is`(Event.ID.MappingStart))
     val mark = stream.current().startMark
-    val obj = mutableMapOf<String, TreeNode>()
+    val obj = mutableMapOf<String, Node>()
     while (stream.next().id() != Event.ID.MappingEnd) {
       require(stream.current().id() == Event.ID.Scalar)
       val field = stream.current() as ScalarEvent
@@ -115,10 +115,10 @@ object MapProduction {
 }
 
 object SequenceProduction {
-  operator fun invoke(stream: TokenStream<Event>, source: String): TreeNode {
+  operator fun invoke(stream: TokenStream<Event>, source: String): Node {
     require(stream.current().`is`(Event.ID.SequenceStart))
     val mark = stream.current().startMark
-    val list = mutableListOf<TreeNode>()
+    val list = mutableListOf<Node>()
     var index = 0
     while (stream.next().id() != Event.ID.SequenceEnd) {
       val value = TokenProduction(stream, source)

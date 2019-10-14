@@ -1,10 +1,6 @@
 package com.sksamuel.hoplite
 
-import arrow.core.Either
-import arrow.core.left
-import arrow.core.right
-
-interface TreeNode {
+interface Node {
 
   /**
    * Returns the positional information of this value.
@@ -17,26 +13,22 @@ interface TreeNode {
    * given key is not a primitive, or the node does not contain
    * the key at all, then this will return [Undefined].
    */
-  fun atKey(key: String): TreeNode
+  fun atKey(key: String): Node
+
+  operator fun get(key: String): Node = atKey(key)
 
   /**
-   * Returns the [MapNode] at the given key.
-   * If this node is not a [MapNode] or the node contained at the
-   * given key is not a map, or the node does not contain the
-   * key at all, then this will returned [Undefined]
-   */
-  fun subtree(key: String): Either<Undefined, MapNode> = Undefined.left()
-
-  /**
-   * Returns the [TreeNode] stored at the given index of this node.
+   * Returns the [Node] stored at the given index of this node.
    *
    * Returns [Undefined] if this node does not contain an
    * element at the given index, or is not an [ArrayNode].
    */
-  fun atIndex(index: Int): TreeNode
+  fun atIndex(index: Int): Node
+
+  operator fun get(index: Int): Node = atIndex(index)
 
   @Deprecated("tbm")
-  fun atPath(path: String): TreeNode {
+  fun atPath(path: String): Node {
     val parts = path.split('.')
     return parts.fold(this, { acc, part -> acc.atKey(part) })
   }
@@ -51,20 +43,15 @@ interface TreeNode {
   val size: Int
 }
 
-fun TreeNode.recover(node: TreeNode): TreeNode = when (this) {
-  is Undefined -> node
-  else -> this
-}
-
-val TreeNode.isDefined: Boolean
+val Node.isDefined: Boolean
   get() = this !is Undefined
 
-fun TreeNode.hasKeyAt(key: String): Boolean = atKey(key).isDefined
+fun Node.hasKeyAt(key: String): Boolean = atKey(key).isDefined
 
 /**
  * Applies the given function to all string values, recursively calling into lists and maps.
  */
-fun TreeNode.transform(f: (String) -> String): TreeNode = when (this) {
+fun Node.transform(f: (String) -> String): Node = when (this) {
   is StringNode -> this.copy(value = f(this.value))
   is MapNode -> MapNode(map.map { f(it.key) to it.value.transform(f) }.toMap(), pos, this.value)
   is ArrayNode -> ArrayNode(elements.map { it.transform(f) }, pos)
@@ -74,76 +61,33 @@ fun TreeNode.transform(f: (String) -> String): TreeNode = when (this) {
 /**
  * Applies the given function to all key names, recursively calling into lists and maps.
  */
-fun TreeNode.mapKey(f: (String) -> String): TreeNode = when (this) {
+fun Node.mapKey(f: (String) -> String): Node = when (this) {
   is MapNode -> this.copy(map = this.map.map { f(it.key) to it.value.mapKey(f) }.toMap())
   else -> this
 }
 
-fun TreeNode.withFallback(fallback: TreeNode): TreeNode {
-  val self = this
-  return object : TreeNode {
-    override val size: Int = 0
-    override val simpleName: String = self.simpleName
-    override val pos: Pos = self.pos
-    override fun atKey(key: String): TreeNode = self.atKey(key).recover(fallback.atKey(key))
-    override fun atIndex(index: Int): TreeNode = self.atIndex(index).recover(fallback.atIndex(index))
-  }
-}
+sealed class ContainerNode : Node
 
-sealed class Pos {
-
-  abstract val line: Int
-
-  object NoPos : Pos() {
-    override val line: Int = -1
-  }
-
-  data class FilePos(val source: String) : Pos() {
-    override val line: Int = -1
-  }
-
-  data class LinePos(override val line: Int, val source: String) : Pos()
-  data class LineColPos(override val line: Int, val col: Int, val source: String) : Pos()
-}
-
-fun Pos.loc() = when (this) {
-  is Pos.NoPos -> ""
-  is Pos.FilePos -> "($source)"
-  is Pos.LineColPos -> "($source:$line:$col)"
-  is Pos.LinePos -> "($source:$line)"
-}
-
-sealed class ContainerNode : TreeNode
-
-data class MapNode(val map: Map<String, TreeNode>,
+data class MapNode(val map: Map<String, Node>,
                    override val pos: Pos,
-                   val value: TreeNode = Undefined) : ContainerNode() {
+                   val value: Node = Undefined) : ContainerNode() {
   override val simpleName: String = "Map"
-  override fun atKey(key: String): TreeNode = get(key)
-  override fun atIndex(index: Int): TreeNode = Undefined
-  operator fun get(key: String): TreeNode = map.getOrDefault(key, Undefined)
+  override fun atKey(key: String): Node = map.getOrDefault(key, Undefined)
+  override fun atIndex(index: Int): Node = Undefined
   override val size: Int = map.size
-
-  override fun subtree(key: String): Either<Undefined, MapNode> {
-    return when (val node = map[key]) {
-      is MapNode -> node.right()
-      else -> Undefined.left()
-    }
-  }
 }
 
-data class ArrayNode(val elements: List<TreeNode>,
+data class ArrayNode(val elements: List<Node>,
                      override val pos: Pos) : ContainerNode() {
   override val simpleName: String = "List"
-  override fun atKey(key: String): TreeNode = Undefined
-  override fun atIndex(index: Int): TreeNode = elements.getOrElse(index) { Undefined }
-  operator fun get(index: Int): TreeNode = atIndex(index)
+  override fun atKey(key: String): Node = Undefined
+  override fun atIndex(index: Int): Node = elements.getOrElse(index) { Undefined }
   override val size: Int = elements.size
 }
 
-sealed class PrimitiveNode : TreeNode {
-  override fun atKey(key: String): TreeNode = Undefined
-  override fun atIndex(index: Int): TreeNode = Undefined
+sealed class PrimitiveNode : Node {
+  override fun atKey(key: String): Node = Undefined
+  override fun atIndex(index: Int): Node = Undefined
   override val size: Int = 0
   abstract val value: Any?
 }
@@ -171,10 +115,10 @@ data class NullValue(override val pos: Pos) : PrimitiveNode() {
   override val value: Any? = null
 }
 
-object Undefined : TreeNode {
+object Undefined : Node {
   override val simpleName: String = "Undefined"
   override val pos: Pos = Pos.NoPos
-  override fun atKey(key: String): TreeNode = this
-  override fun atIndex(index: Int): TreeNode = this
+  override fun atKey(key: String): Node = this
+  override fun atIndex(index: Int): Node = this
   override val size: Int = 0
 }

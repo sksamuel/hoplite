@@ -6,7 +6,7 @@ import com.sksamuel.hoplite.DoubleNode
 import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.NullValue
-import com.sksamuel.hoplite.TreeNode
+import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.parsers.Parser
@@ -22,7 +22,7 @@ import java.lang.RuntimeException
 
 class HoconParser : Parser {
 
-  override fun load(input: InputStream, source: String): TreeNode {
+  override fun load(input: InputStream, source: String): Node {
     val config = ConfigFactory.parseReader(InputStreamReader(input))
     return MapProduction(config.root(), config.origin(), source)
   }
@@ -35,8 +35,8 @@ fun ConfigOrigin.toPos(source: String): Pos = Pos.LinePos(this.lineNumber(), sou
 object MapProduction {
   operator fun invoke(config: ConfigObject,
                       origin: ConfigOrigin,
-                      source: String): TreeNode {
-    val obj = mutableMapOf<String, TreeNode>()
+                      source: String): Node {
+    val obj = mutableMapOf<String, Node>()
     config.entries.forEach {
       val value = ValueProduction(it.value, source)
       obj[it.key] = value
@@ -47,7 +47,7 @@ object MapProduction {
 
 @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
 object ValueProduction {
-  operator fun invoke(value: ConfigValue, source: String): TreeNode {
+  operator fun invoke(value: ConfigValue, source: String): Node {
     return when (value.valueType()) {
       ConfigValueType.OBJECT -> MapProduction(value as ConfigObject, value.origin(), source)
       ConfigValueType.NUMBER -> when (val v = value.unwrapped()) {

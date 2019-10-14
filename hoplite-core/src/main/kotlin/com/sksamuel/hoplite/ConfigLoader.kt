@@ -88,7 +88,7 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
     return FileSource.fromClasspathResources(resources.toList()).flatMap { loadConfig(A::class, it) }
   }
 
-  fun loadNodeOrThrow(resources: List<String>): TreeNode =
+  fun loadNodeOrThrow(resources: List<String>): Node =
     FileSource.fromClasspathResources(resources.toList()).flatMap { loadNode(it) }.returnOrThrow()
 
   /**
@@ -104,7 +104,7 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
   inline fun <reified A : Any> loadConfigOrThrow(paths: List<Path>): A = loadConfig<A>(paths).returnOrThrow()
 
   @JvmName("loadNodeOrThrowFromPaths")
-  fun loadNodeOrThrow(paths: List<Path>): TreeNode =
+  fun loadNodeOrThrow(paths: List<Path>): Node =
     FileSource.fromPaths(paths.toList()).flatMap { loadNode(it) }.returnOrThrow()
 
   /**
@@ -128,25 +128,25 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry = defaultDecoder
   }
 
   fun <A : Any> loadConfig(klass: KClass<A>, inputs: List<FileSource>): ConfigResult<A> {
-    fun TreeNode.decode() = decoderRegistry.decoder(klass).flatMap { decoder ->
+    fun Node.decode() = decoderRegistry.decoder(klass).flatMap { decoder ->
       decoder.decode(this, klass.createType(), decoderRegistry)
     }
     return loadNode(inputs).flatMap { it.decode() }
   }
 
-  private fun loadNode(files: List<FileSource>): ConfigResult<TreeNode> {
+  private fun loadNode(files: List<FileSource>): ConfigResult<Node> {
 
-    fun TreeNode.preprocess() = preprocessors.fold(this) { node, preprocessor -> node.transform(preprocessor::process) }
-    fun TreeNode.keymapped() = keyMappers.fold(this) { node, mapper -> node.mapKey(mapper::map) }
+    fun Node.preprocess() = preprocessors.fold(this) { node, preprocessor -> node.transform(preprocessor::process) }
+    fun Node.keymapped() = keyMappers.fold(this) { node, mapper -> node.mapKey(mapper::map) }
 
-    fun List<TreeNode>.preprocessAll() = this.map { it.preprocess() }
-    fun List<TreeNode>.keyMapAll() = this.map { it.keymapped() }
+    fun List<Node>.preprocessAll() = this.map { it.preprocess() }
+    fun List<Node>.keyMapAll() = this.map { it.keymapped() }
 
     val srcs = propertySources + files.map { ConfigFilePropertySource(it, parserRegistry) }
     return srcs.map { it.node() }.sequence()
       .map { it.preprocessAll() }
       .map { it.keyMapAll() }
-      .map { it.reduce { acc, b -> acc.withFallback(b) } }
+      .map { it.reduce { acc, b -> acc.fallback(b) } }
       .leftMap { ConfigFailure.MultipleFailures(it) }
   }
 }

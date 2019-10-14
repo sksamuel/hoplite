@@ -5,7 +5,7 @@ import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.ArrayNode
 import com.sksamuel.hoplite.StringNode
-import com.sksamuel.hoplite.TreeNode
+import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.arrow.flatMap
 import com.sksamuel.hoplite.arrow.sequence
 import kotlin.reflect.KType
@@ -16,7 +16,7 @@ class ListDecoder : Decoder<List<*>> {
 
   override fun supports(type: KType): Boolean = type.isSubtypeOf(List::class.starProjectedType)
 
-  override fun decode(node: TreeNode,
+  override fun decode(node: Node,
                       type: KType,
                       registry: DecoderRegistry): ConfigResult<List<*>> {
     require(type.arguments.size == 1)

@@ -9,11 +9,11 @@ import arrow.data.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.StringNode
-import com.sksamuel.hoplite.TreeNode
+import com.sksamuel.hoplite.Node
 
 class IntRangeDecoder : NonNullableDecoder<IntRange> {
   override fun supports(type: KType): Boolean = type.classifier == IntRange::class
-  override fun safeDecode(node: TreeNode,
+  override fun safeDecode(node: Node,
                           type: KType,
                           registry: DecoderRegistry): ConfigResult<IntRange> = when (node) {
     is StringNode -> RangeDecoders.intRange(node.value).map { it.valid() }
@@ -24,7 +24,7 @@ class IntRangeDecoder : NonNullableDecoder<IntRange> {
 
 class LongRangeDecoder : NonNullableDecoder<LongRange> {
   override fun supports(type: KType): Boolean = type.classifier == LongRange::class
-  override fun safeDecode(node: TreeNode,
+  override fun safeDecode(node: Node,
                           type: KType,
                           registry: DecoderRegistry): ConfigResult<LongRange> = when (node) {
     is StringNode -> RangeDecoders.longRange(node.value).map { it.valid() }
@@ -35,7 +35,7 @@ class LongRangeDecoder : NonNullableDecoder<LongRange> {
 
 class CharRangeDecoder : NonNullableDecoder<CharRange> {
   override fun supports(type: KType): Boolean = type.classifier == CharRange::class
-  override fun safeDecode(node: TreeNode,
+  override fun safeDecode(node: Node,
                           type: KType,
                           registry: DecoderRegistry): ConfigResult<CharRange> = when (node) {
     is StringNode -> RangeDecoders.charRange(node.value).map { it.valid() }
