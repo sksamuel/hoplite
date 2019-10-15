@@ -34,8 +34,14 @@ class DefaultDecoderRegistry(private val decoders: List<Decoder<*>>) : DecoderRe
     return decoder(t.createType()).map { it as Decoder<T> }
   }
 
-  override fun decoder(type: KType): ConfigResult<Decoder<*>> =
-    decoders.find { it.supports(type) }?.valid() ?: ConfigFailure.NoSuchDecoder(type).invalid()
+  override fun decoder(type: KType): ConfigResult<Decoder<*>> {
+    val decoder = decoders.find { it.supports(type) }
+    return when {
+      decoder == null && (type.classifier as KClass<*>).isData -> ConfigFailure.NoDataClassDecoder.invalid()
+      decoder == null -> ConfigFailure.NoSuchDecoder(type).invalid()
+      else -> decoder.valid()
+    }
+  }
 
   override fun register(decoder: Decoder<*>): DecoderRegistry = DefaultDecoderRegistry(decoders + decoder)
 

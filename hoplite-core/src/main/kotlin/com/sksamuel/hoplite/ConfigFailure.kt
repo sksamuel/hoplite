@@ -66,6 +66,10 @@ sealed class ConfigFailure {
     override fun description(): String = "No decoders are registered"
   }
 
+  object NoDataClassDecoder : ConfigFailure() {
+    override fun description(): String = "No data-class decoder. Did you build a fat-jar? If so, you must choose to merge service files"
+  }
+
   data class IncompatibleInlineType(val type: KType, val node: Node) : ConfigFailure() {
     override fun description(): String = when (node) {
       is PrimitiveNode -> "Inline type $type is incompatible with a ${node.simpleName} value: ${node.value} ${node.pos.loc()}"
