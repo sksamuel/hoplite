@@ -11,7 +11,7 @@ import com.sksamuel.hoplite.preprocessor.StringNodePreprocessor
 object ParameterStorePreprocessor : StringNodePreprocessor() {
 
   private val client by lazy { AWSSimpleSystemsManagementClientBuilder.defaultClient() }
-  private val regex = "\\$\\{paramstore:(.+?)}".toRegex()
+  private val regex = "\\$\\{ssm:(.+?)}".toRegex()
 
   private fun fetchParameterStoreValue(key: String): Try<String> = Try {
     val req = GetParameterRequest().withName(key).withWithDecryption(true)
