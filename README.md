@@ -231,7 +231,7 @@ There are built in decoders for all the standard day to day types, such as primi
 | `Int` |
 | `Short` |
 | `Byte` |
-| `Boolean` |
+| `Boolean` | Creates a Boolean from the following values: `"true"`, `"t"`, `"1"`, `"yes"` map to `true` and `"false"`, `"f"`, `"0"`, `"no"` map to `false` |
 | `Double` |
 | `Float` |
 | `Enums` | Java and Kotlin enums are both supported. An instance of the defined Enum class will be created with the constant value given in config. |
@@ -239,15 +239,15 @@ There are built in decoders for all the standard day to day types, such as primi
 | `LocalDate` |
 | `LocalTime` |
 | `Duration` | Converts a String into a Duration, where the string uses a value and unit such as "10 seconds" or "5m". The set of units supported is the same as [here](https://github.com/lightbend/config/blob/master/HOCON.md#duration-format). Also supports a long value which will be interpreted as a Duration of milliseconds. |
-| `Instant` |  |
-| `Year` | |
-| `YearMonth` | |
+| `Instant` | Creates an instance of `Instant` from an offset from the unix epoc in milliseconds. |
+| `Year` | Creates an instance of `Year` from a String in the format `2007` |
+| `YearMonth` | Creates an instance of `YearMonth` from a String in the format `2007-12` |
 | `java.util.Date` | |
-| `Regex` | |
+| `Regex` | Creates a `kotlin.text.Regex` from a regex compatible string |
 | `UUID` | Creates a `java.util.UUID` from a String |
 | `List<A>` | Creates a List from either an array or a string delimited by commas. 
 | `Set<A>` | Creates a Set from either an array or a string delimited by commas. 
-| `SortedSet<A>` | Creates a Set from either an array or a string delimited by commas. 
+| `SortedSet<A>` | Creates a SortedSet from either an array or a string delimited by commas. 
 | `Map<K,V>` | 
 | `arrow.data.NonEmptyList<A>` | Converts arrays into a `NonEmptyList<A>` if the array is non empty. If the array is empty then an error is raised.
 | `X500Principal` | Creates an instance of `X500Principal` for String values |
