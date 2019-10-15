@@ -9,7 +9,7 @@ Hoplite is a Kotlin library for loading configuration files into typesafe classe
 ## Features
 
 - **Multiple formats:** Write your configuration in Yaml, JSON, Toml, Hocon, or Java .properties files and even mix and match multiple formats in the same system.
-- **Batteries included:** Support for many standard types such as primitives, enums, dates, collection types, uuids, nullable types, as well as popular Kotlin third party library types such as `NonEmptyList` and `Option` from [Arrow](https://arrow-kt.io/).
+- **Batteries included:** Support for many standard types such as primitives, enums, dates, collection types, inline classes, uuids, nullable types, as well as popular Kotlin third party library types such as `NonEmptyList`, `Option` and `TupleX` from [Arrow](https://arrow-kt.io/).
 - **Custom Data Types:** The `Decoder` interface makes it easy to add support for your custom domain types or standard library types not covered out of the box.
 - **Cascading:** Config files can be stacked. Start with a default file and then layer new configurations on top. When resolving config, lookup of values falls through to the first file that contains a definition. Can be used to have a default config file and then an environment specific file.
 - **Beautiful errors:** Fail fast when the config objects are built, with detailed and beautiful errors showing exactly what went wrong and where.
