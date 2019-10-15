@@ -139,6 +139,7 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry,
   }
 
   fun <A : Any> loadConfig(klass: KClass<A>, inputs: List<FileSource>): ConfigResult<A> {
+    require(decoderRegistry.size > 0) { "Decoder registry cannot be empty" }
     fun Node.decode() = decoderRegistry.decoder(klass).flatMap { decoder ->
       decoder.decode(this, klass.createType(), DecoderContext(decoderRegistry, paramMappers))
     }

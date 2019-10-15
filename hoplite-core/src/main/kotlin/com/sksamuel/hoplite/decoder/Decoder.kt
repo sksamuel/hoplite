@@ -26,6 +26,7 @@ interface DecoderRegistry {
   fun <T : Any> decoder(t: KClass<T>): ConfigResult<Decoder<T>>
   fun decoder(type: KType): ConfigResult<Decoder<*>>
   fun register(decoder: Decoder<*>): DecoderRegistry
+  val size: Int
 
   companion object {
     val zero: DecoderRegistry = DefaultDecoderRegistry(emptyList())
@@ -43,6 +44,8 @@ class DefaultDecoderRegistry(private val decoders: List<Decoder<*>>) : DecoderRe
     decoders.find { it.supports(type) }?.valid() ?: ConfigFailure.NoSuchDecoder(type, decoders).invalid()
 
   override fun register(decoder: Decoder<*>): DecoderRegistry = DefaultDecoderRegistry(decoders + decoder)
+
+  override val size: Int = decoders.size
 }
 
 fun defaultDecoderRegistry(): DecoderRegistry {
