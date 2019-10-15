@@ -54,6 +54,10 @@ sealed class ConfigFailure {
     override fun description(): String = "$type does not implement a primary constructor"
   }
 
+  object EmptyDecoderRegistry : ConfigFailure() {
+    override fun description(): String = "No decoders are registered"
+  }
+
   data class ValueTypeIncompatible(val type: KType, val node: Node) : ConfigFailure() {
     override fun description(): String = when (node) {
       is PrimitiveNode -> "Value type $type is incompatible with a ${node.simpleName} value: ${node.value} ${node.pos.loc()}"

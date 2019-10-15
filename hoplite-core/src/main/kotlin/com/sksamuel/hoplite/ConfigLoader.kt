@@ -2,6 +2,7 @@
 
 package com.sksamuel.hoplite
 
+import arrow.core.invalid
 import arrow.core.valueOr
 import com.sksamuel.hoplite.arrow.flatMap
 import com.sksamuel.hoplite.arrow.sequence
@@ -94,13 +95,13 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry,
   inline fun <reified A : Any> loadConfig(vararg resources: String): ConfigResult<A> = loadConfig(resources.toList())
 
   @JvmName("loadConfigFromResources")
-  inline fun <reified A : Any> loadConfig(resources: List<String>): ConfigResult<A> {
-    require(A::class.isData) { "Can only decode into data classes [was ${A::class}]" }
-    return FileSource.fromClasspathResources(resources.toList()).flatMap { loadConfig(A::class, it) }
-  }
+  inline fun <reified A : Any> loadConfig(resources: List<String>): ConfigResult<A> =
+    FileSource.fromClasspathResources(resources.toList()).flatMap { loadConfig(A::class, it) }
 
   fun loadNodeOrThrow(resources: List<String>): Node =
     FileSource.fromClasspathResources(resources.toList()).flatMap { loadNode(it) }.returnOrThrow()
+
+  fun loadNodeOrThrow(): Node = loadNode(emptyList()).returnOrThrow()
 
   /**
    * Attempts to load config from the specified resources on the class path and returns
@@ -127,23 +128,32 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry,
    */
   inline fun <reified A : Any> loadConfig(vararg paths: Path): ConfigResult<A> = loadConfig(paths.toList())
 
+  inline fun <reified A : Any> loadConfig(): ConfigResult<A> = loadConfig(A::class, emptyList())
+
   @JvmName("loadConfigFromPaths")
   inline fun <reified A : Any> loadConfig(paths: List<Path>): ConfigResult<A> {
-    require(A::class.isData) { "Can only decode into data classes [was ${A::class}]" }
     return FileSource.fromPaths(paths.toList()).flatMap { loadConfig(A::class, it) }
   }
 
-  fun <A : Any> ConfigResult<A>.returnOrThrow(): A = this.valueOr {
+  @PublishedApi
+  internal fun <A : Any> ConfigResult<A>.returnOrThrow(): A = this.valueOr {
     val err = "Error loading config because:\n\n" + it.description().prependIndent(Constants.indent)
     throw ConfigException(err)
   }
 
   fun <A : Any> loadConfig(klass: KClass<A>, inputs: List<FileSource>): ConfigResult<A> {
-    require(decoderRegistry.size > 0) { "Decoder registry cannot be empty" }
-    fun Node.decode() = decoderRegistry.decoder(klass).flatMap { decoder ->
-      decoder.decode(this, klass.createType(), DecoderContext(decoderRegistry, paramMappers, preprocessors))
+    require(klass.isData) { "Can only decode into data classes [was ${klass}]" }
+    return if (decoderRegistry.size == 0)
+      ConfigFailure.EmptyDecoderRegistry.invalid()
+    else
+      loadNode(inputs).flatMap { decode(klass, it) }
+  }
+
+  private fun <A : Any> decode(kclass: KClass<A>, node: Node): ConfigResult<A> {
+    return decoderRegistry.decoder(kclass).flatMap { decoder ->
+      val context = DecoderContext(decoderRegistry, paramMappers, preprocessors)
+      decoder.decode(node, kclass.createType(), context)
     }
-    return loadNode(inputs).flatMap { it.decode() }
   }
 
   private fun loadNode(files: List<FileSource>): ConfigResult<Node> {
