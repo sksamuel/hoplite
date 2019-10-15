@@ -141,19 +141,14 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry,
   fun <A : Any> loadConfig(klass: KClass<A>, inputs: List<FileSource>): ConfigResult<A> {
     require(decoderRegistry.size > 0) { "Decoder registry cannot be empty" }
     fun Node.decode() = decoderRegistry.decoder(klass).flatMap { decoder ->
-      decoder.decode(this, klass.createType(), DecoderContext(decoderRegistry, paramMappers))
+      decoder.decode(this, klass.createType(), DecoderContext(decoderRegistry, paramMappers, preprocessors))
     }
     return loadNode(inputs).flatMap { it.decode() }
   }
 
   private fun loadNode(files: List<FileSource>): ConfigResult<Node> {
-
-    fun Node.preprocess() = preprocessors.fold(this) { node, preprocessor -> node.transform(preprocessor::process) }
-    fun List<Node>.preprocessAll() = this.map { it.preprocess() }
-
     val srcs = propertySources + files.map { ConfigFilePropertySource(it, parserRegistry) }
     return srcs.map { it.node() }.sequence()
-      .map { it.preprocessAll() }
       .map { it.reduce { acc, b -> acc.fallback(b) } }
       .leftMap { ConfigFailure.MultipleFailures(it) }
   }

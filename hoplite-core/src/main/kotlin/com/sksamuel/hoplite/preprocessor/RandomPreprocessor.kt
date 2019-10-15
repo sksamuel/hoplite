@@ -1,12 +1,14 @@
 package com.sksamuel.hoplite.preprocessor
 
+import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.StringNode
 import java.util.*
 import kotlin.math.abs
 import kotlin.random.Random
 
 private typealias Rule = (String) -> String
 
-object RandomPreprocessor : Preprocessor {
+object RandomPreprocessor : StringNodePreprocessor() {
 
   private const val a = 33 // '!'
   private const val z = 126 // '~'
@@ -85,5 +87,8 @@ object RandomPreprocessor : Preprocessor {
     uuidRule
   )
 
-  override fun process(value: String): String = rules.fold(value) { str, rule -> rule(str) }
+  override fun map(node: StringNode): Node {
+    val value = rules.fold(node.value) { str, rule -> rule(str) }
+    return node.copy(value = value)
+  }
 }

@@ -33,7 +33,7 @@ class DataClassDecoderTest : StringSpec() {
       DataClassDecoder().decode(
         node,
         Foo::class.createType(),
-        DecoderContext(defaultDecoderRegistry(), defaultParamMappers())
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), emptyList())
       ) shouldBe Foo("hello", 123, true).valid()
     }
 
@@ -52,7 +52,7 @@ class DataClassDecoderTest : StringSpec() {
       DataClassDecoder().decode(
         node,
         Foo::class.createType(),
-        DecoderContext(defaultDecoderRegistry(), defaultParamMappers())
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), emptyList())
       ) shouldBe Foo(null, null, null).valid()
     }
 
@@ -70,7 +70,7 @@ class DataClassDecoderTest : StringSpec() {
       DataClassDecoder().decode(
         node,
         Foo::class.createType(),
-        DecoderContext(defaultDecoderRegistry(), defaultParamMappers())
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), emptyList())
       ) shouldBe Foo("hello", 123, true).valid()
     }
 
@@ -94,7 +94,7 @@ class DataClassDecoderTest : StringSpec() {
       )
       DataClassDecoder().decode(node,
         Foo::class.createType(),
-        DecoderContext(defaultDecoderRegistry(), defaultParamMappers())
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), emptyList())
       ) shouldBe Foo(Year.of(1991), expectedDate, YearMonth.parse("2007-12"), expectedSqlTimestamp).valid()
     }
 
@@ -112,7 +112,7 @@ class DataClassDecoderTest : StringSpec() {
       DataClassDecoder().decode(
         node,
         Foo::class.createType(),
-        DecoderContext(defaultDecoderRegistry(), defaultParamMappers())
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), emptyList())
       ) shouldBe Foo(IntRange(1, 4), LongRange(50, 60), CharRange('d', 'g')).valid()
     }
 
@@ -129,7 +129,7 @@ class DataClassDecoderTest : StringSpec() {
       DataClassDecoder().decode(
         node,
         Foo::class.createType(),
-        DecoderContext(defaultDecoderRegistry(), defaultParamMappers())
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), emptyList())
       ) shouldBe Foo("value", "default b", false).valid()
     }
   }

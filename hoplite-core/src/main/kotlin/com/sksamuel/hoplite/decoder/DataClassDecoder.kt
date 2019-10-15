@@ -31,11 +31,13 @@ class DataClassDecoder : Decoder<Any> {
         if (n.isDefined) n else node.atKey(mapper.map(param))
       }
 
-      if (param.isOptional && n is Undefined) {
+      val processed = context.preprocessors.fold(n) { acc, pp -> pp.process(acc) }
+
+      if (param.isOptional && processed is Undefined) {
         null // skip this parameter and let the default value be filled in
       } else {
         context.decoder(param)
-          .flatMap { it.decode(n, param.type, context) }
+          .flatMap { it.decode(processed, param.type, context) }
           .map { param to it }
           .leftMap { ConfigFailure.ParamFailure(param, it) }
       }

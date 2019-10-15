@@ -1,8 +1,11 @@
 package com.sksamuel.hoplite.preprocessor
 
+import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.StringNode
 import java.io.InputStream
 import java.nio.file.Path
 import java.util.*
+
 
 /**
  * Loads properties from a file and replaces strings of the form ${key} with the
@@ -11,7 +14,15 @@ import java.util.*
  * When creating this class, you can specify the location of the properties file
  * either as a [Path] or as a resource on the classpath.
  */
-class PropsPreprocessor(private val input: InputStream) : Preprocessor {
+class PropsPreprocessor(private val input: InputStream) : StringNodePreprocessor() {
+
+  override fun map(node: StringNode): Node {
+    val value = regex.replace(node.value) {
+      val key = it.groupValues[1]
+      props[key]?.toString() ?: it.value
+    }
+    return node.copy(value = value)
+  }
 
   private val regex = "\\$\\{(.*?)}".toRegex()
 
@@ -21,10 +32,6 @@ class PropsPreprocessor(private val input: InputStream) : Preprocessor {
     }
   }
 
-  override fun process(value: String): String = regex.replace(value) {
-    val key = it.groupValues[1]
-    props[key]?.toString() ?: it.value
-  }
 
   companion object {
     operator fun invoke(resource: String) = PropsPreprocessor(this::class.java.getResourceAsStream(resource))

@@ -1,21 +1,30 @@
 package com.sksamuel.hoplite.preprocessor
 
+import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.decoder.Decoder
+
 /**
- * A [Preprocessor] applies a function to every string value in config,
- * returning a new string value which replaces the existing one.
+ * A [Preprocessor] applies a function to a [Node] before the [Node]
+ * is passed to a [Decoder].
  */
 interface Preprocessor {
-  fun process(value: String): String
+  fun process(node: Node): Node
 }
 
-fun defaultPreprocessors() = listOf(EnvVarPreprocessor,
+fun defaultPreprocessors() = listOf(
+  EnvVarPreprocessor,
   SystemPropertyPreprocessor,
-  RandomPreprocessor,
-  UUIDPreprocessor)
+  RandomPreprocessor
+)
 
 abstract class PrefixProcessor(private val prefix: String) : Preprocessor {
-  abstract fun handle(value: String): String
-  override fun process(value: String): String =
-      if (value.startsWith(prefix)) handle(value) else value
+
+  abstract fun handle(node: StringNode): Node
+
+  override fun process(node: Node): Node = when (node) {
+    is StringNode -> if (node.value.startsWith(prefix)) handle(node) else node
+    else -> node
+  }
 }
 
