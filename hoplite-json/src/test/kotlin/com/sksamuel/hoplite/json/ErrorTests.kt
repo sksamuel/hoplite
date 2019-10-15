@@ -47,17 +47,17 @@ class ErrorTests : StringSpec({
     
         - 'notaset': Required a Set but a Long cannot be converted to a collection (/error1.json:4:17)
     
-        - 'duration': Required type java.time.Duration could not be decoded from a String value: 10 grams (/error1.json:7:26)
+        - 'duration': Required type class java.time.Duration could not be decoded from a String value: 10 grams (/error1.json:7:26)
     
         - 'nested': - Could not instantiate 'com.sksamuel.hoplite.json.Wibble' because:
     
-            - 'a': Required type java.time.LocalDateTime could not be decoded from a String value: qwqwe (/error1.json:10:17)
+            - 'a': Required type class java.time.LocalDateTime could not be decoded from a String value: qwqwe (/error1.json:10:17)
     
-            - 'b': Required type java.time.LocalDate could not be decoded from a String value: qwqwe (/error1.json:11:17)
+            - 'b': Required type class java.time.LocalDate could not be decoded from a String value: qwqwe (/error1.json:11:17)
     
-            - 'c': Required type java.time.Instant could not be decoded from a String value: qwqwe (/error1.json:12:17)
+            - 'c': Required type class java.time.Instant could not be decoded from a String value: qwqwe (/error1.json:12:17)
     
-            - 'd': Unable to locate a decoder for class java.time.LocalTime: 47 are registered"""
+            - 'd': Unable to locate a decoder for class java.time.LocalTime"""
   }
 
   "error handling for resource file failures" {

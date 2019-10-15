@@ -1,7 +1,6 @@
 package com.sksamuel.hoplite
 
 import arrow.core.NonEmptyList
-import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.parsers.Parser
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
@@ -94,9 +93,8 @@ sealed class ConfigFailure {
     override fun description(): String = "Type defined as not-null but null was loaded from config ${node.pos.loc()}"
   }
 
-  data class NoSuchDecoder(val type: KType,
-                           val decoders: List<Decoder<*>>) : ConfigFailure() {
-    override fun description(): String = "Unable to locate a decoder for ${type.classifier}: ${decoders.size} are registered"
+  data class NoSuchDecoder(val type: KType) : ConfigFailure() {
+    override fun description(): String = "Unable to locate a decoder for ${type.simpleName}"
   }
 
   data class NumberConversionError(val node: Node, val type: KType) : ConfigFailure() {

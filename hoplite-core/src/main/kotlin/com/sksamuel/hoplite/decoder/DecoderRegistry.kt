@@ -35,7 +35,7 @@ class DefaultDecoderRegistry(private val decoders: List<Decoder<*>>) : DecoderRe
   }
 
   override fun decoder(type: KType): ConfigResult<Decoder<*>> =
-    decoders.find { it.supports(type) }?.valid() ?: ConfigFailure.NoSuchDecoder(type, decoders).invalid()
+    decoders.find { it.supports(type) }?.valid() ?: ConfigFailure.NoSuchDecoder(type).invalid()
 
   override fun register(decoder: Decoder<*>): DecoderRegistry = DefaultDecoderRegistry(decoders + decoder)
 

@@ -17,7 +17,7 @@ import kotlin.reflect.full.starProjectedType
 class SortedSetDecoder<T : Comparable<T>> : NonNullableDecoder<SortedSet<T>> {
 
   override fun supports(type: KType): Boolean {
-    return type.isSubtypeOf(Set::class.starProjectedType) &&
+    return type.isSubtypeOf(SortedSet::class.starProjectedType) &&
       (type.arguments[0].type?.isSubtypeOf(Comparable::class.starProjectedType) ?: false)
   }
 

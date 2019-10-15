@@ -1,6 +1,7 @@
 package com.sksamuel.hoplite.yaml
 
 import com.sksamuel.hoplite.ConfigLoader
+import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 
@@ -10,5 +11,6 @@ class SetDecoderTest : StringSpec({
 
     val config = ConfigLoader().loadConfigOrThrow<Test>("/sets.yml")
     config shouldBe Test(setOf(1, 2, 3), setOf("1", "2"))
+    config.a.shouldBeInstanceOf<HashSet<*>>()
   }
 })
