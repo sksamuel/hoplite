@@ -2,6 +2,29 @@ package com.sksamuel.hoplite
 
 import kotlin.reflect.KParameter
 
+fun defaultParamMappers(): List<ParameterMapper> = listOf(
+  DefaultParamMapper,
+  SnakeCaseParamMapper,
+  KebabCaseParamMapper
+)
+
+/**
+ * A [ParameterMapper] takes a parameter and returns the name to be used to look
+ * a config value for that parameter. This allows implementations to tweak the
+ * name used for lookups.
+ *
+ * For example, the [SnakeCaseParamMapper] returns a name in in snake-case.
+ * This allows you to define snake-case config-keys* and map them to camel case
+ * field names.
+ */
+interface ParameterMapper {
+  fun map(param: KParameter): String
+}
+
+object DefaultParamMapper : ParameterMapper {
+  override fun map(param: KParameter): String = param.name ?: "<anon>"
+}
+
 /**
  * A [ParameterMapper] that will transform a parameter name into
  * the snake case equivalent.

@@ -6,20 +6,6 @@ import com.sksamuel.hoplite.decoder.DecoderRegistry
 import kotlin.reflect.KParameter
 import kotlin.reflect.KType
 
-fun defaultParamMappers(): List<ParameterMapper> = listOf(
-  DefaultParamMapper,
-  SnakeCaseParamMapper,
-  KebabCaseParamMapper
-)
-
-interface ParameterMapper {
-  fun map(param: KParameter): String
-}
-
-object DefaultParamMapper : ParameterMapper {
-  override fun map(param: KParameter): String = param.name ?: "<anon>"
-}
-
 data class DecoderContext(val decoders: DecoderRegistry,
                           val paramMappers: List<ParameterMapper>) {
   fun decoder(type: KType): Validated<ConfigFailure, Decoder<*>> = decoders.decoder(type)
