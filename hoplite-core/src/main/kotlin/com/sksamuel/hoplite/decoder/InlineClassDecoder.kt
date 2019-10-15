@@ -10,19 +10,16 @@ import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.arrow.flatMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
-import kotlin.reflect.full.createType
-import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.primaryConstructor
 
-interface ValueType
+class InlineClassDecoder : Decoder<Any> {
 
-class ValueClassDecoder : Decoder<Any> {
-
-  override fun supports(type: KType): Boolean =
-    type.classifier is KClass<*> &&
-      (type.classifier as KClass<*>).isData &&
-      (type.classifier as KClass<*>).primaryConstructor?.parameters?.size == 1 &&
-      (type.isSubtypeOf(ValueType::class.createType()))
+  override fun supports(type: KType): Boolean = when (val classifer = type.classifier) {
+    is KClass<*> -> !classifer.isData &&
+      classifer.primaryConstructor?.parameters?.size == 1 &&
+      classifer.java.declaredMethods.any { it.name == "box-impl" }
+    else -> false
+  }
 
   override fun decode(node: Node,
                       type: KType,
@@ -40,7 +37,7 @@ class ValueClassDecoder : Decoder<Any> {
       } else {
         context.decoder(param)
           .flatMap { it.decode(node, param.type, context) }
-          .leftMap { ConfigFailure.ValueTypeIncompatible(param.type, node) }
+          .leftMap { ConfigFailure.IncompatibleInlineType(param.type, node) }
           .map { constr.call(it) }
       }
     }

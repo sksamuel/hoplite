@@ -66,10 +66,10 @@ sealed class ConfigFailure {
     override fun description(): String = "No decoders are registered"
   }
 
-  data class ValueTypeIncompatible(val type: KType, val node: Node) : ConfigFailure() {
+  data class IncompatibleInlineType(val type: KType, val node: Node) : ConfigFailure() {
     override fun description(): String = when (node) {
-      is PrimitiveNode -> "Value type $type is incompatible with a ${node.simpleName} value: ${node.value} ${node.pos.loc()}"
-      else -> "Value type is incompatible with $node ${node.pos.loc()}"
+      is PrimitiveNode -> "Inline type $type is incompatible with a ${node.simpleName} value: ${node.value} ${node.pos.loc()}"
+      else -> "Inline type is incompatible with $node ${node.pos.loc()}"
     }
   }
 

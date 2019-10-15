@@ -352,6 +352,38 @@ In these cases, you would need to register a custom serializer.
 For the Jackson project, a `HopliteModule` object is available in the `hoplite-json` module.
 Register this with your Jackson mapper, like `mapper.registerModule(HopliteModule)` and then `Masked` values will be ouputted into Json as "****"
 
+## Inline Classes (New in 1.1.0)
+
+Some developers, this writer included, like to have strong types wrapping simple values. For example, a `Port` object rather than an Int. 
+This helps to alleviate Stringy typed development.
+Kotlin has support for what it calls inline classes which fulfil this need. 
+
+Hoplite directly supports inline classes.
+When using inline classes, you don't need to nest config keys.
+
+For example, given the following config classes:
+
+```kotlin
+inline class Port(val value: Int)
+inline class Hostname(val )
+data class Database(val port: Port, val host: Hostname)
+```
+
+And then this config file:
+
+```yaml
+port: 9200
+host: locahost
+```
+
+We can parse directly:
+
+```kotlin
+val config = ConfigLoader().loadConfigOrThrow<Database>()
+println(config.port) // Port(9200)
+println(config.host) // Hostname("localhost")
+```
+
 ## Add on Modules
 
 Hoplite makes available several other modules that add functionality outside of the main core module. They are in seperate modules because they bring in dependencies from those projects and so the modules are optional.
