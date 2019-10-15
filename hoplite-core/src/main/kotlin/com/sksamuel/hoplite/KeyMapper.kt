@@ -3,13 +3,10 @@ package com.sksamuel.hoplite
 import kotlin.reflect.KParameter
 
 /**
- * A [ParameterMapper] that will transform any snake case field names
- * into their camel case equivalent.
+ * A [ParameterMapper] that will transform a parameter name into
+ * the snake case equivalent.
  *
- * For example, snake_case_pilsen will become camelCasePilsen.
- *
- * This key mapper won't affect other camel case fields, so by using
- * this you can mix and match camel and snake case fields.
+ * For example, camelCasePilsen will become snake_case_pilsen.
  */
 object SnakeCaseParamMapper : ParameterMapper {
 
@@ -25,13 +22,10 @@ object SnakeCaseParamMapper : ParameterMapper {
 }
 
 /**
- * A [ParameterMapper] that will transform any dash case field names
- * into their camel case equivalent.
+ * A [ParameterMapper] that will transform a parameter name into
+ * the kebab case equivalent.
  *
- * For example, dash-case-pilsen will become camelCasePilsen.
- *
- * This key mapper won't affect other camel case fields, so by using
- * this you can mix and match camel and dash case fields.
+ * For example, camelCasePilsen will become kebab_case_pilsen.
  */
 object KebabCaseParamMapper : ParameterMapper {
 
