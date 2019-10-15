@@ -5,7 +5,7 @@ import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 
 class SetDecoderTest : StringSpec({
-  "file decoded from json" {
+  "set decoded from json" {
     data class Test(val a: Set<Long>, val b: Set<String>)
 
     val config = ConfigLoader().loadConfigOrThrow<Test>("/sets.json")

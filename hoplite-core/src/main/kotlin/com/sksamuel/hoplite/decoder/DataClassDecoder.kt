@@ -1,6 +1,8 @@
 package com.sksamuel.hoplite.decoder
 
 import arrow.core.ValidatedNel
+import arrow.core.invalid
+import arrow.core.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
@@ -10,7 +12,9 @@ import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.arrow.flatMap
 import com.sksamuel.hoplite.arrow.sequence
 import com.sksamuel.hoplite.isDefined
+import java.lang.IllegalArgumentException
 import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.KType
 
@@ -45,6 +49,16 @@ class DataClassDecoder : Decoder<Any> {
 
     return args
       .leftMap { ConfigFailure.DataClassFieldErrors(it, type, node.pos) }
-      .map { constructor.callBy(it.toMap()) }
+      .flatMap { construct(type, constructor, it.toMap()) }
+  }
+
+  private fun <A> construct(type: KType,
+                            constructor: KFunction<A>,
+                            args: Map<KParameter, Any?>): ConfigResult<A> {
+    return try {
+      constructor.callBy(args).valid()
+    } catch (e: IllegalArgumentException) {
+      ConfigFailure.InvalidConstructorParameters(type, constructor.parameters, args).invalid()
+    }
   }
 }

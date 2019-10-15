@@ -229,21 +229,26 @@ There are built in decoders for all the standard day to day types, such as primi
 | `String` |
 | `Long` |
 | `Int` |
+| `Short` |
+| `Byte` |
 | `Boolean` |
 | `Double` |
 | `Float` |
 | `Enums` | Java and Kotlin enums are both supported. An instance of the defined Enum class will be created with the constant value given in config. |
 | `LocalDateTime` |
 | `LocalDate` |
+| `LocalTime` |
 | `Duration` | Converts a String into a Duration, where the string uses a value and unit such as "10 seconds" or "5m". Also supports a long value which will be interpreted as a Duration of milliseconds. |
 | `Instant` |  |
 | `Year` | |
+| `YearMonth` | |
 | `java.util.Date` | |
 | `Regex` | |
 | `UUID` | Creates a `java.util.UUID` from a String |
 | `List<A>` | Creates a List from either an array or a string delimited by commas. 
 | `Set<A>` | Creates a Set from either an array or a string delimited by commas. 
-| `Map<K,V>` |
+| `SortedSet<A>` | Creates a Set from either an array or a string delimited by commas. 
+| `Map<K,V>` | 
 | `arrow.data.NonEmptyList<A>` | Converts arrays into a `NonEmptyList<A>` if the array is non empty. If the array is empty then an error is raised.
 | `X500Principal` | Creates an instance of `X500Principal` for String values |
 | `KerberosPrincipal` | Creates an instance of `KerberosPrincipal` for String values |
@@ -251,21 +256,23 @@ There are built in decoders for all the standard day to day types, such as primi
 | `Principal` | Creates an instance of `BasicPrincipal` for String values |
 | `File` | Creates a java.io.File from a String path |
 | `Path` | Creates a java.nio.Path from a String path |
-| `BigInteger` | Converts from a String, Long or Int into a BigInteger. |
 | `BigDecimal` | Converts from a String, Long, Int, Double, or Float into a BigDecimal |
+| `BigInteger` | Converts from a String, Long or Int into a BigInteger. |
 | `arrow.core.Option<A>` | A `None` is used for null or undefined values, and present values are converted to a `Some<A>` |
 | `arrow.core.Tuple2<A,B>` | Converts from an array of two elements into an instance of `Tuple2<A,B>`.  Will fail if the array does not have exactly two elements.|
 | `arrow.core.Tuple3<A,B,C>` | Converts from an array of three elements into an instance of `Tuple2<A,B,C>`. Will fail if the array does not have exactly three elements. |
+| `Pair<A,B>` | Converts from an array of three two into an instance of `Pair<A,B>`. Will fail if the array does not have exactly two elements. |
+| `Triple<A,B,C>` | Converts from an array of three elements into an instance of `Triple<A,B,C>`. Will fail if the array does not have exactly three elements. |
 
-## Pre-Processors
+## Preprocessors
 
-Hoplite supports what it calls preprocessors. These are just functions `(String) -> String` that are applied to every value as they are read from the underlying config file.
+Hoplite supports what it calls preprocessors. These are just functions that are applied to every value as they are read from the underlying config file.
 The preprocessor is able to transform the value (or return the input - aka identity function) depending on the logic of that preprocessor. 
 
 For example, a preprocessor may choose to perform environment variable substitution, configure default values, 
 perform database lookups, or whatever other custom action you need when the config is being resolved.
 
-You can add custom pre-processors in addition to the builtt in ones, by using the function `withPreprocessor` on the `ConfigLoader` class, and passing in an instance of the `Preprocessor` interface.
+You can add custom pre-processors in addition to the built in ones, by using the function `withPreprocessor` on the `ConfigLoader` class, and passing in an instance of the `Preprocessor` interface.
 A typical use case of a custom preprocessor is to lookup some values in a database, or from a third party secrets store such as [Vault](https://www.vaultproject.io/) or [Amazon Parameter Store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html).
 One way this can be implemented is to have a prefix, and then use a preprocessor to look for the prefix in strings, and if the prefix is present, use the rest of the string as a key to the service.
 
@@ -287,7 +294,7 @@ These built-in preprocessors are registered automatically.
 | System Property Preprocessor | Replaces any strings of the form ${VAR} with the system property $VAR if defined. These replacement strings can occur between other strings.<br/><br/>For example `debug: ${DEBUG}` would result in debug being assigned the value `true` assuming the application had been started with `-Ddebug=true` |
 | Random Preprocessor | Inserts random strings into the config. See the section on Random Preprocessor for syntax. |
 | Props File Preprocessor | Replaces any strings of the form ${key} with the value of the key in a provided `java.util.Properties` file. The file can be specified by a `Path` or a resource on the classpath. |
-| Parameter Store Preprocessor | Replaces strings of the form ${paramstore:key} by looking up the value of key from the AWS parameter store.<br/><br/>This preprocessor requires the `hoplite-aws` module to be added to the classpath. |
+| AWS Parameter Store Preprocessor | Replaces strings of the form ${paramstore:key} by looking up the value of key from the AWS parameter store.<br/><br/>This preprocessor requires the `hoplite-aws` module to be added to the classpath. |
 
 ### Random Preprocessor
 

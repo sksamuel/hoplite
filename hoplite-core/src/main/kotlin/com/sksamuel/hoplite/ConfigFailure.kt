@@ -16,7 +16,7 @@ val KType.simpleName: String
     Double::class -> "Double"
     Float::class -> "Float"
     Boolean::class -> "Boolean"
-    else -> this.toString()
+    else -> this.classifier.toString()
   }
 
 sealed class ConfigFailure {
@@ -29,6 +29,15 @@ sealed class ConfigFailure {
   data class NoSuchParser(val file: String,
                           val map: Map<String, Parser>) : ConfigFailure() {
     override fun description(): String = "Could not detect parser for file extension '.$file' - available parsers are $map"
+  }
+
+  data class InvalidConstructorParameters(val type: KType,
+                                          val parameters: List<KParameter>,
+                                          val args: Map<KParameter, Any?>) : ConfigFailure() {
+    override fun description(): String =
+      "Could not instantiate ${type.simpleName} from args " +
+        "${args.map { it.value?.javaClass?.name ?: "<null>" }}: " +
+        "Expected args are ${parameters.map { it.type.simpleName }}"
   }
 
   data class UnknownSource(val source: String) : ConfigFailure() {
