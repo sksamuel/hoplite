@@ -238,7 +238,7 @@ There are built in decoders for all the standard day to day types, such as primi
 | `LocalDateTime` |
 | `LocalDate` |
 | `LocalTime` |
-| `Duration` | Converts a String into a Duration, where the string uses a value and unit such as "10 seconds" or "5m". Also supports a long value which will be interpreted as a Duration of milliseconds. |
+| `Duration` | Converts a String into a Duration, where the string uses a value and unit such as "10 seconds" or "5m". The set of units supported is the same as [here](https://github.com/lightbend/config/blob/master/HOCON.md#duration-format). Also supports a long value which will be interpreted as a Duration of milliseconds. |
 | `Instant` |  |
 | `Year` | |
 | `YearMonth` | |
