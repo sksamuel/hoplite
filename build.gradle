@@ -32,9 +32,9 @@ allprojects {
     group = "com.sksamuel.hoplite"
 
     if (isTravis) {
-        version "1.1.0." + travisBuildNumber + "-SNAPSHOT"
+        version "1.2.0." + travisBuildNumber + "-SNAPSHOT"
     } else {
-        version "1.0.8"
+        version "1.1.0"
     }
 
     tasks.withType(Javadoc) {
