@@ -15,6 +15,7 @@ import java.math.BigInteger
 import kotlin.reflect.KType
 
 class BigIntegerDecoder : NonNullableLeafDecoder<BigInteger> {
+
   override fun supports(type: KType): Boolean = type.classifier == BigInteger::class
   override fun safeLeafDecode(node: Node,
                               type: KType,

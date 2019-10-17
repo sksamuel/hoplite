@@ -12,8 +12,7 @@ import java.time.Year
 import java.time.YearMonth
 import java.util.Date
 
-import arrow.core.Try
-import arrow.core.getOrElse
+import arrow.core.Validated
 import arrow.core.invalid
 import arrow.core.valid
 import com.sksamuel.hoplite.ConfigFailure
@@ -24,6 +23,7 @@ import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.parseDuration
 import com.sksamuel.hoplite.parsePeriod
+import java.time.MonthDay
 import java.time.Period
 
 class LocalDateTimeDecoder : NonNullableLeafDecoder<LocalDateTime> {
@@ -33,8 +33,9 @@ class LocalDateTimeDecoder : NonNullableLeafDecoder<LocalDateTime> {
                               context: DecoderContext): ConfigResult<LocalDateTime> = when (node) {
     is LongNode -> LocalDateTime.ofInstant(Instant.ofEpochMilli(node.value), ZoneOffset.UTC).valid()
     is StringNode ->
-      Try { LocalDateTime.parse(node.value, DateTimeFormatter.ISO_DATE_TIME).valid() }
-        .getOrElse { ConfigFailure.DecodeError(node, type).invalid() }
+      runCatching { LocalDateTime.parse(node.value, DateTimeFormatter.ISO_DATE_TIME) }.toValidated {
+        ConfigFailure.DecodeError(node, type)
+      }
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }
@@ -44,9 +45,9 @@ class LocalDateDecoder : NonNullableLeafDecoder<LocalDate> {
   override fun safeLeafDecode(node: Node,
                               type: KType,
                               context: DecoderContext): ConfigResult<LocalDate> = when (node) {
-    is StringNode ->
-      Try { LocalDate.parse(node.value).valid() }
-        .getOrElse { ConfigFailure.DecodeError(node, type).invalid() }
+    is StringNode -> runCatching { LocalDate.parse(node.value) }.toValidated {
+      ConfigFailure.DecodeError(node, type)
+    }
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }
@@ -67,8 +68,9 @@ class InstantDecoder : NonNullableLeafDecoder<Instant> {
   override fun safeLeafDecode(node: Node,
                               type: KType,
                               context: DecoderContext): ConfigResult<Instant> = when (node) {
-    is StringNode -> Try { Instant.ofEpochMilli(node.value.toLong()).valid() }
-      .getOrElse { ConfigFailure.DecodeError(node, type).invalid() }
+    is StringNode -> runCatching { Instant.ofEpochMilli(node.value.toLong()) }.toValidated {
+      ConfigFailure.DecodeError(node, type)
+    }
     is LongNode -> Instant.ofEpochMilli(node.value).valid()
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
@@ -79,8 +81,9 @@ class YearDecoder : NonNullableLeafDecoder<Year> {
   override fun safeLeafDecode(node: Node,
                               type: KType,
                               context: DecoderContext): ConfigResult<Year> = when (node) {
-    is StringNode -> Try { Year.of(node.value.toInt()).valid() }
-      .getOrElse { ConfigFailure.DecodeError(node, type).invalid() }
+    is StringNode -> runCatching { Year.of(node.value.toInt()) }.toValidated {
+      ConfigFailure.DecodeError(node, type)
+    }
     is LongNode -> Year.of(node.value.toInt()).valid()
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
@@ -91,8 +94,9 @@ class JavaUtilDateDecoder : NonNullableLeafDecoder<Date> {
   override fun safeLeafDecode(node: Node,
                               type: KType,
                               context: DecoderContext): ConfigResult<Date> = when (node) {
-    is StringNode -> Try { Date(node.value.toLong()).valid() }
-      .getOrElse { ConfigFailure.DecodeError(node, type).invalid() }
+    is StringNode -> runCatching { Date(node.value.toLong()) }.toValidated {
+      ConfigFailure.DecodeError(node, type)
+    }
     is LongNode -> Date(node.value).valid()
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
@@ -103,8 +107,29 @@ class YearMonthDecoder : NonNullableLeafDecoder<YearMonth> {
   override fun safeLeafDecode(node: Node,
                               type: KType,
                               context: DecoderContext): ConfigResult<YearMonth> = when (node) {
-    is StringNode -> Try { YearMonth.parse(node.value).valid() }
-      .getOrElse { ConfigFailure.DecodeError(node, type).invalid() }
+    is StringNode -> runCatching { YearMonth.parse(node.value) }.toValidated {
+      ConfigFailure.DecodeError(node, type)
+    }
+    else -> ConfigFailure.DecodeError(node, type).invalid()
+  }
+}
+
+/**
+ * Obtains an instance of {@code MonthDay} from a text string such as {@code --12-03}.
+ *
+ * The string must represent a valid month-day.
+ * The format is {@code --MM-dd}.
+ */
+class MonthDayDecoder : NonNullableLeafDecoder<MonthDay> {
+  override fun supports(type: KType): Boolean = type.classifier == MonthDay::class
+  override fun safeLeafDecode(node: Node,
+                              type: KType,
+                              context: DecoderContext): ConfigResult<MonthDay> = when (node) {
+    is StringNode -> runCatching {
+      MonthDay.parse(node.value.removePrefix("--").prependIndent("--"))
+    }.toValidated {
+      ConfigFailure.DecodeError(node, type)
+    }
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }
@@ -124,9 +149,12 @@ class SqlTimestampDecoder : NonNullableLeafDecoder<java.sql.Timestamp> {
   override fun safeLeafDecode(node: Node,
                               type: KType,
                               context: DecoderContext): ConfigResult<java.sql.Timestamp> = when (node) {
-    is StringNode -> Try { java.sql.Timestamp(node.value.toLong()).valid() }
-      .getOrElse { ConfigFailure.DecodeError(node, type).invalid() }
+    is StringNode -> runCatching { java.sql.Timestamp(node.value.toLong()) }.toValidated {
+      ConfigFailure.DecodeError(node, type)
+    }
     is LongNode -> java.sql.Timestamp(node.value).valid()
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }
+
+fun <E, T> Result<T>.toValidated(f: (Throwable) -> E): Validated<E, T> = fold({ it.valid() }, { f(it).invalid() })
