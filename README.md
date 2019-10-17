@@ -242,6 +242,7 @@ There are built in decoders for all the standard day to day types, such as primi
 | `Instant` | Creates an instance of `Instant` from an offset from the unix epoc in milliseconds. |
 | `Year` | Creates an instance of `Year` from a String in the format `2007` |
 | `YearMonth` | Creates an instance of `YearMonth` from a String in the format `2007-12` |
+| `MonthDay` | Creates an instance of `MonthDay` from a String in the format `08-18` |
 | `java.util.Date` | |
 | `Regex` | Creates a `kotlin.text.Regex` from a regex compatible string |
 | `UUID` | Creates a `java.util.UUID` from a String |
@@ -249,6 +250,7 @@ There are built in decoders for all the standard day to day types, such as primi
 | `Set<A>` | Creates a Set from either an array or a string delimited by commas. 
 | `SortedSet<A>` | Creates a SortedSet from either an array or a string delimited by commas. 
 | `Map<K,V>` | 
+| `LinkedHashMap<K,V>` | A Map that mains the order defined in config | 
 | `arrow.data.NonEmptyList<A>` | Converts arrays into a `NonEmptyList<A>` if the array is non empty. If the array is empty then an error is raised.
 | `X500Principal` | Creates an instance of `X500Principal` for String values |
 | `KerberosPrincipal` | Creates an instance of `KerberosPrincipal` for String values |
@@ -259,9 +261,10 @@ There are built in decoders for all the standard day to day types, such as primi
 | `BigDecimal` | Converts from a String, Long, Int, Double, or Float into a BigDecimal |
 | `BigInteger` | Converts from a String, Long or Int into a BigInteger. |
 | `arrow.core.Option<A>` | A `None` is used for null or undefined values, and present values are converted to a `Some<A>` |
-| `arrow.core.Tuple2<A,B>` | Converts from an array of two elements into an instance of `Tuple2<A,B>`.  Will fail if the array does not have exactly two elements.|
-| `arrow.core.Tuple3<A,B,C>` | Converts from an array of three elements into an instance of `Tuple3<A,B,C>`. Will fail if the array does not have exactly three elements. |
-| `arrow.core.Tuple4<A,B,C>` | Converts from an array of four elements into an instance of `Tuple4<A,B,C,D>`. Will fail if the array does not have exactly four elements. |
+| `arrow.core.Tuple2<A,B>` | Converts an array of two elements into an instance of `Tuple2<A,B>`.  Will fail if the array does not have exactly two elements.|
+| `arrow.core.Tuple3<A,B,C>` | Converts an array of three elements into an instance of `Tuple3<A,B,C>`. Will fail if the array does not have exactly three elements. |
+| `arrow.core.Tuple4<A,B,C,D>` | Converts an array of four elements into an instance of `Tuple4<A,B,C,D>`. Will fail if the array does not have exactly four elements. |
+| `arrow.core.Tuple5<A,B,C,D,E>` | Converts an array of five elements into an instance of `Tuple5<A,B,C,D,E>`. Will fail if the array does not have exactly five elements. |
 | `Pair<A,B>` | Converts from an array of three two into an instance of `Pair<A,B>`. Will fail if the array does not have exactly two elements. |
 | `Triple<A,B,C>` | Converts from an array of three elements into an instance of `Triple<A,B,C>`. Will fail if the array does not have exactly three elements. |
 
