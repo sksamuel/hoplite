@@ -4,6 +4,7 @@ import arrow.core.invalid
 import arrow.core.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
+import java.lang.RuntimeException
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -35,11 +36,16 @@ class DefaultDecoderRegistry(private val decoders: List<Decoder<*>>) : DecoderRe
   }
 
   override fun decoder(type: KType): ConfigResult<Decoder<*>> {
-    val decoder = decoders.find { it.supports(type) }
-    return when {
-      decoder == null && (type.classifier as KClass<*>).isData -> ConfigFailure.NoDataClassDecoder.invalid()
-      decoder == null -> ConfigFailure.NoSuchDecoder(type).invalid()
-      else -> decoder.valid()
+    return when (type.classifier) {
+      is KClass<*> -> {
+        val decoder = decoders.find { it.supports(type) }
+        when {
+          decoder == null && (type.classifier as KClass<*>).isData -> ConfigFailure.NoDataClassDecoder.invalid()
+          decoder == null -> ConfigFailure.NoSuchDecoder(type).invalid()
+          else -> decoder.valid()
+        }
+      }
+      else -> throw RuntimeException("Asked to decode $type")
     }
   }
 

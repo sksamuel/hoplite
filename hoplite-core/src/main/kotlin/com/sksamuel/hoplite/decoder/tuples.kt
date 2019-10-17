@@ -4,6 +4,7 @@ import arrow.core.NonEmptyList
 import arrow.core.Tuple2
 import arrow.core.Tuple3
 import arrow.core.Tuple4
+import arrow.core.Tuple5
 import arrow.core.Validated
 import arrow.core.extensions.nonemptylist.semigroup.semigroup
 import arrow.core.extensions.validated.applicative.applicative
@@ -95,7 +96,7 @@ class Tuple4Decoder : NonNullableDecoder<Tuple4<*, *, *, *>> {
         val adecoder = context.decoder(aType).flatMap { it.decode(node.atIndex(0), aType, context) }
         val bdecoder = context.decoder(bType).flatMap { it.decode(node.atIndex(1), bType, context) }
         val cdecoder = context.decoder(cType).flatMap { it.decode(node.atIndex(2), cType, context) }
-        val ddecoder = context.decoder(dType).flatMap { it.decode(node.atIndex(3), cType, context) }
+        val ddecoder = context.decoder(dType).flatMap { it.decode(node.atIndex(3), dType, context) }
         Validated.applicative(
           NonEmptyList.semigroup<ConfigFailure>()).map(
           adecoder.toValidatedNel(),
@@ -106,6 +107,46 @@ class Tuple4Decoder : NonNullableDecoder<Tuple4<*, *, *, *>> {
           .fix()
           .leftMap { ConfigFailure.TupleErrors(node, it) }
       } else ConfigFailure.Generic("Tuple4 requires a list of four elements but list had size ${node.elements.size}").invalid()
+    }
+
+    return when (node) {
+      is ArrayNode -> decode(node)
+      else -> ConfigFailure.DecodeError(node, type).invalid()
+    }
+  }
+}
+
+class Tuple5Decoder : NonNullableDecoder<Tuple5<*, *, *, *, *>> {
+
+  override fun supports(type: KType): Boolean = type.classifier == Tuple5::class
+
+  override fun safeDecode(node: Node,
+                          type: KType,
+                          context: DecoderContext): ConfigResult<Tuple5<*, *, *, *, *>> {
+
+    fun decode(node: ArrayNode): ConfigResult<Tuple5<Any?, Any?, Any?, Any?, Any?>> {
+      return if (node.elements.size == 5) {
+        val aType = type.arguments[0].type!!
+        val bType = type.arguments[1].type!!
+        val cType = type.arguments[2].type!!
+        val dType = type.arguments[3].type!!
+        val eType = type.arguments[4].type!!
+        val adecoder = context.decoder(aType).flatMap { it.decode(node.atIndex(0), aType, context) }
+        val bdecoder = context.decoder(bType).flatMap { it.decode(node.atIndex(1), bType, context) }
+        val cdecoder = context.decoder(cType).flatMap { it.decode(node.atIndex(2), cType, context) }
+        val ddecoder = context.decoder(dType).flatMap { it.decode(node.atIndex(3), dType, context) }
+        val edecoder = context.decoder(eType).flatMap { it.decode(node.atIndex(4), eType, context) }
+        Validated.applicative(
+          NonEmptyList.semigroup<ConfigFailure>()).map(
+          adecoder.toValidatedNel(),
+          bdecoder.toValidatedNel(),
+          cdecoder.toValidatedNel(),
+          ddecoder.toValidatedNel(),
+          edecoder.toValidatedNel()
+        ) { it }
+          .fix()
+          .leftMap { ConfigFailure.TupleErrors(node, it) }
+      } else ConfigFailure.Generic("Tuple5 requires a list of five elements but list had size ${node.elements.size}").invalid()
     }
 
     return when (node) {
