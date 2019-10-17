@@ -8,11 +8,12 @@ Hoplite is a Kotlin library for loading configuration files into typesafe classe
 
 ## Features
 
-- **Multiple formats:** Write your configuration in Yaml, JSON, Toml, Hocon, or Java .properties files and even mix and match multiple formats in the same system.
-- **Batteries included:** Support for many standard types such as primitives, enums, dates, collection types, inline classes, uuids, nullable types, as well as popular Kotlin third party library types such as `NonEmptyList`, `Option` and `TupleX` from [Arrow](https://arrow-kt.io/).
+- **Multiple formats:** Write your configuration in [several formats](https://github.com/sksamuel/hoplite/#supported-formats): Yaml, JSON, Toml, Hocon, or Java .properties files or even mix and match formats in the same system.
+- **Property Sources:** Per-system [overrides](https://github.com/sksamuel/hoplite/#property-sources) are possible from JVM system properties, environment variables, JDNI or a per-user local config file.
+- **Batteries included:** Support for many [standard types](https://github.com/sksamuel/hoplite/#decoders) such as primitives, enums, dates, collection types, inline classes, uuids, nullable types, as well as popular Kotlin third party library types such as `NonEmptyList`, `Option` and `TupleX` from [Arrow](https://arrow-kt.io/).
 - **Custom Data Types:** The `Decoder` interface makes it easy to add support for your custom domain types or standard library types not covered out of the box.
-- **Cascading:** Config files can be stacked. Start with a default file and then layer new configurations on top. When resolving config, lookup of values falls through to the first file that contains a definition. Can be used to have a default config file and then an environment specific file.
-- **Beautiful errors:** Fail fast when the config objects are built, with detailed and beautiful errors showing exactly what went wrong and where.
+- **Cascading:** Config files can be [stacked](https://github.com/sksamuel/hoplite/#cascading-config). Start with a default file and then layer new configurations on top. When resolving config, lookup of values falls through to the first file that contains a definition. Can be used to have a default config file and then an environment specific file.
+- **Beautiful errors:** Fail fast when the config objects are built, with detailed and [beautiful errors](https://github.com/sksamuel/hoplite/#beautiful-errors) showing exactly what went wrong and where.
 
 ## Getting Started
 
@@ -122,6 +123,26 @@ That same function can be used to map non-default file extensions to an existing
 
 `ConfigLoader().withFileExtensionMapping("data", YamlParser)`
 
+
+
+## Property Sources (New in 1.1.0)
+
+The `PropertySource` interface is how Hoplite locates configuration values. By supporting several different implementations
+for providing config, Hoplite makes it easy to allow per-system or per-user overrides of config. 
+
+Typically your config resides in files, and so the `ConfigFilePropertySource` locates these files and loads them. 
+However there are several other built in property sources which will read config from other places.
+
+This is the list of built in property sources, and the order is from top to bottom. Configuration values in a higher 
+priority source take precedence over those in lower sources.
+
+
+| Property Source Implementation            | Description |
+|:------------------------------------------|:------------------------------------------------------------|
+| `EnvironmentVariablesPropertySource`      | Reads config from environment variables. Provides no case mappings, so `HOSTNAME` does *not* override hostname. |
+| `SystemPropertiesPropertySource`          | Provides config through system properties that are prefixed with `config.override.`. For example, starting your JVM with `-Dconfig.override.database.name` would override a config key of `database.name` residing in a file. |
+| `UserSettingsPropertySource`              | Provides config through a config file defined at ~/.userconfig.[ext] where ext is one of the supported formats. |
+| `ConfigFilePropertySource`                | Reads config from files in [several formats](https://github.com/sksamuel/hoplite/#supported-formats) based on the file extension. Paths or resource names are supplied to the `ConfigLoader` as the config is built.  |
 
 
 ## Cascading Config
