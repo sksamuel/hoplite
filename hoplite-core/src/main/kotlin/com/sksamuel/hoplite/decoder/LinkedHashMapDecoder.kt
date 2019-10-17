@@ -5,22 +5,21 @@ import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.MapNode
-import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.arrow.flatMap
 import com.sksamuel.hoplite.arrow.sequence
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.starProjectedType
 
+class LinkedHashMapDecoder : NonNullableDecoder<LinkedHashMap<*, *>> {
 
-class MapDecoder : NonNullableDecoder<Map<*, *>> {
-
-  override fun supports(type: KType): Boolean = type.isSubtypeOf(Map::class.starProjectedType)
+  override fun supports(type: KType): Boolean = type.isSubtypeOf(LinkedHashMap::class.starProjectedType)
 
   override fun safeDecode(node: Node,
                           type: KType,
-                          context: DecoderContext): ConfigResult<Map<*, *>> {
+                          context: DecoderContext): ConfigResult<LinkedHashMap<*, *>> {
     require(type.arguments.size == 2)
 
     val kType = type.arguments[0].type!!
@@ -29,7 +28,7 @@ class MapDecoder : NonNullableDecoder<Map<*, *>> {
     fun <K, V> decode(node: MapNode,
                       kdecoder: Decoder<K>,
                       vdecoder: Decoder<V>,
-                      context: DecoderContext): ConfigResult<Map<*, *>> {
+                      context: DecoderContext): ConfigResult<LinkedHashMap<K, V>> {
 
       return node.map.entries.map { (k, v) ->
         kdecoder.decode(StringNode(k, node.pos), kType, context).flatMap { kk ->
@@ -39,7 +38,11 @@ class MapDecoder : NonNullableDecoder<Map<*, *>> {
         }
       }.sequence()
         .leftMap { ConfigFailure.CollectionElementErrors(node, it) }
-        .map { it.toMap() }
+        .map { pairs ->
+          val map = linkedMapOf<K, V>()
+          pairs.forEach { map[it.first] = it.second }
+          map
+        }
     }
 
     return context.decoder(kType).flatMap { kdecoder ->
