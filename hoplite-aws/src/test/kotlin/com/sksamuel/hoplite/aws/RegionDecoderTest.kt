@@ -12,7 +12,7 @@ import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 import kotlin.reflect.full.createType
 
-class RegionDecoderProviderTest : StringSpec() {
+class RegionDecoderTest : StringSpec() {
   init {
     "region converter" {
       RegionDecoder().safeDecode(

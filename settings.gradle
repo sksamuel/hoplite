@@ -1,5 +1,6 @@
 include 'hoplite-core',
         'hoplite-aws',
+        'hoplite-cronutils',
         'hoplite-hdfs',
         'hoplite-hocon',
         'hoplite-ktor',

@@ -1,5 +1,5 @@
 buildscript {
-    ext.awsVersion = "1.11.651"
+    ext.cronutilsVersion = "9.0.2"
 }
 
 plugins {
@@ -8,8 +8,7 @@ plugins {
 
 dependencies {
     api project(":hoplite-core")
-    api "com.amazonaws:aws-java-sdk-core:$awsVersion"
-    api "com.amazonaws:aws-java-sdk-ssm:$awsVersion"
+    api "com.cronutils:cron-utils:$cronutilsVersion"
 }
 
 apply from: '../publish.gradle'
