@@ -139,7 +139,7 @@ priority source take precedence over those in lower sources.
 
 | Property Source Implementation            | Description |
 |:------------------------------------------|:------------------------------------------------------------|
-| `EnvironmentVariablesPropertySource`      | Reads config from environment variables. Provides no case mappings, so `HOSTNAME` does *not* override hostname. |
+| `EnvironmentVariablesPropertySource`      | Reads config from environment variables. Provides no case mappings, so `HOSTNAME` does *not* override hostname. For nested config, use a period to seperate keys, for example `topic.name` would override `name` located in a `topic` parent. |
 | `SystemPropertiesPropertySource`          | Provides config through system properties that are prefixed with `config.override.`. For example, starting your JVM with `-Dconfig.override.database.name` would override a config key of `database.name` residing in a file. |
 | `UserSettingsPropertySource`              | Provides config through a config file defined at ~/.userconfig.[ext] where ext is one of the supported formats. |
 | `ConfigFilePropertySource`                | Reads config from files in [several formats](https://github.com/sksamuel/hoplite/#supported-formats) based on the file extension. Paths or resource names are supplied to the `ConfigLoader` as the config is built.  |
