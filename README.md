@@ -8,12 +8,12 @@ Hoplite is a Kotlin library for loading configuration files into typesafe classe
 
 ## Features
 
-- **Multiple formats:** Write your configuration in [several formats](https://github.com/sksamuel/hoplite/#supported-formats): Yaml, JSON, Toml, Hocon, or Java .properties files or even mix and match formats in the same system.
-- **Property Sources:** Per-system [overrides](https://github.com/sksamuel/hoplite/#property-sources) are possible from JVM system properties, environment variables, JDNI or a per-user local config file.
-- **Batteries included:** Support for many [standard types](https://github.com/sksamuel/hoplite/#decoders) such as primitives, enums, dates, collection types, inline classes, uuids, nullable types, as well as popular Kotlin third party library types such as `NonEmptyList`, `Option` and `TupleX` from [Arrow](https://arrow-kt.io/).
+- **Multiple formats:** Write your configuration in [several formats](#supported-formats): Yaml, JSON, Toml, Hocon, or Java .properties files or even mix and match formats in the same system.
+- **Property Sources:** Per-system [overrides](#property-sources-new-in-110) are possible from JVM system properties, environment variables, JDNI or a per-user local config file.
+- **Batteries included:** Support for many [standard types](#decoders) such as primitives, enums, dates, collection types, inline classes, uuids, nullable types, as well as popular Kotlin third party library types such as `NonEmptyList`, `Option` and `TupleX` from [Arrow](https://arrow-kt.io/).
 - **Custom Data Types:** The `Decoder` interface makes it easy to add support for your custom domain types or standard library types not covered out of the box.
-- **Cascading:** Config files can be [stacked](https://github.com/sksamuel/hoplite/#cascading-config). Start with a default file and then layer new configurations on top. When resolving config, lookup of values falls through to the first file that contains a definition. Can be used to have a default config file and then an environment specific file.
-- **Beautiful errors:** Fail fast when the config objects are built, with detailed and [beautiful errors](https://github.com/sksamuel/hoplite/#beautiful-errors) showing exactly what went wrong and where.
+- **Cascading:** Config files can be [stacked](#cascading-config). Start with a default file and then layer new configurations on top. When resolving config, lookup of values falls through to the first file that contains a definition. Can be used to have a default config file and then an environment specific file.
+- **Beautiful errors:** Fail fast when the config objects are built, with detailed and [beautiful errors](#beautiful-errors) showing exactly what went wrong and where.
 
 ## Getting Started
 
