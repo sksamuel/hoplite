@@ -376,7 +376,7 @@ In these cases, you would need to register a custom serializer.
 For the Jackson project, a `HopliteModule` object is available in the `hoplite-json` module.
 Register this with your Jackson mapper, like `mapper.registerModule(HopliteModule)` and then `Masked` values will be ouputted into Json as "****"
 
-## Inline Classes (New in 1.1.0)
+## Inline Classes (New in 1.1)
 
 Some developers, this writer included, like to have strong types wrapping simple values. For example, a `Port` object rather than an Int. 
 This helps to alleviate Stringy typed development.
@@ -406,6 +406,50 @@ We can parse directly:
 val config = ConfigLoader().loadConfigOrThrow<Database>()
 println(config.port) // Port(9200)
 println(config.host) // Hostname("localhost")
+```
+
+
+## Sealed Classes (New in 1.1)
+
+Hoplite will support sealed classes where it is able to match up the available config keys with the parameters of one of the implementations. For example, lets create a a config hierarchy as implementations of a sealed class.
+
+```kotlin
+sealed class Database {
+  data class Elasticsearch(val host: String, val port: Int, val index: String) : Database()
+  data class Postgres(val host: String, val port: Int, val schema: String, val table: String) : Database()
+}
+
+data class TestConfig(val databases: List<Database>)
+```
+
+For the above implementations, if hoplite encountered a `host`, `port`, and `index` then it would be clear that it should instantiate an `Elasticsearch` instance. Similarly, if the config keys were `host`, `port`, `schema`, and `table`, then the `Postgres` implementation should be used. If the keys don't match an implementation, the config loader would fail. If keys match multiple implementations then the first match is taken.
+
+For example, the following yaml config file could be used:
+
+```yaml
+databases:
+  - host: localhost
+    port: 9200
+    index: foo
+  - host: localhost
+    port: 9300
+    index: bar
+  - host: localhost
+    port: 5234
+    schema: public
+    table: faz
+```
+
+And the output would be:
+
+```
+TestConfig(
+  databases=[
+    Elasticsearch(host=localhost, port=9200, index=foo), 
+    Elasticsearch(host=localhost, port=9300, index=bar), 
+    Postgres(host=localhost, port=5234, schema=public, table=faz)
+  ]
+)
 ```
 
 ## Add on Modules
