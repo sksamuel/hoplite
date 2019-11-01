@@ -1,0 +1,18 @@
+suppliers:
+  -  name: "A"
+     code: aa
+     parsers:
+       -  regex: ".*A.*json"
+          kclass: supppliers.A
+
+  -  name: "B"
+     code: bb
+     parsers:
+       -  regex: ".*B.*"
+          kclass: supppliers.B
+
+  -  name: "C"
+     code: CC
+     parsers:
+       -  regex: ".*C.*"
+          kclass: supppliers.C

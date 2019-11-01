@@ -117,7 +117,8 @@ sealed class ConfigFailure {
   }
 
   data class CollectionElementErrors(val node: Node, val errors: NonEmptyList<ConfigFailure>) : ConfigFailure() {
-    override fun description(): String = "Collection element decode failure"
+    override fun description(): String = "Collection element decode failure ${node.pos.loc()}:\n\n" +
+      errors.all.joinToString("\n\n") { it.description().prependIndent(Constants.indent) }
   }
 
   data class TupleErrors(val node: Node, val errors: NonEmptyList<ConfigFailure>) : ConfigFailure() {
