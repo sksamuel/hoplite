@@ -1,5 +1,5 @@
 buildscript {
-    ext.awsVersion = "1.11.651"
+    ext.awsVersion = "1.11.670"
 }
 
 plugins {
