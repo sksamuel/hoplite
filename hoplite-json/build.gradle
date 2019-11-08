@@ -6,8 +6,8 @@ dependencies {
     api project(":hoplite-core")
     implementation 'com.fasterxml.jackson.core:jackson-core:2.9.9'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.9'
-    testImplementation "io.kotlintest:kotlintest-runner-junit5:3.4.0"
-    testImplementation "io.kotlintest:kotlintest-assertions-arrow:3.4.0"
+    testImplementation "io.kotlintest:kotlintest-runner-junit5:$kotlintest_version"
+    testImplementation "io.kotlintest:kotlintest-assertions-arrow:$kotlintest_version"
 }
 
 apply from: '../publish.gradle'
