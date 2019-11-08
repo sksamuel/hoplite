@@ -1,0 +1,13 @@
+env: production
+
+redis:
+  url: "redis://localhost:6379/"
+  requestChannel: "foo"
+  responseChannel: "foo"
+
+odb:
+  home: "db"
+  configFile: "config/production.conf"
+  dbFile: "engine.db"
+  server: false
+  # dbFile ='abc
