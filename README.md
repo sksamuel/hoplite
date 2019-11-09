@@ -389,7 +389,7 @@ For example, given the following config classes:
 
 ```kotlin
 inline class Port(val value: Int)
-inline class Hostname(val )
+inline class Hostname(val value: String)
 data class Database(val port: Port, val host: Hostname)
 ```
 
