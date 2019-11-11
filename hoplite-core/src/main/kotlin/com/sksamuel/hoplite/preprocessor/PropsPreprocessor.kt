@@ -1,10 +1,11 @@
 package com.sksamuel.hoplite.preprocessor
 
+import com.sksamuel.hoplite.ConfigException
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
 import java.io.InputStream
 import java.nio.file.Path
-import java.util.*
+import java.util.Properties
 
 
 /**
@@ -34,7 +35,11 @@ class PropsPreprocessor(private val input: InputStream) : StringNodePreprocessor
 
 
   companion object {
-    operator fun invoke(resource: String) = PropsPreprocessor(this::class.java.getResourceAsStream(resource))
+    operator fun invoke(resource: String): PropsPreprocessor {
+      val stream = this::class.java.getResourceAsStream(resource)
+          ?: throw ConfigException("Could not find resource $resource")
+      return PropsPreprocessor(stream)
+    }
     operator fun invoke(path: Path) = PropsPreprocessor(path.toFile().inputStream())
   }
 }
