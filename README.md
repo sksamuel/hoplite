@@ -42,7 +42,7 @@ For our staging environment, we may create a YAML (or Json, etc) file called `ap
 env: staging
 
 database:
-  url: staging.wibble.com
+  host: staging.wibble.com
   port: 3306
   user: theboss
   pass: 0123abcd
