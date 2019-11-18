@@ -62,7 +62,7 @@ object EnvironmentVariablesPropertySource : PropertySource {
  */
 class UserSettingsPropertySource(private val parserRegistry: ParserRegistry) : PropertySource {
 
-  private fun path(ext: String): Path = Paths.get("~/.userconfig.$ext")
+  private fun path(ext: String): Path = Paths.get(System.getProperty("user.home")).resolve(".userconfig.$ext")
 
   override fun node(): ConfigResult<Node> {
     val ext = parserRegistry.registeredExtensions().firstOrNull {
