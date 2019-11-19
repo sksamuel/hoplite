@@ -2,10 +2,10 @@ package com.sksamuel.hoplite.yaml
 
 import com.sksamuel.hoplite.ArrayNode
 import com.sksamuel.hoplite.MapNode
+import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.NullValue
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
-import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.parsers.Parser
 import org.yaml.snakeyaml.DumperOptions
@@ -33,8 +33,8 @@ class YamlParser : Parser {
     val reader = InputStreamReader(input)
     val events = yaml.parse(reader).iterator()
     val stream = TokenStream(events)
-    require(stream.next().`is`(Event.ID.StreamStart))
-    require(stream.next().`is`(Event.ID.DocumentStart))
+    require(stream.next().`is`(Event.ID.StreamStart)) { "Expected stream start at ${stream.current().startMark}" }
+    require(stream.next().`is`(Event.ID.DocumentStart)) { "Expected document start at ${stream.current().startMark}" }
     stream.next()
     return TokenProduction(stream, source)
   }
@@ -99,25 +99,25 @@ object TokenProduction {
 
 object MapProduction {
   operator fun invoke(stream: TokenStream<Event>, source: String): Node {
-    require(stream.current().`is`(Event.ID.MappingStart))
+    require(stream.current().`is`(Event.ID.MappingStart)) { "Expected mapping start at ${stream.current().startMark}" }
     val mark = stream.current().startMark
     val obj = mutableMapOf<String, Node>()
     while (stream.next().id() != Event.ID.MappingEnd) {
-      require(stream.current().id() == Event.ID.Scalar)
+      require(stream.current().id() == Event.ID.Scalar) { "Expected scalar at ${stream.current().startMark}" }
       val field = stream.current() as ScalarEvent
       val fieldName = field.value
       stream.next()
       val value = TokenProduction(stream, source)
       obj[fieldName] = value
     }
-    require(stream.current().`is`(Event.ID.MappingEnd))
+    require(stream.current().`is`(Event.ID.MappingEnd)) { "Expected mapping end at ${stream.current().startMark}" }
     return MapNode(obj, mark.toPos(source), Undefined)
   }
 }
 
 object SequenceProduction {
   operator fun invoke(stream: TokenStream<Event>, source: String): Node {
-    require(stream.current().`is`(Event.ID.SequenceStart))
+    require(stream.current().`is`(Event.ID.SequenceStart)) { "Expected sequence start at ${stream.current().startMark}" }
     val mark = stream.current().startMark
     val list = mutableListOf<Node>()
     var index = 0
@@ -126,7 +126,7 @@ object SequenceProduction {
       list.add(value)
       index++
     }
-    require(stream.current().`is`(Event.ID.SequenceEnd))
+    require(stream.current().`is`(Event.ID.SequenceEnd)) { "Expected sequence end at ${stream.current().startMark}" }
     return ArrayNode(list.toList(), mark.toPos(source))
   }
 }
