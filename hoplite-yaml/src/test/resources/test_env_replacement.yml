@@ -6,3 +6,5 @@ e: aa${wibble}bb
 f: ${unknown}
 g: $wibble
 h: ${unknown}$wibble
+i: ${unknown:-default}
+j: ${wibble:-default}
