@@ -27,14 +27,14 @@ implementation 'com.sksamuel.hoplite:hoplite-core:<version>'
 
 You will also need to include a module for the [format(s)](#supported-formats) you to use.
 
-Next define the data classes that are going to contain the config. 
+Next define the data classes that are going to contain the config.
 You should create a top level class which can be named simply Config, or ProjectNameConfig. This class then defines a field for each config value you need. It can include nested data classes for grouping together related configs.
 
 For example, if we had a project that needed database config, config for an embedded HTTP server, and a field which contained which environment we were running in (staging, QA, production etc), then we may define our classes like this:
 
 ```kotlin
 data class Database(val host: String, val port: Int, val user: String, val pass: String)
-data class Server(val port: Int, val redirectUrl: String) 
+data class Server(val port: Int, val redirectUrl: String)
 data class Config(val env: String, val database: Database, val server: Server)
 ```
 
@@ -67,16 +67,16 @@ If the values in the config file are compatible, then an instance of `Config` wi
 As you have seen from the getting started guide, `ConfigLoader` is the entry point to using Hoplite.
 Create an instance of this and then you can load config into your data classes from resources on the classpath, `java.io.File`, `java.nio.Path`, or URLS.
 
-There are two ways to use the config loader. 
-One is to throw an exception if the config could not be resolved via the `loadConfigOrThrow<T>` function. 
-Another is to return an `arrow.data.Validated` via the `loadConfig<T>` function. 
+There are two ways to use the config loader.
+One is to throw an exception if the config could not be resolved via the `loadConfigOrThrow<T>` function.
+Another is to return an `arrow.data.Validated` via the `loadConfig<T>` function.
 
-For most cases, when you are resolving config at application startup, the exception based approach is better. 
+For most cases, when you are resolving config at application startup, the exception based approach is better.
 This is because you typically want any errors in config to abort application bootstrapping, dumping errors to the console.
 
 ## Beautiful Errors
 
-When an error does occur, if you choose to throw an exception, the errors will be formatted in a human readable way along with as much location information as possible. 
+When an error does occur, if you choose to throw an exception, the errors will be formatted in a human readable way along with as much location information as possible.
 No more trying to track down a `NumberFormatException` in a 400 line config file.
 
 Here is an example of the error formatting for a test file used by the unit tests.
@@ -85,23 +85,23 @@ Here is an example of the error formatting for a test file used by the unit test
 Error loading config because:
 
     - Could not instantiate 'com.sksamuel.hoplite.json.Foo' because:
-    
+
         - 'wrongType': Required type Boolean could not be decoded from a Long (/error1.json:2:19)
-    
+
         - 'whereAmI': Missing from config
-    
+
         - 'notnull': Type defined as not-null but null was loaded from config (/error1.json:6:18)
-    
+
         - 'season': Required a value for the Enum type com.sksamuel.hoplite.json.Season but given value was Fun (/error1.json:8:18)
-    
+
         - 'notalist': Defined as a List but a Boolean cannot be converted to a collection (/error1.json:3:19)
-    
+
         - 'duration': Required type java.time.Duration could not be decoded from a String (/error1.json:7:26)
-    
+
         - 'nested': - Could not instantiate 'com.sksamuel.hoplite.json.Wibble' because:
-    
+
             - 'a': Required type java.time.LocalDateTime could not be decoded from a String (/error1.json:10:17)
-    
+
             - 'b': Unable to locate a decoder for java.time.LocalTime
 ```
 
@@ -130,12 +130,12 @@ That same function can be used to map non-default file extensions to an existing
 ## Property Sources (New in 1.1.0)
 
 The `PropertySource` interface is how Hoplite locates configuration values. By supporting several different implementations
-for providing config, Hoplite makes it easy to allow per-system or per-user overrides of config. 
+for providing config, Hoplite makes it easy to allow per-system or per-user overrides of config.
 
-Typically your config resides in files, and so the `ConfigFilePropertySource` locates these files and loads them. 
+Typically your config resides in files, and so the `ConfigFilePropertySource` locates these files and loads them.
 However there are several other built in property sources which will read config from other places.
 
-This is the list of built in property sources, and the order is from top to bottom. Configuration values in a higher 
+This is the list of built in property sources, and the order is from top to bottom. Configuration values in a higher
 priority source take precedence over those in lower sources.
 
 
@@ -149,7 +149,7 @@ priority source take precedence over those in lower sources.
 
 ## Cascading Config
 
-Hoplite has the concept of cascading or layered or fallback config. 
+Hoplite has the concept of cascading or layered or fallback config.
 This means you can pass more than one config file to the ConfigLoader.
 When the config is resolved into Kotlin classes, a lookup will cascade or fall through one file to another in the order they were passed to the loader, until the first file that defines that key.
 
@@ -173,7 +173,7 @@ And both were passed to the ConfigLoader like this: `ConfigLoader().loadConfigOr
 So in this case, the config would be resolved like this:
 ```
 elasticsearch.port = 9202 // the value in application-prod.yaml takes priority over the value in application.yaml
-elasticsearch.host = production-elasticsearch.mycompany.internal 
+elasticsearch.host = production-elasticsearch.mycompany.internal
 elasitcsearch.clusterName = product-search // not defined in application-prod.yaml so falls through to application.yaml
 ```
 
@@ -245,7 +245,7 @@ The resolution rules are as follows:
 ## Decoders
 
 Hoplite converts the raw value in config files to JDK types using instances of the `Decoder` interface.
-There are built in decoders for all the standard day to day types, such as primitives, dates, lists, sets, maps, enums, arrow types and so on. The full list is below: 
+There are built in decoders for all the standard day to day types, such as primitives, dates, lists, sets, maps, enums, arrow types and so on. The full list is below:
 
 | JDK Type  | Conversion Notes |
 |---|---|
@@ -269,11 +269,11 @@ There are built in decoders for all the standard day to day types, such as primi
 | `java.util.Date` | |
 | `Regex` | Creates a `kotlin.text.Regex` from a regex compatible string |
 | `UUID` | Creates a `java.util.UUID` from a String |
-| `List<A>` | Creates a List from either an array or a string delimited by commas. 
-| `Set<A>` | Creates a Set from either an array or a string delimited by commas. 
-| `SortedSet<A>` | Creates a SortedSet from either an array or a string delimited by commas. 
-| `Map<K,V>` | 
-| `LinkedHashMap<K,V>` | A Map that mains the order defined in config | 
+| `List<A>` | Creates a List from either an array or a string delimited by commas.
+| `Set<A>` | Creates a Set from either an array or a string delimited by commas.
+| `SortedSet<A>` | Creates a SortedSet from either an array or a string delimited by commas.
+| `Map<K,V>` |
+| `LinkedHashMap<K,V>` | A Map that mains the order defined in config |
 | `arrow.data.NonEmptyList<A>` | Converts arrays into a `NonEmptyList<A>` if the array is non empty. If the array is empty then an error is raised.
 | `X500Principal` | Creates an instance of `X500Principal` for String values |
 | `KerberosPrincipal` | Creates an instance of `KerberosPrincipal` for String values |
@@ -294,9 +294,9 @@ There are built in decoders for all the standard day to day types, such as primi
 ## Preprocessors
 
 Hoplite supports what it calls preprocessors. These are just functions that are applied to every value as they are read from the underlying config file.
-The preprocessor is able to transform the value (or return the input - aka identity function) depending on the logic of that preprocessor. 
+The preprocessor is able to transform the value (or return the input - aka identity function) depending on the logic of that preprocessor.
 
-For example, a preprocessor may choose to perform environment variable substitution, configure default values, 
+For example, a preprocessor may choose to perform environment variable substitution, configure default values,
 perform database lookups, or whatever other custom action you need when the config is being resolved.
 
 You can add custom pre-processors in addition to the built in ones, by using the function `withPreprocessor` on the `ConfigLoader` class, and passing in an instance of the `Preprocessor` interface.
@@ -311,13 +311,13 @@ database:
   password: vault:/my/key/path
 ```
 
-### Built-in Preprocessors 
+### Built-in Preprocessors
 
 These built-in preprocessors are registered automatically.
 
 | Preprocessor        | Function                                                                                                                                                                                                                                                                                |
 |:--------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| EnvVar Preprocessor | Replaces any strings of the form ${VAR} with the environment variable $VAR if defined. These replacement strings can occur between other strings.<br/><br/>For example `foo: hello ${USERNAME}!` would result in foo being assigned the value `hello Sam!` assuming the env var `USERNAME` was set to `SAM` |
+| EnvVar Preprocessor | Replaces any strings of the form ${VAR} with the environment variable $VAR if defined. These replacement strings can occur between other strings.<br/><br/>For example `foo: hello ${USERNAME}!` would result in foo being assigned the value `hello Sam!` assuming the env var `USERNAME` was set to `SAM`. Also the expressions can have default values using the usual bash expression style syntax `foo: hello ${USERNAME:-fallback}!` |
 | System Property Preprocessor | Replaces any strings of the form ${VAR} with the system property $VAR if defined. These replacement strings can occur between other strings.<br/><br/>For example `debug: ${DEBUG}` would result in debug being assigned the value `true` assuming the application had been started with `-Ddebug=true` |
 | Random Preprocessor | Inserts random strings into the config. See the section on Random Preprocessor for syntax. |
 | Props File Preprocessor | Replaces any strings of the form ${key} with the value of the key in a provided `java.util.Properties` file. The file can be specified by a `Path` or a resource on the classpath. |
@@ -338,7 +338,7 @@ The random preprocessor replaces placeholder strings with random values.
 | ${random.uuid}        | A randomly generated type 4 UUID |
 
 
-For example: 
+For example:
 
 ```
 my.number=${random.int}
@@ -356,7 +356,7 @@ However configuration typically includes sensitive information such as passwords
 To avoid sensitive fields appearing in the log output, Hoplite provides a built in type called `Masked` which is a wrapper around a String.
 By declaring a field to have this type, the value will still be loaded from configuration files, but will not be included in the generated `toString`.
 
-For example, you may define a config class like this: 
+For example, you may define a config class like this:
 
 `data class Database(val host: String, val user: String, val password: Masked)`
 
@@ -373,16 +373,16 @@ And corresponding json config:
 And then the output of the Database config class via `toString` would be `Database(host=localhost, user=root, password=****)`
 
 Note: The masking effect only happens if you use `toString`.
-If you marshall your config to a String using a reflection based tool like Jackson, it will still be able to see the underlying value. 
-In these cases, you would need to register a custom serializer. 
+If you marshall your config to a String using a reflection based tool like Jackson, it will still be able to see the underlying value.
+In these cases, you would need to register a custom serializer.
 For the Jackson project, a `HopliteModule` object is available in the `hoplite-json` module.
 Register this with your Jackson mapper, like `mapper.registerModule(HopliteModule)` and then `Masked` values will be ouputted into Json as "****"
 
 ## Inline Classes (New in 1.1)
 
-Some developers, this writer included, like to have strong types wrapping simple values. For example, a `Port` object rather than an Int. 
+Some developers, this writer included, like to have strong types wrapping simple values. For example, a `Port` object rather than an Int.
 This helps to alleviate Stringy typed development.
-Kotlin has support for what it calls inline classes which fulfil this need. 
+Kotlin has support for what it calls inline classes which fulfil this need.
 
 Hoplite directly supports inline classes.
 When using inline classes, you don't need to nest config keys.
@@ -447,8 +447,8 @@ And the output would be:
 ```
 TestConfig(
   databases=[
-    Elasticsearch(host=localhost, port=9200, index=foo), 
-    Elasticsearch(host=localhost, port=9300, index=bar), 
+    Elasticsearch(host=localhost, port=9200, index=foo),
+    Elasticsearch(host=localhost, port=9300, index=bar),
     Postgres(host=localhost, port=5234, schema=public, table=faz)
   ]
 )

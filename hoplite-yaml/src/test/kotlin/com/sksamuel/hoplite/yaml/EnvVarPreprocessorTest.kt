@@ -14,7 +14,10 @@ class EnvVarPreprocessorTest : FunSpec() {
                   val e: String,
                   val f: String,
                   val g: String,
-                  val h: String)
+                  val h: String,
+                  val i: String,
+                  val j: String
+  )
 
   init {
     test("replace env vars") {
@@ -27,7 +30,9 @@ class EnvVarPreprocessorTest : FunSpec() {
             e = "aawobblebb",
             f = "\${unknown}",
             g = "\$wibble",
-            h = "\${unknown}\$wibble"
+            h = "\${unknown}\$wibble",
+            i = "default",
+            j = "wobble"
           )
       }
     }
