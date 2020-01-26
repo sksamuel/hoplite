@@ -16,7 +16,7 @@ import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.arrow.flatMap
 import kotlin.reflect.KType
 
-class PairDecoder : NonNullableDecoder<Pair<*, *>> {
+class PairDecoder : NullHandlingDecoder<Pair<*, *>> {
 
   override fun supports(type: KType): Boolean = type.classifier == Pair::class
 
@@ -46,7 +46,7 @@ class PairDecoder : NonNullableDecoder<Pair<*, *>> {
   }
 }
 
-class TripleDecoder : NonNullableDecoder<Triple<*, *, *>> {
+class TripleDecoder : NullHandlingDecoder<Triple<*, *, *>> {
 
   override fun supports(type: KType): Boolean = type.classifier == Triple::class
 

@@ -12,14 +12,16 @@ import com.sksamuel.hoplite.arrow.sequence
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.starProjectedType
+import kotlin.reflect.full.withNullability
 
-class ListDecoder : Decoder<List<*>> {
+class ListDecoder : NullHandlingDecoder<List<*>> {
 
-  override fun supports(type: KType): Boolean = type.isSubtypeOf(List::class.starProjectedType)
+  override fun supports(type: KType): Boolean =
+    type.isSubtypeOf(List::class.starProjectedType) || type.isSubtypeOf(List::class.starProjectedType.withNullability(true))
 
-  override fun decode(node: Node,
-                      type: KType,
-                      context: DecoderContext): ConfigResult<List<*>> {
+  override fun safeDecode(node: Node,
+                          type: KType,
+                          context: DecoderContext): ConfigResult<List<*>> {
     require(type.arguments.size == 1)
     val t = type.arguments[0].type!!
 
@@ -39,7 +41,7 @@ class ListDecoder : Decoder<List<*>> {
     return context.decoder(t).flatMap { decoder ->
       when (node) {
         is ArrayNode -> decode(node, decoder)
-        is StringNode -> decode(node,  decoder)
+        is StringNode -> decode(node, decoder)
         else -> ConfigFailure.UnsupportedCollectionType(node, "List").invalid()
       }
     }

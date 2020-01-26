@@ -14,10 +14,13 @@ import com.sksamuel.hoplite.arrow.sequence
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.starProjectedType
+import kotlin.reflect.full.withNullability
 
-class NonEmptyListDecoder : NonNullableDecoder<NonEmptyList<*>> {
+class NonEmptyListDecoder : NullHandlingDecoder<NonEmptyList<*>> {
 
-  override fun supports(type: KType): Boolean = type.isSubtypeOf(NonEmptyList::class.starProjectedType)
+  override fun supports(type: KType): Boolean =
+    type.isSubtypeOf(NonEmptyList::class.starProjectedType) ||
+      type.isSubtypeOf(NonEmptyList::class.starProjectedType.withNullability(true))
 
   override fun safeDecode(node: Node,
                           type: KType,
@@ -36,11 +39,11 @@ class NonEmptyListDecoder : NonNullableDecoder<NonEmptyList<*>> {
       return node.elements.map { decoder.decode(it, type, context) }.sequence()
         .leftMap { ConfigFailure.CollectionElementErrors(node, it) }
         .flatMap { ts ->
-        NonEmptyList.fromList(ts).fold(
-          { ConfigFailure.DecodeError(node, type).invalid() },
-          { it.valid() }
-        )
-      }
+          NonEmptyList.fromList(ts).fold(
+            { ConfigFailure.DecodeError(node, type).invalid() },
+            { it.valid() }
+          )
+        }
     }
 
     return context.decoder(t).flatMap { decoder ->

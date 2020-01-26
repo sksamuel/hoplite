@@ -67,27 +67,6 @@ class BasicTypesTest : FunSpec({
     config shouldBe Test(UUID.fromString("66cefa93-9816-4c09-aad9-6355664e3e4f"))
   }
 
-  test("List<T> as delimited string") {
-    data class Test(val strings: List<String>, val longs: List<Long>)
-
-    val config = ConfigLoader().loadConfigOrThrow<Test>("/test_array_as_delimited_string.yml")
-    config shouldBe Test(listOf("1", "2", "a", "b"), listOf(1, 2, 3, 4))
-  }
-
-  test("List<T>") {
-    data class Test(val strings: List<String>, val longs: List<Long>)
-
-    val config = ConfigLoader().loadConfigOrThrow<Test>("/test_array.yml")
-    config shouldBe Test(listOf("1", "2", "a", "b"), listOf(1, 2, 3, 4))
-  }
-
-  test("NonEmptyList<A> as delimited string") {
-    data class Test(val strings: NonEmptyList<String>, val longs: NonEmptyList<Long>)
-
-    val config = ConfigLoader().loadConfigOrThrow<Test>("/test_array_as_delimited_string.yml")
-    config shouldBe Test(NonEmptyList.of("1", "2", "a", "b"), NonEmptyList.of(1, 2, 3, 4))
-  }
-
   test("Maps<K,V>") {
     data class Test(val map1: Map<String, Int>, val map2: Map<Int, Boolean>)
 

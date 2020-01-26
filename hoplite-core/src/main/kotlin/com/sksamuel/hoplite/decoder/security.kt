@@ -19,7 +19,7 @@ fun <T> viaString(node: Node, type: KType, f: (String) -> T): ConfigResult<T> {
   }
 }
 
-class KerberosPrincipalDecoder : NonNullableDecoder<KerberosPrincipal> {
+class KerberosPrincipalDecoder : NullHandlingDecoder<KerberosPrincipal> {
   override fun supports(type: KType): Boolean = type.classifier == KerberosPrincipal::class
   override fun safeDecode(node: Node,
                           type: KType,
@@ -27,7 +27,7 @@ class KerberosPrincipalDecoder : NonNullableDecoder<KerberosPrincipal> {
     viaString(node, type) { KerberosPrincipal(it) }
 }
 
-class JMXPrincipalDecoder : NonNullableDecoder<JMXPrincipal> {
+class JMXPrincipalDecoder : NullHandlingDecoder<JMXPrincipal> {
   override fun supports(type: KType): Boolean = type.classifier == JMXPrincipal::class
   override fun safeDecode(node: Node,
                           type: KType,
@@ -35,7 +35,7 @@ class JMXPrincipalDecoder : NonNullableDecoder<JMXPrincipal> {
     viaString(node, type) { JMXPrincipal(it) }
 }
 
-class X500PrincipalDecoder : NonNullableDecoder<X500Principal> {
+class X500PrincipalDecoder : NullHandlingDecoder<X500Principal> {
   override fun supports(type: KType): Boolean = type.classifier == X500Principal::class
   override fun safeDecode(node: Node,
                           type: KType,

@@ -7,6 +7,10 @@ import com.sksamuel.hoplite.preprocessor.Preprocessor
 import kotlin.reflect.KParameter
 import kotlin.reflect.KType
 
+/**
+ * Contains the configuration needed for decoders to work. For example, the context allows access to the
+ * [DecoderRegistry] using which decoders can lookup other decoders to be used for nested types.
+ */
 data class DecoderContext(val decoders: DecoderRegistry,
                           val paramMappers: List<ParameterMapper>,
                           val preprocessors: List<Preprocessor>) {

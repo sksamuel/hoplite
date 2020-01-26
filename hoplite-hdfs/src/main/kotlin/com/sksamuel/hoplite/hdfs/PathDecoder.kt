@@ -7,12 +7,12 @@ import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
-import com.sksamuel.hoplite.decoder.NonNullableDecoder
+import com.sksamuel.hoplite.decoder.NullHandlingDecoder
 import org.apache.hadoop.fs.Path
 import kotlin.reflect.KType
 import kotlin.reflect.full.createType
 
-class PathDecoder : NonNullableDecoder<Path> {
+class PathDecoder : NullHandlingDecoder<Path> {
 
   override fun supports(type: KType): Boolean = type.classifier == Path::class
 

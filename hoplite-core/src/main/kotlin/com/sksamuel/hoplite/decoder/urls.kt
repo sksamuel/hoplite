@@ -12,7 +12,7 @@ import java.net.URI
 import java.net.URL
 import kotlin.reflect.KType
 
-class URLDecoder : NonNullableDecoder<URL> {
+class URLDecoder : NullHandlingDecoder<URL> {
   override fun supports(type: KType): Boolean = type.classifier == URL::class
   override fun safeDecode(node: Node,
                           type: KType,
@@ -22,7 +22,7 @@ class URLDecoder : NonNullableDecoder<URL> {
   }
 }
 
-class URIDecoder : NonNullableDecoder<URI> {
+class URIDecoder : NullHandlingDecoder<URI> {
   override fun supports(type: KType): Boolean = type.classifier == URI::class
   override fun safeDecode(node: Node,
                           type: KType,

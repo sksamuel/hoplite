@@ -12,7 +12,7 @@ import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
 
-class IntRangeDecoder : NonNullableDecoder<IntRange> {
+class IntRangeDecoder : NullHandlingDecoder<IntRange> {
   override fun supports(type: KType): Boolean = type.classifier == IntRange::class
   override fun safeDecode(node: Node,
                           type: KType,
@@ -23,7 +23,7 @@ class IntRangeDecoder : NonNullableDecoder<IntRange> {
   }
 }
 
-class LongRangeDecoder : NonNullableDecoder<LongRange> {
+class LongRangeDecoder : NullHandlingDecoder<LongRange> {
   override fun supports(type: KType): Boolean = type.classifier == LongRange::class
   override fun safeDecode(node: Node,
                           type: KType,
@@ -34,7 +34,7 @@ class LongRangeDecoder : NonNullableDecoder<LongRange> {
   }
 }
 
-class CharRangeDecoder : NonNullableDecoder<CharRange> {
+class CharRangeDecoder : NullHandlingDecoder<CharRange> {
   override fun supports(type: KType): Boolean = type.classifier == CharRange::class
   override fun safeDecode(node: Node,
                           type: KType,

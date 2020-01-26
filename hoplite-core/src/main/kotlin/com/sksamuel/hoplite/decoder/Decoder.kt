@@ -18,6 +18,10 @@ import kotlin.reflect.full.createType
  */
 interface Decoder<T> {
 
+  /**
+   * Returns true if this decoder can decode values of the given type.
+   * This method is called by the framework to locate a decoder suitable for a particular type.
+   */
   fun supports(type: KType): Boolean
 
   /**
@@ -40,18 +44,25 @@ inline fun <T, reified U> Decoder<T>.map(crossinline f: (T) -> U): Decoder<U> = 
 }
 
 /**
- * Extends [Decoder] for types which will not handle nulls.
+ * Extends [Decoder] to provide support for nullable types. Other decoders can extend this
+ * interface and not worry about dealing with nullability concerns.
  */
 @Suppress("UNCHECKED_CAST")
-interface NonNullableDecoder<T> : Decoder<T> {
+interface NullHandlingDecoder<T> : Decoder<T> {
 
-  // if we have a nullable value and the type is nullable that is ok
+  /**
+   * If the requested type is nullable returns null as a value, otherwise
+   * returns an error indicating that a nullable was provided to a non-null field.
+   */
   private fun offerNull(node: Node, type: KType): Validated<ConfigFailure, *> {
     return if (type.isMarkedNullable) Valid(null) else
       ConfigFailure.NullValueForNonNullField(node).invalid()
   }
 
-  // if we have no value defined and the type is nullable, that is ok
+  /**
+   * If the requested type is nullable returns null as a value, otherwise
+   * returns an error indicating that a value was missing for a non-null field.
+   */
   private fun offerUndefined(type: KType): Validated<ConfigFailure, *> {
     return if (type.isMarkedNullable) Valid(null) else
       ConfigFailure.MissingValue.invalid()
@@ -67,7 +78,7 @@ interface NonNullableDecoder<T> : Decoder<T> {
     }
 
   /**
-   * Attempts to decode the given node into an instance of the given [KType].
+   * Attempts to decode the given node into a non-null instance of the given [KType].
    *
    * @param node contains the value for the current dot path
    * @param type the concrete type required by the caller
@@ -78,7 +89,7 @@ interface NonNullableDecoder<T> : Decoder<T> {
                  context: DecoderContext): ConfigResult<T>
 }
 
-interface NonNullableLeafDecoder<T> : NonNullableDecoder<T> {
+interface NonNullableLeafDecoder<T> : NullHandlingDecoder<T> {
 
   fun safeLeafDecode(node: Node, type: KType, context: DecoderContext): ConfigResult<T>
 

@@ -14,7 +14,7 @@ import kotlin.reflect.KType
 import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.starProjectedType
 
-class SortedSetDecoder<T : Comparable<T>> : NonNullableDecoder<SortedSet<T>> {
+class SortedSetDecoder<T : Comparable<T>> : NullHandlingDecoder<SortedSet<T>> {
 
   override fun supports(type: KType): Boolean {
     return type.isSubtypeOf(SortedSet::class.starProjectedType) &&

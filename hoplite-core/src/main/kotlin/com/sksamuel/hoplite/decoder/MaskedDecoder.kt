@@ -12,7 +12,7 @@ import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
 import kotlin.reflect.KType
 
-class MaskedDecoder : NonNullableDecoder<Masked> {
+class MaskedDecoder : NullHandlingDecoder<Masked> {
   override fun supports(type: KType): Boolean = type.classifier == Masked::class
   override fun safeDecode(node: Node,
                           type: KType,

@@ -18,7 +18,7 @@ import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.arrow.flatMap
 import kotlin.reflect.KType
 
-class Tuple2Decoder : NonNullableDecoder<Tuple2<*, *>> {
+class Tuple2Decoder : NullHandlingDecoder<Tuple2<*, *>> {
 
   override fun supports(type: KType): Boolean = type.classifier == Tuple2::class
 
@@ -47,7 +47,7 @@ class Tuple2Decoder : NonNullableDecoder<Tuple2<*, *>> {
   }
 }
 
-class Tuple3Decoder : NonNullableDecoder<Tuple3<*, *, *>> {
+class Tuple3Decoder : NullHandlingDecoder<Tuple3<*, *, *>> {
 
   override fun supports(type: KType): Boolean = type.classifier == Tuple3::class
 
@@ -79,7 +79,7 @@ class Tuple3Decoder : NonNullableDecoder<Tuple3<*, *, *>> {
   }
 }
 
-class Tuple4Decoder : NonNullableDecoder<Tuple4<*, *, *, *>> {
+class Tuple4Decoder : NullHandlingDecoder<Tuple4<*, *, *, *>> {
 
   override fun supports(type: KType): Boolean = type.classifier == Tuple4::class
 
@@ -116,7 +116,7 @@ class Tuple4Decoder : NonNullableDecoder<Tuple4<*, *, *, *>> {
   }
 }
 
-class Tuple5Decoder : NonNullableDecoder<Tuple5<*, *, *, *, *>> {
+class Tuple5Decoder : NullHandlingDecoder<Tuple5<*, *, *, *, *>> {
 
   override fun supports(type: KType): Boolean = type.classifier == Tuple5::class
 

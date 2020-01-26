@@ -10,7 +10,7 @@ import com.sksamuel.hoplite.ThrowableFailure
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
-class KClassDecoder : NonNullableDecoder<KClass<*>> {
+class KClassDecoder : NullHandlingDecoder<KClass<*>> {
   override fun supports(type: KType): Boolean = type.classifier == KClass::class
   override fun safeDecode(node: Node,
                           type: KType,

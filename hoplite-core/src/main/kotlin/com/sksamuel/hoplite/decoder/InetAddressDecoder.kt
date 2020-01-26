@@ -12,7 +12,7 @@ import com.sksamuel.hoplite.arrow.toValidated
 import java.net.InetAddress
 import kotlin.reflect.KType
 
-class InetAddressDecoder : NonNullableDecoder<InetAddress> {
+class InetAddressDecoder : NullHandlingDecoder<InetAddress> {
   override fun supports(type: KType): Boolean = type.classifier == InetAddress::class
   override fun safeDecode(node: Node,
                           type: KType,

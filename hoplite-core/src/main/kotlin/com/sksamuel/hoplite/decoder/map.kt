@@ -12,11 +12,13 @@ import com.sksamuel.hoplite.arrow.sequence
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.starProjectedType
+import kotlin.reflect.full.withNullability
 
+class MapDecoder : NullHandlingDecoder<Map<*, *>> {
 
-class MapDecoder : NonNullableDecoder<Map<*, *>> {
-
-  override fun supports(type: KType): Boolean = type.isSubtypeOf(Map::class.starProjectedType)
+  override fun supports(type: KType): Boolean =
+    type.isSubtypeOf(Map::class.starProjectedType) ||
+      type.isSubtypeOf(Map::class.starProjectedType.withNullability(true))
 
   override fun safeDecode(node: Node,
                           type: KType,

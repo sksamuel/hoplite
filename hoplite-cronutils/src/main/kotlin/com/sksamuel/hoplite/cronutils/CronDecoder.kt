@@ -11,10 +11,10 @@ import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
-import com.sksamuel.hoplite.decoder.NonNullableDecoder
+import com.sksamuel.hoplite.decoder.NullHandlingDecoder
 import kotlin.reflect.KType
 
-class CronDecoder : NonNullableDecoder<Cron> {
+class CronDecoder : NullHandlingDecoder<Cron> {
 
   override fun supports(type: KType): Boolean = type.classifier == Cron::class
 

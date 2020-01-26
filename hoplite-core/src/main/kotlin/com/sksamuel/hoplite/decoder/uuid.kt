@@ -11,7 +11,7 @@ import com.sksamuel.hoplite.arrow.toValidated
 import java.util.*
 import kotlin.reflect.KType
 
-class UUIDDecoder : NonNullableDecoder<UUID> {
+class UUIDDecoder : NullHandlingDecoder<UUID> {
   override fun supports(type: KType): Boolean = type.classifier == UUID::class
   override fun safeDecode(node: Node,
                           type: KType,

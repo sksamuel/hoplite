@@ -13,7 +13,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.reflect.KType
 
-class FileDecoder : NonNullableDecoder<File> {
+class FileDecoder : NullHandlingDecoder<File> {
   override fun supports(type: KType): Boolean = type.classifier == File::class
   override fun safeDecode(node: Node,
                           type: KType,
@@ -24,7 +24,7 @@ class FileDecoder : NonNullableDecoder<File> {
   }
 }
 
-class PathDecoder : NonNullableDecoder<Path> {
+class PathDecoder : NullHandlingDecoder<Path> {
   override fun supports(type: KType): Boolean = type.classifier == Path::class
   override fun safeDecode(node: Node,
                           type: KType,

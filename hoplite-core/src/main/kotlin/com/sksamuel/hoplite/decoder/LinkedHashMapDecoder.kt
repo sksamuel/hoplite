@@ -12,10 +12,13 @@ import com.sksamuel.hoplite.arrow.sequence
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.starProjectedType
+import kotlin.reflect.full.withNullability
 
-class LinkedHashMapDecoder : NonNullableDecoder<LinkedHashMap<*, *>> {
+class LinkedHashMapDecoder : NullHandlingDecoder<LinkedHashMap<*, *>> {
 
-  override fun supports(type: KType): Boolean = type.isSubtypeOf(LinkedHashMap::class.starProjectedType)
+  override fun supports(type: KType): Boolean =
+    type.isSubtypeOf(LinkedHashMap::class.starProjectedType) ||
+      type.isSubtypeOf(LinkedHashMap::class.starProjectedType.withNullability(true))
 
   override fun safeDecode(node: Node,
                           type: KType,
