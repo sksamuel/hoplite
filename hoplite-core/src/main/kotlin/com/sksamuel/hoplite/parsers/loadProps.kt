@@ -31,7 +31,7 @@ fun Properties.toNode(source: String): Node {
     }
     val value = this["____value"]
     return when {
-      value == null && maps.isEmpty() -> throw java.lang.RuntimeException("Bug: unsupported state. value is null and map is empty")
+      value == null && maps.isEmpty() -> MapNode(emptyMap(), pos)
       value == null && maps.isNotEmpty() -> MapNode(maps.toMap(), pos, Undefined)
       maps.isEmpty() -> StringNode(value.toString(), pos)
       else -> MapNode(maps.toMap(), pos, StringNode(value.toString(), pos))

@@ -29,5 +29,13 @@ class PropsParserTest : StringSpec() {
           pos = Pos.FilePos(source = "a.props")
         )
     }
+
+    "empty properties load to an empty map" {
+      PropsParser().load(javaClass.getResourceAsStream("/empty.props"), source = "a.props") shouldBe
+        MapNode(
+          emptyMap(),
+          pos = Pos.FilePos("a.props")
+        )
+    }
   }
 }
