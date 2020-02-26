@@ -5,7 +5,7 @@ import com.sksamuel.hoplite.BooleanNode
 import com.sksamuel.hoplite.DoubleNode
 import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.MapNode
-import com.sksamuel.hoplite.NullValue
+import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
@@ -64,7 +64,7 @@ object ValueProduction {
           else -> throw RuntimeException("Unexpected element type for ConfigValueType.BOOLEAN: $v")
         }
       ConfigValueType.STRING -> StringNode(value.unwrapped().toString(), value.origin().toPos(source))
-      ConfigValueType.NULL -> NullValue(value.origin().toPos(source))
+      ConfigValueType.NULL -> NullNode(value.origin().toPos(source))
     }
   }
 }

@@ -10,4 +10,10 @@ dependencies {
     testImplementation "io.kotlintest:kotlintest-assertions-arrow:$kotlintest_version"
 }
 
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
 apply from: '../publish.gradle'

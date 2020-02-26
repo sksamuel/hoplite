@@ -22,6 +22,8 @@ class DataClassDecoder : Decoder<Any> {
 
   override fun supports(type: KType): Boolean = type.classifier is KClass<*> && (type.classifier as KClass<*>).isData
 
+  override fun priority(): Int = Int.MIN_VALUE
+
   override fun decode(node: Node,
                       type: KType,
                       context: DecoderContext): ConfigResult<Any> {

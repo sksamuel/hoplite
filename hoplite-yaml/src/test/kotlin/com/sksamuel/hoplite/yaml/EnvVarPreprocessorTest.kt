@@ -1,7 +1,7 @@
 package com.sksamuel.hoplite.yaml
 
 import com.sksamuel.hoplite.ConfigLoader
-import io.kotlintest.extensions.system.withEnvironment
+import io.kotest.extensions.system.withEnvironment
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.FunSpec
 

@@ -11,7 +11,7 @@ import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.DoubleNode
 import com.sksamuel.hoplite.LongNode
-import com.sksamuel.hoplite.NullValue
+import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.Undefined
@@ -35,7 +35,7 @@ class OptionDecoder : Decoder<Option<*>> {
     return context.decoder(t).flatMap { decoder ->
       when (node) {
         is Undefined -> None.valid()
-        is NullValue -> None.valid()
+        is NullNode -> None.valid()
         is StringNode, is LongNode, is DoubleNode, is BooleanNode -> decode(node, decoder)
         else -> ConfigFailure.DecodeError(node, type).invalid()
       }

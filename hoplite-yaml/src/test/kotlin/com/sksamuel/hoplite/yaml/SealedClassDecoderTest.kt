@@ -2,8 +2,8 @@ package com.sksamuel.hoplite.yaml
 
 import com.sksamuel.hoplite.ConfigException
 import com.sksamuel.hoplite.ConfigLoader
+import io.kotest.shouldThrow
 import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
 import io.kotlintest.specs.FunSpec
 
 sealed class Database {

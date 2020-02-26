@@ -110,7 +110,7 @@ data class DoubleNode(override val value: Double, override val pos: Pos) : Numbe
   override val simpleName: String = "Double"
 }
 
-data class NullValue(override val pos: Pos) : PrimitiveNode() {
+data class NullNode(override val pos: Pos) : PrimitiveNode() {
   override val simpleName: String = "null"
   override val value: Any? = null
 }

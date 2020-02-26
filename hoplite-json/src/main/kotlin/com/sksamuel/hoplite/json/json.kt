@@ -9,7 +9,7 @@ import com.sksamuel.hoplite.BooleanNode
 import com.sksamuel.hoplite.DoubleNode
 import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.MapNode
-import com.sksamuel.hoplite.NullValue
+import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
@@ -42,7 +42,7 @@ object TokenProduction {
       JsonToken.VALUE_NUMBER_FLOAT -> DoubleNode(parser.valueAsDouble, parser.currentLocation.toPos(source))
       JsonToken.VALUE_TRUE -> BooleanNode(true, parser.currentLocation.toPos(source))
       JsonToken.VALUE_FALSE -> BooleanNode(false, parser.currentLocation.toPos(source))
-      JsonToken.VALUE_NULL -> NullValue(parser.currentLocation.toPos(source))
+      JsonToken.VALUE_NULL -> NullNode(parser.currentLocation.toPos(source))
       else -> throw UnsupportedOperationException("Invalid json at ${parser.currentLocation}; encountered unexpected token ${parser.currentToken}")
     }
   }

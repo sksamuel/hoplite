@@ -1,8 +1,8 @@
 package com.sksamuel.hoplite.yaml
 
 import com.sksamuel.hoplite.ConfigLoader
-import io.kotlintest.matchers.numerics.shouldBePositive
-import io.kotlintest.matchers.string.shouldHaveLength
+import io.kotest.matchers.ints.shouldBePositive
+import io.kotest.matchers.string.shouldHaveLength
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.FunSpec
 

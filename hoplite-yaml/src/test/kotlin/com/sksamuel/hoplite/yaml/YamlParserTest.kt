@@ -2,11 +2,10 @@ package com.sksamuel.hoplite.yaml
 
 import com.sksamuel.hoplite.ArrayNode
 import com.sksamuel.hoplite.MapNode
-import com.sksamuel.hoplite.NullValue
+import com.sksamuel.hoplite.NullNode
 import io.kotlintest.specs.FunSpec
 import com.sksamuel.hoplite.Pos.LineColPos
 import com.sksamuel.hoplite.StringNode
-import io.kotlintest.shouldBe
 
 class YamlParserTest : FunSpec() {
   init {
@@ -40,13 +39,13 @@ class YamlParserTest : FunSpec() {
       YamlParser().load(javaClass.getResourceAsStream("/nulls.yml"), source = "basic.yml") shouldBe
         MapNode(
           map = mapOf(
-            "a" to NullValue(pos = LineColPos(line = 0, col = 3, source = "basic.yml")),
+            "a" to NullNode(pos = LineColPos(line = 0, col = 3, source = "basic.yml")),
             "b" to MapNode(
               map = mapOf(
                 "c" to StringNode(
                   value = "hello",
                   pos = LineColPos(line = 2, col = 5, source = "basic.yml")),
-                "d" to NullValue(LineColPos(line = 3, col = 5, source = "basic.yml"))
+                "d" to NullNode(LineColPos(line = 3, col = 5, source = "basic.yml"))
               ),
               pos = LineColPos(line = 2, col = 2, source = "basic.yml")
             )

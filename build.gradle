@@ -6,7 +6,7 @@ buildscript {
 
     ext.kotlin_version = '1.3.61'
     ext.arrow_version = "0.10.4"
-    ext.kotlintest_version = "3.4.2"
+    ext.kotlintest_version = "4.0.3071-SNAPSHOT"
 
     repositories {
         jcenter()
@@ -47,9 +47,9 @@ allprojects {
         compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
         compile "io.arrow-kt:arrow-core-data:$arrow_version"
         compile "io.arrow-kt:arrow-validation:$arrow_version"
-        testImplementation "io.kotlintest:kotlintest-assertions:$kotlintest_version"
-        testImplementation "io.kotlintest:kotlintest-assertions-arrow:$kotlintest_version"
-        testImplementation "io.kotlintest:kotlintest-runner-junit5:$kotlintest_version"
+        testImplementation "io.kotest:kotest-assertions-jvm:$kotlintest_version"
+        testImplementation "io.kotest:kotest-assertions-arrow-jvm:$kotlintest_version"
+        testImplementation "io.kotest:kotest-runner-junit5-jvm:$kotlintest_version"
     }
 
     test {
@@ -64,6 +64,13 @@ allprojects {
         }
     }
 }
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
 project(":") {
     publish.enabled = false
 }

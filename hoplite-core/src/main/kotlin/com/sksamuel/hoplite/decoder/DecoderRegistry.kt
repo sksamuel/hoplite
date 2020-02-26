@@ -15,9 +15,15 @@ import kotlin.reflect.full.createType
  */
 interface DecoderRegistry {
 
+  /**
+   * Returns a [Decoder] for the given kclass otherwise returns an invalid ConfigFailure.
+   */
   fun <T : Any> decoder(t: KClass<T>): ConfigResult<Decoder<T>>
+
   fun decoder(type: KType): ConfigResult<Decoder<*>>
+
   fun register(decoder: Decoder<*>): DecoderRegistry
+
   val size: Int
 
   companion object {
@@ -38,11 +44,11 @@ class DefaultDecoderRegistry(private val decoders: List<Decoder<*>>) : DecoderRe
   override fun decoder(type: KType): ConfigResult<Decoder<*>> {
     return when (type.classifier) {
       is KClass<*> -> {
-        val decoder = decoders.find { it.supports(type) }
+        val decoders = decoders.filter { it.supports(type) }
         when {
-          decoder == null && (type.classifier as KClass<*>).isData -> ConfigFailure.NoDataClassDecoder.invalid()
-          decoder == null -> ConfigFailure.NoSuchDecoder(type).invalid()
-          else -> decoder.valid()
+          decoders.isEmpty() && (type.classifier as KClass<*>).isData -> ConfigFailure.NoDataClassDecoder.invalid()
+          decoders.isEmpty() -> ConfigFailure.NoSuchDecoder(type).invalid()
+          else -> decoders.maxBy { it.priority() }!!.valid()
         }
       }
       else -> throw RuntimeException("Asked to decode $type")

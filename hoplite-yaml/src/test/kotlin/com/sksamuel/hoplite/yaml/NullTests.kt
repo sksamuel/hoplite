@@ -2,7 +2,7 @@ package com.sksamuel.hoplite.yaml
 
 import arrow.core.Invalid
 import com.sksamuel.hoplite.ConfigLoader
-import io.kotlintest.matchers.types.shouldBeInstanceOf
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 

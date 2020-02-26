@@ -8,7 +8,7 @@ import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
-import com.sksamuel.hoplite.NullValue
+import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.Undefined
 import kotlin.reflect.KType
 import kotlin.reflect.full.createType
@@ -23,6 +23,12 @@ interface Decoder<T> {
    * This method is called by the framework to locate a decoder suitable for a particular type.
    */
   fun supports(type: KType): Boolean
+
+  /**
+   * If multiple decoders can support the same type, then the one with the highest priority value will win.
+   * In the case of ties, the decoder will be picked arbitrarily.
+   */
+  fun priority(): Int = 0
 
   /**
    * Attempts to decode the given node into an instance of the given [KType].
@@ -73,7 +79,7 @@ interface NullHandlingDecoder<T> : Decoder<T> {
                       context: DecoderContext): Validated<ConfigFailure, T> =
     when (node) {
       is Undefined -> offerUndefined(type).map { it as T }
-      is NullValue -> offerNull(node, type).map { it as T }
+      is NullNode -> offerNull(node, type).map { it as T }
       else -> safeDecode(node, type, context)
     }
 

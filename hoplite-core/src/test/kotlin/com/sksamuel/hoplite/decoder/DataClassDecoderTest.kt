@@ -5,7 +5,7 @@ import com.sksamuel.hoplite.BooleanNode
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.MapNode
-import com.sksamuel.hoplite.NullValue
+import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.defaultParamMappers
@@ -42,9 +42,9 @@ class DataClassDecoderTest : StringSpec() {
 
       val node = MapNode(
         mapOf(
-          "a" to NullValue(Pos.NoPos),
-          "b" to NullValue(Pos.NoPos),
-          "c" to NullValue(Pos.NoPos)
+          "a" to NullNode(Pos.NoPos),
+          "b" to NullNode(Pos.NoPos),
+          "c" to NullNode(Pos.NoPos)
         ),
         Pos.NoPos
       )

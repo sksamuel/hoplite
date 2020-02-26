@@ -1,6 +1,6 @@
 package com.sksamuel.hoplite
 
-import io.kotlintest.assertSoftly
+import io.kotest.assertions.assertSoftly
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 import kotlin.reflect.KParameter

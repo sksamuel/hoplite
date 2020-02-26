@@ -3,7 +3,7 @@ package com.sksamuel.hoplite.yaml
 import com.sksamuel.hoplite.ArrayNode
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
-import com.sksamuel.hoplite.NullValue
+import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Undefined
@@ -88,7 +88,7 @@ object TokenProduction {
       //    { n, FALSE, No, off }    : Boolean false
       is ScalarEvent -> {
         if (event.value == "null" && event.scalarStyle == DumperOptions.ScalarStyle.PLAIN)
-          NullValue(event.startMark.toPos(source))
+          NullNode(event.startMark.toPos(source))
         else
           StringNode(event.value, event.startMark.toPos(source))
       }
