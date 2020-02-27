@@ -4,8 +4,8 @@ import com.amazonaws.SdkClientException
 import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
-import io.kotlintest.shouldThrow
-import io.kotlintest.specs.FunSpec
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.FunSpec
 
 class ParameterStorePreprocessorTest : FunSpec() {
 

@@ -1,8 +1,8 @@
 package com.sksamuel.hoplite.decoder
 
 import com.sksamuel.hoplite.ConfigLoader
-import io.kotlintest.shouldBe
-import io.kotlintest.specs.StringSpec
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.shouldBe
 
 class TripleDecoderTest : StringSpec({
 

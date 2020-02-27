@@ -1,8 +1,8 @@
 package com.sksamuel.hoplite.toml
 
 import com.sksamuel.hoplite.ConfigLoader
-import io.kotlintest.shouldBe
-import io.kotlintest.specs.StringSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.core.spec.style.StringSpec
 
 data class Database(val server: String, val ports: List<Int>, val connectionMax: Int, val enabled: Boolean)
 data class Server(val ip: String, val dc: String)

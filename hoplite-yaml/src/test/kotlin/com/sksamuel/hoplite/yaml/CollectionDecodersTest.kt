@@ -2,8 +2,8 @@ package com.sksamuel.hoplite.yaml
 
 import arrow.core.NonEmptyList
 import com.sksamuel.hoplite.ConfigLoader
-import io.kotlintest.shouldBe
-import io.kotlintest.specs.FunSpec
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 
 class CollectionDecodersTest : FunSpec() {
   init {

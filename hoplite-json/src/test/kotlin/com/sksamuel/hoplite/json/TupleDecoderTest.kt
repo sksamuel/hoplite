@@ -5,8 +5,8 @@ import arrow.core.Tuple3
 import arrow.core.Tuple4
 import arrow.core.Tuple5
 import com.sksamuel.hoplite.ConfigLoader
-import io.kotlintest.shouldBe
-import io.kotlintest.specs.StringSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.core.spec.style.StringSpec
 import java.util.*
 
 inline class Port(val value: Int)

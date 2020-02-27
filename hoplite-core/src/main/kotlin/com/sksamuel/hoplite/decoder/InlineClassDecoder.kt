@@ -21,6 +21,8 @@ class InlineClassDecoder : Decoder<Any> {
     else -> false
   }
 
+  override fun priority(): Int = Integer.MIN_VALUE
+
   override fun decode(node: Node,
                       type: KType,
                       context: DecoderContext): ConfigResult<Any> {

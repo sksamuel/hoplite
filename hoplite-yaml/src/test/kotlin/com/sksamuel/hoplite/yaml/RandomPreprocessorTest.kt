@@ -3,7 +3,7 @@ package com.sksamuel.hoplite.yaml
 import com.sksamuel.hoplite.ConfigLoader
 import io.kotest.matchers.ints.shouldBePositive
 import io.kotest.matchers.string.shouldHaveLength
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import io.kotlintest.specs.FunSpec
 
 class RandomPreprocessorTest : FunSpec() {

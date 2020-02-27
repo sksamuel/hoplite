@@ -4,8 +4,8 @@ import arrow.core.Invalid
 import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.parsers.defaultParserRegistry
 import com.sksamuel.hoplite.preprocessor.defaultPreprocessors
-import io.kotlintest.shouldBe
-import io.kotlintest.specs.FunSpec
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 
 class EmptyDecoderRegistryTest : FunSpec() {
   init {

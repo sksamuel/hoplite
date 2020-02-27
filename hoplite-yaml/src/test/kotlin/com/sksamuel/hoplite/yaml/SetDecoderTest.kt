@@ -2,8 +2,8 @@ package com.sksamuel.hoplite.yaml
 
 import com.sksamuel.hoplite.ConfigLoader
 import io.kotest.matchers.types.shouldBeInstanceOf
-import io.kotlintest.shouldBe
-import io.kotlintest.specs.StringSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.core.spec.style.StringSpec
 
 class SetDecoderTest : StringSpec({
   "file decoded from json" {

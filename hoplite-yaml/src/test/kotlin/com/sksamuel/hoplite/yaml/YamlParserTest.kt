@@ -3,9 +3,10 @@ package com.sksamuel.hoplite.yaml
 import com.sksamuel.hoplite.ArrayNode
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.NullNode
-import io.kotlintest.specs.FunSpec
 import com.sksamuel.hoplite.Pos.LineColPos
 import com.sksamuel.hoplite.StringNode
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 
 class YamlParserTest : FunSpec() {
   init {

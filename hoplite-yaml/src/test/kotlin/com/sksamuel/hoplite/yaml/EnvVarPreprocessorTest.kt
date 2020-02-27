@@ -1,9 +1,9 @@
 package com.sksamuel.hoplite.yaml
 
 import com.sksamuel.hoplite.ConfigLoader
+import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.system.withEnvironment
-import io.kotlintest.shouldBe
-import io.kotlintest.specs.FunSpec
+import io.kotest.matchers.shouldBe
 
 class EnvVarPreprocessorTest : FunSpec() {
 

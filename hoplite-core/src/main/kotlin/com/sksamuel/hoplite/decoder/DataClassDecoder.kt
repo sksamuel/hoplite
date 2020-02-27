@@ -7,6 +7,7 @@ import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.ParameterMapper
 import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.arrow.flatMap
@@ -31,7 +32,7 @@ class DataClassDecoder : Decoder<Any> {
     val klass = type.classifier as KClass<*>
     val constructor = klass.constructors.first()
 
-    val args: ValidatedNel<ConfigFailure.ParamFailure, List<Pair<KParameter, Any?>>> = constructor.parameters.mapNotNull { param ->
+    val args: ValidatedNel<ConfigFailure, List<Pair<KParameter, Any?>>> = constructor.parameters.map { param ->
 
       val n = context.paramMappers.fold<ParameterMapper, Node>(Undefined) { n, mapper ->
         if (n.isDefined) n else node.atKey(mapper.map(param))
@@ -39,10 +40,15 @@ class DataClassDecoder : Decoder<Any> {
 
       val processed = context.preprocessors.fold(n) { acc, pp -> pp.process(acc) }
 
-      if (param.isOptional && processed is Undefined) {
-        null // skip this parameter and let the default value be filled in
-      } else {
-        context.decoder(param)
+      when {
+        // if we have no value for this parameter at all, and it is optional we can skip it, and
+        // kotlin will use the default
+        param.isOptional && processed is Undefined -> Pair(param, null).valid()
+        param.type.isMarkedNullable && processed is Undefined -> Pair(param, null).valid()
+        param.type.isMarkedNullable && processed is NullNode -> Pair(param, null).valid()
+        processed is Undefined -> ConfigFailure.MissingValue.invalid()
+        processed is NullNode -> ConfigFailure.NullValueForNonNullField(node).invalid()
+        else -> context.decoder(param)
           .flatMap { it.decode(processed, param.type, context) }
           .map { param to it }
           .leftMap { ConfigFailure.ParamFailure(param, it) }

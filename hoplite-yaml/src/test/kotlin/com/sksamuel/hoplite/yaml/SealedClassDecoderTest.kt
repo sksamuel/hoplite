@@ -2,9 +2,9 @@ package com.sksamuel.hoplite.yaml
 
 import com.sksamuel.hoplite.ConfigException
 import com.sksamuel.hoplite.ConfigLoader
-import io.kotest.shouldThrow
-import io.kotlintest.shouldBe
-import io.kotlintest.specs.FunSpec
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 
 sealed class Database {
   data class Elasticsearch(val host: String, val port: Int, val index: String) : Database()

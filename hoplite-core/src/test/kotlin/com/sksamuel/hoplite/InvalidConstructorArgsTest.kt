@@ -1,8 +1,8 @@
 package com.sksamuel.hoplite
 
 import arrow.core.Invalid
-import io.kotlintest.shouldBe
-import io.kotlintest.specs.FunSpec
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 
 class InvalidConstructorArgsTest : FunSpec() {
   init {

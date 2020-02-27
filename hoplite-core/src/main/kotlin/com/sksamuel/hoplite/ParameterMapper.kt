@@ -13,9 +13,13 @@ fun defaultParamMappers(): List<ParameterMapper> = listOf(
  * a config value for that parameter. This allows implementations to tweak the
  * name used for lookups.
  *
- * For example, the [SnakeCaseParamMapper] returns a name in in snake-case.
+ * For example, the [SnakeCaseParamMapper] returns a name in in snake_case.
  * This allows you to define snake-case config-keys* and map them to camel case
  * field names.
+ *
+ * Mappers stack, so that if multiple mappers return different names, then they
+ * are all attempted in turn. This allows for instance, snake_case and kebab-case
+ * to be mixed in the same project.
  */
 interface ParameterMapper {
   fun map(param: KParameter): String

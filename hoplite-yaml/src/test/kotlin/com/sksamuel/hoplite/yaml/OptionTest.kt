@@ -4,7 +4,7 @@ import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
 import com.sksamuel.hoplite.ConfigLoader
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import io.kotlintest.specs.FunSpec
 import java.util.*
 

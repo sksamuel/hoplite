@@ -4,7 +4,7 @@ import arrow.core.Invalid
 import arrow.core.NonEmptyList
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigLoader
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import io.kotlintest.specs.FunSpec
 
 class ResourceTest : FunSpec({

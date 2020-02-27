@@ -8,8 +8,8 @@ import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
-import io.kotlintest.shouldBe
-import io.kotlintest.specs.StringSpec
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.shouldBe
 import kotlin.reflect.full.createType
 
 class RegionDecoderTest : StringSpec() {

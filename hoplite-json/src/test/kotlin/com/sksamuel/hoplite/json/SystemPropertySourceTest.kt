@@ -2,7 +2,7 @@ package com.sksamuel.hoplite.json
 
 import com.sksamuel.hoplite.ConfigLoader
 import io.kotlintest.extensions.system.withSystemProperties
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import io.kotlintest.specs.FunSpec
 
 class SystemPropertySourceTest : FunSpec({

@@ -51,7 +51,8 @@ inline fun <T, reified U> Decoder<T>.map(crossinline f: (T) -> U): Decoder<U> = 
 
 /**
  * Extends [Decoder] to provide support for nullable types. Other decoders can extend this
- * interface and not worry about dealing with nullability concerns.
+ * interface and not worry about dealing with nullability concerns, as this implementation
+ * will check for null before calling down.
  */
 @Suppress("UNCHECKED_CAST")
 interface NullHandlingDecoder<T> : Decoder<T> {

@@ -2,7 +2,7 @@ package com.sksamuel.hoplite.hocon
 
 import com.sksamuel.hoplite.ConfigException
 import com.sksamuel.hoplite.ConfigLoader
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import io.kotlintest.shouldThrow
 import io.kotlintest.specs.FunSpec
 

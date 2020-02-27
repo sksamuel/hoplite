@@ -3,8 +3,8 @@ package com.sksamuel.hoplite.toml
 import arrow.core.Tuple2
 import arrow.core.Tuple3
 import com.sksamuel.hoplite.ConfigLoader
-import io.kotlintest.shouldBe
-import io.kotlintest.specs.StringSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.core.spec.style.StringSpec
 import java.util.*
 
 class TupleDecoderTest : StringSpec({

@@ -1,8 +1,10 @@
+@file:Suppress("BlockingMethodInNonBlockingContext")
+
 package com.sksamuel.hoplite
 
 import com.sksamuel.hoplite.parsers.toNode
-import io.kotlintest.shouldBe
-import io.kotlintest.specs.FunSpec
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 import java.util.*
 
 class LoadPropsTest : FunSpec({

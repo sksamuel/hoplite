@@ -8,7 +8,7 @@ import com.sksamuel.hoplite.MapNode
 import io.kotlintest.specs.FunSpec
 import com.sksamuel.hoplite.Pos.LineColPos
 import com.sksamuel.hoplite.StringNode
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 
 class JsonParserTest : FunSpec() {
   init {

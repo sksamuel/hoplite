@@ -6,7 +6,7 @@ buildscript {
 
     ext.kotlin_version = '1.3.61'
     ext.arrow_version = "0.10.4"
-    ext.kotlintest_version = "4.0.3071-SNAPSHOT"
+    ext.kotest_version = "4.0.0-BETA1"
 
     repositories {
         jcenter()
@@ -47,9 +47,9 @@ allprojects {
         compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
         compile "io.arrow-kt:arrow-core-data:$arrow_version"
         compile "io.arrow-kt:arrow-validation:$arrow_version"
-        testImplementation "io.kotest:kotest-assertions-jvm:$kotlintest_version"
-        testImplementation "io.kotest:kotest-assertions-arrow-jvm:$kotlintest_version"
-        testImplementation "io.kotest:kotest-runner-junit5-jvm:$kotlintest_version"
+        testImplementation "io.kotest:kotest-assertions-jvm:$kotest_version"
+        testImplementation "io.kotest:kotest-assertions-arrow-jvm:$kotest_version"
+        testImplementation "io.kotest:kotest-runner-junit5-jvm:$kotest_version"
     }
 
     test {

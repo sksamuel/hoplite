@@ -1,7 +1,7 @@
 package com.sksamuel.hoplite
 
-import io.kotlintest.shouldBe
-import io.kotlintest.specs.FunSpec
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 
 class FallbackTest : FunSpec({
 

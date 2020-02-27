@@ -2,9 +2,9 @@ package com.sksamuel.hoplite.yaml
 
 import com.sksamuel.hoplite.ConfigException
 import com.sksamuel.hoplite.ConfigLoader
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
-import io.kotlintest.specs.StringSpec
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.shouldBe
 
 data class Parser(val regex: Regex, val id: String)
 data class Supplier(val name: String, val code: String, val parsers: List<Parser>)

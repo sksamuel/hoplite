@@ -5,8 +5,6 @@ plugins {
 dependencies {
     api project(":hoplite-core")
     implementation 'org.yaml:snakeyaml:1.25'
-    testImplementation "io.kotlintest:kotlintest-runner-junit5:$kotlintest_version"
-    testImplementation "io.kotlintest:kotlintest-assertions-arrow:$kotlintest_version"
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {

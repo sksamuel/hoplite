@@ -1,8 +1,8 @@
 package com.sksamuel.hoplite
 
-import io.kotlintest.assertSoftly
-import io.kotlintest.shouldBe
-import io.kotlintest.specs.StringSpec
+import io.kotest.assertions.assertSoftly
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.shouldBe
 import kotlin.reflect.KParameter
 
 class SnakeCaseParamMapperTest : StringSpec() {
