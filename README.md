@@ -127,13 +127,12 @@ That same function can be used to map non-default file extensions to an existing
 
 
 
-## Property Sources (New in 1.1.0)
+## Property Sources
 
-The `PropertySource` interface is how Hoplite locates configuration values. By supporting several different implementations
-for providing config, Hoplite makes it easy to allow per-system or per-user overrides of config.
+The `PropertySource` interface is how Hoplite reads configuration values.
+Hoplite supports several built in property source implementations, and you can write your own if required.
 
-Typically your config resides in files, and so the `ConfigFilePropertySource` locates these files and loads them.
-However there are several other built in property sources which will read config from other places.
+Typically your config resides in files, and so the `ConfigFilePropertySource` is used for file / resource based config.
 
 This is the list of built in property sources, and the order is from top to bottom. Configuration values in a higher
 priority source take precedence over those in lower sources.
@@ -145,6 +144,16 @@ priority source take precedence over those in lower sources.
 | `SystemPropertiesPropertySource`          | Provides config through system properties that are prefixed with `config.override.`. For example, starting your JVM with `-Dconfig.override.database.name` would override a config key of `database.name` residing in a file. |
 | `UserSettingsPropertySource`              | Provides config through a config file defined at ~/.userconfig.[ext] where ext is one of the [supported formats](#supported-formats). |
 | `ConfigFilePropertySource`                | Reads config from files in [several formats](https://github.com/sksamuel/hoplite/#supported-formats) based on the file extension. Paths or resource names are supplied to the `ConfigLoader` as the config is built.  |
+
+By default a file must exist if specified, but this can be relaxed by specifying a `ConfigFilePropertySource` with
+optional equal to true:
+
+```kotlin
+ConfigLoader()
+  .withPropertySource(ConfigFilePropertySource.optionalResource("/missing.yml"))
+  .loadConfig<MyConfig>("/basic.yml")
+```
+
 
 
 ## Cascading Config
@@ -378,7 +387,7 @@ In these cases, you would need to register a custom serializer.
 For the Jackson project, a `HopliteModule` object is available in the `hoplite-json` module.
 Register this with your Jackson mapper, like `mapper.registerModule(HopliteModule)` and then `Masked` values will be ouputted into Json as "****"
 
-## Inline Classes (New in 1.1)
+## Inline Classes
 
 Some developers, this writer included, like to have strong types wrapping simple values. For example, a `Port` object rather than an Int.
 This helps to alleviate Stringy typed development.
@@ -461,6 +470,7 @@ Hoplite makes available several other modules that add functionality outside of 
 | Module        | Function          |
 |:--------------|:------------------|
 | hoplite-aws   | Provides decoder for aws `Region` and a preprocessor for Amazon's parameter store |
+| hoplite-arrow | Provides decoders for common arrow types |
 | hoplite-hdfs  | Provides decoder for hadoop `Path` |
 | hoplite-ktor  | Adaptor from `ConfigLoader` into Ktor `ApplicationConfig` |
 
