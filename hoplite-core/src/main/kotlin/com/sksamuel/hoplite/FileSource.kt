@@ -1,12 +1,9 @@
 package com.sksamuel.hoplite
 
-import arrow.core.Try
-import arrow.core.Valid
-import arrow.core.toOption
-import arrow.core.invalid
-import arrow.core.valid
-import com.sksamuel.hoplite.arrow.sequence
-import com.sksamuel.hoplite.arrow.toValidated
+import com.sksamuel.hoplite.fp.Try
+import com.sksamuel.hoplite.fp.invalid
+import com.sksamuel.hoplite.fp.sequence
+import com.sksamuel.hoplite.fp.valid
 import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Path
@@ -29,20 +26,16 @@ sealed class FileSource {
     override fun describe(): String = resource
     override fun ext() = resource.split('.').last()
     override fun open(): ConfigResult<InputStream> =
-      this.javaClass.getResourceAsStream(resource).toOption().fold(
-        { ConfigFailure.UnknownSource(resource).invalid() }, { Valid(it) }
-      )
+      this.javaClass.getResourceAsStream(resource)?.valid() ?: ConfigFailure.UnknownSource(resource).invalid()
   }
 
   companion object {
     fun fromClasspathResources(resources: List<String>): ConfigResult<List<FileSource>> {
       return resources.map { resource ->
-        this::class.java.getResourceAsStream(resource).toOption().fold(
-          { ConfigFailure.UnknownSource(resource).invalid() },
-          { ClasspathSource(resource).valid() }
-        )
+        this::class.java.getResourceAsStream(resource)?.let { ClasspathSource(resource).valid() }
+          ?: ConfigFailure.UnknownSource(resource).invalid()
       }.sequence()
-        .leftMap { ConfigFailure.MultipleFailures(it) }
+        .mapInvalid { ConfigFailure.MultipleFailures(it) }
     }
 
     fun fromPaths(paths: List<Path>): ConfigResult<List<FileSource>> {
@@ -52,7 +45,7 @@ sealed class FileSource {
           { PathSource(path).valid() }
         )
       }.sequence()
-        .leftMap { ConfigFailure.MultipleFailures(it) }
+        .mapInvalid { ConfigFailure.MultipleFailures(it) }
     }
   }
 }

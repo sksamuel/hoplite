@@ -1,6 +1,7 @@
 package com.sksamuel.hoplite
 
-import arrow.core.NonEmptyList
+import com.sksamuel.hoplite.decoder.Decoder
+import com.sksamuel.hoplite.fp.NonEmptyList
 import com.sksamuel.hoplite.parsers.Parser
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -40,12 +41,16 @@ sealed class ConfigFailure {
         "Expected args are ${constructor.parameters.map { it.type.simpleName }}"
   }
 
+  data class DataClassWithoutConstructor(val kclass: KClass<*>) : ConfigFailure() {
+    override fun description(): String = "Data class ${kclass.qualifiedName} has no constructors"
+  }
+
   data class UnknownSource(val source: String) : ConfigFailure() {
     override fun description(): String = "Could not find config file $source"
   }
 
   data class MultipleFailures(val failures: NonEmptyList<ConfigFailure>) : ConfigFailure() {
-    override fun description(): String = failures.map { it.description() }.all.joinToString("\n\n")
+    override fun description(): String = failures.map { it.description() }.list.joinToString("\n\n")
   }
 
   data class NoSealedClassSubtype(val type: KClass<*>, val node: Node) : ConfigFailure() {
@@ -98,8 +103,10 @@ sealed class ConfigFailure {
     override fun description(): String = "Type defined as not-null but null was loaded from config ${node.pos.loc()}"
   }
 
-  data class NoSuchDecoder(val type: KType) : ConfigFailure() {
-    override fun description(): String = "Unable to locate a decoder for ${type.simpleName}"
+  data class NoSuchDecoder(val type: KType,
+                           val decoders: List<Decoder<*>>) : ConfigFailure() {
+    override fun description(): String =
+      "Unable to locate a decoder for ${type.simpleName}"
   }
 
   data class NumberConversionError(val node: Node, val type: KType) : ConfigFailure() {
@@ -119,12 +126,12 @@ sealed class ConfigFailure {
 
   data class CollectionElementErrors(val node: Node, val errors: NonEmptyList<ConfigFailure>) : ConfigFailure() {
     override fun description(): String = "Collection element decode failure ${node.pos.loc()}:\n\n" +
-      errors.all.joinToString("\n\n") { it.description().prependIndent(Constants.indent) }
+      errors.list.joinToString("\n\n") { it.description().indent(Constants.indent) }
   }
 
   data class TupleErrors(val node: Node, val errors: NonEmptyList<ConfigFailure>) : ConfigFailure() {
     override fun description(): String = "- Could not instantiate Tuple because:\n\n" +
-      errors.all.joinToString("\n\n") { it.description().prependIndent(Constants.indent) }
+      errors.list.joinToString("\n\n") { it.description().indent(Constants.indent) }
   }
 
   data class InvalidEnumConstant(val node: Node,
@@ -137,7 +144,7 @@ sealed class ConfigFailure {
                                   val type: KType,
                                   val pos: Pos) : ConfigFailure() {
     override fun description(): String = "- Could not instantiate '$type' because:\n\n" +
-      errors.all.joinToString("\n\n") { it.description().prependIndent(Constants.indent) }
+      errors.list.joinToString("\n\n") { it.description().indent(Constants.indent) }
   }
 
   data class ParamFailure(val param: KParameter, val error: ConfigFailure) : ConfigFailure() {
@@ -147,4 +154,15 @@ sealed class ConfigFailure {
 
 data class ThrowableFailure(val throwable: Throwable) : ConfigFailure() {
   override fun description() = "${throwable.message}.${throwable.stackTrace.toList()}"
+}
+
+fun String.indent(indent: String = "    "): String {
+  val lines = lineSequence()
+    .map {
+      when {
+        it.isBlank() -> it.trim()
+        else -> indent + it
+      }
+    }
+  return lines.joinToString("\n")
 }

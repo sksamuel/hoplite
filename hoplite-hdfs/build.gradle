@@ -5,8 +5,6 @@ plugins {
 dependencies {
     api project(":hoplite-core")
     api 'org.apache.hadoop:hadoop-common:2.6.5'
-    implementation "io.arrow-kt:arrow-core-data:$arrow_version"
-    implementation "io.arrow-kt:arrow-validation:$arrow_version"
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {

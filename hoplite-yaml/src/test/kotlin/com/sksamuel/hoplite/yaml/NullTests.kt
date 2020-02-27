@@ -1,7 +1,7 @@
 package com.sksamuel.hoplite.yaml
 
-import arrow.core.Invalid
 import com.sksamuel.hoplite.ConfigLoader
+import com.sksamuel.hoplite.fp.Validated
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -20,7 +20,7 @@ class NullTests : StringSpec() {
 
     "null value provided for non-nullable field" {
       data class Test(val a: String, val b: Double)
-      ConfigLoader().loadConfig<Test>("/test_nulls.yml").shouldBeInstanceOf<Invalid<*>>()
+      ConfigLoader().loadConfig<Test>("/test_nulls.yml").shouldBeInstanceOf<Validated.Invalid<*>>()
     }
 
     "undefined value for nullable field" {
@@ -32,7 +32,7 @@ class NullTests : StringSpec() {
 
     "undefined value for non-nullable field" {
       data class Test(val a: String, val b: Double)
-      ConfigLoader().loadConfig<Test>("/test_undefined.yml").shouldBeInstanceOf<Invalid<*>>()
+      ConfigLoader().loadConfig<Test>("/test_undefined.yml").shouldBeInstanceOf<Validated.Invalid<*>>()
     }
 
     "null value provided for inline class" {

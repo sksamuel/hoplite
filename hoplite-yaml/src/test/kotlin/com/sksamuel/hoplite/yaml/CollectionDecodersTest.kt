@@ -1,7 +1,7 @@
 package com.sksamuel.hoplite.yaml
 
-import arrow.core.NonEmptyList
 import com.sksamuel.hoplite.ConfigLoader
+import com.sksamuel.hoplite.fp.NonEmptyList
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
@@ -40,13 +40,6 @@ class CollectionDecodersTest : FunSpec() {
 
       val config = ConfigLoader().loadConfigOrThrow<Test>("/basic.yml")
       config shouldBe Test(null, null)
-    }
-
-    test("NonEmptyList<A> as delimited string") {
-      data class Test(val strings: NonEmptyList<String>, val longs: NonEmptyList<Long>)
-
-      val config = ConfigLoader().loadConfigOrThrow<Test>("/test_array_as_delimited_string.yml")
-      config shouldBe Test(NonEmptyList.of("1", "2", "a", "b"), NonEmptyList.of(1, 2, 3, 4))
     }
 
     test("nullable List<T> with values") {

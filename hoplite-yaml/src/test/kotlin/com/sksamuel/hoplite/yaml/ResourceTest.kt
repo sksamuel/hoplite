@@ -1,19 +1,18 @@
 package com.sksamuel.hoplite.yaml
 
-import arrow.core.Invalid
-import arrow.core.NonEmptyList
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigLoader
+import com.sksamuel.hoplite.fp.Validated
+import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.kotlintest.specs.FunSpec
 
 class ResourceTest : FunSpec({
 
   test("return failure for missing resource") {
     data class Foo(val a: String)
 
-    val e = ConfigLoader().loadConfig<Foo>("/missing.yml") as Invalid<ConfigFailure>
-    e.e shouldBe ConfigFailure.MultipleFailures(NonEmptyList.just(ConfigFailure.UnknownSource("/missing.yml")))
+    val e = ConfigLoader().loadConfig<Foo>("/missing.yml") as Validated.Invalid<ConfigFailure>
+    e.error.description() shouldBe """Could not find config file /missing.yml"""
   }
 
   test("support fallback") {

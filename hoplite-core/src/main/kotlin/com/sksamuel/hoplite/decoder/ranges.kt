@@ -2,15 +2,15 @@ package com.sksamuel.hoplite.decoder
 
 import kotlin.reflect.KType
 
-import arrow.core.Try
-import arrow.core.getOrElse
-import arrow.core.invalid
-import arrow.core.valid
+import com.sksamuel.hoplite.fp.invalid
+import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.fp.Try
+import com.sksamuel.hoplite.fp.getOrElse
 
 class IntRangeDecoder : NullHandlingDecoder<IntRange> {
   override fun supports(type: KType): Boolean = type.classifier == IntRange::class

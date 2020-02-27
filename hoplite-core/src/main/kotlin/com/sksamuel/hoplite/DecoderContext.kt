@@ -1,8 +1,8 @@
 package com.sksamuel.hoplite
 
-import arrow.core.Validated
 import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.decoder.DecoderRegistry
+import com.sksamuel.hoplite.fp.Validated
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import kotlin.reflect.KParameter
 import kotlin.reflect.KType
@@ -19,5 +19,6 @@ data class DecoderContext(val decoders: DecoderRegistry,
 
   companion object {
     val zero = DecoderContext(DecoderRegistry.zero, emptyList(), emptyList())
+    operator fun invoke(registry: DecoderRegistry) = DecoderContext(registry, emptyList(), emptyList())
   }
 }

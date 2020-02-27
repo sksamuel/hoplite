@@ -1,14 +1,16 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package com.sksamuel.hoplite.decoder
 
-import arrow.core.invalid
+import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.ArrayNode
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
-import com.sksamuel.hoplite.arrow.flatMap
-import com.sksamuel.hoplite.arrow.sequence
+import com.sksamuel.hoplite.fp.flatMap
+import com.sksamuel.hoplite.fp.sequence
 import java.util.*
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubtypeOf
@@ -30,7 +32,7 @@ class SortedSetDecoder<T : Comparable<T>> : NullHandlingDecoder<SortedSet<T>> {
 
     fun decode(node: ArrayNode, decoder: Decoder<T>): ConfigResult<SortedSet<T>> {
       return node.elements.map { decoder.decode(it, type, context) }.sequence()
-        .leftMap { ConfigFailure.CollectionElementErrors(node, it) }
+        .mapInvalid { ConfigFailure.CollectionElementErrors(node, it) }
         .map { it.toSortedSet() }
     }
 
@@ -39,7 +41,7 @@ class SortedSetDecoder<T : Comparable<T>> : NullHandlingDecoder<SortedSet<T>> {
         StringNode(it.trim(), node.pos)
       }
       return tokens.map { decoder.decode(it, type, context) }.sequence()
-        .leftMap { ConfigFailure.CollectionElementErrors(node, it) }
+        .mapInvalid { ConfigFailure.CollectionElementErrors(node, it) }
         .map { it.toSortedSet() }
     }
 

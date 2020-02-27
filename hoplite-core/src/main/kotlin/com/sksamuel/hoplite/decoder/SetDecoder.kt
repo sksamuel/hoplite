@@ -1,14 +1,14 @@
 package com.sksamuel.hoplite.decoder
 
-import arrow.core.invalid
+import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.ArrayNode
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
-import com.sksamuel.hoplite.arrow.flatMap
-import com.sksamuel.hoplite.arrow.sequence
+import com.sksamuel.hoplite.fp.flatMap
+import com.sksamuel.hoplite.fp.sequence
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.starProjectedType
@@ -28,7 +28,7 @@ class SetDecoder : NullHandlingDecoder<Set<*>> {
 
     fun <T> decode(node: ArrayNode, decoder: Decoder<T>): ConfigResult<Set<T>> {
       return node.elements.map { decoder.decode(it, type, context) }.sequence()
-        .leftMap { ConfigFailure.CollectionElementErrors(node, it) }
+        .mapInvalid { ConfigFailure.CollectionElementErrors(node, it) }
         .map { it.toSet() }
     }
 
@@ -37,7 +37,7 @@ class SetDecoder : NullHandlingDecoder<Set<*>> {
         StringNode(it.trim(), node.pos)
       }
       return tokens.map { decoder.decode(it, type, context) }.sequence()
-        .leftMap { ConfigFailure.CollectionElementErrors(node, it) }
+        .mapInvalid { ConfigFailure.CollectionElementErrors(node, it) }
         .map { it.toSet() }
     }
 

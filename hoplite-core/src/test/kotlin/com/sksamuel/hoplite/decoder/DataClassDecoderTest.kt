@@ -1,6 +1,6 @@
 package com.sksamuel.hoplite.decoder
 
-import arrow.core.valid
+import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.BooleanNode
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.LongNode

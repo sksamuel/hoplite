@@ -12,15 +12,15 @@ import java.time.Year
 import java.time.YearMonth
 import java.util.Date
 
-import arrow.core.Validated
-import arrow.core.invalid
-import arrow.core.valid
+import com.sksamuel.hoplite.fp.invalid
+import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.fp.Validated
 import com.sksamuel.hoplite.parseDuration
 import com.sksamuel.hoplite.parsePeriod
 import java.time.MonthDay
@@ -57,7 +57,7 @@ class DurationDecoder : NonNullableLeafDecoder<Duration> {
   override fun safeLeafDecode(node: Node,
                               type: KType,
                               context: DecoderContext): ConfigResult<Duration> = when (node) {
-    is StringNode -> parseDuration(node.value).leftMap { ConfigFailure.DecodeError(node, type) }
+    is StringNode -> parseDuration(node.value).mapInvalid { ConfigFailure.DecodeError(node, type) }
     is LongNode -> Duration.ofMillis(node.value).valid()
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
@@ -139,7 +139,7 @@ class PeriodDecoder : NonNullableLeafDecoder<Period> {
   override fun safeLeafDecode(node: Node,
                               type: KType,
                               context: DecoderContext): ConfigResult<Period> = when (node) {
-    is StringNode -> parsePeriod(node.value).leftMap { ConfigFailure.DecodeError(node, type) }
+    is StringNode -> parsePeriod(node.value).mapInvalid { ConfigFailure.DecodeError(node, type) }
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }

@@ -1,0 +1,23 @@
+buildscript {
+    ext.awsVersion = "1.11.708"
+}
+
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+}
+
+dependencies {
+    api project(":hoplite-core")
+    testImplementation project(":hoplite-toml")
+    testImplementation project(":hoplite-yaml")
+    testImplementation project(":hoplite-json")
+    implementation 'io.arrow-kt:arrow-validation:0.10.4'
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+apply from: '../publish.gradle'

@@ -1,7 +1,5 @@
 package com.sksamuel.hoplite.cronutils
 
-import arrow.core.invalid
-import arrow.core.valid
 import com.cronutils.model.Cron
 import com.cronutils.model.CronType
 import com.cronutils.model.definition.CronDefinitionBuilder
@@ -12,6 +10,8 @@ import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.decoder.NullHandlingDecoder
+import com.sksamuel.hoplite.fp.invalid
+import com.sksamuel.hoplite.fp.valid
 import kotlin.reflect.KType
 
 class CronDecoder : NullHandlingDecoder<Cron> {

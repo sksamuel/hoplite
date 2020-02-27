@@ -8,7 +8,8 @@ import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
-import io.kotlintest.specs.FunSpec
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 
 class HoconParserTest : FunSpec() {
   init {

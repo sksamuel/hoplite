@@ -1,16 +1,19 @@
-package com.sksamuel.hoplite.decoder
+package com.sksamuel.hoplite.decoder.arrow
 
 import arrow.core.NonEmptyList
-import arrow.core.invalid
-import arrow.core.valid
+import com.sksamuel.hoplite.fp.invalid
+import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.ArrayNode
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
-import com.sksamuel.hoplite.arrow.flatMap
-import com.sksamuel.hoplite.arrow.sequence
+import com.sksamuel.hoplite.decoder.Decoder
+import com.sksamuel.hoplite.decoder.NullHandlingDecoder
+import com.sksamuel.hoplite.decoder.SealedClassDecoder
+import com.sksamuel.hoplite.fp.flatMap
+import com.sksamuel.hoplite.fp.sequence
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.starProjectedType
@@ -31,13 +34,13 @@ class NonEmptyListDecoder : NullHandlingDecoder<NonEmptyList<*>> {
     fun <T> decode(node: StringNode, decoder: Decoder<T>): ConfigResult<NonEmptyList<T>> {
       return node.value.split(",").map { it.trim() }
         .map { decoder.decode(StringNode(it, node.pos), type, context) }.sequence()
-        .leftMap { ConfigFailure.CollectionElementErrors(node, it) }
+        .mapInvalid { ConfigFailure.CollectionElementErrors(node, it) }
         .map { NonEmptyList.fromListUnsafe(it) }
     }
 
     fun <T> decode(node: ArrayNode, decoder: Decoder<T>): ConfigResult<NonEmptyList<T>> {
       return node.elements.map { decoder.decode(it, type, context) }.sequence()
-        .leftMap { ConfigFailure.CollectionElementErrors(node, it) }
+        .mapInvalid { ConfigFailure.CollectionElementErrors(node, it) }
         .flatMap { ts ->
           NonEmptyList.fromList(ts).fold(
             { ConfigFailure.DecodeError(node, type).invalid() },

@@ -1,6 +1,6 @@
 package com.sksamuel.hoplite
 
-import arrow.core.Validated
+import com.sksamuel.hoplite.fp.Validated
 
 typealias ConfigResult<A> = Validated<ConfigFailure, A>
 

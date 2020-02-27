@@ -2,8 +2,8 @@ package com.sksamuel.hoplite.json
 
 import com.sksamuel.hoplite.ConfigException
 import com.sksamuel.hoplite.ConfigLoader
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import io.kotlintest.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import java.time.Duration
 import java.time.Instant

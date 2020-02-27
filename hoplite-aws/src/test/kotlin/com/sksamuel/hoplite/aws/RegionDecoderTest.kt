@@ -1,13 +1,13 @@
 package com.sksamuel.hoplite.aws
 
-import arrow.core.invalid
-import arrow.core.valid
 import com.amazonaws.regions.Region
 import com.amazonaws.regions.Regions
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.fp.invalid
+import com.sksamuel.hoplite.fp.valid
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import kotlin.reflect.full.createType

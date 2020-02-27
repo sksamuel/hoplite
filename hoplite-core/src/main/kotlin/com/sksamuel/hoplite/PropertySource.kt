@@ -1,7 +1,7 @@
 package com.sksamuel.hoplite
 
-import arrow.core.valid
-import com.sksamuel.hoplite.arrow.ap
+import com.sksamuel.hoplite.fp.Validated
+import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.parsers.Parser
 import com.sksamuel.hoplite.parsers.ParserRegistry
 import com.sksamuel.hoplite.parsers.toNode
@@ -19,7 +19,7 @@ interface PropertySource {
 
 fun defaultPropertySources(registry: ParserRegistry): List<PropertySource> =
   listOf(
-    EnvironmentVariablesPropertySource,
+    EnvironmentVariablesPropertySource(false),
     SystemPropertiesPropertySource,
     UserSettingsPropertySource(registry)
   )
@@ -42,7 +42,7 @@ object SystemPropertiesPropertySource : PropertySource {
   }
 }
 
-object EnvironmentVariablesPropertySource : PropertySource {
+class EnvironmentVariablesPropertySource(val useUnderscoreAsSeparator: Boolean) : PropertySource {
   override fun node(): ConfigResult<Node> {
     val props = Properties()
     System.getenv().forEach { props[it.key] = it.value }
@@ -88,9 +88,9 @@ class ConfigFilePropertySource(private val file: FileSource,
   override fun node(): ConfigResult<Node> {
     val parser = parserRegistry.locate(file.ext())
     val input = file.open()
-    return ap(parser, input) {
-      it.a.load(it.b, file.describe()).valid()
-    }
+    return Validated.ap(parser, input) { a, b ->
+      a.load(b, file.describe())
+    }.mapInvalid { ConfigFailure.MultipleFailures(it) }
   }
 }
 

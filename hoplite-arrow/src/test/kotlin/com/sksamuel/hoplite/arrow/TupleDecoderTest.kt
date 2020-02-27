@@ -1,4 +1,4 @@
-package com.sksamuel.hoplite.json
+package com.sksamuel.hoplite.arrow
 
 import arrow.core.Tuple2
 import arrow.core.Tuple3
@@ -13,7 +13,22 @@ inline class Port(val value: Int)
 
 class TupleDecoderTest : StringSpec({
 
-  "tuples 2 and 3decoded from json" {
+  "tuples decoded from yaml" {
+    data class Test(val a: Tuple2<String, Int>, val b: Tuple3<Double, Boolean, UUID>)
+
+    val config = ConfigLoader().loadConfigOrThrow<Test>("/test_tuples.yml")
+    config shouldBe Test(Tuple2("hello", 4), Tuple3(6.5, true, UUID.fromString("383d27c5-d087-4d36-b4c4-6dd7defe088d")))
+  }
+
+  "tuples decoded from toml" {
+    data class Test(val a: Tuple2<String, Int>, val b: Tuple3<Double, Boolean, UUID>)
+
+    val config = ConfigLoader().loadConfigOrThrow<Test>("/test_tuples.toml")
+    config shouldBe Test(Tuple2("hello", 4), Tuple3(6.5, true,
+      UUID.fromString("383d27c5-d087-4d36-b4c4-6dd7defe088d")))
+  }
+
+  "tuples 2 and 3 decoded from json" {
     data class Test(val a: Tuple2<String, Int>, val b: Tuple3<Double, Boolean, UUID>)
 
     val config = ConfigLoader().loadConfigOrThrow<Test>("/test_tuples.json")
@@ -31,10 +46,14 @@ class TupleDecoderTest : StringSpec({
     data class Test(val a: Tuple5<Double, Boolean, UUID, Port, String>)
 
     val config = ConfigLoader().loadConfigOrThrow<Test>("/test_tuple_5.json")
-    config shouldBe Test(Tuple5(6.5,
-      true,
-      UUID.fromString("383d27c5-d087-4d36-b4c4-6dd7defe088d"),
-      Port(9200),
-      "hello"))
+    config shouldBe Test(
+      Tuple5(
+        6.5,
+        true,
+        UUID.fromString("383d27c5-d087-4d36-b4c4-6dd7defe088d"),
+        Port(9200),
+        "hello"
+      )
+    )
   }
 })

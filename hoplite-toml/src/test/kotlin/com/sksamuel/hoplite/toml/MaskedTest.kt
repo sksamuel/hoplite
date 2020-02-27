@@ -2,9 +2,9 @@ package com.sksamuel.hoplite.toml
 
 import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.Masked
-import io.kotlintest.matchers.types.shouldBeTypeOf
 import io.kotest.matchers.shouldBe
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.types.shouldBeTypeOf
 
 class MaskedTest : StringSpec() {
   init {

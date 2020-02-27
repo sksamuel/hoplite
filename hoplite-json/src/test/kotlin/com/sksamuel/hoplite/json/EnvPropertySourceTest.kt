@@ -1,9 +1,9 @@
 package com.sksamuel.hoplite.json
 
 import com.sksamuel.hoplite.ConfigLoader
-import io.kotlintest.extensions.system.withEnvironment
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.extensions.system.withEnvironment
 import io.kotest.matchers.shouldBe
-import io.kotlintest.specs.FunSpec
 
 class EnvPropertySourceTest : FunSpec({
 

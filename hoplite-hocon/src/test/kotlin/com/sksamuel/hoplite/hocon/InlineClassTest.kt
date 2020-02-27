@@ -2,9 +2,9 @@ package com.sksamuel.hoplite.hocon
 
 import com.sksamuel.hoplite.ConfigException
 import com.sksamuel.hoplite.ConfigLoader
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.kotlintest.shouldThrow
-import io.kotlintest.specs.FunSpec
 
 inline class Port(val value: Int)
 inline class Port2(val value: Boolean)
@@ -21,10 +21,10 @@ class InlineClassTest : FunSpec({
     shouldThrow<ConfigException> {
       val config = ConfigLoader().loadConfigOrThrow<Config>("/valuetype.conf")
       println(config)
-    }.message shouldBe "Error loading config because:\n" +
-      "\n" +
-      "    - Could not instantiate 'com.sksamuel.hoplite.hocon.`InlineClassTest\$1\$2\$Config`' because:\n" +
-      "    \n" +
-      "        - 'port': Inline type kotlin.Boolean is incompatible with a Long value: 9200 (/valuetype.conf:2)"
+    }.message shouldBe """Error loading config because:
+
+    - Could not instantiate 'com.sksamuel.hoplite.hocon.`InlineClassTest${'$'}1${'$'}2${"\$Config"}`' because:
+
+        - 'port': Inline type kotlin.Boolean is incompatible with a Long value: 9200 (/valuetype.conf:2)"""
   }
 })

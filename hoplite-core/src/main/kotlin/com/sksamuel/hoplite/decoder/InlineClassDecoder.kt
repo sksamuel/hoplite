@@ -1,31 +1,27 @@
 package com.sksamuel.hoplite.decoder
 
-import arrow.core.invalid
-import arrow.core.valid
+import com.sksamuel.hoplite.fp.invalid
+import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.Undefined
-import com.sksamuel.hoplite.arrow.flatMap
+import com.sksamuel.hoplite.fp.flatMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.primaryConstructor
 
-class InlineClassDecoder : Decoder<Any> {
+class InlineClassDecoder : NullHandlingDecoder<Any> {
 
   override fun supports(type: KType): Boolean = when (val classifer = type.classifier) {
-    is KClass<*> -> !classifer.isData &&
-      classifer.primaryConstructor?.parameters?.size == 1 &&
-      classifer.java.declaredMethods.any { it.name == "box-impl" }
+    is KClass<*> -> classifer.isInline()
     else -> false
   }
 
-  override fun priority(): Int = Integer.MIN_VALUE
-
-  override fun decode(node: Node,
-                      type: KType,
-                      context: DecoderContext): ConfigResult<Any> {
+  override fun safeDecode(node: Node,
+                          type: KType,
+                          context: DecoderContext): ConfigResult<Any> {
 
     val constructor = (type.classifier as KClass<*>).primaryConstructor?.valid()
       ?: ConfigFailure.MissingPrimaryConstructor(type).invalid()
@@ -39,9 +35,15 @@ class InlineClassDecoder : Decoder<Any> {
       } else {
         context.decoder(param)
           .flatMap { it.decode(node, param.type, context) }
-          .leftMap { ConfigFailure.IncompatibleInlineType(param.type, node) }
+          .mapInvalid { ConfigFailure.IncompatibleInlineType(param.type, node) }
           .map { constr.call(it) }
       }
     }
   }
+}
+
+fun KClass<*>.isInline(): Boolean {
+  return !isData &&
+    primaryConstructor?.parameters?.size == 1 &&
+    java.declaredMethods.any { it.name == "box-impl" }
 }

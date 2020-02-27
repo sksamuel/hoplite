@@ -1,8 +1,7 @@
 package com.sksamuel.hoplite.parsers
 
-import arrow.core.toOption
-import arrow.core.invalid
-import arrow.core.valid
+import com.sksamuel.hoplite.fp.invalid
+import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Node
@@ -33,7 +32,7 @@ interface ParserRegistry {
 class DefaultParserRegistry(private val map: Map<String, Parser>) : ParserRegistry {
 
   override fun locate(ext: String): ConfigResult<Parser> {
-    return map[ext].toOption().fold({ ConfigFailure.NoSuchParser(ext, map).invalid() }, { it.valid() })
+    return map[ext]?.valid() ?: ConfigFailure.NoSuchParser(ext, map).invalid()
   }
 
   override fun registeredExtensions(): Set<String> = map.keys
@@ -44,7 +43,7 @@ class DefaultParserRegistry(private val map: Map<String, Parser>) : ParserRegist
 
 fun defaultParserRegistry(): ParserRegistry {
   return ServiceLoader.load(Parser::class.java).toList()
-      .fold(ParserRegistry.zero) { registry, parser ->
-        parser.defaultFileExtensions().fold(registry) { r, ext -> r.register(ext, parser) }
-      }
+    .fold(ParserRegistry.zero) { registry, parser ->
+      parser.defaultFileExtensions().fold(registry) { r, ext -> r.register(ext, parser) }
+    }
 }

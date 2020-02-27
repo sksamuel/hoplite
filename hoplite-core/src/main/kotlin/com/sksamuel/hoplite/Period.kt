@@ -1,10 +1,9 @@
 package com.sksamuel.hoplite
 
-import arrow.core.Try
-import arrow.core.invalid
-import arrow.core.valid
-import com.sksamuel.hoplite.arrow.flatMap
-import com.sksamuel.hoplite.arrow.toValidated
+import com.sksamuel.hoplite.fp.Try
+import com.sksamuel.hoplite.fp.flatMap
+import com.sksamuel.hoplite.fp.invalid
+import com.sksamuel.hoplite.fp.valid
 import java.time.Period
 
 enum class PeriodUnit {

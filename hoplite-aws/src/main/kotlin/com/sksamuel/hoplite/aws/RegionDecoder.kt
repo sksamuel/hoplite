@@ -1,7 +1,5 @@
 package com.sksamuel.hoplite.aws
 
-import arrow.core.Try
-import arrow.core.invalid
 import com.amazonaws.regions.Region
 import com.amazonaws.regions.Regions
 import com.sksamuel.hoplite.ConfigFailure
@@ -9,8 +7,9 @@ import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
-import com.sksamuel.hoplite.arrow.toValidated
 import com.sksamuel.hoplite.decoder.NullHandlingDecoder
+import com.sksamuel.hoplite.fp.Try
+import com.sksamuel.hoplite.fp.invalid
 import kotlin.reflect.KType
 
 class RegionDecoder : NullHandlingDecoder<Region> {

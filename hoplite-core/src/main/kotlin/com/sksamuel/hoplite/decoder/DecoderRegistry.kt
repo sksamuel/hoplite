@@ -1,10 +1,9 @@
 package com.sksamuel.hoplite.decoder
 
-import arrow.core.invalid
-import arrow.core.valid
+import com.sksamuel.hoplite.fp.invalid
+import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
-import java.lang.RuntimeException
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -27,8 +26,7 @@ interface DecoderRegistry {
   val size: Int
 
   companion object {
-    val zero: DecoderRegistry = DefaultDecoderRegistry(
-      emptyList())
+    val zero: DecoderRegistry = DefaultDecoderRegistry(emptyList())
   }
 }
 
@@ -42,16 +40,13 @@ class DefaultDecoderRegistry(private val decoders: List<Decoder<*>>) : DecoderRe
   }
 
   override fun decoder(type: KType): ConfigResult<Decoder<*>> {
-    return when (type.classifier) {
-      is KClass<*> -> {
-        val decoders = decoders.filter { it.supports(type) }
-        when {
-          decoders.isEmpty() && (type.classifier as KClass<*>).isData -> ConfigFailure.NoDataClassDecoder.invalid()
-          decoders.isEmpty() -> ConfigFailure.NoSuchDecoder(type).invalid()
-          else -> decoders.maxBy { it.priority() }!!.valid()
-        }
-      }
-      else -> throw RuntimeException("Asked to decode $type")
+    require(decoders.isNotEmpty()) { "Cannot find decoder in empty decoder registry" }
+    require(type.classifier is KClass<*>) { "Only instances of KClass are supported" }
+    val filteredDecoders = decoders.filter { it.supports(type) }
+    return when {
+      filteredDecoders.isEmpty() && (type.classifier as KClass<*>).isData -> ConfigFailure.NoDataClassDecoder.invalid()
+      filteredDecoders.isEmpty() -> ConfigFailure.NoSuchDecoder(type, decoders).invalid()
+      else -> filteredDecoders.maxBy { it.priority() }!!.valid()
     }
   }
 
@@ -61,6 +56,5 @@ class DefaultDecoderRegistry(private val decoders: List<Decoder<*>>) : DecoderRe
 }
 
 fun defaultDecoderRegistry(): DecoderRegistry {
-  return ServiceLoader.load(Decoder::class.java).toList()
-    .fold(DecoderRegistry.zero) { registry, decoder -> registry.register(decoder) }
+  return ServiceLoader.load(Decoder::class.java).toList().let { DefaultDecoderRegistry(it) }
 }

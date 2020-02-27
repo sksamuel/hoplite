@@ -1,0 +1,6 @@
+com.sksamuel.hoplite.decoder.arrow.OptionDecoder
+com.sksamuel.hoplite.decoder.arrow.NonEmptyListDecoder
+com.sksamuel.hoplite.decoder.arrow.Tuple2Decoder
+com.sksamuel.hoplite.decoder.arrow.Tuple3Decoder
+com.sksamuel.hoplite.decoder.arrow.Tuple4Decoder
+com.sksamuel.hoplite.decoder.arrow.Tuple5Decoder

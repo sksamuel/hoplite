@@ -1,11 +1,11 @@
 package com.sksamuel.hoplite.aws
 
-import arrow.core.Try
-import arrow.core.getOrElse
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClientBuilder
 import com.amazonaws.services.simplesystemsmanagement.model.GetParameterRequest
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.fp.Try
+import com.sksamuel.hoplite.fp.getOrElse
 import com.sksamuel.hoplite.preprocessor.StringNodePreprocessor
 
 object ParameterStorePreprocessor : StringNodePreprocessor() {

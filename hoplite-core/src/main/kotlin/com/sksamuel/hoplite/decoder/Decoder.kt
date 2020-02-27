@@ -1,8 +1,6 @@
 package com.sksamuel.hoplite.decoder
 
-import arrow.core.Valid
-import arrow.core.Validated
-import arrow.core.invalid
+import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
@@ -10,6 +8,7 @@ import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.Undefined
+import com.sksamuel.hoplite.fp.Validated
 import kotlin.reflect.KType
 import kotlin.reflect.full.createType
 
@@ -27,8 +26,10 @@ interface Decoder<T> {
   /**
    * If multiple decoders can support the same type, then the one with the highest priority value will win.
    * In the case of ties, the decoder will be picked arbitrarily.
+   *
+   * By default all Hoplite decoders have the minimum priority so user decoders always take precedence.
    */
-  fun priority(): Int = 0
+  fun priority(): Int = if (this.javaClass.`package`.name.startsWith("com.sksamuel.hoplite")) -100 else 0
 
   /**
    * Attempts to decode the given node into an instance of the given [KType].
@@ -62,7 +63,7 @@ interface NullHandlingDecoder<T> : Decoder<T> {
    * returns an error indicating that a nullable was provided to a non-null field.
    */
   private fun offerNull(node: Node, type: KType): Validated<ConfigFailure, *> {
-    return if (type.isMarkedNullable) Valid(null) else
+    return if (type.isMarkedNullable) Validated.Valid(null) else
       ConfigFailure.NullValueForNonNullField(node).invalid()
   }
 
@@ -71,7 +72,7 @@ interface NullHandlingDecoder<T> : Decoder<T> {
    * returns an error indicating that a value was missing for a non-null field.
    */
   private fun offerUndefined(type: KType): Validated<ConfigFailure, *> {
-    return if (type.isMarkedNullable) Valid(null) else
+    return if (type.isMarkedNullable) Validated.Valid(null) else
       ConfigFailure.MissingValue.invalid()
   }
 

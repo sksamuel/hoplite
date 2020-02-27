@@ -1,21 +1,23 @@
-package com.sksamuel.hoplite.decoder
+package com.sksamuel.hoplite.decoder.arrow
 
 import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
-import arrow.core.invalid
-import arrow.core.valid
 import com.sksamuel.hoplite.BooleanNode
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.DoubleNode
 import com.sksamuel.hoplite.LongNode
+import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.StringNode
-import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.Undefined
-import com.sksamuel.hoplite.arrow.flatMap
+import com.sksamuel.hoplite.decoder.Decoder
+import com.sksamuel.hoplite.decoder.SealedClassDecoder
+import com.sksamuel.hoplite.fp.flatMap
+import com.sksamuel.hoplite.fp.invalid
+import com.sksamuel.hoplite.fp.valid
 import kotlin.reflect.KType
 
 class OptionDecoder : Decoder<Option<*>> {

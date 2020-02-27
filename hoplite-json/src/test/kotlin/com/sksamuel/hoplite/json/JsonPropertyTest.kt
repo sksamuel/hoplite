@@ -2,9 +2,9 @@ package com.sksamuel.hoplite.json
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.sksamuel.hoplite.ConfigLoader
-import io.kotlintest.extensions.system.withSystemProperties
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.extensions.system.withSystemProperties
 import io.kotest.matchers.shouldBe
-import io.kotlintest.specs.FunSpec
 
 class JsonPropertyTest : FunSpec({
 

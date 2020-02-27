@@ -38,11 +38,11 @@ class SealedClassDecoderTest : FunSpec({
   test("should error for sealed without impls") {
     data class TestConfig(val lonely: Lonely)
     shouldThrow<ConfigException> {
-      ConfigLoader().loadConfigOrThrow<TestConfig>("/sealed_class_list.yml")
+      ConfigLoader().loadConfigOrThrow<TestConfig>("/lonely.yml")
     }.message shouldBe "Error loading config because:\n" +
       "\n" +
       "    - Could not instantiate 'com.sksamuel.hoplite.yaml.`SealedClassDecoderTest\$1\$3\$TestConfig`' because:\n" +
-      "    \n" +
+      "\n" +
       "        - 'lonely': Sealed class class com.sksamuel.hoplite.yaml.Lonely does not define any subclasses"
   }
 })

@@ -2,13 +2,13 @@
 
 package com.sksamuel.hoplite
 
-import arrow.core.invalid
-import arrow.core.valueOr
-import com.sksamuel.hoplite.arrow.flatMap
-import com.sksamuel.hoplite.arrow.sequence
+import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.decoder.defaultDecoderRegistry
+import com.sksamuel.hoplite.fp.flatMap
+import com.sksamuel.hoplite.fp.getOrElse
+import com.sksamuel.hoplite.fp.sequence
 import com.sksamuel.hoplite.parsers.Parser
 import com.sksamuel.hoplite.parsers.ParserRegistry
 import com.sksamuel.hoplite.parsers.defaultParserRegistry
@@ -136,8 +136,8 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry,
   }
 
   @PublishedApi
-  internal fun <A : Any> ConfigResult<A>.returnOrThrow(): A = this.valueOr {
-    val err = "Error loading config because:\n\n" + it.description().prependIndent(Constants.indent)
+  internal fun <A : Any> ConfigResult<A>.returnOrThrow(): A = this.getOrElse {
+    val err = "Error loading config because:\n\n" + it.description().indent(Constants.indent)
     throw ConfigException(err)
   }
 
@@ -160,7 +160,9 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry,
     val srcs = propertySources + files.map { ConfigFilePropertySource(it, parserRegistry) }
     return srcs.map { it.node() }.sequence()
       .map { it.reduce { acc, b -> acc.fallback(b) } }
-      .leftMap { ConfigFailure.MultipleFailures(it) }
+      .mapInvalid { val multipleFailures = ConfigFailure.MultipleFailures(it)
+        multipleFailures
+      }
   }
 }
 
