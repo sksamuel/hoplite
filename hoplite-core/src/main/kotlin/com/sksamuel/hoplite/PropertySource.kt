@@ -19,7 +19,7 @@ interface PropertySource {
 
 fun defaultPropertySources(registry: ParserRegistry): List<PropertySource> =
   listOf(
-    EnvironmentVariablesPropertySource(false),
+    EnvironmentVariablesPropertySource(true),
     SystemPropertiesPropertySource,
     UserSettingsPropertySource(registry)
   )
@@ -42,10 +42,13 @@ object SystemPropertiesPropertySource : PropertySource {
   }
 }
 
-class EnvironmentVariablesPropertySource(val useUnderscoreAsSeparator: Boolean) : PropertySource {
+class EnvironmentVariablesPropertySource(private val useUnderscoresAsSeparator: Boolean) : PropertySource {
   override fun node(): ConfigResult<Node> {
     val props = Properties()
-    System.getenv().forEach { props[it.key] = it.value }
+    System.getenv().forEach {
+      val key = if (useUnderscoresAsSeparator) it.key.replace("__", ".") else it.key
+      props[key] = it.value
+    }
     return props.toNode("env").valid()
   }
 }
