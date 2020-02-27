@@ -32,7 +32,8 @@ class DataClassDecoder : Decoder<Any> {
     val klass = type.classifier as KClass<*>
     val constructor = klass.constructors.first()
 
-    val args: ValidatedNel<ConfigFailure, List<Pair<KParameter, Any?>>> = constructor.parameters.map { param ->
+    // create a map of parameter to value. in the case of defaults, we skip the parameter completely.
+    val args: ValidatedNel<ConfigFailure, List<Pair<KParameter, Any?>>> = constructor.parameters.mapNotNull { param ->
 
       val n = context.paramMappers.fold<ParameterMapper, Node>(Undefined) { n, mapper ->
         if (n.isDefined) n else node.atKey(mapper.map(param))
@@ -43,7 +44,7 @@ class DataClassDecoder : Decoder<Any> {
       when {
         // if we have no value for this parameter at all, and it is optional we can skip it, and
         // kotlin will use the default
-        param.isOptional && processed is Undefined -> Pair(param, null).valid()
+        param.isOptional && processed is Undefined -> null
         param.type.isMarkedNullable && processed is Undefined -> Pair(param, null).valid()
         param.type.isMarkedNullable && processed is NullNode -> Pair(param, null).valid()
         processed is Undefined -> ConfigFailure.MissingValue.invalid()
@@ -66,7 +67,7 @@ class DataClassDecoder : Decoder<Any> {
     return try {
       constructor.callBy(args).valid()
     } catch (e: IllegalArgumentException) {
-      ConfigFailure.InvalidConstructorParameters(type, constructor.parameters, args).invalid()
+      ConfigFailure.InvalidConstructorParameters(type, constructor, args).invalid()
     }
   }
 }

@@ -3,6 +3,7 @@ package com.sksamuel.hoplite
 import arrow.core.NonEmptyList
 import com.sksamuel.hoplite.parsers.Parser
 import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.KType
 import kotlin.reflect.jvm.jvmName
@@ -31,12 +32,12 @@ sealed class ConfigFailure {
   }
 
   data class InvalidConstructorParameters(val type: KType,
-                                          val parameters: List<KParameter>,
+                                          val constructor: KFunction<*>,
                                           val args: Map<KParameter, Any?>) : ConfigFailure() {
     override fun description(): String =
       "Could not instantiate ${type.simpleName} from args " +
         "${args.map { it.value?.javaClass?.name ?: "<null>" }}: " +
-        "Expected args are ${parameters.map { it.type.simpleName }}"
+        "Expected args are ${constructor.parameters.map { it.type.simpleName }}"
   }
 
   data class UnknownSource(val source: String) : ConfigFailure() {
