@@ -23,6 +23,7 @@ com.sksamuel.hoplite.decoder.SetDecoder
 com.sksamuel.hoplite.decoder.LinkedHashMapDecoder
 com.sksamuel.hoplite.decoder.MapDecoder
 com.sksamuel.hoplite.decoder.FileDecoder
+com.sksamuel.hoplite.decoder.SizeInBytesDecoder
 com.sksamuel.hoplite.decoder.PathDecoder
 com.sksamuel.hoplite.decoder.BigIntegerDecoder
 com.sksamuel.hoplite.decoder.BigDecimalDecoder
