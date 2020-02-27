@@ -1,6 +1,7 @@
 package com.sksamuel.hoplite.yaml
 
 import com.sksamuel.hoplite.ConfigFailure
+import com.sksamuel.hoplite.ConfigFilePropertySource
 import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.fp.Validated
 import io.kotest.core.spec.style.FunSpec
@@ -13,6 +14,14 @@ class ResourceTest : FunSpec({
 
     val e = ConfigLoader().loadConfig<Foo>("/missing.yml") as Validated.Invalid<ConfigFailure>
     e.error.description() shouldBe """Could not find config file /missing.yml"""
+  }
+
+  test("do not return failure for optional file property source") {
+    data class Foo(val a: String)
+
+    ConfigLoader()
+      .withPropertySource(ConfigFilePropertySource.optionalResource("/missing.yml"))
+      .loadConfig<Foo>("/basic.yml").getUnsafe().a shouldBe "hello"
   }
 
   test("support fallback") {

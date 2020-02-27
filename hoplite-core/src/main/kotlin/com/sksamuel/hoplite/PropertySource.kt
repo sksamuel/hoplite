@@ -1,9 +1,12 @@
 package com.sksamuel.hoplite
 
 import com.sksamuel.hoplite.fp.Validated
+import com.sksamuel.hoplite.fp.flatMapInvalid
+import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.parsers.Parser
 import com.sksamuel.hoplite.parsers.ParserRegistry
+import com.sksamuel.hoplite.parsers.defaultParserRegistry
 import com.sksamuel.hoplite.parsers.toNode
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -85,15 +88,25 @@ class UserSettingsPropertySource(private val parserRegistry: ParserRegistry) : P
  * An implementation of [PropertySource] that loads values from a file located
  * via a [FileSource]. The file is parsed using an instance of [Parser] retrieved
  * from the [ParserRegistry] based on file extension.
+ *
+ * @param optional if true then if a file is missing, this property source will be skipped. If false, then a missing
+ * file will cause the config to fail. Defaults to false.
  */
 class ConfigFilePropertySource(private val file: FileSource,
-                               private val parserRegistry: ParserRegistry) : PropertySource {
+                               private val parserRegistry: ParserRegistry = defaultParserRegistry(),
+                               private val optional: Boolean = false) : PropertySource {
   override fun node(): ConfigResult<Node> {
     val parser = parserRegistry.locate(file.ext())
     val input = file.open()
-    return Validated.ap(parser, input) { a, b ->
-      a.load(b, file.describe())
-    }.mapInvalid { ConfigFailure.MultipleFailures(it) }
+    return Validated.ap(parser, input) { a, b -> a.load(b, file.describe()) }
+      .mapInvalid { ConfigFailure.MultipleFailures(it) }
+      .flatMapInvalid { if (optional) Undefined.valid() else it.invalid() }
+  }
+
+  companion object {
+    fun optionalResource(resource: String,
+                         registry: ParserRegistry = defaultParserRegistry()): ConfigFilePropertySource =
+      ConfigFilePropertySource(FileSource.ClasspathSource(resource), registry, true)
   }
 }
 
