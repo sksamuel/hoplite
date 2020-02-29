@@ -1,0 +1,7 @@
+{
+  "database": {
+    "host": "foo.local",
+    "port": 1234,
+    "user": "sammy"
+  }
+}

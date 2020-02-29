@@ -1,5 +1,9 @@
 package com.sksamuel.hoplite
 
+/**
+ * Returns a new [Node] which is the result of merging this node, with keys from the given node,
+ * such as keys in this node take precedence.
+ */
 fun Node.fallback(other: Node): Node {
   return when (val self = this) {
     is Undefined -> other
