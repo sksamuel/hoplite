@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
     api project(":hoplite-core")
-    implementation 'org.yaml:snakeyaml:1.25'
+    implementation 'org.yaml:snakeyaml:1.26'
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
