@@ -22,7 +22,7 @@ interface PropertySource {
 
 fun defaultPropertySources(registry: ParserRegistry): List<PropertySource> =
   listOf(
-    EnvironmentVariablesPropertySource(true),
+    EnvironmentVariablesPropertySource(true, true),
     SystemPropertiesPropertySource,
     UserSettingsPropertySource(registry)
   )
@@ -45,11 +45,30 @@ object SystemPropertiesPropertySource : PropertySource {
   }
 }
 
-class EnvironmentVariablesPropertySource(private val useUnderscoresAsSeparator: Boolean) : PropertySource {
+class EnvironmentVariablesPropertySource(
+  private val useUnderscoresAsSeparator: Boolean, 
+  private val allowUppercaseNames: Boolean
+) : PropertySource {
   override fun node(): ConfigResult<Node> {
     val props = Properties()
     System.getenv().forEach {
-      val key = if (useUnderscoresAsSeparator) it.key.replace("__", ".") else it.key
+      val key = it.key
+          .let { key -> if (useUnderscoresAsSeparator) key.replace("__", ".") else key }
+          .let { key ->
+              if (allowUppercaseNames && Character.isUpperCase(key.codePointAt(0))) {
+                  key.split(".").joinToString(separator = ".") { value ->
+                      value.fold("") { acc, char ->
+                          when {
+                              acc.isEmpty() -> acc + char.toLowerCase()
+                              acc.last() == '_' -> acc.dropLast(1) + char.toUpperCase()
+                              else -> acc + char.toLowerCase()
+                          }
+                      }
+                  }
+              } else {
+                  key
+              }
+          }
       props[key] = it.value
     }
     return props.toNode("env").valid()
