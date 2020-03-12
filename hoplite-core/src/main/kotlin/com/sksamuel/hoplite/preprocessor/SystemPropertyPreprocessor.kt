@@ -15,7 +15,8 @@ abstract class StringNodePreprocessor : Preprocessor {
 
 object SystemPropertyPreprocessor : StringNodePreprocessor() {
 
-  private val regex = "\\$\\{(.*?)}".toRegex()
+  // Redundant escaping required for Android support.
+  private val regex = "\\$\\{(.*?)\\}".toRegex()
 
   override fun map(node: StringNode): Node {
     val value = regex.replace(node.value) {

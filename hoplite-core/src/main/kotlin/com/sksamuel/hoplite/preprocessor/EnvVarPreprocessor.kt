@@ -5,7 +5,8 @@ import com.sksamuel.hoplite.StringNode
 
 object EnvVarPreprocessor : Preprocessor {
 
-  private val regex = "\\$\\{(.*?)}".toRegex()
+  // Redundant escaping required for Android support.
+  private val regex = "\\$\\{(.*?)\\}".toRegex()
   private val valueWithDefaultRegex = "(.*?):-(.*?)".toRegex()
 
   override fun process(node: Node): Node = when (node) {

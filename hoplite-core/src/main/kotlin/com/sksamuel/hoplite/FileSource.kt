@@ -4,11 +4,13 @@ import com.sksamuel.hoplite.fp.Try
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.sequence
 import com.sksamuel.hoplite.fp.valid
+import java.io.File
+import java.io.FileInputStream
 import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Path
 
-sealed class FileSource {
+abstract class FileSource {
 
   abstract fun open(): ConfigResult<InputStream>
   abstract fun describe(): String
@@ -20,6 +22,14 @@ sealed class FileSource {
     override fun open(): ConfigResult<InputStream> =
       Try { Files.newInputStream(path) }
         .toValidated { ConfigFailure.UnknownSource(path.toString()) }
+  }
+
+  class FileIoSource(val file: File) : FileSource() {
+    override fun describe(): String = file.absolutePath
+    override fun ext() = file.extension
+    override fun open(): ConfigResult<InputStream> =
+      Try { FileInputStream(file) }
+        .toValidated { ConfigFailure.UnknownSource(file.absolutePath) }
   }
 
   class ClasspathSource(private val resource: String) : FileSource() {
@@ -43,6 +53,16 @@ sealed class FileSource {
         Try { Files.newInputStream(path) }.fold(
           { ConfigFailure.UnknownSource(path.toString()).invalid() },
           { PathSource(path).valid() }
+        )
+      }.sequence()
+        .mapInvalid { ConfigFailure.MultipleFailures(it) }
+    }
+
+    fun fromFiles(files: List<File>): ConfigResult<List<FileSource>> {
+      return files.map { file ->
+        Try { FileInputStream(file) }.fold(
+          { ConfigFailure.UnknownSource(file.absolutePath).invalid() },
+          { FileIoSource(file).valid() }
         )
       }.sequence()
         .mapInvalid { ConfigFailure.MultipleFailures(it) }

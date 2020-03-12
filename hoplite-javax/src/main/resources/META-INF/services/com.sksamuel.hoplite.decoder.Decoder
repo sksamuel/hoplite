@@ -1,0 +1,3 @@
+com.sksamuel.hoplite.decoder.javax.KerberosPrincipalDecoder
+com.sksamuel.hoplite.decoder.javax.JMXPrincipalDecoder
+com.sksamuel.hoplite.decoder.javax.X500PrincipalDecoder
