@@ -1,6 +1,3 @@
-com.sksamuel.hoplite.decoder.KerberosPrincipalDecoder
-com.sksamuel.hoplite.decoder.JMXPrincipalDecoder
-com.sksamuel.hoplite.decoder.X500PrincipalDecoder
 com.sksamuel.hoplite.decoder.UUIDDecoder
 com.sksamuel.hoplite.decoder.LocalDateDecoder
 com.sksamuel.hoplite.decoder.LocalDateTimeDecoder

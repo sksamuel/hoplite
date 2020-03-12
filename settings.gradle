@@ -5,6 +5,7 @@ include 'hoplite-core',
         'hoplite-hdfs',
         'hoplite-hocon',
         'hoplite-ktor',
+        'hoplite-javax',
         'hoplite-json',
         'hoplite-toml',
         'hoplite-yaml'

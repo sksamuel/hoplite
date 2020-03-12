@@ -25,7 +25,8 @@ class PropsPreprocessor(private val input: InputStream) : StringNodePreprocessor
     return node.copy(value = value)
   }
 
-  private val regex = "\\$\\{(.*?)}".toRegex()
+  // Redundant escaping required for Android support.
+  private val regex = "\\$\\{(.*?)\\}".toRegex()
 
   private val props = Properties().apply {
     input.use {
