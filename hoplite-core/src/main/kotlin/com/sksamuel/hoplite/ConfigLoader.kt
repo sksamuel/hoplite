@@ -97,10 +97,10 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry,
 
   @JvmName("loadConfigFromResources")
   inline fun <reified A : Any> loadConfig(resources: List<String>): ConfigResult<A> =
-    FileSource.fromClasspathResources(resources.toList()).flatMap { loadConfig(A::class, it) }
+    ConfigSource.fromClasspathResources(resources.toList()).flatMap { loadConfig(A::class, it) }
 
   fun loadNodeOrThrow(resources: List<String>): Node =
-    FileSource.fromClasspathResources(resources.toList()).flatMap { loadNode(it) }.returnOrThrow()
+    ConfigSource.fromClasspathResources(resources.toList()).flatMap { loadNode(it) }.returnOrThrow()
 
   fun loadNodeOrThrow(): Node = loadNode(emptyList()).returnOrThrow()
 
@@ -118,7 +118,7 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry,
 
   @JvmName("loadNodeOrThrowFromPaths")
   fun loadNodeOrThrow(paths: List<Path>): Node =
-    FileSource.fromPaths(paths.toList()).flatMap { loadNode(it) }.returnOrThrow()
+    ConfigSource.fromPaths(paths.toList()).flatMap { loadNode(it) }.returnOrThrow()
 
   /**
    * Attempts to load config from the specified Paths and returns
@@ -133,7 +133,7 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry,
 
   @JvmName("loadConfigFromPaths")
   inline fun <reified A : Any> loadConfig(paths: List<Path>): ConfigResult<A> {
-    return FileSource.fromPaths(paths.toList()).flatMap { loadConfig(A::class, it) }
+    return ConfigSource.fromPaths(paths.toList()).flatMap { loadConfig(A::class, it) }
   }
 
   /**
@@ -150,7 +150,7 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry,
 
   @JvmName("loadNodeOrThrowFromFiles")
   fun loadNodeOrThrow(files: List<File>): Node =
-    FileSource.fromFiles(files.toList()).flatMap { loadNode(it) }.returnOrThrow()
+    ConfigSource.fromFiles(files.toList()).flatMap { loadNode(it) }.returnOrThrow()
 
   /**
    * Attempts to load config from the specified Files and returns
@@ -163,7 +163,7 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry,
 
   @JvmName("loadConfigFromFiles")
   inline fun <reified A : Any> loadConfig(files: List<File>): ConfigResult<A> {
-    return FileSource.fromFiles(files.toList()).flatMap { loadConfig(A::class, it) }
+    return ConfigSource.fromFiles(files.toList()).flatMap { loadConfig(A::class, it) }
   }
 
   @PublishedApi
@@ -172,7 +172,7 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry,
     throw ConfigException(err)
   }
 
-  fun <A : Any> loadConfig(klass: KClass<A>, inputs: List<FileSource>): ConfigResult<A> {
+  fun <A : Any> loadConfig(klass: KClass<A>, inputs: List<ConfigSource>): ConfigResult<A> {
     require(klass.isData) { "Can only decode into data classes [was ${klass}]" }
     return if (decoderRegistry.size == 0)
       ConfigFailure.EmptyDecoderRegistry.invalid()
@@ -187,8 +187,8 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry,
     }
   }
 
-  private fun loadNode(files: List<FileSource>): ConfigResult<Node> {
-    val srcs = propertySources + files.map { ConfigFilePropertySource(it, parserRegistry) }
+  private fun loadNode(configs: List<ConfigSource>): ConfigResult<Node> {
+    val srcs = propertySources + configs.map { ConfigFilePropertySource(it, parserRegistry) }
     return srcs.map { it.node() }.sequence()
       .map { it.reduce { acc, b -> acc.fallback(b) } }
       .mapInvalid { val multipleFailures = ConfigFailure.MultipleFailures(it)

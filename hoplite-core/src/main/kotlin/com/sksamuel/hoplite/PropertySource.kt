@@ -86,19 +86,19 @@ class UserSettingsPropertySource(private val parserRegistry: ParserRegistry) : P
 
 /**
  * An implementation of [PropertySource] that loads values from a file located
- * via a [FileSource]. The file is parsed using an instance of [Parser] retrieved
+ * via a [ConfigSource]. The file is parsed using an instance of [Parser] retrieved
  * from the [ParserRegistry] based on file extension.
  *
  * @param optional if true then if a file is missing, this property source will be skipped. If false, then a missing
  * file will cause the config to fail. Defaults to false.
  */
-class ConfigFilePropertySource(private val file: FileSource,
+class ConfigFilePropertySource(private val config: ConfigSource,
                                private val parserRegistry: ParserRegistry = defaultParserRegistry(),
                                private val optional: Boolean = false) : PropertySource {
   override fun node(): ConfigResult<Node> {
-    val parser = parserRegistry.locate(file.ext())
-    val input = file.open()
-    return Validated.ap(parser, input) { a, b -> a.load(b, file.describe()) }
+    val parser = parserRegistry.locate(config.ext())
+    val input = config.open()
+    return Validated.ap(parser, input) { a, b -> a.load(b, config.describe()) }
       .mapInvalid { ConfigFailure.MultipleFailures(it) }
       .flatMapInvalid { if (optional) Undefined.valid() else it.invalid() }
   }
@@ -106,7 +106,7 @@ class ConfigFilePropertySource(private val file: FileSource,
   companion object {
     fun optionalResource(resource: String,
                          registry: ParserRegistry = defaultParserRegistry()): ConfigFilePropertySource =
-      ConfigFilePropertySource(FileSource.ClasspathSource(resource), registry, true)
+      ConfigFilePropertySource(ConfigSource.ClasspathSource(resource), registry, true)
   }
 }
 

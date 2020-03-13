@@ -10,13 +10,13 @@ import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Path
 
-abstract class FileSource {
+abstract class ConfigSource {
 
   abstract fun open(): ConfigResult<InputStream>
   abstract fun describe(): String
   abstract fun ext(): String
 
-  class PathSource(val path: Path) : FileSource() {
+  class PathSource(val path: Path) : ConfigSource() {
     override fun describe(): String = path.toString()
     override fun ext() = path.fileName.toString().split('.').last()
     override fun open(): ConfigResult<InputStream> =
@@ -24,7 +24,7 @@ abstract class FileSource {
         .toValidated { ConfigFailure.UnknownSource(path.toString()) }
   }
 
-  class FileIoSource(val file: File) : FileSource() {
+  class FileSource(val file: File) : ConfigSource() {
     override fun describe(): String = file.absolutePath
     override fun ext() = file.extension
     override fun open(): ConfigResult<InputStream> =
@@ -32,7 +32,7 @@ abstract class FileSource {
         .toValidated { ConfigFailure.UnknownSource(file.absolutePath) }
   }
 
-  class ClasspathSource(private val resource: String) : FileSource() {
+  class ClasspathSource(private val resource: String) : ConfigSource() {
     override fun describe(): String = resource
     override fun ext() = resource.split('.').last()
     override fun open(): ConfigResult<InputStream> =
@@ -40,7 +40,7 @@ abstract class FileSource {
   }
 
   companion object {
-    fun fromClasspathResources(resources: List<String>): ConfigResult<List<FileSource>> {
+    fun fromClasspathResources(resources: List<String>): ConfigResult<List<ConfigSource>> {
       return resources.map { resource ->
         this::class.java.getResourceAsStream(resource)?.let { ClasspathSource(resource).valid() }
           ?: ConfigFailure.UnknownSource(resource).invalid()
@@ -48,7 +48,7 @@ abstract class FileSource {
         .mapInvalid { ConfigFailure.MultipleFailures(it) }
     }
 
-    fun fromPaths(paths: List<Path>): ConfigResult<List<FileSource>> {
+    fun fromPaths(paths: List<Path>): ConfigResult<List<ConfigSource>> {
       return paths.map { path ->
         Try { Files.newInputStream(path) }.fold(
           { ConfigFailure.UnknownSource(path.toString()).invalid() },
@@ -58,12 +58,9 @@ abstract class FileSource {
         .mapInvalid { ConfigFailure.MultipleFailures(it) }
     }
 
-    fun fromFiles(files: List<File>): ConfigResult<List<FileSource>> {
+    fun fromFiles(files: List<File>): ConfigResult<List<ConfigSource>> {
       return files.map { file ->
-        Try { FileInputStream(file) }.fold(
-          { ConfigFailure.UnknownSource(file.absolutePath).invalid() },
-          { FileIoSource(file).valid() }
-        )
+        FileSource(file).valid()
       }.sequence()
         .mapInvalid { ConfigFailure.MultipleFailures(it) }
     }
