@@ -72,7 +72,7 @@ data class MapNode(val map: Map<String, Node>,
                    override val pos: Pos,
                    val value: Node = Undefined) : ContainerNode() {
   override val simpleName: String = "Map"
-  override fun atKey(key: String): Node = map.getOrDefault(key, Undefined)
+  override fun atKey(key: String): Node = map[key] ?: Undefined
   override fun atIndex(index: Int): Node = Undefined
   override val size: Int = map.size
 }
