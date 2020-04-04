@@ -1,7 +1,7 @@
 package com.sksamuel.hoplite.ktor
 
-import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.ArrayNode
+import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PrimitiveNode
@@ -22,7 +22,10 @@ class HopliteApplicationConfig(private val node: Node) : ApplicationConfig {
 
   override fun config(path: String): ApplicationConfig = HopliteApplicationConfig(node.atKey(path))
 
-  override fun configList(path: String): List<ApplicationConfig> = emptyList()
+  override fun configList(path: String): List<ApplicationConfig> = when (val arr = node.atKey(path)) {
+    is ArrayNode -> arr.elements.map { HopliteApplicationConfig(it) }
+    else -> emptyList()
+  }
 
   override fun property(path: String): ApplicationConfigValue = HopliteApplicationConfigValue(node.atKey(path))
 

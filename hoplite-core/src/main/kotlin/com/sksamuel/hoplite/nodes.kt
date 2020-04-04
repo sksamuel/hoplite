@@ -27,7 +27,10 @@ interface Node {
 
   operator fun get(index: Int): Node = atIndex(index)
 
-  @Deprecated("tbm")
+  /**
+   * Returns the [Node] at the given path, by recursivel calling [atKey]
+   * for each dot seperated element in the input path.
+   */
   fun atPath(path: String): Node {
     val parts = path.split('.')
     return parts.fold(this, { acc, part -> acc.atKey(part) })
