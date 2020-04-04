@@ -23,7 +23,7 @@ import java.lang.RuntimeException
 class HoconParser : Parser {
 
   override fun load(input: InputStream, source: String): Node {
-    val config = ConfigFactory.parseReader(InputStreamReader(input))
+    val config = ConfigFactory.parseReader(InputStreamReader(input)).resolve()
     return MapProduction(config.root(), config.origin(), source)
   }
 
