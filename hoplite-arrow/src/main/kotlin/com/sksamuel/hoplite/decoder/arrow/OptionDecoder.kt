@@ -14,7 +14,6 @@ import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.decoder.Decoder
-import com.sksamuel.hoplite.decoder.SealedClassDecoder
 import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
