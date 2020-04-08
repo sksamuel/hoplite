@@ -1,4 +1,4 @@
-package com.sksamuel.hoplite.decoder
+package com.sksamuel.hoplite.decoder.javax
 
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
@@ -7,6 +7,7 @@ import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.decoder.NullHandlingDecoder
 import javax.management.remote.JMXPrincipal
 import javax.security.auth.kerberos.KerberosPrincipal
 import javax.security.auth.x500.X500Principal

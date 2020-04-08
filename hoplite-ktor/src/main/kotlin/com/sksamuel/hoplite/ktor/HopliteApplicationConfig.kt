@@ -1,13 +1,13 @@
 package com.sksamuel.hoplite.ktor
 
-import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.ArrayNode
+import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Undefined
-import com.sksamuel.hoplite.hasKeyAt
 import io.ktor.config.ApplicationConfig
 import io.ktor.config.ApplicationConfigValue
 import io.ktor.server.engine.ApplicationEngineEnvironment
@@ -22,12 +22,18 @@ class HopliteApplicationConfig(private val node: Node) : ApplicationConfig {
 
   override fun config(path: String): ApplicationConfig = HopliteApplicationConfig(node.atKey(path))
 
-  override fun configList(path: String): List<ApplicationConfig> = emptyList()
+  override fun configList(path: String): List<ApplicationConfig> = when (val arr = node.atKey(path)) {
+    is ArrayNode -> arr.elements.map { HopliteApplicationConfig(it) }
+    else -> emptyList()
+  }
 
-  override fun property(path: String): ApplicationConfigValue = HopliteApplicationConfigValue(node.atKey(path))
+  override fun property(path: String): ApplicationConfigValue = HopliteApplicationConfigValue(node.atPath(path))
 
-  override fun propertyOrNull(path: String): ApplicationConfigValue? =
-    if (node.hasKeyAt(path)) property(path) else null
+  override fun propertyOrNull(path: String): ApplicationConfigValue? = when (val n = node.atPath(path)) {
+    is Undefined, Undefined -> null
+    is NullNode -> null
+    else -> HopliteApplicationConfigValue(n)
+  }
 }
 
 @KtorExperimentalAPI
@@ -94,7 +100,11 @@ fun hopliteApplicationEngineEnvironment(node: Node): ApplicationEngineEnvironmen
     }
     port = when (val n = node.atPath(portConfigPath)) {
       is LongNode -> n.value.toInt()
-      is StringNode -> n.value.toInt()
+      is StringNode -> try {
+        n.value.toInt()
+      } catch (_:NumberFormatException) {
+        throw RuntimeException("$portConfigPath is not a valid port")
+      }
       else -> throw RuntimeException("$portConfigPath is not defined or is not a number")
     }
   }

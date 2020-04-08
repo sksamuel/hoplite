@@ -14,6 +14,7 @@ import com.sksamuel.hoplite.parsers.ParserRegistry
 import com.sksamuel.hoplite.parsers.defaultParserRegistry
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.preprocessor.defaultPreprocessors
+import java.io.File
 import java.nio.file.Path
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
@@ -96,10 +97,10 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry,
 
   @JvmName("loadConfigFromResources")
   inline fun <reified A : Any> loadConfig(resources: List<String>): ConfigResult<A> =
-    FileSource.fromClasspathResources(resources.toList()).flatMap { loadConfig(A::class, it) }
+    ConfigSource.fromClasspathResources(resources.toList()).flatMap { loadConfig(A::class, it) }
 
   fun loadNodeOrThrow(resources: List<String>): Node =
-    FileSource.fromClasspathResources(resources.toList()).flatMap { loadNode(it) }.returnOrThrow()
+    ConfigSource.fromClasspathResources(resources.toList()).flatMap { loadNode(it) }.returnOrThrow()
 
   fun loadNodeOrThrow(): Node = loadNode(emptyList()).returnOrThrow()
 
@@ -117,7 +118,7 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry,
 
   @JvmName("loadNodeOrThrowFromPaths")
   fun loadNodeOrThrow(paths: List<Path>): Node =
-    FileSource.fromPaths(paths.toList()).flatMap { loadNode(it) }.returnOrThrow()
+    ConfigSource.fromPaths(paths.toList()).flatMap { loadNode(it) }.returnOrThrow()
 
   /**
    * Attempts to load config from the specified Paths and returns
@@ -132,7 +133,37 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry,
 
   @JvmName("loadConfigFromPaths")
   inline fun <reified A : Any> loadConfig(paths: List<Path>): ConfigResult<A> {
-    return FileSource.fromPaths(paths.toList()).flatMap { loadConfig(A::class, it) }
+    return ConfigSource.fromPaths(paths.toList()).flatMap { loadConfig(A::class, it) }
+  }
+
+  /**
+   * Attempts to load config from the specified Files and returns
+   * an instance of <A> if the values can be appropriately converted.
+   *
+   * This function implements fallback, such that the first resource is scanned first, and the second
+   * resource is scanned if the first does not contain a given path, and so on.
+   */
+  inline fun <reified A : Any> loadConfigOrThrow(vararg files: File): A = loadConfigOrThrow(files.toList())
+
+  @JvmName("loadConfigOrThrowFromFiles")
+  inline fun <reified A : Any> loadConfigOrThrow(files: List<File>): A = loadConfig<A>(files).returnOrThrow()
+
+  @JvmName("loadNodeOrThrowFromFiles")
+  fun loadNodeOrThrow(files: List<File>): Node =
+    ConfigSource.fromFiles(files.toList()).flatMap { loadNode(it) }.returnOrThrow()
+
+  /**
+   * Attempts to load config from the specified Files and returns
+   * a [ConfigResult] with either the errors during load, or the successfully created instance A.
+   *
+   * This function implements fallback, such that the first resource is scanned first, and the second
+   * resource is scanned if the first does not contain a given path, and so on.
+   */
+  inline fun <reified A : Any> loadConfig(vararg files: File): ConfigResult<A> = loadConfig(files.toList())
+
+  @JvmName("loadConfigFromFiles")
+  inline fun <reified A : Any> loadConfig(files: List<File>): ConfigResult<A> {
+    return ConfigSource.fromFiles(files.toList()).flatMap { loadConfig(A::class, it) }
   }
 
   @PublishedApi
@@ -141,7 +172,7 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry,
     throw ConfigException(err)
   }
 
-  fun <A : Any> loadConfig(klass: KClass<A>, inputs: List<FileSource>): ConfigResult<A> {
+  fun <A : Any> loadConfig(klass: KClass<A>, inputs: List<ConfigSource>): ConfigResult<A> {
     require(klass.isData) { "Can only decode into data classes [was ${klass}]" }
     return if (decoderRegistry.size == 0)
       ConfigFailure.EmptyDecoderRegistry.invalid()
@@ -156,8 +187,8 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry,
     }
   }
 
-  private fun loadNode(files: List<FileSource>): ConfigResult<Node> {
-    val srcs = propertySources + files.map { ConfigFilePropertySource(it, parserRegistry) }
+  private fun loadNode(configs: List<ConfigSource>): ConfigResult<Node> {
+    val srcs = propertySources + configs.map { ConfigFilePropertySource(it, parserRegistry) }
     return srcs.map { it.node() }.sequence()
       .map { it.reduce { acc, b -> acc.fallback(b) } }
       .mapInvalid { val multipleFailures = ConfigFailure.MultipleFailures(it)

@@ -11,7 +11,6 @@ import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.decoder.NullHandlingDecoder
-import com.sksamuel.hoplite.decoder.SealedClassDecoder
 import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.sequence
 import kotlin.reflect.KType

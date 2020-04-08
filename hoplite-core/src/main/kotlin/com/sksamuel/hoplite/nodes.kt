@@ -27,7 +27,10 @@ interface Node {
 
   operator fun get(index: Int): Node = atIndex(index)
 
-  @Deprecated("tbm")
+  /**
+   * Returns the [Node] at the given path, by recursivel calling [atKey]
+   * for each dot seperated element in the input path.
+   */
   fun atPath(path: String): Node {
     val parts = path.split('.')
     return parts.fold(this, { acc, part -> acc.atKey(part) })
@@ -72,7 +75,7 @@ data class MapNode(val map: Map<String, Node>,
                    override val pos: Pos,
                    val value: Node = Undefined) : ContainerNode() {
   override val simpleName: String = "Map"
-  override fun atKey(key: String): Node = map.getOrDefault(key, Undefined)
+  override fun atKey(key: String): Node = map[key] ?: Undefined
   override fun atIndex(index: Int): Node = Undefined
   override val size: Int = map.size
 }

@@ -1,11 +1,16 @@
+buildscript {
+    ext.awsVersion = "1.11.708"
+}
+
 plugins {
     id 'org.jetbrains.kotlin.jvm'
 }
 
 dependencies {
     api project(":hoplite-core")
-    api "io.ktor:ktor-server-core:1.3.1"
-    api "io.ktor:ktor-server-host-common:1.3.1"
+    testImplementation project(":hoplite-toml")
+    testImplementation project(":hoplite-yaml")
+    testImplementation project(":hoplite-json")
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
