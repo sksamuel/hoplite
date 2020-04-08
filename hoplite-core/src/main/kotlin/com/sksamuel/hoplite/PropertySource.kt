@@ -22,7 +22,7 @@ interface PropertySource {
 
 fun defaultPropertySources(registry: ParserRegistry): List<PropertySource> =
   listOf(
-    EnvironmentVariablesPropertySource(true, true),
+    EnvironmentVariablesPropertySource(true, false),
     SystemPropertiesPropertySource,
     UserSettingsPropertySource(registry)
   )
@@ -46,7 +46,7 @@ object SystemPropertiesPropertySource : PropertySource {
 }
 
 class EnvironmentVariablesPropertySource(
-  private val useUnderscoresAsSeparator: Boolean, 
+  private val useUnderscoresAsSeparator: Boolean,
   private val allowUppercaseNames: Boolean
 ) : PropertySource {
   override fun node(): ConfigResult<Node> {
