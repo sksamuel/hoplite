@@ -16,7 +16,7 @@ object Durations {
     "h hour hours" to DurationUnit.Hour,
     "m min mins minute minutes" to DurationUnit.Minute,
     "s sec secs second seconds" to DurationUnit.Second,
-    "ms milli millis milliseconds milliseconds" to DurationUnit.Millisecond,
+    "ms milli millis millisecond milliseconds" to DurationUnit.Millisecond,
     "µs micro microsecond micros microseconds" to DurationUnit.Microsecond,
     "ns nano nanos nanosecond nanoseconds" to DurationUnit.Nanosecond
   ).flatMap { (tokens, duration) ->
