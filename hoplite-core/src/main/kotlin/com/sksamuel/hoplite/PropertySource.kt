@@ -8,6 +8,7 @@ import com.sksamuel.hoplite.parsers.Parser
 import com.sksamuel.hoplite.parsers.ParserRegistry
 import com.sksamuel.hoplite.parsers.defaultParserRegistry
 import com.sksamuel.hoplite.parsers.toNode
+import java.io.InputStream
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
@@ -99,6 +100,21 @@ class UserSettingsPropertySource(private val parserRegistry: ParserRegistry) : P
       parserRegistry.locate(ext).map {
         it.load(input, path.toString())
       }
+    }
+  }
+}
+
+/**
+ * An implementation of [PropertySource] that provides config via an [InputStream].
+ * You must specify the config type in addition to the stream source.
+ */
+class InputStreamPropertySource(private val input: InputStream,
+                                private val ext: String,
+                                private val parserRegistry: ParserRegistry = defaultParserRegistry()) : PropertySource {
+
+  override fun node(): ConfigResult<Node> {
+    return parserRegistry.locate(ext).map {
+      it.load(input, "input-stream")
     }
   }
 }
