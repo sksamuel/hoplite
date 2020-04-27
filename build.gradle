@@ -8,7 +8,7 @@ buildscript {
     ext.isReleaseVersion = !isTravis
 
     ext.kotlin_version = "1.3.72"
-    ext.kotest_version = "4.1.0.241-SNAPSHOT"
+    ext.kotest_version = "4.1.0.268-SNAPSHOT"
 
     repositories {
         jcenter()
