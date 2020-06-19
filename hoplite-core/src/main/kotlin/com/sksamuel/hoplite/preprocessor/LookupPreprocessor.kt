@@ -15,31 +15,33 @@ object LookupPreprocessor : Preprocessor {
   private val regex = "\\$\\{(.*?)\\}".toRegex()
   private val valueWithDefaultRegex = "(.*?):-(.*?)".toRegex()
 
-
   override fun process(node: Node): Node {
 
-    fun lookup(key: String): String? {
-      return when (val n = node.atPath(key)) {
-        is StringNode -> n.value
-        else -> null
+    fun lookup(key: String): String? = when (val n = node.atPath(key)) {
+      is StringNode -> n.value
+      else -> null
+    }
+
+    fun replace(node: StringNode): StringNode {
+      val value = regex.replace(node.value) { result ->
+        val key = result.groupValues[1]
+        when (val matchWithDefault = valueWithDefaultRegex.matchEntire(key)) {
+          // no default so we use the env key or return whatever the original string was
+          null -> lookup(key) ?: result.value
+          // lookup with default value fallback
+          else -> matchWithDefault.let { m -> lookup(m.groups[1]!!.value) ?: m.groups[2]!!.value }
+        }
       }
+      return node.copy(value = value)
     }
 
     fun handle(n: Node): Node = when (n) {
-      is MapNode -> MapNode(n.map.map { (k, v) -> k to handle(v) }.toMap(), n.pos)
-      is ArrayNode -> ArrayNode(n.elements.map { handle(it) }, n.pos)
-      is StringNode -> {
-        val value = regex.replace(n.value) { result ->
-          val key = result.groupValues[1]
-          when (val matchWithDefault = valueWithDefaultRegex.matchEntire(key)) {
-            // no default so we use the env key or return whatever the original string was
-            null -> lookup(key) ?: result.value
-            // lookup with default value fallback
-            else -> matchWithDefault.let { m -> lookup(m.groups[1]!!.value) ?: m.groups[2]!!.value }
-          }
-        }
-        n.copy(value = value)
+      is MapNode -> {
+        val value = if (n.value is StringNode) replace(n.value) else n.value
+        MapNode(n.map.map { (k, v) -> k to handle(v) }.toMap(), n.pos, value)
       }
+      is ArrayNode -> ArrayNode(n.elements.map { handle(it) }, n.pos)
+      is StringNode -> replace(n)
       else -> n
     }
 

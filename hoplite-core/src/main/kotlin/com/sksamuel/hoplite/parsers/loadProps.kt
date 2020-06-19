@@ -4,11 +4,12 @@ import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
-import com.sksamuel.hoplite.Undefined
 import java.util.*
 
 @Suppress("UNCHECKED_CAST")
 fun Properties.toNode(source: String): Node {
+
+  val valueMarker = "____value"
 
   val root = mutableMapOf<String, Any>()
   stringPropertyNames().toList().map { key ->
@@ -17,7 +18,7 @@ fun Properties.toNode(source: String): Node {
     val map = components.fold(root) { acc, k ->
       acc.getOrPut(k) { mutableMapOf<String, Any>() } as MutableMap<String, Any>
     }
-    map.put("____value", getProperty(key))
+    map.put(valueMarker, getProperty(key))
   }
 
   val pos = Pos.FilePos(source)
@@ -29,14 +30,16 @@ fun Properties.toNode(source: String): Node {
         else -> throw java.lang.RuntimeException("Bug: unsupported state $it")
       }
     }
-    val value = this["____value"]
+    val value = this[valueMarker]
     return when {
       value == null && maps.isEmpty() -> MapNode(emptyMap(), pos)
-      value == null && maps.isNotEmpty() -> MapNode(maps.toMap(), pos, Undefined)
+      value == null && maps.isNotEmpty() -> MapNode(maps.toMap(), pos)
       maps.isEmpty() -> StringNode(value.toString(), pos)
       else -> MapNode(maps.toMap(), pos, StringNode(value.toString(), pos))
     }
   }
 
-  return root.toNode()
+  val node = root.toNode()
+  println(node.toString())
+  return node
 }

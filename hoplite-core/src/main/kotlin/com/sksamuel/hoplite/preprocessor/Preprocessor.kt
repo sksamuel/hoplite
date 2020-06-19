@@ -30,7 +30,10 @@ abstract class TraversingPrimitivePreprocessor : Preprocessor {
   abstract fun handle(node: PrimitiveNode): Node
 
   override fun process(node: Node): Node = when (node) {
-    is MapNode -> MapNode(node.map.map { (k, v) -> k to process(v) }.toMap(), node.pos)
+    is MapNode -> {
+      val value = if (node.value is PrimitiveNode) handle(node.value) else node.value
+      MapNode(node.map.map { (k, v) -> k to process(v) }.toMap(), node.pos, value)
+    }
     is ArrayNode -> ArrayNode(node.elements.map { process(it) }, node.pos)
     is PrimitiveNode -> handle(node)
     else -> node
