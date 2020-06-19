@@ -1,6 +1,7 @@
 package com.sksamuel.hoplite.preprocessor
 
 import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
 import java.util.*
 import kotlin.math.abs
@@ -10,7 +11,7 @@ private typealias Rule = (String) -> String
 
 // Redundant escaping in this file required for Android support.
 
-object RandomPreprocessor : StringNodePreprocessor() {
+object RandomPreprocessor : TraversingPrimitivePreprocessor() {
 
   private const val a = 33 // '!'
   private const val z = 126 // '~'
@@ -89,8 +90,11 @@ object RandomPreprocessor : StringNodePreprocessor() {
     uuidRule
   )
 
-  override fun map(node: StringNode): Node {
-    val value = rules.fold(node.value) { str, rule -> rule(str) }
-    return node.copy(value = value)
+  override fun handle(node: PrimitiveNode): Node = when (node) {
+    is StringNode -> {
+      val value = rules.fold(node.value) { str, rule -> rule(str) }
+      node.copy(value = value)
+    }
+    else -> node
   }
 }

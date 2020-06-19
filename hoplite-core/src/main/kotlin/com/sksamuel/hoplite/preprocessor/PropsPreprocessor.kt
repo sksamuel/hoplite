@@ -2,6 +2,7 @@ package com.sksamuel.hoplite.preprocessor
 
 import com.sksamuel.hoplite.ConfigException
 import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
 import java.io.InputStream
 import java.nio.file.Path
@@ -15,14 +16,17 @@ import java.util.Properties
  * When creating this class, you can specify the location of the properties file
  * either as a [Path] or as a resource on the classpath.
  */
-class PropsPreprocessor(private val input: InputStream) : StringNodePreprocessor() {
+class PropsPreprocessor(private val input: InputStream) : TraversingPrimitivePreprocessor() {
 
-  override fun map(node: StringNode): Node {
-    val value = regex.replace(node.value) {
-      val key = it.groupValues[1]
-      props[key]?.toString() ?: it.value
+  override fun handle(node: PrimitiveNode): Node = when (node) {
+    is StringNode -> {
+      val value = regex.replace(node.value) {
+        val key = it.groupValues[1]
+        props[key]?.toString() ?: it.value
+      }
+      node.copy(value = value)
     }
-    return node.copy(value = value)
+    else -> node
   }
 
   // Redundant escaping required for Android support.
@@ -38,9 +42,10 @@ class PropsPreprocessor(private val input: InputStream) : StringNodePreprocessor
   companion object {
     operator fun invoke(resource: String): PropsPreprocessor {
       val stream = this::class.java.getResourceAsStream(resource)
-          ?: throw ConfigException("Could not find resource $resource")
+        ?: throw ConfigException("Could not find resource $resource")
       return PropsPreprocessor(stream)
     }
+
     operator fun invoke(path: Path) = PropsPreprocessor(path.toFile().inputStream())
   }
 }

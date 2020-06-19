@@ -1,0 +1,3 @@
+a: ${AA:-varvar}
+b:
+  c: ${CC:-optionoption}

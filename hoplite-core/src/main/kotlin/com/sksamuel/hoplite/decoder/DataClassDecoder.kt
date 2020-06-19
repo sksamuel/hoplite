@@ -47,14 +47,12 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
         if (n.isDefined) n else node.atKey(mapper.map(param))
       }
 
-      val processed = context.preprocessors.fold(n) { acc, pp -> pp.process(acc) }
-
       when {
         // if we have no value for this parameter at all, and it is optional we can skip it, and
         // kotlin will use the default
-        param.isOptional && processed is Undefined -> null
+        param.isOptional && n is Undefined -> null
         else -> context.decoder(param)
-          .flatMap { it.decode(processed, param.type, context) }
+          .flatMap { it.decode(n, param.type, context) }
           .map { param to it }
           .mapInvalid { ConfigFailure.ParamFailure(param, it) }
       }

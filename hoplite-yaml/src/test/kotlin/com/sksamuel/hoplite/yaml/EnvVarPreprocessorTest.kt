@@ -19,6 +19,11 @@ class EnvVarPreprocessorTest : FunSpec() {
                   val j: String
   )
 
+  data class Test2(
+    val a: String,
+    val b: Map<String, String>
+  )
+
   init {
     test("replace env vars") {
       withEnvironment("wibble", "wobble") {
@@ -34,6 +39,13 @@ class EnvVarPreprocessorTest : FunSpec() {
             i = "default",
             j = "wobble"
           )
+      }
+    }
+
+    test("env var replacement should work in maps") {
+      withEnvironment(mapOf("AA" to "foo", "CC" to "bar")) {
+        ConfigLoader().loadConfigOrThrow<Test2>("/test_env_replacement2.yml") shouldBe
+          Test2(a = "foo", b = mapOf("c" to "bar"))
       }
     }
   }

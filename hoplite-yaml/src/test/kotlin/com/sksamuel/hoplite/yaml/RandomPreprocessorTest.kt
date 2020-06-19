@@ -1,10 +1,10 @@
 package com.sksamuel.hoplite.yaml
 
 import com.sksamuel.hoplite.ConfigLoader
+import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.ints.shouldBePositive
 import io.kotest.matchers.string.shouldHaveLength
 import io.kotest.matchers.shouldBe
-import io.kotlintest.specs.FunSpec
 
 class RandomPreprocessorTest : FunSpec() {
 

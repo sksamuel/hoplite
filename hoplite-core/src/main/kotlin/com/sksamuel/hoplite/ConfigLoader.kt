@@ -183,7 +183,8 @@ class ConfigLoader(private val decoderRegistry: DecoderRegistry,
   private fun <A : Any> decode(kclass: KClass<A>, node: Node): ConfigResult<A> {
     return decoderRegistry.decoder(kclass).flatMap { decoder ->
       val context = DecoderContext(decoderRegistry, paramMappers, preprocessors)
-      decoder.decode(node, kclass.createType(), context)
+      val preprocessed = context.preprocessors.fold(node) { acc, preprocessor -> preprocessor.process(acc) }
+      decoder.decode(preprocessed, kclass.createType(), context)
     }
   }
 

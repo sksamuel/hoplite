@@ -1,29 +1,23 @@
 package com.sksamuel.hoplite.preprocessor
 
 import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
 
-abstract class StringNodePreprocessor : Preprocessor {
-
-  override fun process(node: Node): Node = when (node) {
-    is StringNode -> map(node)
-    else -> node
-  }
-
-  protected abstract fun map(node: StringNode): Node
-}
-
-object SystemPropertyPreprocessor : StringNodePreprocessor() {
+object SystemPropertyPreprocessor : TraversingPrimitivePreprocessor() {
 
   // Redundant escaping required for Android support.
   private val regex = "\\$\\{(.*?)\\}".toRegex()
 
-  override fun map(node: StringNode): Node {
-    val value = regex.replace(node.value) {
-      val key = it.groupValues[1]
-      System.getProperty(key, it.value)
+  override fun handle(node: PrimitiveNode): Node = when (node) {
+    is StringNode -> {
+      val value = regex.replace(node.value) {
+        val key = it.groupValues[1]
+        System.getProperty(key, it.value)
+      }
+      node.copy(value = value)
     }
-    return node.copy(value = value)
+    else -> node
   }
 
 }

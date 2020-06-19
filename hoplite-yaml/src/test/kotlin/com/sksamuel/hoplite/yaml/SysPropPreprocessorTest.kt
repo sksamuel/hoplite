@@ -1,9 +1,9 @@
 package com.sksamuel.hoplite.yaml
 
 import com.sksamuel.hoplite.ConfigLoader
+import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.system.withSystemProperty
 import io.kotest.matchers.shouldBe
-import io.kotlintest.specs.FunSpec
 
 class SysPropPreprocessorTest : FunSpec() {
 

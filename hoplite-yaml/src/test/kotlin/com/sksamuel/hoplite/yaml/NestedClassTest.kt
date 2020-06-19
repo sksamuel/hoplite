@@ -1,8 +1,8 @@
 package com.sksamuel.hoplite.yaml
 
 import com.sksamuel.hoplite.ConfigLoader
+import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.kotlintest.specs.FunSpec
 import java.time.LocalDate
 
 class NestedClassTest : FunSpec({

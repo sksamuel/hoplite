@@ -1,8 +1,8 @@
 package com.sksamuel.hoplite.hocon
 
 import com.sksamuel.hoplite.ConfigLoader
+import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
-import io.kotlintest.specs.WordSpec
 
 class KebabSnakeCaseMapperTest : WordSpec() {
 

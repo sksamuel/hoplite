@@ -5,9 +5,9 @@ import com.sksamuel.hoplite.BooleanNode
 import com.sksamuel.hoplite.DoubleNode
 import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.MapNode
-import io.kotlintest.specs.FunSpec
 import com.sksamuel.hoplite.Pos.LineColPos
 import com.sksamuel.hoplite.StringNode
+import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
 class JsonParserTest : FunSpec() {
