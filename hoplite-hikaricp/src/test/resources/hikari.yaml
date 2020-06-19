@@ -1,0 +1,8 @@
+db:
+  dataSourceClassName: org.postgresql.ds.PGSimpleDataSource
+  dataSource:
+    user: postgres
+    password: postgres
+    databaseName: postgres
+    portNumber: 5234
+    serverName: serverhost
