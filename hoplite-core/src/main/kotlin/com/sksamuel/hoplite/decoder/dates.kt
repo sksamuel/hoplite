@@ -25,6 +25,8 @@ import com.sksamuel.hoplite.parseDuration
 import com.sksamuel.hoplite.parsePeriod
 import java.time.MonthDay
 import java.time.Period
+import kotlin.time.ExperimentalTime
+import kotlin.time.milliseconds
 
 class LocalDateTimeDecoder : NonNullableLeafDecoder<LocalDateTime> {
   override fun supports(type: KType): Boolean = type.classifier == LocalDateTime::class
@@ -62,6 +64,19 @@ class DurationDecoder : NonNullableLeafDecoder<Duration> {
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }
+
+@OptIn(ExperimentalTime::class)
+class KotlinDurationDecoder : NonNullableLeafDecoder<kotlin.time.Duration> {
+  override fun supports(type: KType): Boolean = type.classifier == kotlin.time.Duration::class
+  override fun safeLeafDecode(node: Node,
+                              type: KType,
+                              context: DecoderContext): ConfigResult<kotlin.time.Duration> = when (node) {
+    is StringNode -> parseDuration(node.value).map { it.toMillis().milliseconds }.mapInvalid { ConfigFailure.DecodeError(node, type) }
+    is LongNode -> node.value.milliseconds.valid()
+    else -> ConfigFailure.DecodeError(node, type).invalid()
+  }
+}
+
 
 class InstantDecoder : NonNullableLeafDecoder<Instant> {
   override fun supports(type: KType): Boolean = type.classifier == Instant::class
