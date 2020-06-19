@@ -299,6 +299,7 @@ There are built in decoders for all the standard day to day types, such as primi
 | `arrow.core.Tuple5<A,B,C,D,E>` | Converts an array of five elements into an instance of `Tuple5<A,B,C,D,E>`. Will fail if the array does not have exactly five elements. |
 | `Pair<A,B>` | Converts from an array of three two into an instance of `Pair<A,B>`. Will fail if the array does not have exactly two elements. |
 | `Triple<A,B,C>` | Converts from an array of three elements into an instance of `Triple<A,B,C>`. Will fail if the array does not have exactly three elements. |
+| `HikariDataSource` | Converts nested config into a `HikariDataSource`. Any keys nested under the field name will be passed through to the `HikariConfig` object as the datasource is created. |
 
 ## Preprocessors
 
@@ -345,7 +346,6 @@ The random preprocessor replaces placeholder strings with random values.
 | ${random.boolean      | A random boolean |
 | ${random.string(k)}   | A random alphanumeric string of length k |
 | ${random.uuid}        | A randomly generated type 4 UUID |
-
 
 For example:
 
