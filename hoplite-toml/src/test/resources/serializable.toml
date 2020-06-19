@@ -1,0 +1,6 @@
+l = "123"
+d = 451.23
+
+[nested]
+a = "foo"
+b = true
