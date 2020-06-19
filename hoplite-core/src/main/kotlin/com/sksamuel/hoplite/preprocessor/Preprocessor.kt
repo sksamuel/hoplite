@@ -31,7 +31,7 @@ abstract class TraversingPrimitivePreprocessor : Preprocessor {
 
   override fun process(node: Node): Node = when (node) {
     is MapNode -> MapNode(node.map.map { (k, v) -> k to process(v) }.toMap(), node.pos)
-    is ArrayNode -> ArrayNode(node.elements.map { process(node) }, node.pos)
+    is ArrayNode -> ArrayNode(node.elements.map { process(it) }, node.pos)
     is PrimitiveNode -> handle(node)
     else -> node
   }
@@ -40,7 +40,8 @@ abstract class TraversingPrimitivePreprocessor : Preprocessor {
 fun defaultPreprocessors() = listOf(
   EnvVarPreprocessor,
   SystemPropertyPreprocessor,
-  RandomPreprocessor
+  RandomPreprocessor,
+  LookupPreprocessor
 )
 
 abstract class PrefixProcessor(private val prefix: String) : Preprocessor {

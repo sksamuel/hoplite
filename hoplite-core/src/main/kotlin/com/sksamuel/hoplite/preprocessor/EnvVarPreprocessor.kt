@@ -4,6 +4,10 @@ import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
 
+/**
+ * Replaces strings of the form ${var} with the value of the env variable 'var'.
+ * Defaults can also be applied in case the env var is not available: ${var:-default}.
+ */
 object EnvVarPreprocessor : TraversingPrimitivePreprocessor() {
 
   // Redundant escaping required for Android support.
