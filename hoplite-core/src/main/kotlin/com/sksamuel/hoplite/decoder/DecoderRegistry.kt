@@ -56,5 +56,9 @@ class DefaultDecoderRegistry(private val decoders: List<Decoder<*>>) : DecoderRe
 }
 
 fun defaultDecoderRegistry(): DecoderRegistry {
-  return ServiceLoader.load(Decoder::class.java).toList().let { DefaultDecoderRegistry(it) }
+  return defaultDecoderRegistry(Thread.currentThread().contextClassLoader)
+}
+
+fun defaultDecoderRegistry(classLoader: ClassLoader): DecoderRegistry {
+  return ServiceLoader.load(Decoder::class.java, classLoader).toList().let { DefaultDecoderRegistry(it) }
 }

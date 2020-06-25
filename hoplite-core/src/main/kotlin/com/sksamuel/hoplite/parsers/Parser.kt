@@ -42,7 +42,11 @@ class DefaultParserRegistry(private val map: Map<String, Parser>) : ParserRegist
 }
 
 fun defaultParserRegistry(): ParserRegistry {
-  return ServiceLoader.load(Parser::class.java).toList()
+  return defaultParserRegistry(Thread.currentThread().contextClassLoader)
+}
+
+fun defaultParserRegistry(classLoader: ClassLoader): ParserRegistry {
+  return ServiceLoader.load(Parser::class.java, classLoader).toList()
     .fold(ParserRegistry.zero) { registry, parser ->
       parser.defaultFileExtensions().fold(registry) { r, ext -> r.register(ext, parser) }
     }
