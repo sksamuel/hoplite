@@ -165,17 +165,15 @@ class ConfigLoader private constructor(
 
     fun build(): ConfigLoader {
       // build the DefaultDecoderRegistry
-      val decoderRegistry = defaultDecoderRegistry(this.classLoader).apply {
-        this@Builder.decoderStaging.forEach(this::register)
-      }
+      val decoderRegistry = defaultDecoderRegistry(this.classLoader)
+      this.decoderStaging.forEach(decoderRegistry::register)
 
       // build the DefaultParserRegistry
-      val parserRegistry = defaultParserRegistry(this.classLoader).apply {
-        this@Builder.parserStaging.forEach {
+      val parserRegistry = defaultParserRegistry(this.classLoader)
+        this.parserStaging.forEach {
           val (ext, parser) = it
-          this.register(ext, parser)
+          parserRegistry.register(ext, parser)
         }
-      }
 
       // other defaults
       val propertySources = defaultPropertySources(parserRegistry)
