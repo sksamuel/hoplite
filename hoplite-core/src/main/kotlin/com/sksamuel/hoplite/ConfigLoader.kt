@@ -17,7 +17,7 @@ import kotlin.reflect.full.createType
 
 class ConfigException(msg: String) : java.lang.RuntimeException(msg)
 
-class ConfigLoader private constructor(
+class ConfigLoader constructor(
   private val decoderRegistry: DecoderRegistry,
   private val propertySources: List<PropertySource>,
   private val parserRegistry: ParserRegistry,
