@@ -178,7 +178,7 @@ class ConfigLoader constructor(
       }
 
       // other defaults
-      val propertySources = defaultPropertySources(parserRegistry)
+      val propertySources = defaultPropertySources(parserRegistry) + this.propertySourceStaging
       val preprocessors = defaultPreprocessors() + this.preprocessorStaging
       val paramMappers = defaultParamMappers() + this.paramMapperStaging
 
