@@ -2,16 +2,12 @@
 
 package com.sksamuel.hoplite
 
+import com.sksamuel.hoplite.decoder.*
 import com.sksamuel.hoplite.fp.invalid
-import com.sksamuel.hoplite.decoder.Decoder
-import com.sksamuel.hoplite.decoder.DecoderRegistry
-import com.sksamuel.hoplite.decoder.defaultDecoderRegistry
 import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.getOrElse
 import com.sksamuel.hoplite.fp.sequence
-import com.sksamuel.hoplite.parsers.Parser
-import com.sksamuel.hoplite.parsers.ParserRegistry
-import com.sksamuel.hoplite.parsers.defaultParserRegistry
+import com.sksamuel.hoplite.parsers.*
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.preprocessor.defaultPreprocessors
 import java.io.File
@@ -21,57 +17,180 @@ import kotlin.reflect.full.createType
 
 class ConfigException(msg: String) : java.lang.RuntimeException(msg)
 
-class ConfigLoader(private val decoderRegistry: DecoderRegistry,
-                   private val propertySources: List<PropertySource>,
-                   private val parserRegistry: ParserRegistry,
-                   private val preprocessors: List<Preprocessor>,
-                   private val paramMappers: List<ParameterMapper>) {
+class ConfigLoader private constructor(
+  private val decoderRegistry: DecoderRegistry,
+  private val propertySources: List<PropertySource>,
+  private val parserRegistry: ParserRegistry,
+  private val preprocessors: List<Preprocessor>,
+  private val paramMappers: List<ParameterMapper>
+) {
 
   companion object {
     operator fun invoke(): ConfigLoader {
-      val decoders = defaultDecoderRegistry()
-      val parsers = defaultParserRegistry()
-      val sources = defaultPropertySources(parsers)
-      val preprocessors = defaultPreprocessors()
-      val mappers = defaultParamMappers()
-      return ConfigLoader(decoders, sources, parsers, preprocessors, mappers)
+      return Builder().build()
     }
   }
 
-  fun withPreprocessor(preprocessor: Preprocessor) = ConfigLoader(
-    decoderRegistry,
-    propertySources,
-    parserRegistry,
-    preprocessors + preprocessor,
-    paramMappers)
+  @Deprecated(
+    message = "Please use the ConfigLoader.Builder instead",
+    level = DeprecationLevel.WARNING,
+    replaceWith = ReplaceWith(
+      "Builder().addPreprocessor(preprocessor).build()",
+      "com.sksamuel.hoplite.ConfigLoader.Builder"
+    )
+  )
+  fun withPreprocessor(preprocessor: Preprocessor): ConfigLoader {
+    return Builder().addPreprocessor(preprocessor).build()
+  }
 
-  fun withDecoder(decoder: Decoder<*>) = ConfigLoader(
-    decoderRegistry.register(decoder),
-    propertySources,
-    parserRegistry,
-    preprocessors,
-    paramMappers)
+  @Deprecated(
+    message = "Please use the ConfigLoader.Builder instead",
+    level = DeprecationLevel.WARNING,
+    replaceWith = ReplaceWith(
+      "Builder().addDecoder(decoder).build()",
+      "com.sksamuel.hoplite.ConfigLoader.Builder"
+    )
+  )
+  fun withDecoder(decoder: Decoder<*>): ConfigLoader {
+    return Builder().addDecoder(decoder).build()
+  }
 
-  fun withFileExtensionMapping(ext: String, parser: Parser) = ConfigLoader(
-    decoderRegistry,
-    propertySources,
-    parserRegistry.register(ext, parser),
-    preprocessors,
-    paramMappers)
+  @Deprecated(
+    message = "Please use the ConfigLoader.Builder instead",
+    level = DeprecationLevel.WARNING,
+    replaceWith = ReplaceWith(
+      "Builder().addFileExtensionMapping(ext, parser).build()",
+      "com.sksamuel.hoplite.ConfigLoader.Builder"
+    )
+  )
+  fun withFileExtensionMapping(ext: String, parser: Parser): ConfigLoader {
+    return Builder().addFileExtensionMapping(ext, parser).build()
+  }
 
-  fun withParameterMapper(mapper: ParameterMapper) = ConfigLoader(
-    decoderRegistry,
-    propertySources,
-    parserRegistry,
-    preprocessors,
-    paramMappers + mapper)
+  @Deprecated(
+    message = "Please use the ConfigLoader.Builder instead.",
+    level = DeprecationLevel.WARNING,
+    replaceWith = ReplaceWith(
+      "Builder().addParameterMapper(mapper).build()",
+      "com.sksamuel.hoplite.ConfigLoader.Builder"
+    )
+  )
+  fun withParameterMapper(mapper: ParameterMapper): ConfigLoader {
+    return Builder().addParameterMapper(mapper).build()
+  }
 
-  fun withPropertySource(source: PropertySource) = ConfigLoader(
-    decoderRegistry,
-    propertySources + source,
-    parserRegistry,
-    preprocessors,
-    paramMappers)
+  @Deprecated(
+    message = "Please use the ConfigLoader.Builder instead.",
+    level = DeprecationLevel.WARNING,
+    replaceWith = ReplaceWith(
+      "Builder().addPropertySource(source).build()",
+      "com.sksamuel.hoplite.ConfigLoader.Builder"
+    )
+  )
+  fun withPropertySource(source: PropertySource): ConfigLoader {
+    return Builder().addPropertySource(source).build()
+  }
+
+  class Builder {
+
+    // this is the default class loader that ServiceLoader::load(Class<T>)
+    // gets before delegating to ServiceLoader::load(Class<T>, ClassLoader)
+    private var classLoader: ClassLoader = Thread.currentThread().contextClassLoader
+
+    private val decoderStaging = mutableListOf<Decoder<*>>()
+    private val parserStaging = mutableMapOf<String, Parser>()
+    private val propertySourceStaging = mutableListOf<PropertySource>()
+    private val preprocessorStaging = mutableListOf<Preprocessor>()
+    private val paramMapperStaging = mutableListOf<ParameterMapper>()
+
+    fun withClassLoader(classLoader: ClassLoader): Builder {
+      if (this.classLoader !== classLoader) {
+        this.classLoader = classLoader
+      }
+      return this
+    }
+
+    fun addDecoder(decoder: Decoder<*>): Builder {
+      this.decoderStaging.add(decoder)
+      return this
+    }
+
+    fun addDecoders(decoders: Iterable<Decoder<*>>): Builder {
+      this.decoderStaging.addAll(decoders)
+      return this
+    }
+
+    fun addFileExtensionMapping(ext: String, parser: Parser): Builder {
+      this.parserStaging[ext] = parser
+      return this
+    }
+
+    fun addFileExtensionMappins(map: Map<String, Parser>): Builder {
+      map.forEach {
+        val (ext, parser) = it
+        this.parserStaging[ext] = parser
+      }
+      return this
+    }
+
+    fun addPropertySource(propertySource: PropertySource): Builder {
+      this.propertySourceStaging.add(propertySource)
+      return this
+    }
+
+    fun addPropertySources(propertySources: Iterable<PropertySource>): Builder {
+      this.propertySourceStaging.addAll(propertySources)
+      return this
+    }
+
+    fun addPreprocessor(preprocessor: Preprocessor): Builder {
+      this.preprocessorStaging.add(preprocessor)
+      return this
+    }
+
+    fun addPreprocessors(preprocessors: Iterable<Preprocessor>): Builder {
+      this.preprocessorStaging.addAll(preprocessors)
+      return this
+    }
+
+    fun addParameterMapper(paramMapper: ParameterMapper): Builder {
+      this.paramMapperStaging.add(paramMapper)
+      return this
+    }
+
+    fun addParameterMappers(paramMappers: Iterable<ParameterMapper>): Builder {
+      this.paramMapperStaging.addAll(paramMappers)
+      return this
+    }
+
+    fun build(): ConfigLoader {
+      // build the DefaultDecoderRegistry
+      val decoderRegistry = defaultDecoderRegistry(this.classLoader).apply {
+        this@Builder.decoderStaging.forEach(this::register)
+      }
+
+      // build the DefaultParserRegistry
+      val parserRegistry = defaultParserRegistry(this.classLoader).apply {
+        this@Builder.parserStaging.forEach {
+          val (ext, parser) = it
+          this.register(ext, parser)
+        }
+      }
+
+      // other defaults
+      val propertySources = defaultPropertySources(parserRegistry)
+      val preprocessors = defaultPreprocessors() + this.preprocessorStaging
+      val paramMappers = defaultParamMappers() + this.paramMapperStaging
+
+      return ConfigLoader(
+        decoderRegistry = decoderRegistry,
+        propertySources = propertySources,
+        parserRegistry = parserRegistry,
+        preprocessors = preprocessors,
+        paramMappers = paramMappers
+      )
+    }
+  }
 
   /**
    * Attempts to load config from the specified resources on the class path and returns
