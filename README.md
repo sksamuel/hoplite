@@ -420,7 +420,7 @@ println(config.host) // Hostname("localhost")
 ```
 
 
-## Sealed Classes (New in 1.1)
+## Sealed Classes
 
 Hoplite will support sealed classes where it is able to match up the available config keys with the parameters of one of the implementations. For example, lets create a a config hierarchy as implementations of a sealed class.
 
