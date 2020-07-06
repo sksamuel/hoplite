@@ -39,7 +39,5 @@ fun Properties.toNode(source: String): Node {
     }
   }
 
-  val node = root.toNode()
-  println(node.toString())
-  return node
+  return root.toNode()
 }
