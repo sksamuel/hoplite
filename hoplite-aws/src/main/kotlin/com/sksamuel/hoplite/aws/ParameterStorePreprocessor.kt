@@ -2,6 +2,7 @@ package com.sksamuel.hoplite.aws
 
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClientBuilder
 import com.amazonaws.services.simplesystemsmanagement.model.GetParameterRequest
+import com.sksamuel.hoplite.ConfigException
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
@@ -25,7 +26,8 @@ object ParameterStorePreprocessor : TraversingPrimitivePreprocessor() {
         null -> node
         else -> {
           val key = match.groupValues[1]
-          val value = fetchParameterStoreValue(key).getOrElse { throw it }
+          val value = fetchParameterStoreValue(key)
+            .getOrElse { throw ConfigException("Failed loading parameter key '$key'", it) }
           node.copy(value = value)
         }
       }

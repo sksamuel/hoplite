@@ -15,7 +15,7 @@ import java.nio.file.Path
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
-class ConfigException(msg: String) : java.lang.RuntimeException(msg)
+class ConfigException(msg: String, val t: Throwable? = null) : java.lang.RuntimeException(msg, t)
 
 class ConfigLoader constructor(
   private val decoderRegistry: DecoderRegistry,
@@ -166,8 +166,8 @@ class ConfigLoader constructor(
     fun build(): ConfigLoader {
       // build the DefaultDecoderRegistry
       val decoderRegistry = defaultDecoderRegistry(this.classLoader)
-      this.decoderStaging.forEach {
-          decoder: Decoder<*> -> decoderRegistry.register(decoder)
+      this.decoderStaging.forEach { decoder: Decoder<*> ->
+        decoderRegistry.register(decoder)
       }
 
       // build the DefaultParserRegistry
@@ -311,7 +311,8 @@ class ConfigLoader constructor(
     val srcs = propertySources + configs.map { ConfigFilePropertySource(it, parserRegistry) }
     return srcs.map { it.node() }.sequence()
       .map { it.reduce { acc, b -> acc.fallback(b) } }
-      .mapInvalid { val multipleFailures = ConfigFailure.MultipleFailures(it)
+      .mapInvalid {
+        val multipleFailures = ConfigFailure.MultipleFailures(it)
         multipleFailures
       }
   }
