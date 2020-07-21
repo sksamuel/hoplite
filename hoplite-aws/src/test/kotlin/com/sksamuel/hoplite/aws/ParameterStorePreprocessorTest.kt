@@ -1,6 +1,6 @@
 package com.sksamuel.hoplite.aws
 
-import com.amazonaws.SdkClientException
+import com.sksamuel.hoplite.ConfigException
 import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
@@ -12,13 +12,13 @@ class ParameterStorePreprocessorTest : FunSpec() {
   init {
 
     test("prefix should be detected and used") {
-      shouldThrow<SdkClientException> {
+      shouldThrow<ConfigException> {
         ParameterStorePreprocessor.process(StringNode("\${ssm:/foo}", Pos.NoPos))
       }
     }
 
     test("loading yml should use processor") {
-      shouldThrow<SdkClientException> {
+      shouldThrow<ConfigException> {
         ConfigLoader().withPreprocessor(ParameterStorePreprocessor).loadConfigOrThrow<ConfigHolder>("/ssm.props")
       }
     }
