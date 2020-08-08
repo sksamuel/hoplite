@@ -13,6 +13,7 @@ import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.sequence
 import com.sksamuel.hoplite.isDefined
 import java.lang.IllegalArgumentException
+import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
@@ -68,6 +69,8 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
                             args: Map<KParameter, Any?>): ConfigResult<A> {
     return try {
       constructor.callBy(args).valid()
+    } catch (e: InvocationTargetException) {
+      ConfigFailure.InvalidConstructorParameters(type, constructor, args).invalid()
     } catch (e: IllegalArgumentException) {
       ConfigFailure.InvalidConstructorParameters(type, constructor, args).invalid()
     }
