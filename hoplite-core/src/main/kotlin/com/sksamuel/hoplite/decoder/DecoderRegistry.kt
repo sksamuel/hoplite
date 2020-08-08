@@ -41,7 +41,7 @@ class DefaultDecoderRegistry(private val decoders: List<Decoder<*>>) : DecoderRe
 
   override fun decoder(type: KType): ConfigResult<Decoder<*>> {
     require(decoders.isNotEmpty()) { "Cannot find decoder in empty decoder registry" }
-    require(type.classifier is KClass<*>) { "Only instances of KClass are supported" }
+    require(type.classifier is KClass<*>) { "Only instances of KClass are supported [was ${type.classifier}]" }
     val filteredDecoders = decoders.filter { it.supports(type) }
     return when {
       filteredDecoders.isEmpty() && (type.classifier as KClass<*>).isData -> ConfigFailure.NoDataClassDecoder.invalid()
