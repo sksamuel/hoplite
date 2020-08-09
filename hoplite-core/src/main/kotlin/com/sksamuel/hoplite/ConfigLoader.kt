@@ -12,8 +12,6 @@ import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.preprocessor.defaultPreprocessors
 import java.io.File
 import java.nio.file.Path
-import kotlin.reflect.KClass
-import kotlin.reflect.full.createType
 
 class ConfigException(msg: String, val t: Throwable? = null) : java.lang.RuntimeException(msg, t)
 
@@ -203,7 +201,7 @@ class ConfigLoader constructor(
 
   inline fun <reified A : Any> loadConfigOrThrow(resources: List<String>): A = loadConfig<A>(resources).returnOrThrow()
 
-  inline fun <reified A : Any> loadConfigOrThrow(): A = loadConfig(A::class, emptyList()).returnOrThrow()
+  inline fun <reified A : Any> loadConfigOrThrow(): A = loadConfig(TypeReference.create<A>(), emptyList()).returnOrThrow()
 
   /**
    * Attempts to load config from the specified resources on the class path and returns
@@ -215,8 +213,10 @@ class ConfigLoader constructor(
   inline fun <reified A : Any> loadConfig(vararg resources: String): ConfigResult<A> = loadConfig(resources.toList())
 
   @JvmName("loadConfigFromResources")
-  inline fun <reified A : Any> loadConfig(resources: List<String>): ConfigResult<A> =
-    ConfigSource.fromClasspathResources(resources.toList()).flatMap { loadConfig(A::class, it) }
+  inline fun <reified A : Any> loadConfig(resources: List<String>): ConfigResult<A> {
+    val type = TypeReference.create<A>()
+    return ConfigSource.fromClasspathResources(resources.toList()).flatMap { loadConfig(type, it) }
+  }
 
   fun loadNodeOrThrow(resources: List<String>): Node =
     ConfigSource.fromClasspathResources(resources.toList()).flatMap { loadNode(it) }.returnOrThrow()
@@ -248,11 +248,11 @@ class ConfigLoader constructor(
    */
   inline fun <reified A : Any> loadConfig(vararg paths: Path): ConfigResult<A> = loadConfig(paths.toList())
 
-  inline fun <reified A : Any> loadConfig(): ConfigResult<A> = loadConfig(A::class, emptyList())
+  inline fun <reified A : Any> loadConfig(): ConfigResult<A> = loadConfig(TypeReference.create<A>(), emptyList())
 
   @JvmName("loadConfigFromPaths")
   inline fun <reified A : Any> loadConfig(paths: List<Path>): ConfigResult<A> {
-    return ConfigSource.fromPaths(paths.toList()).flatMap { loadConfig(A::class, it) }
+    return ConfigSource.fromPaths(paths.toList()).flatMap { loadConfig(TypeReference.create<A>(), it) }
   }
 
   /**
@@ -282,7 +282,7 @@ class ConfigLoader constructor(
 
   @JvmName("loadConfigFromFiles")
   inline fun <reified A : Any> loadConfig(files: List<File>): ConfigResult<A> {
-    return ConfigSource.fromFiles(files.toList()).flatMap { loadConfig(A::class, it) }
+    return ConfigSource.fromFiles(files.toList()).flatMap { loadConfig(TypeReference.create<A>(), it) }
   }
 
   @PublishedApi
@@ -291,20 +291,21 @@ class ConfigLoader constructor(
     throw ConfigException(err)
   }
 
-  fun <A : Any> loadConfig(klass: KClass<A>, inputs: List<ConfigSource>): ConfigResult<A> {
-    require(klass.isData) { "Can only decode into data classes [was ${klass}]" }
+  fun <A : Any> loadConfig(type: TypeReference<A>, inputs: List<ConfigSource>): ConfigResult<A> {
     return if (decoderRegistry.size == 0)
       ConfigFailure.EmptyDecoderRegistry.invalid()
     else
-      loadNode(inputs).flatMap { decode(klass, it) }
+      loadNode(inputs).flatMap { decode(type, it) }
   }
 
-  private fun <A : Any> decode(kclass: KClass<A>, node: Node): ConfigResult<A> {
-    return decoderRegistry.decoder(kclass).flatMap { decoder ->
-      val context = DecoderContext(decoderRegistry, paramMappers, preprocessors)
-      val preprocessed = context.preprocessors.fold(node) { acc, preprocessor -> preprocessor.process(acc) }
-      decoder.decode(preprocessed, kclass.createType(), context)
-    }
+  private fun <A : Any> decode(type: TypeReference<A>, node: Node): ConfigResult<A> {
+    return decoderRegistry.decoder(type.createKType())
+      .map { it as Decoder<A> }
+      .flatMap { decoder ->
+        val context = DecoderContext(decoderRegistry, paramMappers, preprocessors)
+        val preprocessed = context.preprocessors.fold(node) { acc, preprocessor -> preprocessor.process(acc) }
+        decoder.decode(preprocessed, type.createKType(), context)
+      }
   }
 
   private fun loadNode(configs: List<ConfigSource>): ConfigResult<Node> {

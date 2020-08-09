@@ -130,6 +130,7 @@ class InputStreamPropertySource(private val input: InputStream,
 class ConfigFilePropertySource(private val config: ConfigSource,
                                private val parserRegistry: ParserRegistry = defaultParserRegistry(),
                                private val optional: Boolean = false) : PropertySource {
+
   override fun node(): ConfigResult<Node> {
     val parser = parserRegistry.locate(config.ext())
     val input = config.open()

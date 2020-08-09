@@ -17,8 +17,8 @@ import kotlin.reflect.full.withNullability
 class ListDecoder : NullHandlingDecoder<List<*>> {
 
   override fun supports(type: KType): Boolean =
-    type.isSubtypeOf(List::class.starProjectedType) || type.isSubtypeOf(List::class.starProjectedType.withNullability(
-      true))
+    type.isSubtypeOf(List::class.starProjectedType) ||
+      type.isSubtypeOf(List::class.starProjectedType.withNullability(true))
 
   override fun safeDecode(node: Node,
                           type: KType,
