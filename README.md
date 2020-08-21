@@ -472,7 +472,6 @@ Hoplite makes available several other modules that add functionality outside of 
 | hoplite-aws   | Provides decoder for aws `Region` and a preprocessor for Amazon's parameter store |
 | hoplite-arrow | Provides decoders for common arrow types |
 | hoplite-hdfs  | Provides decoder for hadoop `Path` |
-| hoplite-ktor  | Adaptor from `ConfigLoader` into Ktor `ApplicationConfig` |
 
 ## License
 ```
