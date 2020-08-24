@@ -467,11 +467,13 @@ TestConfig(
 
 Hoplite makes available several other modules that add functionality outside of the main core module. They are in seperate modules because they bring in dependencies from those projects and so the modules are optional.
 
-| Module        | Function          |
-|:--------------|:------------------|
-| hoplite-aws   | Provides decoder for aws `Region` and a preprocessor for Amazon's parameter store |
-| hoplite-arrow | Provides decoders for common arrow types |
-| hoplite-hdfs  | Provides decoder for hadoop `Path` |
+| Module         | Function          |
+|:---------------|:------------------|
+| hoplite-arrow  | Provides decoders for common arrow types |
+| hoplite-aws    | Provides decoder for aws `Region` and a preprocessor for Amazon's parameter store |
+| hoplite-hdfs   | Provides decoder for hadoop `Path` |
+| hoplite-hikari | Provides decoder for `HikariDataSource` |
+| hoplite-javax  | Provides decoders for Principals |
 
 ## License
 ```
