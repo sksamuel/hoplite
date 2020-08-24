@@ -133,10 +133,14 @@ class ConfigLoader constructor(
       return this
     }
 
+    fun addSource(source: PropertySource) = addPropertySource(source)
+
     fun addPropertySource(propertySource: PropertySource): Builder {
       this.propertySourceStaging.add(propertySource)
       return this
     }
+
+    fun addSources(sources: Iterable<PropertySource>) = addPropertySources(sources)
 
     fun addPropertySources(propertySources: Iterable<PropertySource>): Builder {
       this.propertySourceStaging.addAll(propertySources)
@@ -201,6 +205,14 @@ class ConfigLoader constructor(
 
   inline fun <reified A : Any> loadConfigOrThrow(resources: List<String>): A = loadConfig<A>(resources).returnOrThrow()
 
+  /**
+   * Attempts to load config from the registered property sources marshalled as an instance of A.
+   * If any properties are missing, or cannot be convered into the applicable types, then an this
+   * function will throw.
+   *
+   * This function is intended to be used when you have registered all config files via the
+   * builder's addPropertySource method.
+   */
   inline fun <reified A : Any> loadConfigOrThrow(): A = loadConfig(A::class, emptyList()).returnOrThrow()
 
   /**

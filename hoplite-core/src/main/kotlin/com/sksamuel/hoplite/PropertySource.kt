@@ -8,6 +8,7 @@ import com.sksamuel.hoplite.parsers.Parser
 import com.sksamuel.hoplite.parsers.ParserRegistry
 import com.sksamuel.hoplite.parsers.defaultParserRegistry
 import com.sksamuel.hoplite.parsers.toNode
+import java.io.File
 import java.io.InputStream
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -19,6 +20,33 @@ import java.util.*
  */
 interface PropertySource {
   fun node(): ConfigResult<Node>
+
+  companion object {
+
+    /**
+     * Returns a [PropertySource] that will read the specified resource from the classpath.
+     *
+     * @param optional if true then the resource can not exist and the config loader will ignore this source
+     */
+    fun resource(resource: String, optional: Boolean) =
+      ConfigFilePropertySource(ConfigSource.ClasspathSource(resource), optional = optional)
+
+    /**
+     * Returns a [PropertySource] that will read the specified file from the filesystem.
+     *
+     * @param optional if true then the resource can not exist and the config loader will ignore this source
+     */
+    fun file(file: File, optional: Boolean) =
+      ConfigFilePropertySource(ConfigSource.FileSource(file), optional = optional)
+
+    /**
+     * Returns a [PropertySource] that will read the specified resource from the classpath.
+     *
+     * @param optional if true then the resource can not exist and the config loader will ignore this source
+     */
+    fun path(path: Path, optional: Boolean) =
+      ConfigFilePropertySource(ConfigSource.PathSource(path), optional = optional)
+  }
 }
 
 fun defaultPropertySources(registry: ParserRegistry): List<PropertySource> =
@@ -54,22 +82,22 @@ class EnvironmentVariablesPropertySource(
     val props = Properties()
     System.getenv().forEach {
       val key = it.key
-          .let { key -> if (useUnderscoresAsSeparator) key.replace("__", ".") else key }
-          .let { key ->
-              if (allowUppercaseNames && Character.isUpperCase(key.codePointAt(0))) {
-                  key.split(".").joinToString(separator = ".") { value ->
-                      value.fold("") { acc, char ->
-                          when {
-                              acc.isEmpty() -> acc + char.toLowerCase()
-                              acc.last() == '_' -> acc.dropLast(1) + char.toUpperCase()
-                              else -> acc + char.toLowerCase()
-                          }
-                      }
-                  }
-              } else {
-                  key
+        .let { key -> if (useUnderscoresAsSeparator) key.replace("__", ".") else key }
+        .let { key ->
+          if (allowUppercaseNames && Character.isUpperCase(key.codePointAt(0))) {
+            key.split(".").joinToString(separator = ".") { value ->
+              value.fold("") { acc, char ->
+                when {
+                  acc.isEmpty() -> acc + char.toLowerCase()
+                  acc.last() == '_' -> acc.dropLast(1) + char.toUpperCase()
+                  else -> acc + char.toLowerCase()
+                }
               }
+            }
+          } else {
+            key
           }
+        }
       props[key] = it.value
     }
     return props.toNode("env").valid()
@@ -108,9 +136,11 @@ class UserSettingsPropertySource(private val parserRegistry: ParserRegistry) : P
  * An implementation of [PropertySource] that provides config via an [InputStream].
  * You must specify the config type in addition to the stream source.
  */
-class InputStreamPropertySource(private val input: InputStream,
-                                private val ext: String,
-                                private val parserRegistry: ParserRegistry = defaultParserRegistry()) : PropertySource {
+class InputStreamPropertySource(
+  private val input: InputStream,
+  private val ext: String,
+  private val parserRegistry: ParserRegistry = defaultParserRegistry()
+) : PropertySource {
 
   override fun node(): ConfigResult<Node> {
     return parserRegistry.locate(ext).map {
@@ -127,9 +157,11 @@ class InputStreamPropertySource(private val input: InputStream,
  * @param optional if true then if a file is missing, this property source will be skipped. If false, then a missing
  * file will cause the config to fail. Defaults to false.
  */
-class ConfigFilePropertySource(private val config: ConfigSource,
-                               private val parserRegistry: ParserRegistry = defaultParserRegistry(),
-                               private val optional: Boolean = false) : PropertySource {
+class ConfigFilePropertySource(
+  private val config: ConfigSource,
+  private val parserRegistry: ParserRegistry = defaultParserRegistry(),
+  private val optional: Boolean = false
+) : PropertySource {
   override fun node(): ConfigResult<Node> {
     val parser = parserRegistry.locate(config.ext())
     val input = config.open()
@@ -139,8 +171,10 @@ class ConfigFilePropertySource(private val config: ConfigSource,
   }
 
   companion object {
-    fun optionalResource(resource: String,
-                         registry: ParserRegistry = defaultParserRegistry()): ConfigFilePropertySource =
+    fun optionalResource(
+      resource: String,
+      registry: ParserRegistry = defaultParserRegistry()
+    ): ConfigFilePropertySource =
       ConfigFilePropertySource(ConfigSource.ClasspathSource(resource), registry, true)
   }
 }
