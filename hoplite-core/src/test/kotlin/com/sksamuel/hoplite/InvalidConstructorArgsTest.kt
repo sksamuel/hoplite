@@ -12,7 +12,7 @@ class InvalidConstructorArgsTest : FunSpec() {
       data class Config(val e: LinkedHashSet<String>)
       val e = ConfigLoader().loadConfig<Config>("/basic.props")
       e as Validated.Invalid<ConfigFailure>
-      e.error.description() shouldBe "Could not instantiate class com.sksamuel.hoplite.InvalidConstructorArgsTest\$1\$Config from args [java.util.Collections\$SingletonSet]: Expected args are [class java.util.LinkedHashSet]"
+      e.error.description() shouldBe "Could not instantiate class com.sksamuel.hoplite.InvalidConstructorArgsTest\$1\$Config from args [java.util.Collections\$SingletonSet]: Expected args are [class java.util.LinkedHashSet]. Underlying error was java.lang.IllegalArgumentException: argument type mismatch"
     }
   }
 }
