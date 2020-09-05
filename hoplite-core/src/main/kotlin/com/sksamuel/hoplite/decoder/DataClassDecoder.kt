@@ -32,9 +32,11 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
     }
   }
 
-  override fun safeDecode(node: Node,
-                          type: KType,
-                          context: DecoderContext): ConfigResult<Any> {
+  override fun safeDecode(
+    node: Node,
+    type: KType,
+    context: DecoderContext
+  ): ConfigResult<Any> {
 
     val klass = type.classifier as KClass<*>
     if (klass.constructors.isEmpty())
@@ -64,15 +66,17 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
       .flatMap { construct(type, constructor, it.toMap()) }
   }
 
-  private fun <A> construct(type: KType,
-                            constructor: KFunction<A>,
-                            args: Map<KParameter, Any?>): ConfigResult<A> {
+  private fun <A> construct(
+    type: KType,
+    constructor: KFunction<A>,
+    args: Map<KParameter, Any?>
+  ): ConfigResult<A> {
     return try {
       constructor.callBy(args).valid()
     } catch (e: InvocationTargetException) {
-      ConfigFailure.InvalidConstructorParameters(type, constructor, args).invalid()
+      ConfigFailure.InvalidConstructorParameters(type, constructor, args, e.cause ?: e).invalid()
     } catch (e: IllegalArgumentException) {
-      ConfigFailure.InvalidConstructorParameters(type, constructor, args).invalid()
+      ConfigFailure.InvalidConstructorParameters(type, constructor, args, e.cause ?: e).invalid()
     }
   }
 }

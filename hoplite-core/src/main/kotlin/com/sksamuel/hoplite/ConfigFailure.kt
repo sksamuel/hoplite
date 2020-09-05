@@ -3,6 +3,7 @@ package com.sksamuel.hoplite
 import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.fp.NonEmptyList
 import com.sksamuel.hoplite.parsers.Parser
+import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
@@ -27,18 +28,23 @@ sealed class ConfigFailure {
    */
   abstract fun description(): String
 
-  data class NoSuchParser(val file: String,
-                          val map: Map<String, Parser>) : ConfigFailure() {
+  data class NoSuchParser(
+    val file: String,
+    val map: Map<String, Parser>
+  ) : ConfigFailure() {
     override fun description(): String = "Could not detect parser for file extension '.$file' - available parsers are $map"
   }
 
-  data class InvalidConstructorParameters(val type: KType,
-                                          val constructor: KFunction<*>,
-                                          val args: Map<KParameter, Any?>) : ConfigFailure() {
+  data class InvalidConstructorParameters(
+    val type: KType,
+    val constructor: KFunction<*>,
+    val args: Map<KParameter, Any?>,
+    val e: Throwable
+  ) : ConfigFailure() {
     override fun description(): String =
       "Could not instantiate ${type.simpleName} from args " +
         "${args.map { it.value?.javaClass?.name ?: "<null>" }}: " +
-        "Expected args are ${constructor.parameters.map { it.type.simpleName }}"
+        "Expected args are ${constructor.parameters.map { it.type.simpleName }}. Underlying error was $e"
   }
 
   data class DataClassWithoutConstructor(val kclass: KClass<*>) : ConfigFailure() {
