@@ -28,7 +28,7 @@ interface PropertySource {
      *
      * @param optional if true then the resource can not exist and the config loader will ignore this source
      */
-    fun resource(resource: String, optional: Boolean) =
+    fun resource(resource: String, optional: Boolean = false) =
       ConfigFilePropertySource(ConfigSource.ClasspathSource(resource), optional = optional)
 
     /**
@@ -36,7 +36,7 @@ interface PropertySource {
      *
      * @param optional if true then the resource can not exist and the config loader will ignore this source
      */
-    fun file(file: File, optional: Boolean) =
+    fun file(file: File, optional: Boolean = false) =
       ConfigFilePropertySource(ConfigSource.FileSource(file), optional = optional)
 
     /**
@@ -44,7 +44,7 @@ interface PropertySource {
      *
      * @param optional if true then the resource can not exist and the config loader will ignore this source
      */
-    fun path(path: Path, optional: Boolean) =
+    fun path(path: Path, optional: Boolean = false) =
       ConfigFilePropertySource(ConfigSource.PathSource(path), optional = optional)
   }
 }

@@ -60,23 +60,26 @@ Finally, to build an instance of `Config` from this file, and assuming the confi
 val config = ConfigLoader().loadConfigOrThrow<Config>("/application-staging.yaml")
 ```
 
-If the values in the config file are compatible, then an instance of `Config` will be returned. Otherwise an exception will be thrown containing details of the errors.
+If the values in the config file are compatible, then an instance of `Config` will be returned.
+Otherwise an exception will be thrown containing details of the errors.
 
 ## Config Loader
 
 As you have seen from the getting started guide, `ConfigLoader` is the entry point to using Hoplite.
-Create an instance of this and then you can load config into your data classes from resources on the classpath, `java.io.File`, `java.nio.Path`, or URLS.
+We can create an instance of this loader directly for simple cases, or use the `ConfigLoader.Builder` if we need to customize how the loader works.
+Then we can load config into data classes from resources on the classpath, `java.io.File`, `java.nio.Path`, or URLS.
 
-There are two ways to use the config loader.
-One is to throw an exception if the config could not be resolved via the `loadConfigOrThrow<T>` function.
-Another is to return an `arrow.data.Validated` via the `loadConfig<T>` function.
+There are two ways to retrieve a populated data class from config.
+The first is to throw an exception if the config could not be resolved via the `loadConfigOrThrow<T>` function.
+Another is to return a `ConfigResult` via the `loadConfig<T>` function.
 
 For most cases, when you are resolving config at application startup, the exception based approach is better.
 This is because you typically want any errors in config to abort application bootstrapping, dumping errors to the console.
 
 ## Beautiful Errors
 
-When an error does occur, if you choose to throw an exception, the errors will be formatted in a human readable way along with as much location information as possible.
+When an error does occur, if you choose to throw an exception, the errors will be formatted in a human readable way
+along with as much location information as possible.
 No more trying to track down a `NumberFormatException` in a 400 line config file.
 
 Here is an example of the error formatting for a test file used by the unit tests.
@@ -119,11 +122,11 @@ The format that hoplite uses to parse a file is determined by the file extension
 | [Hocon](https://github.com/lightbend/config) | [`hoplite-hocon`](https://search.maven.org/search?q=hoplite-hocon) | .conf |
 | Java Properties files | [`hoplite-props`](https://search.maven.org/search?q=hoplite-props) | .props, .properties |
 
-If you wish to add another format you can extend `Parser` and provide an instance of that implementation to the `ConfigLoader` via `withFileExtensionMapping`.
+If you wish to add another format you can extend `Parser` and provide an instance of that implementation to the `ConfigLoader.Builder` via `withFileExtensionMapping`.
 
 That same function can be used to map non-default file extensions to an existing parser. For example, if you wish to have your config in files called `application.data` but in yaml format, then you can register .data with the Yaml parser like this:
 
-`ConfigLoader().withFileExtensionMapping("data", YamlParser)`
+`ConfigLoader.Builder().addFileExtensionMapping("data", YamlParser).build()`
 
 
 
@@ -132,10 +135,8 @@ That same function can be used to map non-default file extensions to an existing
 The `PropertySource` interface is how Hoplite reads configuration values.
 Hoplite supports several built in property source implementations, and you can write your own if required.
 
-Typically your config resides in files, and so the `ConfigFilePropertySource` is used for file / resource based config.
-
-This is the list of built in property sources, and the order is from top to bottom. Configuration values in a higher
-priority source take precedence over those in lower sources.
+This is the list of built in property sources configured by default, and the order is from top to bottom.
+Configuration values in a higher priority source take precedence over those in lower sources.
 
 
 | Property Source Implementation            | Description |
@@ -143,15 +144,34 @@ priority source take precedence over those in lower sources.
 | `EnvironmentVariablesPropertySource`      | Reads config from environment variables. Provides no case mappings, so `HOSTNAME` does *not* override hostname. For nested config, use a period to seperate keys, for example `topic.name` would override `name` located in a `topic` parent. Alternatively, in some environments a `.` is not supported in ENV names, so you can also use double underscore `__`. Eg `topic__name` would override name in a Topic object. Optionally you can also create a `EnvironmentVariablesPropertySource` with `allowUppercaseNames` set to `true` to allows for uppercase-only names. |
 | `SystemPropertiesPropertySource`          | Provides config through system properties that are prefixed with `config.override.`. For example, starting your JVM with `-Dconfig.override.database.name` would override a config key of `database.name` residing in a file. |
 | `UserSettingsPropertySource`              | Provides config through a config file defined at ~/.userconfig.[ext] where ext is one of the [supported formats](#supported-formats). |
-| `ConfigFilePropertySource`                | Reads config from files in [several formats](https://github.com/sksamuel/hoplite/#supported-formats) based on the file extension. Paths or resource names are supplied to the `ConfigLoader` as the config is built.  |
 
-By default a file must exist if specified, but this can be relaxed by specifying a `ConfigFilePropertySource` with
-optional equal to true:
+
+Config from files or resources are retrieved via instances of `ConfigFilePropertySource`. This property source is added automatically when we pass
+strings, `File`s or `Path`s to the `loadConfigOrThrow` or `loadConfig` functions.
+
+For example, the following are equivalent:
 
 ```kotlin
-ConfigLoader()
-  .withPropertySource(ConfigFilePropertySource.optionalResource("/missing.yml"))
-  .loadConfig<MyConfig>("/basic.yml")
+ConfigLoader().loadConfig<MyConfig>("config.json")
+```
+
+and
+
+```kotlin
+ConfigLoader.Builder()
+   .addSource(PropertySource.resource("/config.json"))
+   .build()
+   .loadConfig<MyConfig>()
+```
+
+The advantage of the second approach is that we can specify a file can be optional, for example:
+
+```kotlin
+ConfigLoader.Builder()
+  .addSource(PropertySource.resource("/missing.yml", true))
+  .addSource(PropertySource.resource("/config.json"))
+   .build()
+  .loadConfig<MyConfig>()
 ```
 
 
@@ -414,7 +434,7 @@ host: locahost
 We can parse directly:
 
 ```kotlin
-val config = ConfigLoader().loadConfigOrThrow<Database>()
+val config = ConfigLoader().loadConfigOrThrow<Database>("config.file")
 println(config.port) // Port(9200)
 println(config.host) // Hostname("localhost")
 ```
