@@ -120,7 +120,7 @@ The format that hoplite uses to parse a file is determined by the file extension
 | [Yaml](https://yaml.org/) | [`hoplite-yaml`](https://search.maven.org/search?q=hoplite-yaml) | .yml, .yaml |
 | [Toml](https://github.com/toml-lang/toml) | [`hoplite-toml`](https://search.maven.org/search?q=hoplite-toml) | .toml |
 | [Hocon](https://github.com/lightbend/config) | [`hoplite-hocon`](https://search.maven.org/search?q=hoplite-hocon) | .conf |
-| Java Properties files | [`hoplite-props`](https://search.maven.org/search?q=hoplite-props) | .props, .properties |
+| Java Properties files | built-in | .props, .properties |
 
 If you wish to add another format you can extend `Parser` and provide an instance of that implementation to the `ConfigLoader.Builder` via `withFileExtensionMapping`.
 
