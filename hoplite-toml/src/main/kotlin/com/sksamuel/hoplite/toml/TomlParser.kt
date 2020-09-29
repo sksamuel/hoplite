@@ -27,7 +27,7 @@ class TomlParser : Parser {
 
 /**
  * A [PropertySource] that provides values via a given toml string.
- * Eg, StringPropertySource("""{"name":"sam"}""", "json")
+ * Eg, TomlPropertySource("""{"name":"sam"}""", "json")
  */
 class TomlPropertySource(
   private val str: String

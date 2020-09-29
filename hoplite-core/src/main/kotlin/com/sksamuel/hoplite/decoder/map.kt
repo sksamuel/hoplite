@@ -1,5 +1,6 @@
 package com.sksamuel.hoplite.decoder
 
+import com.sksamuel.hoplite.ArrayNode
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
@@ -28,10 +29,10 @@ class MapDecoder : NullHandlingDecoder<Map<*, *>> {
     val kType = type.arguments[0].type!!
     val vType = type.arguments[1].type!!
 
-    fun <K, V> decode(node: MapNode,
-                      kdecoder: Decoder<K>,
-                      vdecoder: Decoder<V>,
-                      context: DecoderContext): ConfigResult<Map<*, *>> {
+    fun <K, V> decodeFromMap(node: MapNode,
+                             kdecoder: Decoder<K>,
+                             vdecoder: Decoder<V>,
+                             context: DecoderContext): ConfigResult<Map<*, *>> {
 
       return node.map.entries.map { (k, v) ->
         kdecoder.decode(StringNode(k, node.pos), kType, context).flatMap { kk ->
@@ -44,10 +45,27 @@ class MapDecoder : NullHandlingDecoder<Map<*, *>> {
         .map { it.toMap() }
     }
 
+    fun <K, V> decodeFromArray(node: ArrayNode,
+                               kdecoder: Decoder<K>,
+                               vdecoder: Decoder<V>,
+                               context: DecoderContext): ConfigResult<Map<*, *>> {
+
+      return node.elements.map { el ->
+        kdecoder.decode(el.atKey("key"), kType, context).flatMap { kk ->
+          vdecoder.decode(el.atKey("value"), vType, context).map { vv ->
+            kk to vv
+          }
+        }
+      }.sequence()
+        .mapInvalid { ConfigFailure.CollectionElementErrors(node, it) }
+        .map { it.toMap() }
+    }
+
     return context.decoder(kType).flatMap { kdecoder ->
       context.decoder(vType).flatMap { vdecoder ->
         when (node) {
-          is MapNode -> decode(node, kdecoder, vdecoder, context)
+          is MapNode -> decodeFromMap(node, kdecoder, vdecoder, context)
+          is ArrayNode -> decodeFromArray(node, kdecoder, vdecoder, context)
           else -> ConfigFailure.UnsupportedCollectionType(node, "Map").invalid()
         }
       }
