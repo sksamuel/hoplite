@@ -1,0 +1,13 @@
+enableFeaturePreview("GRADLE_METADATA")
+
+include("hoplite-core")
+include("hoplite-aws")
+include("hoplite-arrow")
+include("hoplite-cronutils")
+include("hoplite-hdfs")
+include("hoplite-hikaricp")
+include("hoplite-hocon")
+include("hoplite-javax")
+include("hoplite-json")
+include("hoplite-toml")
+include("hoplite-yaml")
