@@ -7,8 +7,8 @@ dependencies {
   testImplementation(project(":hoplite-toml"))
   testImplementation(project(":hoplite-yaml"))
   testImplementation(project(":hoplite-json"))
-  implementation("io.arrow-kt:arrow-validation:0.11.0")
-  implementation("io.arrow-kt:arrow-core-data:0.11.0")
+  implementation(Libs.Arrow.Validation)
+  implementation(Libs.Arrow.Data)
 }
 
 apply("../publish.gradle.kts")

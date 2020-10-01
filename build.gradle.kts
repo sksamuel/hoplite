@@ -11,10 +11,6 @@ buildscript {
       url = uri("https://plugins.gradle.org/m2/")
     }
   }
-
-//    dependencies {
-//        classpath files("/home/sam/.m2/repository/io/kotest/kotest-gradle-plugin/0.2-LOCAL/kotest-gradle-plugin-0.2-LOCAL.jar")
-//    }
 }
 
 plugins {
@@ -25,12 +21,12 @@ plugins {
   signing
   maven
   `maven-publish`
+  id("io.kotest") version "0.2.6"
   kotlin("jvm").version(Libs.kotlinVersion)
 }
 
 allprojects {
   apply(plugin = "org.jetbrains.kotlin.jvm")
-//    apply plugin: 'io.kotest'
 
   group = Libs.org
   version = Ci.version
@@ -61,4 +57,7 @@ allprojects {
       url = uri("https://oss.sonatype.org/content/repositories/snapshots")
     }
   }
+}
+
+tasks.withType<io.kotest.gradle.Kotest> {
 }

@@ -1,7 +1,6 @@
 package com.sksamuel.hoplite.yaml
 
 import com.sksamuel.hoplite.ConfigLoader
-import com.sksamuel.hoplite.fp.NonEmptyList
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
