@@ -331,7 +331,8 @@ perform database lookups, or whatever other custom action you need when the conf
 
 You can add custom pre-processors in addition to the built in ones, by using the function `withPreprocessor` on the `ConfigLoader` class, and passing in an instance of the `Preprocessor` interface.
 A typical use case of a custom preprocessor is to lookup some values in a database, or from a third party secrets store such as [Vault](https://www.vaultproject.io/) or [Amazon Parameter Store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html).
-One way this can be implemented is to have a prefix, and then use a preprocessor to look for the prefix in strings, and if the prefix is present, use the rest of the string as a key to the service.
+
+One way this can be implemented is to have a prefix, and then use a preprocessor to look for the prefix in strings, and if the prefix is present, use the rest of the string as a key to the service. The `PrefixProcessor` abstract class implements this by handling the node traversal, while leaving the specific processing as an exercise for the reader.
 
 For example
 
