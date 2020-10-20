@@ -5,7 +5,6 @@ Hoplite is a Kotlin library for loading configuration files into typesafe classe
 ![master](https://github.com/sksamuel/hoplite/workflows/master/badge.svg)
 [<img src="https://img.shields.io/maven-central/v/com.sksamuel.hoplite/hoplite-core.svg?label=latest%20release"/>](http://search.maven.org/#search%7Cga%7C1%7Choplite)
 [<img src="https://img.shields.io/nexus/s/https/oss.sonatype.org/com.sksamuel.hoplite/hoplite-core.svg?label=latest%20snapshot&style=plastic"/>](https://oss.sonatype.org/content/repositories/snapshots/com/sksamuel/hoplite/)
-[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=sksamuel/hoplite)](https://dependabot.com)
 
 
 ## Features
