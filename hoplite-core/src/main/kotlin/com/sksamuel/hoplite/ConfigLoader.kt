@@ -172,12 +172,8 @@ class ConfigLoader constructor(
         registry.register(decoder)
       }
 
-      // build the DefaultParserRegistry
-      val parserRegistry = defaultParserRegistry(this.classLoader)
-      this.parserStaging.forEach {
-        val (ext, parser) = it
-        parserRegistry.register(ext, parser)
-      }
+      // build the DefaultParserRegistry, first from the classloader, then any custom mappings
+      val parserRegistry = defaultParserRegistry(this.classLoader).register(this.parserStaging);
 
       // other defaults
       val propertySources = defaultPropertySources(parserRegistry) + this.propertySourceStaging

@@ -19,6 +19,8 @@ interface ParserRegistry {
 
   fun register(ext: String, parser: Parser): ParserRegistry
 
+  fun register(parserMap: Map<String, Parser>): ParserRegistry
+
   /**
    * Returns the currently supported file mappings
    */
@@ -39,6 +41,10 @@ class DefaultParserRegistry(private val map: Map<String, Parser>) : ParserRegist
 
   override fun register(ext: String, parser: Parser): ParserRegistry = DefaultParserRegistry(
     map.plus(ext to parser))
+
+  override fun register(parserMap: Map<String, Parser>): ParserRegistry = DefaultParserRegistry(
+    this.map.plus(parserMap)
+  )
 }
 
 fun defaultParserRegistry(): ParserRegistry {
