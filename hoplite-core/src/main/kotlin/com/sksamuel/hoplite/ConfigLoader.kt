@@ -173,10 +173,8 @@ class ConfigLoader constructor(
       }
 
       // build the DefaultParserRegistry
-      val parserRegistry = defaultParserRegistry(this.classLoader)
-      this.parserStaging.forEach {
-        val (ext, parser) = it
-        parserRegistry.register(ext, parser)
+      val parserRegistry = this.parserStaging.asSequence().fold(defaultParserRegistry(this.classLoader)) {
+        registry, (ext, parser) -> registry.register(ext, parser);
       }
 
       // other defaults
