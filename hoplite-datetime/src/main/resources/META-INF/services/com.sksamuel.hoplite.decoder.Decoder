@@ -1,0 +1,3 @@
+com.sksamuel.hoplite.datetime.InstantDecoder
+com.sksamuel.hoplite.datetime.LocalDateTimeDecoder
+com.sksamuel.hoplite.datetime.LocalDateDecoder
