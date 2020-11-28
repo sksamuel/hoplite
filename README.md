@@ -491,6 +491,7 @@ Hoplite makes available several other modules that add functionality outside of 
 |:---------------|:------------------|
 | hoplite-arrow  | Provides decoders for common arrow types |
 | hoplite-aws    | Provides decoder for aws `Region` and a preprocessor for Amazon's parameter store |
+| hoplite-datetime  | Provides decoders for [kotlinx datetime](https://github.com/Kotlin/kotlinx-datetime). Requires Kotlin 1.4.x |
 | hoplite-hdfs   | Provides decoder for hadoop `Path` |
 | hoplite-hikari | Provides decoder for `HikariDataSource` |
 | hoplite-javax  | Provides decoders for Principals |
