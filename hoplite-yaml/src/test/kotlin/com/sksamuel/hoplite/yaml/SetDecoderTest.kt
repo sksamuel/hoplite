@@ -6,6 +6,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.core.spec.style.StringSpec
 
 class SetDecoderTest : StringSpec({
+
   "Set decoded from yml file" {
     data class Test(val a: Set<Long>, val b: Set<String>)
 

@@ -27,7 +27,7 @@ class SetDecoder : NullHandlingDecoder<Set<*>> {
     val t = type.arguments[0].type!!
 
     fun <T> decode(node: ArrayNode, decoder: Decoder<T>): ConfigResult<Set<T>> {
-      return node.elements.map { decoder.decode(it, type, context) }.sequence()
+      return node.elements.map { decoder.decode(it, t, context) }.sequence()
         .mapInvalid { ConfigFailure.CollectionElementErrors(node, it) }
         .map { it.toSet() }
     }
@@ -36,7 +36,7 @@ class SetDecoder : NullHandlingDecoder<Set<*>> {
       val tokens = node.value.split(",").map {
         StringNode(it.trim(), node.pos)
       }
-      return tokens.map { decoder.decode(it, type, context) }.sequence()
+      return tokens.map { decoder.decode(it, t, context) }.sequence()
         .mapInvalid { ConfigFailure.CollectionElementErrors(node, it) }
         .map { it.toSet() }
     }
