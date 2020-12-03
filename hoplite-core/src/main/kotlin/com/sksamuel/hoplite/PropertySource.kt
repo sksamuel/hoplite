@@ -171,6 +171,19 @@ class ConfigFilePropertySource(
   }
 
   companion object {
+
+    fun optionalPath(
+      path: Path,
+      registry: ParserRegistry = defaultParserRegistry()
+    ): ConfigFilePropertySource =
+      ConfigFilePropertySource(ConfigSource.PathSource(path), registry, true)
+
+    fun optionalFile(
+      file: File,
+      registry: ParserRegistry = defaultParserRegistry()
+    ): ConfigFilePropertySource =
+      ConfigFilePropertySource(ConfigSource.FileSource(file), registry, true)
+
     fun optionalResource(
       resource: String,
       registry: ParserRegistry = defaultParserRegistry()
