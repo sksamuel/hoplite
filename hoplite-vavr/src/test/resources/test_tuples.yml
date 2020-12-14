@@ -1,0 +1,4 @@
+tuple2: ["test1", "test2"]
+tuple3: ["test1", 1, "test2"]
+tuple4: [1, 2, 3, 4]
+tuple5: [true, "test", 1, 2, "3c7799c0-3e3a-11eb-b378-0242ac130002"]
