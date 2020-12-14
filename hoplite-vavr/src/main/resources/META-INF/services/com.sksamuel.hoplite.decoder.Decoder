@@ -1,0 +1,3 @@
+com.sksamuel.hoplite.decoder.vavr.MapDecoder
+com.sksamuel.hoplite.decoder.vavr.ListDecoder
+com.sksamuel.hoplite.decoder.vavr.OptionDecoder
