@@ -23,4 +23,8 @@ object Libs {
     const val assertions = "io.kotest:kotest-assertions-core-jvm:$version"
     const val junit5 = "io.kotest:kotest-runner-junit5-jvm:$version"
   }
+
+  object Vavr {
+    const val kotlin = "io.vavr:vavr-kotlin:0.10.2"
+  }
 }
