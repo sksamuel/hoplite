@@ -5,7 +5,10 @@ import com.sksamuel.hoplite.decoder.NullHandlingDecoder
 import com.sksamuel.hoplite.fp.Validated
 import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.invalid
-import io.vavr.*
+import io.vavr.Tuple2
+import io.vavr.Tuple3
+import io.vavr.Tuple4
+import io.vavr.Tuple5
 import kotlin.reflect.KType
 
 class Tuple2Decoder : NullHandlingDecoder<Tuple2<*, *>> {

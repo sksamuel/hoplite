@@ -8,7 +8,6 @@ import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.sequence
 import io.vavr.collection.LinkedHashMap
 import io.vavr.collection.Map
-import io.vavr.kotlin.toVavrMap
 import io.vavr.kotlin.tuple
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubtypeOf
