@@ -8,6 +8,7 @@ import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.sequence
 import io.vavr.collection.LinkedHashMap
 import io.vavr.collection.Map
+import io.vavr.kotlin.toVavrMap
 import io.vavr.kotlin.tuple
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubtypeOf
@@ -44,10 +45,12 @@ class MapDecoder : NullHandlingDecoder<Map<*, *>> {
         .map { LinkedHashMap.ofEntries(it.map { pair -> pair.tuple() }) }
     }
 
-    fun <K, V> decodeFromArray(node: ArrayNode,
-                               kdecoder: Decoder<K>,
-                               vdecoder: Decoder<V>,
-                               context: DecoderContext): ConfigResult<Map<*, *>> {
+    fun <K, V> decodeFromArray(
+      node: ArrayNode,
+      kdecoder: Decoder<K>,
+      vdecoder: Decoder<V>,
+      context: DecoderContext
+    ): ConfigResult<Map<*, *>> {
 
       return node.elements.map { el ->
         kdecoder.decode(el.atKey("key"), kType, context).flatMap { kk ->
