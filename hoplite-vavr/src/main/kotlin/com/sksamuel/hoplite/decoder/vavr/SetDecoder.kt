@@ -19,11 +19,9 @@ class SetDecoder : NullHandlingDecoder<Set<*>> {
     type.isSubtypeOf(Set::class.starProjectedType) ||
       type.isSubtypeOf(Set::class.starProjectedType.withNullability(true))
 
-  override fun safeDecode(
-    node: Node,
-    type: KType,
-    context: DecoderContext
-  ): ConfigResult<Set<*>> {
+  override fun safeDecode(node: Node,
+                          type: KType,
+                          context: DecoderContext): ConfigResult<Set<*>> {
     require(type.arguments.size == 1)
 
     val t = type.arguments[0].type!!

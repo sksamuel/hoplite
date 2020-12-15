@@ -19,12 +19,11 @@ class ListDecoder : NullHandlingDecoder<List<*>> {
     type.isSubtypeOf(List::class.starProjectedType) ||
       type.isSubtypeOf(List::class.starProjectedType.withNullability(true))
 
-  override fun safeDecode(
-    node: Node,
-    type: KType,
-    context: DecoderContext
-  ): ConfigResult<List<*>> {
+  override fun safeDecode(node: Node,
+                          type: KType,
+                          context: DecoderContext): ConfigResult<List<*>> {
     require(type.arguments.size == 1)
+
     val t = type.arguments[0].type!!
 
     fun <T> decode(node: StringNode, decoder: Decoder<T>): ConfigResult<List<T>> {
