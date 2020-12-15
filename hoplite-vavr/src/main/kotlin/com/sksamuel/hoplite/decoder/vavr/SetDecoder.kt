@@ -26,11 +26,10 @@ class SetDecoder : NullHandlingDecoder<Set<*>> {
 
     val t = type.arguments[0].type!!
 
-    fun <T> decode(node: ArrayNode, decoder: Decoder<T>): ConfigResult<Set<T>> {
-      return node.elements.map { decoder.decode(it, t, context) }.sequence()
+    fun <T> decode(node: ArrayNode, decoder: Decoder<T>): ConfigResult<Set<T>> =
+      node.elements.map { decoder.decode(it, t, context) }.sequence()
         .mapInvalid { ConfigFailure.CollectionElementErrors(node, it) }
         .map { LinkedHashSet.ofAll(it) }
-    }
 
     fun <T> decode(node: StringNode, decoder: Decoder<T>): ConfigResult<Set<T>> {
       val tokens = node.value.split(",").map {

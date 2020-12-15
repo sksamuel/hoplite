@@ -27,16 +27,16 @@ class SortedSetDecoder<T : Comparable<T>> : NullHandlingDecoder<SortedSet<T>> {
 
     val t = type.arguments[0].type!!
 
-    fun decode(node: ArrayNode, decoder: Decoder<T>): ConfigResult<SortedSet<T>> {
-      return node.elements.map { decoder.decode(it, type, context) }.sequence()
+    fun decode(node: ArrayNode, decoder: Decoder<T>): ConfigResult<SortedSet<T>> =
+      node.elements.map { decoder.decode(it, type, context) }.sequence()
         .mapInvalid { ConfigFailure.CollectionElementErrors(node, it) }
         .map { TreeSet.ofAll(it) }
-    }
 
     fun decode(node: StringNode, decoder: Decoder<T>): ConfigResult<SortedSet<T>> {
       val tokens = node.value.split(",").map {
         StringNode(it.trim(), node.pos)
       }
+
       return tokens.map { decoder.decode(it, type, context) }.sequence()
         .mapInvalid { ConfigFailure.CollectionElementErrors(node, it) }
         .map { TreeSet.ofAll(it) }

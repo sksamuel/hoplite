@@ -31,9 +31,8 @@ class MapDecoder : NullHandlingDecoder<Map<*, *>> {
     fun <K, V> decodeFromMap(node: MapNode,
                              kdecoder: Decoder<K>,
                              vdecoder: Decoder<V>,
-                             context: DecoderContext): ConfigResult<Map<*, *>> {
-
-      return node.map.entries.map { (k, v) ->
+                             context: DecoderContext): ConfigResult<Map<*, *>> =
+      node.map.entries.map { (k, v) ->
         kdecoder.decode(StringNode(k, node.pos), kType, context).flatMap { kk ->
           vdecoder.decode(v, vType, context).map { vv ->
             kk to vv
@@ -42,14 +41,12 @@ class MapDecoder : NullHandlingDecoder<Map<*, *>> {
       }.sequence()
         .mapInvalid { ConfigFailure.CollectionElementErrors(node, it) }
         .map { LinkedHashMap.ofEntries(it.map { pair -> pair.tuple() }) }
-    }
 
     fun <K, V> decodeFromArray(node: ArrayNode,
                                kdecoder: Decoder<K>,
                                vdecoder: Decoder<V>,
-                               context: DecoderContext): ConfigResult<Map<*, *>> {
-
-      return node.elements.map { el ->
+                               context: DecoderContext): ConfigResult<Map<*, *>> =
+      node.elements.map { el ->
         kdecoder.decode(el.atKey("key"), kType, context).flatMap { kk ->
           vdecoder.decode(el.atKey("value"), vType, context).map { vv ->
             kk to vv
@@ -58,7 +55,6 @@ class MapDecoder : NullHandlingDecoder<Map<*, *>> {
       }.sequence()
         .mapInvalid { ConfigFailure.CollectionElementErrors(node, it) }
         .map { LinkedHashMap.ofEntries(it.map { pair -> pair.tuple() }) }
-    }
 
     return context.decoder(kType).flatMap { kdecoder ->
       context.decoder(vType).flatMap { vdecoder ->

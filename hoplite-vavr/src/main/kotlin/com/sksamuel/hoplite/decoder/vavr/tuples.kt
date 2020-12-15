@@ -19,8 +19,8 @@ class Tuple2Decoder : NullHandlingDecoder<Tuple2<*, *>> {
                           type: KType,
                           context: DecoderContext): ConfigResult<Tuple2<*, *>> {
 
-    fun decode(node: ArrayNode): ConfigResult<Tuple2<Any?, Any?>> {
-      return if (node.elements.size == 2) {
+    fun decode(node: ArrayNode): ConfigResult<Tuple2<Any?, Any?>> =
+      if (node.elements.size == 2) {
         val aType = type.arguments[0].type!!
         val bType = type.arguments[1].type!!
         val adecoder = context.decoder(aType).flatMap { it.decode(node.atIndex(0), aType, context) }
@@ -29,7 +29,6 @@ class Tuple2Decoder : NullHandlingDecoder<Tuple2<*, *>> {
           .ap(adecoder, bdecoder) { a, b -> Tuple2(a, b) }
           .mapInvalid { ConfigFailure.TupleErrors(node, it) }
       } else ConfigFailure.Generic("Tuple2 requires a list of two elements but list had size ${node.elements.size}").invalid()
-    }
 
     return when (node) {
       is ArrayNode -> decode(node)
@@ -46,8 +45,8 @@ class Tuple3Decoder : NullHandlingDecoder<Tuple3<*, *, *>> {
                           type: KType,
                           context: DecoderContext): ConfigResult<Tuple3<*, *, *>> {
 
-    fun decode(node: ArrayNode): ConfigResult<Tuple3<Any?, Any?, Any?>> {
-      return if (node.elements.size == 3) {
+    fun decode(node: ArrayNode): ConfigResult<Tuple3<Any?, Any?, Any?>> =
+      if (node.elements.size == 3) {
         val aType = type.arguments[0].type!!
         val bType = type.arguments[1].type!!
         val cType = type.arguments[2].type!!
@@ -58,7 +57,6 @@ class Tuple3Decoder : NullHandlingDecoder<Tuple3<*, *, *>> {
           .ap(adecoder, bdecoder, cdecoder) { a, b, c -> Tuple3(a, b, c) }
           .mapInvalid { ConfigFailure.TupleErrors(node, it) }
       } else ConfigFailure.Generic("Tuple3 requires a list of three elements but list had size ${node.elements.size}").invalid()
-    }
 
     return when (node) {
       is ArrayNode -> decode(node)
@@ -75,8 +73,8 @@ class Tuple4Decoder : NullHandlingDecoder<Tuple4<*, *, *, *>> {
                           type: KType,
                           context: DecoderContext): ConfigResult<Tuple4<*, *, *, *>> {
 
-    fun decode(node: ArrayNode): ConfigResult<Tuple4<Any?, Any?, Any?, Any?>> {
-      return if (node.elements.size == 4) {
+    fun decode(node: ArrayNode): ConfigResult<Tuple4<Any?, Any?, Any?, Any?>> =
+      if (node.elements.size == 4) {
         val aType = type.arguments[0].type!!
         val bType = type.arguments[1].type!!
         val cType = type.arguments[2].type!!
@@ -88,8 +86,8 @@ class Tuple4Decoder : NullHandlingDecoder<Tuple4<*, *, *, *>> {
         Validated
           .ap(adecoder, bdecoder, cdecoder, ddecoder) { a, b, c, d -> Tuple4(a, b, c, d) }
           .mapInvalid { ConfigFailure.TupleErrors(node, it) }
-      } else ConfigFailure.Generic("Tuple4 requires a list of four elements but list had size ${node.elements.size}").invalid()
-    }
+      } else
+        ConfigFailure.Generic("Tuple4 requires a list of four elements but list had size ${node.elements.size}").invalid()
 
     return when (node) {
       is ArrayNode -> decode(node)
@@ -106,8 +104,8 @@ class Tuple5Decoder : NullHandlingDecoder<Tuple5<*, *, *, *, *>> {
                           type: KType,
                           context: DecoderContext): ConfigResult<Tuple5<*, *, *, *, *>> {
 
-    fun decode(node: ArrayNode): ConfigResult<Tuple5<Any?, Any?, Any?, Any?, Any?>> {
-      return if (node.elements.size == 5) {
+    fun decode(node: ArrayNode): ConfigResult<Tuple5<Any?, Any?, Any?, Any?, Any?>> =
+      if (node.elements.size == 5) {
         val aType = type.arguments[0].type!!
         val bType = type.arguments[1].type!!
         val cType = type.arguments[2].type!!
@@ -127,7 +125,6 @@ class Tuple5Decoder : NullHandlingDecoder<Tuple5<*, *, *, *, *>> {
         ) { a, b, c, d, e -> Tuple5(a, b, c, d, e) }
           .mapInvalid { ConfigFailure.TupleErrors(node, it) }
       } else ConfigFailure.Generic("Tuple5 requires a list of five elements but list had size ${node.elements.size}").invalid()
-    }
 
     return when (node) {
       is ArrayNode -> decode(node)

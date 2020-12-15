@@ -26,18 +26,16 @@ class ListDecoder : NullHandlingDecoder<List<*>> {
 
     val t = type.arguments[0].type!!
 
-    fun <T> decode(node: StringNode, decoder: Decoder<T>): ConfigResult<List<T>> {
-      return node.value.split(",").map { it.trim() }
+    fun <T> decode(node: StringNode, decoder: Decoder<T>): ConfigResult<List<T>> =
+      node.value.split(",").map { it.trim() }
         .map { decoder.decode(StringNode(it, node.pos), type, context) }.sequence()
         .mapInvalid { ConfigFailure.CollectionElementErrors(node, it) }
         .map { it.toVavrList() }
-    }
 
-    fun <T> decode(node: ArrayNode, decoder: Decoder<T>): ConfigResult<List<T>> {
-      return node.elements.map { decoder.decode(it, type, context) }.sequence()
+    fun <T> decode(node: ArrayNode, decoder: Decoder<T>): ConfigResult<List<T>> =
+      node.elements.map { decoder.decode(it, type, context) }.sequence()
         .mapInvalid { ConfigFailure.CollectionElementErrors(node, it) }
         .map { it.toVavrList() }
-    }
 
     return context.decoder(t).flatMap { decoder ->
       when (node) {

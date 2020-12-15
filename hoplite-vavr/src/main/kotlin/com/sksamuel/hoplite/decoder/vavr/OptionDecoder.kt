@@ -16,11 +16,11 @@ class OptionDecoder : Decoder<Option<*>> {
 
   override fun decode(node: Node, type: KType, context: DecoderContext): ConfigResult<Option<*>> {
     require(type.arguments.size == 1)
+
     val t = type.arguments[0].type!!
 
-    fun <T> decode(value: Node, decoder: Decoder<T>): ConfigResult<Option<T>> {
-      return decoder.decode(value, t, context).map { some(it) }
-    }
+    fun <T> decode(value: Node, decoder: Decoder<T>): ConfigResult<Option<T>> =
+      decoder.decode(value, t, context).map { some(it) }
 
     return context.decoder(t).flatMap { decoder ->
       when (node) {
