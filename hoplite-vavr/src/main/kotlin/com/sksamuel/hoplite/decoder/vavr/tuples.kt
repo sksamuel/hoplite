@@ -116,15 +116,11 @@ class Tuple5Decoder : NullHandlingDecoder<Tuple5<*, *, *, *, *>> {
         val cdecoder = context.decoder(cType).flatMap { it.decode(node.atIndex(2), cType, context) }
         val ddecoder = context.decoder(dType).flatMap { it.decode(node.atIndex(3), dType, context) }
         val edecoder = context.decoder(eType).flatMap { it.decode(node.atIndex(4), eType, context) }
-        Validated.ap(
-          adecoder,
-          bdecoder,
-          cdecoder,
-          ddecoder,
-          edecoder
-        ) { a, b, c, d, e -> Tuple5(a, b, c, d, e) }
+        Validated
+          .ap(adecoder, bdecoder, cdecoder, ddecoder, edecoder) { a, b, c, d, e -> Tuple5(a, b, c, d, e) }
           .mapInvalid { ConfigFailure.TupleErrors(node, it) }
-      } else ConfigFailure.Generic("Tuple5 requires a list of five elements but list had size ${node.elements.size}").invalid()
+      } else ConfigFailure.Generic("Tuple5 requires a list of five elements but list had size ${node.elements.size}")
+        .invalid()
 
     return when (node) {
       is ArrayNode -> decode(node)
