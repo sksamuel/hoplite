@@ -8,6 +8,7 @@ import com.sksamuel.hoplite.parsers.Parser
 import com.sksamuel.hoplite.parsers.ParserRegistry
 import com.sksamuel.hoplite.parsers.defaultParserRegistry
 import com.sksamuel.hoplite.parsers.toNode
+import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.InputStream
 import java.nio.file.Path
@@ -46,6 +47,25 @@ interface PropertySource {
      */
     fun path(path: Path, optional: Boolean = false) =
       ConfigFilePropertySource(ConfigSource.PathSource(path), optional = optional)
+
+    /**
+     * Returns a [PropertySource] that will read the specified input stream.
+     *
+     * @param input the input stream to read from
+     * @param ext the file extension of the input format
+     */
+    fun stream(input: InputStream, ext: String) =
+      InputStreamPropertySource(input, ext)
+
+    /**
+     * Returns a [PropertySource] that will read from the specified string.
+     *
+     * @param str the string to read from
+     * @param ext the file extension of the input format
+     */
+    fun string(str: String, ext: String) =
+      stream(str.byteInputStream(), ext)
+
   }
 }
 
