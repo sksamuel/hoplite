@@ -44,12 +44,10 @@ class MapDecoder : NullHandlingDecoder<Map<*, *>> {
         .map { LinkedHashMap.ofEntries(it.map { pair -> pair.tuple() }) }
     }
 
-    fun <K, V> decodeFromArray(
-      node: ArrayNode,
-      kdecoder: Decoder<K>,
-      vdecoder: Decoder<V>,
-      context: DecoderContext
-    ): ConfigResult<Map<*, *>> {
+    fun <K, V> decodeFromArray(node: ArrayNode,
+                               kdecoder: Decoder<K>,
+                               vdecoder: Decoder<V>,
+                               context: DecoderContext): ConfigResult<Map<*, *>> {
 
       return node.elements.map { el ->
         kdecoder.decode(el.atKey("key"), kType, context).flatMap { kk ->
