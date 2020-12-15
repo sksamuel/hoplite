@@ -1,5 +1,6 @@
 com.sksamuel.hoplite.decoder.vavr.MapDecoder
 com.sksamuel.hoplite.decoder.vavr.ListDecoder
+com.sksamuel.hoplite.decoder.vavr.SortedSetDecoder
 com.sksamuel.hoplite.decoder.vavr.SetDecoder
 com.sksamuel.hoplite.decoder.vavr.OptionDecoder
 com.sksamuel.hoplite.decoder.vavr.Tuple2Decoder
