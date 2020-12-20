@@ -26,7 +26,7 @@ jobs:
 
       - name: tag release
         run: |
-          git tag -m v${{ github.event.inputs.version }}
+          git tag v${{ github.event.inputs.version }}
           git push --tags --force
 
 env:
