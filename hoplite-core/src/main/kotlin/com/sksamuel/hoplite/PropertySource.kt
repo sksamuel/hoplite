@@ -8,7 +8,6 @@ import com.sksamuel.hoplite.parsers.Parser
 import com.sksamuel.hoplite.parsers.ParserRegistry
 import com.sksamuel.hoplite.parsers.defaultParserRegistry
 import com.sksamuel.hoplite.parsers.toNode
-import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.InputStream
 import java.nio.file.Path
@@ -155,6 +154,16 @@ class UserSettingsPropertySource(private val parserRegistry: ParserRegistry) : P
 /**
  * An implementation of [PropertySource] that provides config via an [InputStream].
  * You must specify the config type in addition to the stream source.
+ *
+ * @param input the input stream that contains the config.
+ *
+ * @param ext the file extension that will be used in the parser registry to locate the
+ * correct parser to use. For example, pass in "yml" if the input stream represents a yml file.
+ * It is important the right extension type is passed in, because the input stream doesn't itself
+ * offer any indication what type of file it contains.
+ *
+ * @param parserRegistry the registered parsers. By default will use [defaultParserRegistry] which
+ * includes all the parsers found on the classpath.
  */
 class InputStreamPropertySource(
   private val input: InputStream,
