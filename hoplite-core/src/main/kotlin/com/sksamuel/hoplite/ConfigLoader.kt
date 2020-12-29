@@ -23,7 +23,7 @@ class ConfigLoader constructor(
   private val parserRegistry: ParserRegistry,
   private val preprocessors: List<Preprocessor>,
   private val paramMappers: List<ParameterMapper>,
-  private val onFailure: List<(Throwable) -> Unit>
+  private val onFailure: List<(Throwable) -> Unit> = emptyList()
 ) {
 
   companion object {
