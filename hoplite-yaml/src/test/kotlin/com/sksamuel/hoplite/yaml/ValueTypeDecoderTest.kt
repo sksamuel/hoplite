@@ -10,10 +10,11 @@ class ValueTypeDecoderTest : StringSpec({
     // host.value doesn't exist in the config, but because it is a value type, the value of "host"
     // will be used instead
     data class Host(val value: String)
-    data class Server(val host: Host)
+    data class Port(val value: Int)
+    data class Server(val host: Host, val port: Port)
     data class Config(val server: Server)
 
     val config = ConfigLoader().loadConfigOrThrow<Config>("/value_type.yml")
-    config shouldBe Config(Server(Host("localhost")))
+    config shouldBe Config(Server(Host("localhost"), Port(1234)))
   }
 })

@@ -3,7 +3,6 @@ package com.sksamuel.hoplite
 import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.fp.NonEmptyList
 import com.sksamuel.hoplite.parsers.Parser
-import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
@@ -32,7 +31,8 @@ sealed class ConfigFailure {
     val file: String,
     val map: Map<String, Parser>
   ) : ConfigFailure() {
-    override fun description(): String = "Could not detect parser for file extension '.$file' - available parsers are $map"
+    override fun description(): String =
+      "Could not detect parser for file extension '.$file' - available parsers are $map"
   }
 
   data class InvalidConstructorParameters(
@@ -79,7 +79,8 @@ sealed class ConfigFailure {
   }
 
   object NoDataClassDecoder : ConfigFailure() {
-    override fun description(): String = "No data-class decoder. Did you build a fat-jar? If so, you must choose to merge service files"
+    override fun description(): String =
+      "No data-class decoder. Did you build a fat-jar? If so, you must choose to merge service files"
   }
 
   data class IncompatibleInlineType(val type: KType, val node: Node) : ConfigFailure() {
@@ -102,15 +103,18 @@ sealed class ConfigFailure {
   }
 
   data class UnsupportedCollectionType(val node: Node, val type: String) : ConfigFailure() {
-    override fun description(): String = "Required a $type but a ${node.simpleName} cannot be converted to a collection ${node.pos.loc()}"
+    override fun description(): String =
+      "Required a $type but a ${node.simpleName} cannot be converted to a collection ${node.pos.loc()}"
   }
 
   data class NullValueForNonNullField(val node: Node) : ConfigFailure() {
     override fun description(): String = "Type defined as not-null but null was loaded from config ${node.pos.loc()}"
   }
 
-  data class NoSuchDecoder(val type: KType,
-                           val decoders: List<Decoder<*>>) : ConfigFailure() {
+  data class NoSuchDecoder(
+    val type: KType,
+    val decoders: List<Decoder<*>>
+  ) : ConfigFailure() {
     override fun description(): String =
       "Unable to locate a decoder for ${type.simpleName}"
   }
@@ -140,21 +144,34 @@ sealed class ConfigFailure {
       errors.list.joinToString("\n\n") { it.description().indent(Constants.indent) }
   }
 
-  data class InvalidEnumConstant(val node: Node,
-                                 val type: KType,
-                                 val value: String) : ConfigFailure() {
-    override fun description(): String = "Required a value for the Enum type $type but given value was $value ${node.pos.loc()}"
+  data class InvalidEnumConstant(
+    val node: Node,
+    val type: KType,
+    val value: String
+  ) : ConfigFailure() {
+    override fun description(): String =
+      "Required a value for the Enum type $type but given value was $value ${node.pos.loc()}"
   }
 
-  data class DataClassFieldErrors(val errors: NonEmptyList<ConfigFailure>,
-                                  val type: KType,
-                                  val pos: Pos) : ConfigFailure() {
+  data class DataClassFieldErrors(
+    val errors: NonEmptyList<ConfigFailure>,
+    val type: KType,
+    val pos: Pos
+  ) : ConfigFailure() {
     override fun description(): String = "- Could not instantiate '$type' because:\n\n" +
       errors.list.joinToString("\n\n") { it.description().indent(Constants.indent) }
   }
 
   data class ParamFailure(val param: KParameter, val error: ConfigFailure) : ConfigFailure() {
     override fun description(): String = "- '${param.name}': ${error.description()}"
+  }
+
+  data class ValueTypeFailure(
+    val klass: KClass<*>,
+    val param: KParameter,
+    val error: ConfigFailure
+  ) : ConfigFailure() {
+    override fun description(): String = "Could not create value type for $klass at '${param.name}': ${error.description()}"
   }
 }
 

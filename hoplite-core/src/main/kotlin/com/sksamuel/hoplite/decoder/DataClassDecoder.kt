@@ -50,7 +50,11 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
 
     // try for the value type
     if (constructor.parameters.size == 1 && constructor.parameters[0].name == "value" && node is PrimitiveNode) {
-      return construct(type, constructor, mapOf(constructor.parameters.first() to node.value))
+      return context.decoder(constructor.parameters[0])
+        .flatMap { it.decode(node, constructor.parameters[0].type, context) }
+        .map { constructor.parameters[0] to it }
+        .mapInvalid { ConfigFailure.ValueTypeFailure(klass, constructor.parameters[0], it) }
+        .flatMap { construct(type, constructor, mapOf(it)) }
     }
 
     // create a map of parameter to value. in the case of defaults, we skip the parameter completely.
