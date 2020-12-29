@@ -7,6 +7,7 @@ import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.ParameterMapper
+import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.fp.ValidatedNel
 import com.sksamuel.hoplite.fp.flatMap
@@ -42,6 +43,15 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
     if (klass.constructors.isEmpty())
       return ConfigFailure.DataClassWithoutConstructor(klass).invalid()
     val constructor = klass.constructors.first()
+
+    // we have a special case, which is a data class with a single field with the name 'value'.
+    // we call this a "value type" and we can instantiate a value directly into this data class
+    // without needing nested config, if the node is a primitive type
+
+    // try for the value type
+    if (constructor.parameters.size == 1 && constructor.parameters[0].name == "value" && node is PrimitiveNode) {
+      return construct(type, constructor, mapOf(constructor.parameters.first() to node.value))
+    }
 
     // create a map of parameter to value. in the case of defaults, we skip the parameter completely.
     val args: ValidatedNel<ConfigFailure, List<Pair<KParameter, Any?>>> = constructor.parameters.mapNotNull { param ->
