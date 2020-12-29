@@ -1,4 +1,4 @@
-@file:Suppress("unused")
+@file:Suppress("unused", "MemberVisibilityCanBePrivate")
 
 package com.sksamuel.hoplite
 
@@ -22,7 +22,8 @@ class ConfigLoader constructor(
   private val propertySources: List<PropertySource>,
   private val parserRegistry: ParserRegistry,
   private val preprocessors: List<Preprocessor>,
-  private val paramMappers: List<ParameterMapper>
+  private val paramMappers: List<ParameterMapper>,
+  private val onFailure: List<(Throwable) -> Unit>
 ) {
 
   companion object {
@@ -102,6 +103,7 @@ class ConfigLoader constructor(
     private val propertySourceStaging = mutableListOf<PropertySource>()
     private val preprocessorStaging = mutableListOf<Preprocessor>()
     private val paramMapperStaging = mutableListOf<ParameterMapper>()
+    private val failureCallbacks = mutableListOf<(Throwable) -> Unit>()
 
     fun withClassLoader(classLoader: ClassLoader): Builder {
       if (this.classLoader !== classLoader) {
@@ -167,15 +169,29 @@ class ConfigLoader constructor(
       return this
     }
 
+    /**
+     * Registers a callback that will be invoked with any exception generated when
+     * the [loadConfigOrThrow] operation is used. The callback will be invoked immediately
+     * before the exception is thrown.
+     *
+     * Note: [loadConfig] methods will not invoke this callback, instead, you can use the
+     * functions available on the returned error.
+     */
+    fun addOnFailureCallback(f: (Throwable) -> Unit): Builder {
+      this.failureCallbacks.add(f)
+      return this
+    }
+
     fun build(): ConfigLoader {
       val decoderRegistry = this.decoderStaging.fold(defaultDecoderRegistry(this.classLoader)) { registry, decoder ->
         registry.register(decoder)
       }
 
       // build the DefaultParserRegistry
-      val parserRegistry = this.parserStaging.asSequence().fold(defaultParserRegistry(this.classLoader)) {
-        registry, (ext, parser) -> registry.register(ext, parser);
-      }
+      val parserRegistry =
+        this.parserStaging.asSequence().fold(defaultParserRegistry(this.classLoader)) { registry, (ext, parser) ->
+          registry.register(ext, parser)
+        }
 
       // other defaults
       val propertySources = defaultPropertySources(parserRegistry) + this.propertySourceStaging
@@ -184,10 +200,11 @@ class ConfigLoader constructor(
 
       return ConfigLoader(
         decoderRegistry = decoderRegistry,
-        propertySources = propertySources,
+        propertySources = propertySources.toList(),
         parserRegistry = parserRegistry,
-        preprocessors = preprocessors,
-        paramMappers = paramMappers
+        preprocessors = preprocessors.toList(),
+        paramMappers = paramMappers.toList(),
+        onFailure = failureCallbacks.toList()
       )
     }
   }
@@ -293,18 +310,21 @@ class ConfigLoader constructor(
     return ConfigSource.fromFiles(files.toList()).flatMap { loadConfig(A::class, it) }
   }
 
-  @PublishedApi
-  internal fun <A : Any> ConfigResult<A>.returnOrThrow(): A = this.getOrElse {
-    val err = "Error loading config because:\n\n" + it.description().indent(Constants.indent)
-    throw ConfigException(err)
-  }
-
   fun <A : Any> loadConfig(klass: KClass<A>, inputs: List<ConfigSource>): ConfigResult<A> {
+    // This is where the actual processing takes place. All other loadConfig or throw methods
+    // ultimately end up in this method.
     require(klass.isData) { "Can only decode into data classes [was ${klass}]" }
     return if (decoderRegistry.size == 0)
       ConfigFailure.EmptyDecoderRegistry.invalid()
     else
       loadNode(inputs).flatMap { decode(klass, it) }
+  }
+
+  @PublishedApi
+  internal fun <A : Any> ConfigResult<A>.returnOrThrow(): A = this.getOrElse { failure ->
+    val err = "Error loading config because:\n\n" + failure.description().indent(Constants.indent)
+    onFailure.forEach { it(ConfigException(err)) }
+    throw ConfigException(err)
   }
 
   private fun <A : Any> decode(kclass: KClass<A>, node: Node): ConfigResult<A> {
