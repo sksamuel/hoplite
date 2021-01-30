@@ -16,6 +16,10 @@ Hoplite is a Kotlin library for loading configuration files into typesafe classe
 - **Cascading:** Config files can be [stacked](#cascading-config). Start with a default file and then layer new configurations on top. When resolving config, lookup of values falls through to the first file that contains a definition. Can be used to have a default config file and then an environment specific file.
 - **Beautiful errors:** Fail fast when the config objects are built, with detailed and [beautiful errors](#beautiful-errors) showing exactly what went wrong and where.
 
+## Changelog
+
+See the list of changes in each release [here](changelog.md).
+
 ## Getting Started
 
 Add Hoplite to your build:
@@ -351,6 +355,7 @@ These built-in preprocessors are registered automatically.
 | System Property Preprocessor | Replaces any strings of the form ${VAR} with the system property $VAR if defined. These replacement strings can occur between other strings.<br/><br/>For example `debug: ${DEBUG}` would result in debug being assigned the value `true` assuming the application had been started with `-Ddebug=true` |
 | Random Preprocessor | Inserts random strings into the config. See the section on Random Preprocessor for syntax. |
 | Props File Preprocessor | Replaces any strings of the form ${key} with the value of the key in a provided `java.util.Properties` file. The file can be specified by a `Path` or a resource on the classpath. |
+| Lookup Preprocessor | Replaces any strings of the form {{key}} with the value of that node in the already parsed config. In other words, this allow substitution from config in one place to another place (even across files). |
 | AWS Parameter Store Preprocessor | Replaces strings of the form ${ssm:key} by looking up the value of key from the AWS parameter store.<br/><br/>This preprocessor requires the `hoplite-aws` module to be added to the classpath. |
 
 ### Random Preprocessor
@@ -495,6 +500,7 @@ Hoplite makes available several other modules that add functionality outside of 
 | hoplite-hdfs   | Provides decoder for hadoop `Path` |
 | hoplite-hikari | Provides decoder for `HikariDataSource` |
 | hoplite-javax  | Provides decoders for Principals |
+| hoplite-vavr  | Provides decoders for [vavr](https://github.com/vavr-io/vavr) |
 
 ## License
 ```
