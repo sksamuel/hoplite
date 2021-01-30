@@ -2,19 +2,19 @@ package com.sksamuel.hoplite
 
 /**
  * Returns a new [Node] which is the result of merging this node, with keys from the given node,
- * such as keys in this node take precedence.
+ * with keys in this node taking precedence.
  */
-fun Node.fallback(other: Node): Node {
-  return when (val self = this) {
+internal fun Node.merge(other: Node): Node {
+  return when (this) {
     is Undefined -> other
     is MapNode -> when (other) {
       is MapNode -> {
-        val keys = self.map.keys + other.map.keys
-        val map = keys.associateWith { self.atKey(it).fallback(other.atKey(it)) }
-        MapNode(map, self.pos, self.value.fallback(other.value))
+        val keys = this.map.keys + other.map.keys
+        val map = keys.associateWith { this.atKey(it).merge(other.atKey(it)) }
+        MapNode(map, this.pos, this.value.merge(other.value))
       }
-      else -> self
+      else -> this
     }
-    else -> self
+    else -> this
   }
 }

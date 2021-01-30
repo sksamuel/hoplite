@@ -335,10 +335,13 @@ class ConfigLoader constructor(
     }
   }
 
+  /**
+   * Loads all property sources and combines them into a single node.
+   */
   private fun loadNode(configs: List<ConfigSource>): ConfigResult<Node> {
     val srcs = propertySources + configs.map { ConfigFilePropertySource(it, parserRegistry) }
     return srcs.map { it.node() }.sequence()
-      .map { it.reduce { acc, b -> acc.fallback(b) } }
+      .map { it.reduce { acc, b -> acc.merge(b) } }
       .mapInvalid {
         val multipleFailures = ConfigFailure.MultipleFailures(it)
         multipleFailures

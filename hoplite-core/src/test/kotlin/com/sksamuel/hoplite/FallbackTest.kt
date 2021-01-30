@@ -23,12 +23,12 @@ class FallbackTest : FunSpec({
       Pos.NoPos
     )
 
-    val f = node1.fallback(node2)
+    val f = node1.merge(node2)
     f["a"] shouldBe StringNode("foo", Pos.NoPos)
     f["b"] shouldBe StringNode("bar", Pos.NoPos)
     f["c"] shouldBe StringNode("baz", Pos.NoPos)
 
-    val g = node2.fallback(node1)
+    val g = node2.merge(node1)
     g["a"] shouldBe StringNode("faz", Pos.NoPos)
     g["b"] shouldBe StringNode("bar", Pos.NoPos)
     g["c"] shouldBe StringNode("baz", Pos.NoPos)
@@ -63,13 +63,13 @@ class FallbackTest : FunSpec({
       Pos.NoPos
     )
 
-    val f = node1.fallback(node2)
+    val f = node1.merge(node2)
     f["a"] shouldBe StringNode("foo", Pos.NoPos)
     f["b"]["j"] shouldBe StringNode("jen", Pos.NoPos)
     f["b"]["k"] shouldBe StringNode("ken", Pos.NoPos)
     f["c"] shouldBe StringNode("baz", Pos.NoPos)
 
-    val g = node2.fallback(node1)
+    val g = node2.merge(node1)
     g["a"] shouldBe StringNode("foo", Pos.NoPos)
     g["b"]["j"] shouldBe StringNode("jen", Pos.NoPos)
     g["b"]["k"] shouldBe StringNode("kez", Pos.NoPos)
