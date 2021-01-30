@@ -12,7 +12,7 @@ class EmptyDecoderRegistryTest : FunSpec() {
     test("empty decoder registry throws error") {
       data class Config(val a: String)
       val parsers = defaultParserRegistry()
-      val sources = defaultPropertySources(parsers)
+      val sources = defaultPropertySources()
       val preprocessors = defaultPreprocessors()
       val mappers = defaultParamMappers()
       val e = ConfigLoader(DecoderRegistry.zero, sources, parsers, preprocessors, mappers).loadConfig<Config>()
