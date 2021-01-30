@@ -22,33 +22,11 @@ plugins {
   maven
   `maven-publish`
   id("io.kotest") version "0.2.6"
-  kotlin("jvm").version(Libs.kotlinVersion)
+  kotlin("multiplatform").version(Libs.kotlinVersion).apply(false)
+  kotlin("jvm").version(Libs.kotlinVersion).apply(false)
 }
 
 allprojects {
-  apply(plugin = "org.jetbrains.kotlin.jvm")
-
-  group = Libs.org
-  version = Ci.version
-
-  dependencies {
-    testImplementation(Libs.Kotest.assertions)
-    testImplementation(Libs.Kotest.junit5)
-    implementation(Libs.Kotlin.stdlib)
-  }
-
-  tasks.named<Test>("test") {
-    useJUnitPlatform()
-    testLogging {
-      showExceptions = true
-      showStandardStreams = true
-      exceptionFormat = TestExceptionFormat.FULL
-    }
-  }
-
-  tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
-  }
 
   repositories {
     mavenLocal()
@@ -56,6 +34,23 @@ allprojects {
     maven {
       url = uri("https://oss.sonatype.org/content/repositories/snapshots")
     }
+  }
+
+  group = Libs.org
+  version = Ci.version
+
+  tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions.jvmTarget = "1.8"
+  }
+
+}
+
+tasks.named<Test>("test") {
+  useJUnitPlatform()
+  testLogging {
+    showExceptions = true
+    showStandardStreams = true
+    exceptionFormat = TestExceptionFormat.FULL
   }
 }
 
