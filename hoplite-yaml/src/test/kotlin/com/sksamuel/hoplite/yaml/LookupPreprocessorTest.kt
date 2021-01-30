@@ -10,10 +10,12 @@ class LookupPreprocessorTest : FunSpec() {
                   val b: String,
                   val c: String,
                   val d: String,
-                  val e: String
+                  val e: String,
+                  val f: String
   )
 
   init {
+
     test("lookup preprocessor") {
       ConfigLoader().loadConfigOrThrow<Test>("/test_lookup.yml") shouldBe
         Test(
@@ -21,7 +23,20 @@ class LookupPreprocessorTest : FunSpec() {
           b = "bfoo",
           c = "cfoo.hello",
           d = "ddef.boo",
-          e = "e\${qwe}"
+          e = "E",
+          f = "f\${qwe}"
+        )
+    }
+
+    test("lookup preprocessor with react syntax") {
+      ConfigLoader().loadConfigOrThrow<Test>("/test_lookup_react.yml") shouldBe
+        Test(
+          a = "foo",
+          b = "bfoo",
+          c = "cfoo.hello",
+          d = "dE.boo",
+          e = "E",
+          f = "f{{unknown}}"
         )
     }
   }

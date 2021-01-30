@@ -2,4 +2,5 @@ a: foo
 b: b${a}
 c: c${a}.hello
 d: d${e:-def}.boo
-e: e${qwe}
+e: E
+f: f${qwe}
