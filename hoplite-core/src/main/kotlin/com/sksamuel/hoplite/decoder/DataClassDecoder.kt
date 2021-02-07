@@ -8,11 +8,13 @@ import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.ParameterMapper
 import com.sksamuel.hoplite.PrimitiveNode
+import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.fp.ValidatedNel
 import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.sequence
 import com.sksamuel.hoplite.isDefined
+import com.sksamuel.hoplite.simpleName
 import java.lang.IllegalArgumentException
 import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KClass
@@ -40,8 +42,14 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
   ): ConfigResult<Any> {
 
     val klass = type.classifier as KClass<*>
-    if (klass.constructors.isEmpty())
+    if (klass.constructors.isEmpty()) {
+      val instance = klass.objectInstance
+      if (instance != null && node is StringNode && node.value == type.simpleName.substringAfter("$")) {
+        return instance.valid()
+      }
       return ConfigFailure.DataClassWithoutConstructor(klass).invalid()
+    }
+
     val constructor = klass.constructors.first()
 
     // we have a special case, which is a data class with a single field with the name 'value'.
