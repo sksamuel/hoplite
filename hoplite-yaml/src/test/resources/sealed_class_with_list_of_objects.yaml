@@ -1,0 +1,2 @@
+poolingStrategy:
+  combo: [Omni, OsVersion]
