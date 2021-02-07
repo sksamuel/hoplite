@@ -11,5 +11,9 @@ class InstantDecoderTest : FunSpec() {
       data class Config(val a: Instant)
       ConfigLoader().loadConfigOrThrow<Config>("/instant.props").a shouldBe Instant.fromEpochMilliseconds(1423131323423)
     }
+    test("test iso instant") {
+      data class Config(val a: Instant)
+      ConfigLoader().loadConfigOrThrow<Config>("/instant_iso.props").a shouldBe Instant.parse("2007-12-03T10:15:30.00Z")
+    }
   }
 }
