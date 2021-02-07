@@ -13,6 +13,13 @@ sealed class Database {
 
 sealed class Lonely
 
+sealed class PoolingStrategy {
+  object ABI : PoolingStrategy()
+  data class Combo(val combo: List<PoolingStrategy>) : PoolingStrategy()
+  object Omni: PoolingStrategy()
+  object OsVersion : PoolingStrategy()
+}
+
 class SealedClassDecoderTest : FunSpec({
 
   test("sealed classes decoding") {
@@ -44,5 +51,28 @@ class SealedClassDecoderTest : FunSpec({
       "    - Could not instantiate 'com.sksamuel.hoplite.yaml.`SealedClassDecoderTest\$1\$3\$TestConfig`' because:\n" +
       "\n" +
       "        - 'lonely': Sealed class class com.sksamuel.hoplite.yaml.Lonely does not define any subclasses"
+  }
+
+  test("object inside sealed class decoding"){
+    data class Config(val poolingStrategy: PoolingStrategy)
+    val config = ConfigLoader().loadConfigOrThrow<Config>("/sealed_class_with_object.yaml")
+    config.poolingStrategy shouldBe PoolingStrategy.OsVersion
+  }
+
+  test("list of object inside sealed class decoding"){
+    data class Config(val poolingStrategy: PoolingStrategy)
+    val config = ConfigLoader().loadConfigOrThrow<Config>("/sealed_class_with_list_of_objects.yaml")
+    config.poolingStrategy shouldBe PoolingStrategy.Combo(listOf(PoolingStrategy.Omni, PoolingStrategy.OsVersion))
+  }
+
+  test("should error for invalid value inside sealed class"){
+    data class Config(val poolingStrategy: PoolingStrategy)
+    shouldThrow<ConfigException> {
+      ConfigLoader().loadConfigOrThrow<Config>("/sealed_class_with_object_invalid_value.yaml")
+    }.message shouldBe "Error loading config because:\n" +
+      "\n" +
+      "    - Could not instantiate 'com.sksamuel.hoplite.yaml.`SealedClassDecoderTest\$1\$6\$Config`' because:\n" +
+      "\n" +
+      "        - 'poolingStrategy': Could not find appropriate subclass of class com.sksamuel.hoplite.yaml.PoolingStrategy: Tried com.sksamuel.hoplite.yaml.PoolingStrategy\$ABI, com.sksamuel.hoplite.yaml.PoolingStrategy\$Combo, com.sksamuel.hoplite.yaml.PoolingStrategy\$Omni, com.sksamuel.hoplite.yaml.PoolingStrategy\$OsVersion (/sealed_class_with_object_invalid_value.yaml:0:17)"
   }
 })
