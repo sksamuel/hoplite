@@ -52,6 +52,15 @@ class BasicTypesTest : FunSpec({
       )
   }
 
+  test("Duration in ISO-8601 format") {
+    data class Test(val pushTimeout: Duration, val pullTimeout: Duration)
+    val config = ConfigLoader().loadConfigOrThrow<Test>("/test_duration_iso_8601.yml")
+    config shouldBe Test(
+      Duration.ofSeconds(30),
+      Duration.ofHours(1),
+    )
+  }
+
   test("kotlin.Enum") {
     data class Test(val wine: Wine)
 
