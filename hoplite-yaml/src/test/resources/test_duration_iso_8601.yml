@@ -1,0 +1,2 @@
+pushTimeout: "PT30S"
+pullTimeout: "PT1H"
