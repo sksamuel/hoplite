@@ -6,6 +6,10 @@ on:
       version:
         description: "The release version"
         required: true
+      branch:
+        description: "The branch to release from"
+        required: true
+        default: 'master'
 
 jobs:
   publish:
@@ -14,6 +18,9 @@ jobs:
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.branch }}
 
       - name: deploy to sonatype
         run: ./gradlew publish
