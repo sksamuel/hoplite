@@ -83,7 +83,7 @@ class InstantDecoder : NonNullableLeafDecoder<Instant> {
   override fun safeLeafDecode(node: Node,
                               type: KType,
                               context: DecoderContext): ConfigResult<Instant> = when (node) {
-    is StringNode -> runCatching { Instant.ofEpochMilli(node.value.toLong()) }.toValidated {
+    is StringNode -> runCatching { Instant.ofEpochMilli(node.value.toLong()) }.recoverCatching { Instant.parse(node.value) }.toValidated {
       ConfigFailure.DecodeError(node, type)
     }
     is LongNode -> Instant.ofEpochMilli(node.value).valid()
