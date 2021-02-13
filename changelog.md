@@ -1,8 +1,12 @@
 # Changelog
 
-### 1.4.0
+### 1.4.0 (Pending)
 
-* Breaking: PropertySource method now accepts a ParserRegistry
+* **Kotlin version is now 1.4.30**
+* Breaking: The PropertySource interface has been changed to accept a PropertSourceContext. This only affects users who have written their own custom PropertySource.
+* Added @ConfigAlias to allow a data class field to map to multiple values. #197
+* Added strict option to ConfigLoader Builder to throw an error if a config value is unused. Lenient mode is still the default. #187
+* Bumped all module deps to latest versions
 
 ### 1.3.15
 
