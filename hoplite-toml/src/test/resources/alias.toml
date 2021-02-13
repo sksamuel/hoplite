@@ -1,0 +1,10 @@
+# This is a TOML document.
+foo = "bar"
+
+[a]
+b = "Tom Preston-Werner"
+c = 5000
+
+[d]
+e = "192.168.1.1"
+f = true

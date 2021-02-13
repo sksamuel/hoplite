@@ -5,7 +5,8 @@ import kotlin.reflect.KParameter
 fun defaultParamMappers(): List<ParameterMapper> = listOf(
   DefaultParamMapper,
   SnakeCaseParamMapper,
-  KebabCaseParamMapper
+  KebabCaseParamMapper,
+  AliasAnnotationParamMapper
 )
 
 /**
@@ -27,6 +28,14 @@ interface ParameterMapper {
 
 object DefaultParamMapper : ParameterMapper {
   override fun map(param: KParameter): String = param.name ?: "<anon>"
+}
+
+annotation class ConfigAlias(val name: String)
+
+object AliasAnnotationParamMapper : ParameterMapper {
+  override fun map(param: KParameter): String {
+    return param.annotations.filterIsInstance<ConfigAlias>().firstOrNull()?.name ?: param.name ?: "<anon>"
+  }
 }
 
 /**
