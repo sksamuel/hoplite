@@ -4,12 +4,15 @@ import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.DecodeMode
 import com.sksamuel.hoplite.DecoderContext
+import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.ParameterMapper
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Undefined
+import com.sksamuel.hoplite.fp.Validated
 import com.sksamuel.hoplite.fp.ValidatedNel
 import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.sequence
@@ -65,11 +68,21 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
         .flatMap { construct(type, constructor, mapOf(it)) }
     }
 
-    // create a map of parameter to value. in the case of defaults, we skip the parameter completely.
-    val args: ValidatedNel<ConfigFailure, List<Pair<KParameter, Any?>>> = constructor.parameters.mapNotNull { param ->
+    data class Arg(val parameter: KParameter,
+                   val configName: String, // the config value name that was used
+                   val value: Any?)
 
+    // create a map of parameter to value. in the case of defaults, we skip the parameter completely.
+    val args: ValidatedNel<ConfigFailure, List<Arg>> = constructor.parameters.mapNotNull { param ->
+
+      var name = "<<undefined>>"
+
+      // try each parameter mapper in turn to find the node
       val n = context.paramMappers.fold<ParameterMapper, Node>(Undefined) { n, mapper ->
-        if (n.isDefined) n else node.atKey(mapper.map(param))
+        if (n.isDefined) n else {
+          name = mapper.map(param)
+          node.atKey(name)
+        }
       }
 
       when {
@@ -78,14 +91,27 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
         param.isOptional && n is Undefined -> null
         else -> context.decoder(param)
           .flatMap { it.decode(n, param.type, context) }
-          .map { param to it }
+          .map { Arg(param, name, it) }
           .mapInvalid { ConfigFailure.ParamFailure(param, it) }
       }
     }.sequence()
 
-    return args
-      .mapInvalid { ConfigFailure.DataClassFieldErrors(it, type, node.pos) }
-      .flatMap { construct(type, constructor, it.toMap()) }
+    return when (args) {
+      // in invalid we wrap in an error containing each individual error
+      is Validated.Invalid -> ConfigFailure.DataClassFieldErrors(args.error, type, node.pos).invalid()
+      is Validated.Valid -> {
+
+        // in strict mode we throw an error if not all config values were used for the class
+        if (node is MapNode) {
+          if (context.mode == DecodeMode.Strict && args.value.size != node.size) {
+            val unusedValues = node.map.keys.minus(args.value.map { it.configName })
+            return ConfigFailure.UnusedConfigValues(unusedValues.toList()).invalid()
+          }
+        }
+
+        construct(type, constructor, args.value.map { it.parameter to it.value }.toMap())
+      }
+    }
   }
 
   private fun <A> construct(

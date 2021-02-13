@@ -51,6 +51,10 @@ sealed class ConfigFailure {
     override fun description(): String = "Data class ${kclass.qualifiedName} has no constructors"
   }
 
+  data class UnusedConfigValues(val values: List<String>) : ConfigFailure() {
+    override fun description(): String = "Config values were not used: ${values.joinToString(", ")}"
+  }
+
   data class UnknownSource(val source: String) : ConfigFailure() {
     override fun description(): String = "Could not find config file $source"
   }

@@ -13,12 +13,17 @@ import kotlin.reflect.KType
  */
 data class DecoderContext(val decoders: DecoderRegistry,
                           val paramMappers: List<ParameterMapper>,
-                          val preprocessors: List<Preprocessor>) {
+                          val preprocessors: List<Preprocessor>,
+                          val mode: DecodeMode = DecodeMode.Lenient) {
   fun decoder(type: KType): Validated<ConfigFailure, Decoder<*>> = decoders.decoder(type)
   fun decoder(type: KParameter): Validated<ConfigFailure, Decoder<*>> = decoders.decoder(type.type)
 
   companion object {
-    val zero = DecoderContext(DecoderRegistry.zero, emptyList(), emptyList())
-    operator fun invoke(registry: DecoderRegistry) = DecoderContext(registry, emptyList(), emptyList())
+    val zero = DecoderContext(DecoderRegistry.zero, emptyList(), emptyList(), DecodeMode.Lenient)
+    operator fun invoke(registry: DecoderRegistry) = DecoderContext(registry, emptyList(), emptyList(), DecodeMode.Lenient)
   }
+}
+
+enum class DecodeMode {
+  Strict, Lenient
 }
