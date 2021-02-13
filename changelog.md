@@ -1,6 +1,6 @@
 # Changelog
 
-### 1.4.0 (Pending)
+### 1.4.0
 
 * **Kotlin version is now 1.4.30**
 * Breaking: The PropertySource interface has been changed to accept a PropertSourceContext. This only affects users who have written their own custom PropertySource.
