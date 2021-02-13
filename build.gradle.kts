@@ -58,6 +58,3 @@ allprojects {
     }
   }
 }
-
-tasks.withType<io.kotest.gradle.Kotest> {
-}

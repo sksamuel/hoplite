@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
   api(project(":hoplite-core"))
-  implementation("com.typesafe:config:1.4.0")
+  implementation(Libs.Typesafe.config)
 }
 
 apply("../publish.gradle.kts")

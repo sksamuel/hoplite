@@ -8,7 +8,7 @@ repositories {
 
 dependencies {
   api(project(":hoplite-core"))
-  implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.1.1")
+  implementation(Libs.Kotlin.datetime)
 }
 
 apply("../publish.gradle.kts")

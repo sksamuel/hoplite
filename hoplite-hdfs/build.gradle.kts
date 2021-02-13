@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
     api(project(":hoplite-core"))
-    api("org.apache.hadoop:hadoop-common:2.6.5")
+    api(Libs.Hadoop.common)
 }
 
 apply("../publish.gradle.kts")
