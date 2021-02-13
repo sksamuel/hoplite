@@ -13,6 +13,10 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
 
+data class PropertySourceContext(
+  val parsers: ParserRegistry,
+)
+
 /**
  * A [PropertySource] provides [Node]s.
  *
@@ -22,9 +26,9 @@ import java.util.*
 interface PropertySource {
 
   /**
-   * Returns the node associated with this property source
+   * Returns the node generated from this property source.
    */
-  fun node(parsers: ParserRegistry): ConfigResult<Node>
+  fun node(context: PropertySourceContext): ConfigResult<Node>
 
   companion object {
 
@@ -88,7 +92,7 @@ fun defaultPropertySources(): List<PropertySource> =
  */
 object SystemPropertiesPropertySource : PropertySource {
   private const val prefix = "config.override."
-  override fun node(parsers: ParserRegistry): ConfigResult<Node> {
+  override fun node(context: PropertySourceContext): ConfigResult<Node> {
     val props = Properties()
     System.getProperties()
       .stringPropertyNames()
@@ -102,7 +106,7 @@ class EnvironmentVariablesPropertySource(
   private val useUnderscoresAsSeparator: Boolean,
   private val allowUppercaseNames: Boolean
 ) : PropertySource {
-  override fun node(parsers: ParserRegistry): ConfigResult<Node> {
+  override fun node(context: PropertySourceContext): ConfigResult<Node> {
     val props = Properties()
     System.getenv().forEach {
       val key = it.key
@@ -142,14 +146,14 @@ object UserSettingsPropertySource : PropertySource {
 
   private fun path(ext: String): Path = Paths.get(System.getProperty("user.home")).resolve(".userconfig.$ext")
 
-  override fun node(parsers: ParserRegistry): ConfigResult<Node> {
-    val ext = parsers.registeredExtensions().firstOrNull {
+  override fun node(context: PropertySourceContext): ConfigResult<Node> {
+    val ext = context.parsers.registeredExtensions().firstOrNull {
       path(it).toFile().exists()
     }
     return if (ext == null) Undefined.valid() else {
       val path = path(ext)
       val input = path.toFile().inputStream()
-      parsers.locate(ext).map {
+      context.parsers.locate(ext).map {
         it.load(input, path.toString())
       }
     }
@@ -172,8 +176,8 @@ class InputStreamPropertySource(
   private val ext: String
 ) : PropertySource {
 
-  override fun node(parsers: ParserRegistry): ConfigResult<Node> {
-    return parsers.locate(ext).map {
+  override fun node(context: PropertySourceContext): ConfigResult<Node> {
+    return context.parsers.locate(ext).map {
       it.load(input, "input-stream")
     }
   }
@@ -192,8 +196,8 @@ class ConfigFilePropertySource(
   private val optional: Boolean = false
 ) : PropertySource {
 
-  override fun node(parsers: ParserRegistry): ConfigResult<Node> {
-    val parser = parsers.locate(config.ext())
+  override fun node(context: PropertySourceContext): ConfigResult<Node> {
+    val parser = context.parsers.locate(config.ext())
     val input = config.open()
     return Validated.ap(parser, input) { a, b -> a.load(b, config.describe()) }
       .mapInvalid { ConfigFailure.MultipleFailures(it) }

@@ -1,5 +1,9 @@
 # Changelog
 
+### 1.4.0
+
+* Breaking: PropertySource method now accepts a ParserRegistry
+
 ### 1.3.15
 
 * Added support for ISO format in `Instant` decoder #192
