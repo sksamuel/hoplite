@@ -23,7 +23,8 @@ class ConfigLoader constructor(
   private val parserRegistry: ParserRegistry,
   private val preprocessors: List<Preprocessor>,
   private val paramMappers: List<ParameterMapper>,
-  private val onFailure: List<(Throwable) -> Unit> = emptyList()
+  private val onFailure: List<(Throwable) -> Unit> = emptyList(),
+  private val mode: DecodeMode = DecodeMode.Lenient,
 ) {
 
   companion object {
@@ -104,6 +105,7 @@ class ConfigLoader constructor(
     private val preprocessorStaging = mutableListOf<Preprocessor>()
     private val paramMapperStaging = mutableListOf<ParameterMapper>()
     private val failureCallbacks = mutableListOf<(Throwable) -> Unit>()
+    private var mode: DecodeMode = DecodeMode.Lenient
 
     fun withClassLoader(classLoader: ClassLoader): Builder {
       if (this.classLoader !== classLoader) {
@@ -132,6 +134,11 @@ class ConfigLoader constructor(
         val (ext, parser) = it
         this.parserStaging[ext] = parser
       }
+      return this
+    }
+
+    fun strict(): Builder {
+      this.mode = DecodeMode.Strict
       return this
     }
 
@@ -204,7 +211,8 @@ class ConfigLoader constructor(
         parserRegistry = parserRegistry,
         preprocessors = preprocessors.toList(),
         paramMappers = paramMappers.toList(),
-        onFailure = failureCallbacks.toList()
+        onFailure = failureCallbacks.toList(),
+        mode = mode,
       )
     }
   }
@@ -329,7 +337,7 @@ class ConfigLoader constructor(
 
   private fun <A : Any> decode(kclass: KClass<A>, node: Node): ConfigResult<A> {
     return decoderRegistry.decoder(kclass).flatMap { decoder ->
-      val context = DecoderContext(decoderRegistry, paramMappers, preprocessors)
+      val context = DecoderContext(decoderRegistry, paramMappers, preprocessors, mode)
       val preprocessed = context.preprocessors.fold(node) { acc, preprocessor -> preprocessor.process(acc) }
       decoder.decode(preprocessed, kclass.createType(), context)
     }
