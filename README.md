@@ -301,6 +301,33 @@ ConfigLoader.Builder()
   .loadConfig<MyConfig>()
 ```
 
+
+## Aliases
+
+If you wish to refactor your config classes and rename a field, but you don't want to have to update all your config files,
+you can add a migration path by allowing a field to use more than one name. To do this we use the @ConfigAlias annotation.
+
+For example, with this config file:
+
+```yml
+database:
+  host: String
+```
+
+We can marshall this into the following data classes.
+
+```kotlin
+data class Database(val host: String)
+data class MyConfig(val database: Database)
+```
+
+or
+
+```kotlin
+data class Database(@ConfigAlias("host") val hostname: String)
+data class MyConfig(val database: Database)
+```
+
 ## Decoders
 
 Hoplite converts the raw value in config files to JDK types using instances of the `Decoder` interface.
