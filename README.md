@@ -328,6 +328,33 @@ data class Database(@ConfigAlias("host") val hostname: String)
 data class MyConfig(val database: Database)
 ```
 
+
+## Param Mappers
+
+Hoplite provides an interface `ParameterMapper` which allows the parameter name to be modified before it is looked up
+inside a config source. This allows hoplite to find config keys which don't match the exact name. The main use case for
+this is to allow `snake_case` or `kebab-case` names to be used as config keys.
+
+For example, given the following config class:
+
+```kotlin
+data class Database(val instanceHostName: String)
+```
+
+Then we can of course define our config file (using YML as an example):
+
+```yml
+database:
+    instanceHostName: server1.prd
+```
+
+But because Hoplite registers `KebabCaseParamMapper` and `SnakeCaseParamMapper` automatically, we can just as easily use:
+
+```yml
+database:
+  instance-host-name: server1.prd
+```
+
 ## Decoders
 
 Hoplite converts the raw value in config files to JDK types using instances of the `Decoder` interface.
