@@ -105,17 +105,17 @@ Error loading config because:
 
     - Could not instantiate 'com.sksamuel.hoplite.json.Foo' because:
 
-        - 'wrongType': Required type Boolean could not be decoded from a Long (/error1.json:2:19)
+        - 'bar': Required type Boolean could not be decoded from a Long (/error1.json:2:19)
 
-        - 'whereAmI': Missing from config
+        - 'baz': Missing from config
 
-        - 'notnull': Type defined as not-null but null was loaded from config (/error1.json:6:18)
+        - 'hostname': Type defined as not-null but null was loaded from config (/error1.json:6:18)
 
         - 'season': Required a value for the Enum type com.sksamuel.hoplite.json.Season but given value was Fun (/error1.json:8:18)
 
-        - 'notalist': Defined as a List but a Boolean cannot be converted to a collection (/error1.json:3:19)
+        - 'users': Defined as a List but a Boolean cannot be converted to a collection (/error1.json:3:19)
 
-        - 'duration': Required type java.time.Duration could not be decoded from a String (/error1.json:7:26)
+        - 'interval': Required type java.time.Duration could not be decoded from a String (/error1.json:7:26)
 
         - 'nested': - Could not instantiate 'com.sksamuel.hoplite.json.Wibble' because:
 
