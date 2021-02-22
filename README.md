@@ -149,21 +149,43 @@ That same function can be used to map non-default file extensions to an existing
 ## Property Sources
 
 The `PropertySource` interface is how Hoplite reads configuration values.
+
 Hoplite supports several built in property source implementations, and you can write your own if required.
 
-This is the list of built in property sources configured by default, and the order is from top to bottom.
-Configuration values in a higher priority source take precedence over those in lower sources.
+The `EnvironmentVariablesPropertySource`, `SystemPropertiesPropertySource` and `UserSettingsPropertySource` sources are automatically registered, with
+precedence in that order. Other property sources can be passed to the config loader builder.
+
+### EnvironmentVariablesPropertySource
+
+The `EnvironmentVariablesPropertySource` reads config from environment variables. It does not map cases so `HOSTNAME` does *not* provide a value for a field with the name `hostname`.
+
+For nested config, use a period to seperate keys, for example `topic.name` would override `name` located in a `topic` parent.
+Alternatively, in some environments a `.` is not supported in ENV names, so you can also use double underscore `__`. Eg `topic__name` would override name in a Topic object.
+
+Optionally you can also create a `EnvironmentVariablesPropertySource` with `allowUppercaseNames` set to `true` to allows for uppercase-only names.
+
+### SystemPropertiesPropertySource
+
+The `SystemPropertiesPropertySource` provides config through system properties that are prefixed with `config.override.`.
+For example, starting your JVM with `-Dconfig.override.database.name` would override a config key of `database.name` residing in a file.
 
 
-| Property Source Implementation            | Description |
-|:------------------------------------------|:------------------------------------------------------------|
-| `EnvironmentVariablesPropertySource`      | Reads config from environment variables. Provides no case mappings, so `HOSTNAME` does *not* override hostname. For nested config, use a period to seperate keys, for example `topic.name` would override `name` located in a `topic` parent. Alternatively, in some environments a `.` is not supported in ENV names, so you can also use double underscore `__`. Eg `topic__name` would override name in a Topic object. Optionally you can also create a `EnvironmentVariablesPropertySource` with `allowUppercaseNames` set to `true` to allows for uppercase-only names. |
-| `SystemPropertiesPropertySource`          | Provides config through system properties that are prefixed with `config.override.`. For example, starting your JVM with `-Dconfig.override.database.name` would override a config key of `database.name` residing in a file. |
-| `UserSettingsPropertySource`              | Provides config through a config file defined at ~/.userconfig.[ext] where ext is one of the [supported formats](#supported-formats). |
+### UserSettingsPropertySource
 
+The `UserSettingsPropertySource` provides config through a config file defined at ~/.userconfig.[ext] where ext is one of the [supported formats](#supported-formats).
+
+
+### InputStreamPropertySource
+
+The `InputStreamPropertySource` provides config from an input stream. This source requires a parameter that indicates what the format is. For example, `InputStreamPropertySource(input, "yml")`
+
+
+### ConfigFilePropertySource
 
 Config from files or resources are retrieved via instances of `ConfigFilePropertySource`. This property source is added automatically when we pass
 strings, `File`s or `Path`s to the `loadConfigOrThrow` or `loadConfig` functions.
+
+There are convenience methods on `PropertySource` to construct `ConfigFilePropertySource`s from resources on the classpath or files.
 
 For example, the following are equivalent:
 
@@ -184,13 +206,53 @@ The advantage of the second approach is that we can specify a file can be option
 
 ```kotlin
 ConfigLoader.Builder()
-  .addSource(PropertySource.resource("/missing.yml", true))
+  .addSource(PropertySource.resource("/missing.yml", optional = true))
   .addSource(PropertySource.resource("/config.json"))
   .build()
   .loadConfig<MyConfig>()
 ```
 
+### JsonPropertySource
 
+To use a JSON string as a property source, we can use the `JsonPropertySource` implementation.
+For example,
+
+```kotlin
+ConfigLoader.Builder()
+   .addSource(JsonPropertySource(""" { "database": "localhost", "port": 1234 } """))
+   .build()
+   .loadConfig<MyConfig>()
+```
+
+### YamlPropertySource
+
+To use a Yaml string as a property source, we can use the `YamlPropertySource` implementation.
+
+```kotlin
+ConfigLoader.Builder()
+   .addSource(YamlPropertySource(
+     """
+        database: "localhost"
+        port: 1234
+     """))
+   .build()
+   .loadConfig<MyConfig>()
+```
+
+### TomlPropertySource
+
+To use a Toml string as a property source, we can use the `TomlPropertySource` implementation.
+
+```kotlin
+ConfigLoader.Builder()
+  .addSource(TomlPropertySource(
+    """
+        database = "localhost"
+        port = 1234
+     """))
+  .build()
+  .loadConfig<MyConfig>()
+```
 
 ## Cascading Config
 
