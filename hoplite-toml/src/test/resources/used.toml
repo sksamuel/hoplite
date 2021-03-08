@@ -1,0 +1,4 @@
+[database]
+server = "192.168.1.1"
+connection_max = 5000
+enabled = true

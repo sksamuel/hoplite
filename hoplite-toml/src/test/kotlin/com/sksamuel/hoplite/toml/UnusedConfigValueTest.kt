@@ -8,9 +8,21 @@ import io.kotest.matchers.string.shouldContain
 data class Database2(val server: String)
 data class Owner2(val name: String)
 
-data class Unused(val title: String,
-                  val owner: Owner2,
-                  val database: Database2)
+data class Unused(
+  val title: String,
+  val owner: Owner2,
+  val database: Database2
+)
+
+data class Used(
+  val database: Db,
+)
+
+data class Db(
+  val server: String,
+  val connectionMax: Int,
+  val enabled: Boolean
+)
 
 class UnusedConfigValueTest : FunSpec() {
   init {
@@ -23,6 +35,9 @@ class UnusedConfigValueTest : FunSpec() {
       }
       error.message.shouldContain("'owner': Config values were not used: dob")
       error.message.shouldContain("'database': Config values were not used: connection_max, enabled")
+    }
+    test("strict mode should not throw if all values are used") {
+      ConfigLoader.Builder().strict().build().loadConfigOrThrow<Used>("/used.toml")
     }
   }
 }
