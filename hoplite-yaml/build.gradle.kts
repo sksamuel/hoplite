@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
   api(project(":hoplite-core"))
-  implementation("org.yaml:snakeyaml:1.27")
+  implementation(Libs.Snake.snakeyml)
 }
 
 apply("../publish.gradle.kts")

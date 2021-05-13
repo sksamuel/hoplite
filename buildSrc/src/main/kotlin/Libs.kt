@@ -1,6 +1,6 @@
 object Libs {
 
-  const val kotlinVersion = "1.4.30"
+  const val kotlinVersion = "1.4.32"
   const val org = "com.sksamuel.hoplite"
 
   object Kotlin {
@@ -15,7 +15,7 @@ object Libs {
   }
 
   object Aws {
-    private const val version = "1.11.954"
+    private const val version = "1.11.1018"
     const val core = "com.amazonaws:aws-java-sdk-core:$version"
     const val ssm = "com.amazonaws:aws-java-sdk-ssm:$version"
   }
@@ -29,7 +29,7 @@ object Libs {
   }
 
   object Hikari {
-    const val core = "com.zaxxer:HikariCP:4.0.2"
+    const val core = "com.zaxxer:HikariCP:4.0.3"
   }
 
   object Typesafe {
@@ -45,6 +45,11 @@ object Libs {
     private const val version = "4.4.3"
     const val assertions = "io.kotest:kotest-assertions-core-jvm:$version"
     const val junit5 = "io.kotest:kotest-runner-junit5-jvm:$version"
+  }
+
+  object Snake {
+    private const val version = "1.28"
+    const val snakeyml = "org.yaml:snakeyaml:$version"
   }
 
   object Toml {
