@@ -1,0 +1,12 @@
+objects:
+  - &flag Apple
+  - Beachball
+  - Cartoon
+  - Duckface
+  - *flag
+
+lefthand: &A
+  name: The Bastard Sword of Eowyn
+  weight: 30
+
+righthand: *A

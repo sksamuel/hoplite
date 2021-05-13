@@ -36,7 +36,7 @@ class YamlParser : Parser {
     require(stream.next().`is`(Event.ID.StreamStart)) { "Expected stream start at ${stream.current().startMark}" }
     require(stream.next().`is`(Event.ID.DocumentStart)) { "Expected document start at ${stream.current().startMark}" }
     stream.next()
-    return TokenProduction(stream, source)
+    return TokenProduction(stream, source, emptyMap()).first
   }
 }
 
@@ -73,11 +73,14 @@ fun Event.id() = when (this) {
 }
 
 object TokenProduction {
-  operator fun invoke(stream: TokenStream<Event>,
-                      source: String): Node {
+  operator fun invoke(
+    stream: TokenStream<Event>,
+    source: String,
+    anchors: Map<String, Node>,
+  ): Pair<Node, Map<String, Node>> {
     return when (val event = stream.current()) {
-      is MappingStartEvent -> MapProduction(stream, source)
-      is SequenceStartEvent -> SequenceProduction(stream, source)
+      is MappingStartEvent -> MapProduction(stream, source, anchors)
+      is SequenceStartEvent -> SequenceProduction(stream, source, anchors)
       // https://yaml.org/refcard.html
       // Language Independent Scalar types:
       //    { ~, null }              : Null (no value).
@@ -87,47 +90,75 @@ object TokenProduction {
       //    { Y, true, Yes, ON  }    : Boolean true
       //    { n, FALSE, No, off }    : Boolean false
       is ScalarEvent -> {
-        if (event.value == "null" && event.scalarStyle == DumperOptions.ScalarStyle.PLAIN)
+        val node = if (event.value == "null" && event.scalarStyle == DumperOptions.ScalarStyle.PLAIN)
           NullNode(event.startMark.toPos(source))
         else
           StringNode(event.value, event.startMark.toPos(source))
+        if (event.anchor == null) Pair(node, anchors) else Pair(node, anchors.plus(event.anchor to node))
       }
-      else -> throw java.lang.UnsupportedOperationException("Invalid YAML event ${stream.current().id()} at ${stream.current().startMark}")
+      is AliasEvent -> {
+        val node = anchors[event.anchor]
+        if (node == null) error("Could not find alias ${event.anchor}") else Pair(node, anchors)
+      }
+      else -> throw java.lang.UnsupportedOperationException(
+        "Invalid YAML event ${stream.current().id()} at ${stream.current().startMark}"
+      )
     }
   }
 }
 
 object MapProduction {
-  operator fun invoke(stream: TokenStream<Event>, source: String): Node {
+  operator fun invoke(
+    stream: TokenStream<Event>,
+    source: String,
+    anchors: Map<String, Node>
+  ): Pair<Node, Map<String, Node>> {
     require(stream.current().`is`(Event.ID.MappingStart)) { "Expected mapping start at ${stream.current().startMark}" }
-    val mark = stream.current().startMark
+    val mapEvent = stream.current() as MappingStartEvent
     val obj = mutableMapOf<String, Node>()
+    var tempAnchors: Map<String, Node> = anchors
     while (stream.next().id() != Event.ID.MappingEnd) {
       require(stream.current().id() == Event.ID.Scalar) { "Expected scalar at ${stream.current().startMark}" }
       val field = stream.current() as ScalarEvent
       val fieldName = field.value
+      val anchor = field.anchor
       stream.next()
-      val value = TokenProduction(stream, source)
-      obj[fieldName] = value
+      val (node, returnedAnchors) = TokenProduction(stream, source, tempAnchors)
+      tempAnchors = returnedAnchors
+      if (anchor != null) tempAnchors = (tempAnchors + Pair(anchor, node))
+      obj[fieldName] = node
     }
     require(stream.current().`is`(Event.ID.MappingEnd)) { "Expected mapping end at ${stream.current().startMark}" }
-    return MapNode(obj, mark.toPos(source), Undefined)
+    val node = MapNode(obj.toMap(), mapEvent.startMark.toPos(source), Undefined)
+    tempAnchors = when (val anchor = mapEvent.anchor) {
+      null -> tempAnchors
+      else -> tempAnchors + Pair(anchor, node)
+    }
+    return Pair(node, tempAnchors)
   }
 }
 
 object SequenceProduction {
-  operator fun invoke(stream: TokenStream<Event>, source: String): Node {
-    require(stream.current().`is`(Event.ID.SequenceStart)) { "Expected sequence start at ${stream.current().startMark}" }
+  operator fun invoke(
+    stream: TokenStream<Event>,
+    source: String,
+    anchors: Map<String, Node>
+  ): Pair<Node, Map<String, Node>> {
+    require(
+      stream.current().`is`(Event.ID.SequenceStart)
+    ) { "Expected sequence start at ${stream.current().startMark}" }
     val mark = stream.current().startMark
     val list = mutableListOf<Node>()
     var index = 0
+    var tempAnchors: Map<String, Node> = anchors
     while (stream.next().id() != Event.ID.SequenceEnd) {
-      val value = TokenProduction(stream, source)
-      list.add(value)
+      val (node, returnedAnchors) = TokenProduction(stream, source, tempAnchors)
+      list.add(node)
       index++
+      tempAnchors = returnedAnchors
     }
     require(stream.current().`is`(Event.ID.SequenceEnd)) { "Expected sequence end at ${stream.current().startMark}" }
-    return ArrayNode(list.toList(), mark.toPos(source))
+    return Pair(ArrayNode(list.toList(), mark.toPos(source)), tempAnchors)
   }
 }
 
