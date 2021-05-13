@@ -3,7 +3,7 @@
 ### 1.4.1
 
 * Support for [yaml aliases](https://bitbucket.org/asomov/snakeyaml-engine/wiki/Documentation#markdown-header-aliases) #208.
-* 
+
 ### 1.4.0
 
 * **Kotlin version is now 1.4.30**
