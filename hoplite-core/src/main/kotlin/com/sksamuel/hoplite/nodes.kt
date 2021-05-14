@@ -33,7 +33,7 @@ interface Node {
    */
   fun atPath(path: String): Node {
     val parts = path.split('.')
-    return parts.fold(this, { acc, part -> acc.atKey(part) })
+    return parts.fold(this) { acc, part -> acc.atKey(part) }
   }
 
   val simpleName: String

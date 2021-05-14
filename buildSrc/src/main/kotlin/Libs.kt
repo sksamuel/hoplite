@@ -37,14 +37,18 @@ object Libs {
   }
 
   object Jackson {
-    const val core = "com.fasterxml.jackson.core:jackson-core:2.12.1"
-    const val databind = "com.fasterxml.jackson.core:jackson-databind:2.12.1"
+    const val core = "com.fasterxml.jackson.core:jackson-core:2.12.3"
+    const val databind = "com.fasterxml.jackson.core:jackson-databind:2.12.3"
   }
 
   object Kotest {
     private const val version = "4.4.3"
     const val assertions = "io.kotest:kotest-assertions-core-jvm:$version"
     const val junit5 = "io.kotest:kotest-runner-junit5-jvm:$version"
+  }
+
+  object Postgres {
+    const val driver = "org.postgresql:postgresql:42.2.20"
   }
 
   object Snake {

@@ -7,7 +7,7 @@ dependencies {
   api(Libs.Hikari.core)
 
   testImplementation(project(":hoplite-yaml"))
-  testImplementation("org.postgresql:postgresql:42.2.16")
+  testImplementation(Libs.Postgres.driver)
 }
 
 apply("../publish.gradle.kts")
