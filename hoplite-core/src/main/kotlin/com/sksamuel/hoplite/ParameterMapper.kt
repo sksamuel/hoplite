@@ -6,7 +6,7 @@ fun defaultParamMappers(): List<ParameterMapper> = listOf(
   DefaultParamMapper,
   SnakeCaseParamMapper,
   KebabCaseParamMapper,
-  AliasAnnotationParamMapper
+  AliasAnnotationParamMapper,
 )
 
 /**
@@ -15,7 +15,7 @@ fun defaultParamMappers(): List<ParameterMapper> = listOf(
  * name used for lookups.
  *
  * For example, the [SnakeCaseParamMapper] returns a name in in snake_case.
- * This allows you to define snake-case config-keys* and map them to camel case
+ * This allows you to define snake-case config-keys and map them to camel case
  * field names.
  *
  * Mappers stack, so that if multiple mappers return different names, then they
@@ -28,6 +28,14 @@ interface ParameterMapper {
 
 object DefaultParamMapper : ParameterMapper {
   override fun map(param: KParameter): String = param.name ?: "<anon>"
+}
+
+/**
+ * Disabled by default so that common ENVVAR PARAMS don't override your lower case
+ * names unexpectedly.
+ */
+object UppercaseParamMapper : ParameterMapper {
+  override fun map(param: KParameter): String = param.name?.toUpperCase() ?: "<anon>"
 }
 
 annotation class ConfigAlias(val name: String)
