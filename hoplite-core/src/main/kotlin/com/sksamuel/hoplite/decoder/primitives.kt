@@ -104,7 +104,7 @@ class ByteDecoder : NonNullableLeafDecoder<Byte> {
         else -> ThrowableFailure(it)
       }
     }
-    is DoubleNode -> Try { node.value.toByte() }.toValidated { ThrowableFailure(it) }
+    is DoubleNode -> Try { node.value.toInt().toByte() }.toValidated { ThrowableFailure(it) }
     is LongNode -> node.value.toByte().valid()
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }

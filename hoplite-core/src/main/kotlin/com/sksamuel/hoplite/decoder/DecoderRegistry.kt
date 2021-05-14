@@ -46,7 +46,7 @@ class DefaultDecoderRegistry(private val decoders: List<Decoder<*>>) : DecoderRe
     return when {
       filteredDecoders.isEmpty() && (type.classifier as KClass<*>).isData -> ConfigFailure.NoDataClassDecoder.invalid()
       filteredDecoders.isEmpty() -> ConfigFailure.NoSuchDecoder(type, decoders).invalid()
-      else -> filteredDecoders.maxBy { it.priority() }!!.valid()
+      else -> filteredDecoders.maxByOrNull { it.priority() }!!.valid()
     }
   }
 
