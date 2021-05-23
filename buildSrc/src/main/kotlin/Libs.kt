@@ -1,12 +1,12 @@
 object Libs {
 
-  const val kotlinVersion = "1.4.32"
+  const val kotlinVersion = "1.5.0"
   const val org = "com.sksamuel.hoplite"
 
   object Kotlin {
     const val reflect = "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
     const val stdlib = "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-    const val datetime = "org.jetbrains.kotlinx:kotlinx-datetime:0.1.1"
+    const val datetime = "org.jetbrains.kotlinx:kotlinx-datetime:0.2.0"
   }
 
   object Arrow {
