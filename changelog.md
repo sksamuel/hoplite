@@ -1,5 +1,9 @@
 # Changelog
 
+### 1.4.2
+
+* Added overload to support config when the config class is not reified. #213
+
 ### 1.4.1
 
 * Support for [yaml aliases](https://bitbucket.org/asomov/snakeyaml-engine/wiki/Documentation#markdown-header-aliases) #208.
