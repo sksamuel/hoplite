@@ -300,6 +300,9 @@ class ConfigLoader constructor(
   @JvmName("loadConfigOrThrowFromFiles")
   inline fun <reified A : Any> loadConfigOrThrow(files: List<File>): A = loadConfig<A>(files).returnOrThrow()
 
+  fun <A : Any> loadConfigOrThrow(klass: KClass<A>, inputs: List<ConfigSource>): A =
+    loadConfig(klass, inputs).returnOrThrow()
+
   @JvmName("loadNodeOrThrowFromFiles")
   fun loadNodeOrThrow(files: List<File>): Node =
     ConfigSource.fromFiles(files.toList()).flatMap { loadNode(it) }.returnOrThrow()
