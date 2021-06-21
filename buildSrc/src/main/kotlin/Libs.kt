@@ -10,8 +10,7 @@ object Libs {
   }
 
   object Arrow {
-    const val Validation = "io.arrow-kt:arrow-validation:0.11.0"
-    const val Data = "io.arrow-kt:arrow-core-data:0.11.0"
+    const val Core = "io.arrow-kt:arrow-core:0.13.2"
   }
 
   object Aws {
