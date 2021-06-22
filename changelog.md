@@ -1,5 +1,9 @@
 # Changelog
 
+### 1.4.3
+
+* Arrow moduled upgraded to arrow 0.13.2
+
 ### 1.4.2
 
 * Added overload to support config when the config class is not reified. #213
