@@ -1,7 +1,5 @@
 package com.sksamuel.hoplite.decoder.arrow
 
-import arrow.core.Tuple2
-import arrow.core.Tuple3
 import arrow.core.Tuple4
 import arrow.core.Tuple5
 import com.sksamuel.hoplite.fp.invalid
@@ -15,22 +13,22 @@ import com.sksamuel.hoplite.fp.Validated
 import com.sksamuel.hoplite.fp.flatMap
 import kotlin.reflect.KType
 
-class Tuple2Decoder : NullHandlingDecoder<Tuple2<*, *>> {
+class Tuple2Decoder : NullHandlingDecoder<Pair<*, *>> {
 
-  override fun supports(type: KType): Boolean = type.classifier == Tuple2::class
+  override fun supports(type: KType): Boolean = type.classifier == Pair::class
 
   override fun safeDecode(node: Node,
                           type: KType,
-                          context: DecoderContext): ConfigResult<Tuple2<*, *>> {
+                          context: DecoderContext): ConfigResult<Pair<*, *>> {
 
-    fun decode(node: ArrayNode): ConfigResult<Tuple2<Any?, Any?>> {
+    fun decode(node: ArrayNode): ConfigResult<Pair<Any?, Any?>> {
       return if (node.elements.size == 2) {
         val aType = type.arguments[0].type!!
         val bType = type.arguments[1].type!!
         val adecoder = context.decoder(aType).flatMap { it.decode(node.atIndex(0), aType, context) }
         val bdecoder = context.decoder(bType).flatMap { it.decode(node.atIndex(1), bType, context) }
         Validated
-          .ap(adecoder, bdecoder) { a, b -> Tuple2(a, b) }
+          .ap(adecoder, bdecoder) { a, b -> Pair(a, b) }
           .mapInvalid { ConfigFailure.TupleErrors(node, it) }
       } else ConfigFailure.Generic("Tuple2 requires a list of two elements but list had size ${node.elements.size}").invalid()
     }
@@ -42,15 +40,15 @@ class Tuple2Decoder : NullHandlingDecoder<Tuple2<*, *>> {
   }
 }
 
-class Tuple3Decoder : NullHandlingDecoder<Tuple3<*, *, *>> {
+class Tuple3Decoder : NullHandlingDecoder<Triple<*, *, *>> {
 
-  override fun supports(type: KType): Boolean = type.classifier == Tuple3::class
+  override fun supports(type: KType): Boolean = type.classifier == Triple::class
 
   override fun safeDecode(node: Node,
                           type: KType,
-                          context: DecoderContext): ConfigResult<Tuple3<*, *, *>> {
+                          context: DecoderContext): ConfigResult<Triple<*, *, *>> {
 
-    fun decode(node: ArrayNode): ConfigResult<Tuple3<Any?, Any?, Any?>> {
+    fun decode(node: ArrayNode): ConfigResult<Triple<Any?, Any?, Any?>> {
       return if (node.elements.size == 3) {
         val aType = type.arguments[0].type!!
         val bType = type.arguments[1].type!!
@@ -59,7 +57,7 @@ class Tuple3Decoder : NullHandlingDecoder<Tuple3<*, *, *>> {
         val bdecoder = context.decoder(bType).flatMap { it.decode(node.atIndex(1), bType, context) }
         val cdecoder = context.decoder(cType).flatMap { it.decode(node.atIndex(2), cType, context) }
         Validated
-          .ap(adecoder, bdecoder, cdecoder) { a, b, c -> Tuple3(a, b, c) }
+          .ap(adecoder, bdecoder, cdecoder) { a, b, c -> Triple(a, b, c) }
           .mapInvalid { ConfigFailure.TupleErrors(node, it) }
       } else ConfigFailure.Generic("Tuple3 requires a list of three elements but list had size ${node.elements.size}").invalid()
     }
