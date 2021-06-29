@@ -1,0 +1,1 @@
+sealed = { a = "bar", b = 1 }
