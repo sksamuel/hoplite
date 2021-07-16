@@ -8,11 +8,16 @@ class PropertySourceTest : FunSpec() {
 
     test("reads config from string") {
       data class TestConfig(val a: String, val b: Int)
+
       val config = ConfigLoader.Builder()
-        .addPropertySource(PropertySource.string("""
+        .addPropertySource(
+          PropertySource.string(
+            """
           a = A value
           b = 42
-          """.trimIndent(), "props"))
+          """.trimIndent(), "props"
+          )
+        )
         .build()
         .loadConfigOrThrow<TestConfig>()
 
@@ -33,6 +38,42 @@ class PropertySourceTest : FunSpec() {
         .loadConfigOrThrow<TestConfig>()
 
       config shouldBe TestConfig("A value", 42)
+    }
+
+    test("reads config from map") {
+      data class TestConfig(val a: String, val b: Int, val other: List<String>)
+
+      val arguments = mapOf(
+        "a" to "A value",
+        "b" to "42",
+        "other" to listOf("Value1", "Value2"),
+      )
+
+      val config = ConfigLoader.Builder()
+        .addPropertySource(PropertySource.map(arguments))
+        .build()
+        .loadConfigOrThrow<TestConfig>()
+
+      config shouldBe TestConfig("A value", 42, listOf("Value1", "Value2"))
+    }
+
+    test("reads config from command line") {
+      data class TestConfig(val a: String, val b: Int, val other: List<String>)
+
+      val arguments = arrayOf(
+        "--a=A value",
+        "--b=42",
+        "some other value",
+        "--other=Value1",
+        "--other=Value2",
+      )
+
+      val config = ConfigLoader.Builder()
+        .addPropertySource(PropertySource.commandLine(arguments))
+        .build()
+        .loadConfigOrThrow<TestConfig>()
+
+      config shouldBe TestConfig("A value", 42, listOf("Value1", "Value2"))
     }
 
   }
