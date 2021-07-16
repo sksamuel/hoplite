@@ -132,6 +132,19 @@ class EnvironmentVariablesPropertySource(
   }
 }
 
+class CommandLinePropertySource(
+  private val arguments: Array<String>,
+  private val prefix: String = "--",
+) : PropertySource {
+  override fun node(context: PropertySourceContext): ConfigResult<Node> {
+    val props = Properties()
+    arguments.asSequence()
+      .filter { it.startsWith(prefix) }
+      .forEach { it.removePrefix(prefix).split("=").also { (key, value) -> props[key] = value } }
+    return if (props.isEmpty) Undefined.valid() else props.toNode("arguments").valid()
+  }
+}
+
 /**
  * An implementation of [PropertySource] that provides config through a config file
  * defined at ~/.userconfig.ext
