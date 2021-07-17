@@ -66,6 +66,24 @@ interface PropertySource {
       InputStreamPropertySource(input, ext)
 
     /**
+     * Returns a [PropertySource] that read the specified map values.
+     *
+     * @param map map
+     */
+    fun map(map: Map<String, Any>) =
+      MapPropertySource(map)
+
+    /**
+     * Returns a [PropertySource] that will read the specified command line arguments.
+     *
+     * @param arguments command line arguments as passed to main method
+     * @param prefix argument prefix
+     * @param delimiter key value delimiter
+     */
+    fun commandLine(arguments: Array<String>, prefix: String = "--", delimiter: String = "=") =
+      CommandLinePropertySource(arguments, prefix, delimiter)
+
+    /**
      * Returns a [PropertySource] that will read from the specified string.
      *
      * @param str the string to read from
@@ -129,6 +147,53 @@ class EnvironmentVariablesPropertySource(
       props[key] = it.value
     }
     return props.toNode("env").valid()
+  }
+}
+
+/**
+ * An implementation of [PropertySource] that provides config based on command line arguments.
+ *
+ * Parameters will be processed if they start with a given prefix. Key and value are split by a given delimiter.
+ */
+class MapPropertySource(
+  private val map: Map<String, Any?>,
+) : PropertySource {
+  override fun node(context: PropertySourceContext): ConfigResult<Node> {
+    return when {
+      map.isEmpty() -> Undefined.valid()
+      else -> map.toNode("map").valid()
+    }
+  }
+}
+
+/**
+ * An implementation of [PropertySource] that provides config based on command line arguments.
+ *
+ * Parameters will be processed if they start with a given prefix. Key and value are split by a given delimiter.
+ */
+class CommandLinePropertySource(
+  private val arguments: Array<String>,
+  private val prefix: String,
+  private val delimiter: String,
+) : PropertySource {
+  override fun node(context: PropertySourceContext): ConfigResult<Node> {
+    val values = arguments.asSequence().filter {
+      it.startsWith(prefix) && it.contains(delimiter)
+    }.map {
+      it.removePrefix(prefix).split(delimiter, limit = 2)
+    }.groupingBy {
+      it[0]
+    }.aggregate { _, accumulator: Any?, element, _ ->
+      when (accumulator) {
+        null -> element[1]
+        is List<*> -> accumulator + element[1]
+        else -> listOf(accumulator, element[1])
+      }
+    }
+    return when {
+      values.isEmpty() -> Undefined.valid()
+      else -> values.toNode("commandLine").valid()
+    }
   }
 }
 
