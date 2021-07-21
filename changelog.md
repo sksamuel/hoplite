@@ -1,5 +1,9 @@
 # Changelog
 
+### 1.4.4
+
+* Adds basic command line property source. (#217)
+
 ### 1.4.3
 
 * Arrow moduled upgraded to arrow 0.13.2
