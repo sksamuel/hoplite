@@ -523,7 +523,15 @@ These built-in preprocessors are registered automatically.
 | Random Preprocessor | Inserts random strings into the config. See the section on Random Preprocessor for syntax. |
 | Props File Preprocessor | Replaces any strings of the form ${key} with the value of the key in a provided `java.util.Properties` file. The file can be specified by a `Path` or a resource on the classpath. |
 | Lookup Preprocessor | Replaces any strings of the form {{key}} with the value of that node in the already parsed config. In other words, this allow substitution from config in one place to another place (even across files). |
+
+### Optional Preprocessors
+
+These preprocessors must be added to the `ConfigBuilder` before they take effect, and require extra modules to be added to the build.
+
+| Preprocessor        | Function
+|:--------------------|:-----------|
 | AWS Parameter Store Preprocessor | Replaces strings of the form ${ssm:key} by looking up the value of key from the AWS parameter store.<br/><br/>This preprocessor requires the `hoplite-aws` module to be added to the classpath. |
+| Consul Preprocessor | Replaces strings of the form ${consul:key} by looking up the value of 'key' from a [Consul](https://www.consul.io/) server.<br/><br/>This preprocessor requires the `hoplite-consul` module to be added to the classpath. |
 
 ### Random Preprocessor
 
@@ -661,13 +669,14 @@ Hoplite makes available several other modules that add functionality outside of 
 
 | Module         | Function          |
 |:---------------|:------------------|
-| hoplite-arrow  | Provides decoders for common arrow types |
-| hoplite-aws    | Provides decoder for aws `Region` and a preprocessor for Amazon's parameter store |
+| hoplite-arrow     | Provides decoders for common arrow types |
+| hoplite-aws       | Provides decoder for aws `Region` and a preprocessor for Amazon's parameter store |
+| hoplite-consul    | Provides a preprocessor for retreiving values from a Consul server |
 | hoplite-datetime  | Provides decoders for [kotlinx datetime](https://github.com/Kotlin/kotlinx-datetime). Requires Kotlin 1.4.x |
-| hoplite-hdfs   | Provides decoder for hadoop `Path` |
-| hoplite-hikaricp | Provides decoder for `HikariDataSource` |
-| hoplite-javax  | Provides decoders for Principals |
-| hoplite-vavr  | Provides decoders for [vavr](https://github.com/vavr-io/vavr) |
+| hoplite-hdfs      | Provides decoder for hadoop `Path` |
+| hoplite-hikaricp  | Provides decoder for `HikariDataSource` |
+| hoplite-javax     | Provides decoders for Principals |
+| hoplite-vavr      | Provides decoders for [vavr](https://github.com/vavr-io/vavr) |
 
 ## License
 ```
