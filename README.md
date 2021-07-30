@@ -530,8 +530,9 @@ These preprocessors must be added to the `ConfigBuilder` before they take effect
 
 | Preprocessor        | Function
 |:--------------------|:-----------|
-| AWS Parameter Store Preprocessor | Replaces strings of the form ${ssm:key} by looking up the value of key from the AWS parameter store.<br/><br/>This preprocessor requires the `hoplite-aws` module to be added to the classpath. |
-| Consul Preprocessor | Replaces strings of the form ${consul:key} by looking up the value of 'key' from a [Consul](https://www.consul.io/) server.<br/><br/>This preprocessor requires the `hoplite-consul` module to be added to the classpath. |
+| `ParameterStorePreprocessor`    | Replaces strings of the form ${ssm:key} by looking up the value of 'key' from the [AWS Systems Manager Parameter Store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html).<br/><br/>This preprocessor requires the `hoplite-aws` module to be added to the classpath. |
+| `AwsSecretsManagerPreprocessor` | Replaces strings of the form ${awssecret:key} by looking up the value of 'key' from the [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/).<br/><br/>This preprocessor requires the `hoplite-aws` module to be added to the classpath. |
+| `ConsulConfigPreprocessor`      | Replaces strings of the form ${consul:key} by looking up the value of 'key' from a [Consul](https://www.consul.io/) server.<br/><br/>This preprocessor requires the `hoplite-consul` module to be added to the classpath. |
 
 ### Random Preprocessor
 

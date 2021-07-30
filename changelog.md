@@ -1,5 +1,9 @@
 # Changelog
 
+### 1.4.6
+
+* Added [AwsSecretsManagerPreprocessor](https://aws.amazon.com/secrets-manager/) preprocessor.
+
 ### 1.4.5
 
 * Added [Consul](https://www.consul.io/) preprocessor.
