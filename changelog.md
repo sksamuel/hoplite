@@ -3,6 +3,7 @@
 ### 1.4.6
 
 * Added [AwsSecretsManagerPreprocessor](https://aws.amazon.com/secrets-manager/) preprocessor.
+* Bumped AWS client version to 1.12.36
 
 ### 1.4.5
 
