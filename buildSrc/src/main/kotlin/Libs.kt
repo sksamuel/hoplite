@@ -46,6 +46,10 @@ object Libs {
     const val junit5 = "io.kotest:kotest-runner-junit5-jvm:$version"
   }
 
+  object Orbitz {
+    const val consul = "com.orbitz.consul:consul-client:1.5.3"
+  }
+
   object Postgres {
     const val driver = "org.postgresql:postgresql:42.2.20"
   }
