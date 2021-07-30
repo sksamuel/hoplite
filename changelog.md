@@ -1,5 +1,9 @@
 # Changelog
 
+### 1.4.5
+
+* Added [Consul](https://www.consul.io/) preprocessor.
+
 ### 1.4.4
 
 * Adds basic command line property source. (#217)
