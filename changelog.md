@@ -1,5 +1,9 @@
 # Changelog
 
+### 1.4.7
+
+* Re-added support for Java8
+
 ### 1.4.6
 
 * Added [AwsSecretsManagerPreprocessor](https://aws.amazon.com/secrets-manager/) preprocessor.
