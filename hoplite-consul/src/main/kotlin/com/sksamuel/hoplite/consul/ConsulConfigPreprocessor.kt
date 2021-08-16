@@ -10,7 +10,7 @@ import com.sksamuel.hoplite.fp.getOrElse
 import com.sksamuel.hoplite.preprocessor.TraversingPrimitivePreprocessor
 
 /**
- * Creates a [Preprocessor] that will replace strings of the form `${consul:a.b.c}` with the
+ * Creates a Preprocessor that will replace strings of the form `${consul:a.b.c}` with the
  * configuration value specified by `a.b.c` from a consul service.
  *
  * @param url the url of the consul config service.
@@ -31,7 +31,7 @@ class ConsulConfigPreprocessor(
   }
 
   private fun fetchConsulValue(key: String): Try<String> = Try {
-    client.keyValueClient().getValueAsString(key).orElseThrow()
+    client.keyValueClient().getValueAsString(key).orElseThrow { RuntimeException("Unable to locate consul key $key") }
   }
 
   override fun handle(node: PrimitiveNode): Node = when (node) {
@@ -49,5 +49,3 @@ class ConsulConfigPreprocessor(
     else -> node
   }
 }
-
-data class BasicAuth(val user: String, val password: String)
