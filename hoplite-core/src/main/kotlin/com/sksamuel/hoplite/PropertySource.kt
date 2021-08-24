@@ -295,19 +295,22 @@ class ConfigFilePropertySource(
  * file will cause the config to fail. Defaults to false.
  */
 class ExternalFilePropertySource(
-  private val filepath: String,
-  private val optional: Boolean = false
+    // for external files not on the classpath
+    private val filepath: String,
+    private val optional: Boolean = false
 ) : PropertySource {
 
-  // same as ConfigFilePropertySource, but first we validate file exists
-  override fun node(context: PropertySourceContext): ConfigResult<Node> {
-    if (!File(filepath).exists() && !optional)
-      throw Exception("specified external config file ($filepath) doesn't exist")
-    val configFile = File(filepath)
-    
-    // following example of UserSettingsPropertySource 
-    val parser = context.parsers.locate(configFile.extension())
-    val input = configFile.inputStream()
-    return parser.load(input, parser.toString()) // or is it filepath.toString() ?
-  }
+    // first we validate if file exists
+    override fun node(context: PropertySourceContext): ConfigResult<Node> {
+        return if (!File(filepath).exists()) {
+            if (optional) Undefined.valid()
+                else ConfigFailure.UnknownSource(filepath).invalid()
+        } else {
+            File(filepath).let { configFile ->
+                context.parsers.locate(configFile.extension).map {
+                    it.load(configFile.inputStream(), filepath)
+                }
+            }
+        }
+    }
 }
