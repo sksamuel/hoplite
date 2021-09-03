@@ -1,5 +1,22 @@
 # Changelog
 
+### 1.4.7
+
+* Re-added support for Java8
+
+### 1.4.6
+
+* Added [AwsSecretsManagerPreprocessor](https://aws.amazon.com/secrets-manager/) preprocessor.
+* Bumped AWS client version to 1.12.36
+
+### 1.4.5
+
+* Added [Consul](https://www.consul.io/) preprocessor.
+
+### 1.4.4
+
+* Adds basic command line property source. (#217)
+
 ### 1.4.3
 
 * Arrow moduled upgraded to arrow 0.13.2

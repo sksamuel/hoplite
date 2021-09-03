@@ -14,9 +14,10 @@ object Libs {
   }
 
   object Aws {
-    private const val version = "1.11.1018"
+    private const val version = "1.12.36"
     const val core = "com.amazonaws:aws-java-sdk-core:$version"
     const val ssm = "com.amazonaws:aws-java-sdk-ssm:$version"
+    const val secrets = "com.amazonaws:aws-java-sdk-secretsmanager:$version"
   }
 
   object CronUtils {
@@ -44,6 +45,10 @@ object Libs {
     private const val version = "4.4.3"
     const val assertions = "io.kotest:kotest-assertions-core-jvm:$version"
     const val junit5 = "io.kotest:kotest-runner-junit5-jvm:$version"
+  }
+
+  object Orbitz {
+    const val consul = "com.orbitz.consul:consul-client:1.5.3"
   }
 
   object Postgres {

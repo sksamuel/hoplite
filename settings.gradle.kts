@@ -14,6 +14,7 @@ pluginManagement {
 include("hoplite-core")
 include("hoplite-aws")
 include("hoplite-arrow")
+include("hoplite-consul")
 include("hoplite-cronutils")
 include("hoplite-datetime")
 include("hoplite-hdfs")

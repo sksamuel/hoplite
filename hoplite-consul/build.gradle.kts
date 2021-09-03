@@ -4,9 +4,7 @@ plugins {
 
 dependencies {
     api(project(":hoplite-core"))
-    api(Libs.Aws.core)
-    api(Libs.Aws.ssm)
-    api(Libs.Aws.secrets)
+    api(Libs.Orbitz.consul)
 }
 
 apply("../publish.gradle.kts")
