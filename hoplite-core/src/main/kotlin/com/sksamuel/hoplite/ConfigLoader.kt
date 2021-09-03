@@ -2,12 +2,16 @@
 
 package com.sksamuel.hoplite
 
-import com.sksamuel.hoplite.decoder.*
-import com.sksamuel.hoplite.fp.invalid
+import com.sksamuel.hoplite.decoder.Decoder
+import com.sksamuel.hoplite.decoder.DecoderRegistry
+import com.sksamuel.hoplite.decoder.defaultDecoderRegistry
 import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.getOrElse
+import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.sequence
-import com.sksamuel.hoplite.parsers.*
+import com.sksamuel.hoplite.parsers.Parser
+import com.sksamuel.hoplite.parsers.ParserRegistry
+import com.sksamuel.hoplite.parsers.defaultParserRegistry
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.preprocessor.defaultPreprocessors
 import java.io.File
@@ -30,6 +34,10 @@ class ConfigLoader constructor(
   companion object {
     operator fun invoke(): ConfigLoader {
       return Builder().build()
+    }
+
+    inline operator fun invoke(block: Builder.() -> Unit): ConfigLoader {
+      return Builder().apply(block).build()
     }
   }
 
@@ -106,74 +114,77 @@ class ConfigLoader constructor(
     private val paramMapperStaging = mutableListOf<ParameterMapper>()
     private val failureCallbacks = mutableListOf<(Throwable) -> Unit>()
     private var mode: DecodeMode = DecodeMode.Lenient
+    private var defaultSources = true
+    private var defaultPreprocessors = true
+    private var defaultParamMappers = true
 
-    fun withClassLoader(classLoader: ClassLoader): Builder {
+    fun withDefaultSources(defaultSources: Boolean): Builder = apply {
+      this.defaultSources = defaultSources
+    }
+
+    fun withDefaultPreprocessors(defaultPreprocessors: Boolean): Builder = apply {
+      this.defaultPreprocessors = defaultPreprocessors
+    }
+
+    fun withDefaultParamMappers(defaultParamMappers: Boolean): Builder = apply {
+      this.defaultParamMappers = defaultParamMappers
+    }
+
+    fun withClassLoader(classLoader: ClassLoader): Builder = apply {
       if (this.classLoader !== classLoader) {
         this.classLoader = classLoader
       }
-      return this
     }
 
-    fun addDecoder(decoder: Decoder<*>): Builder {
+    fun addDecoder(decoder: Decoder<*>): Builder = apply {
       this.decoderStaging.add(decoder)
-      return this
     }
 
-    fun addDecoders(decoders: Iterable<Decoder<*>>): Builder {
+    fun addDecoders(decoders: Iterable<Decoder<*>>): Builder = apply {
       this.decoderStaging.addAll(decoders)
-      return this
     }
 
-    fun addFileExtensionMapping(ext: String, parser: Parser): Builder {
+    fun addFileExtensionMapping(ext: String, parser: Parser): Builder = apply {
       this.parserStaging[ext] = parser
-      return this
     }
 
-    fun addFileExtensionMappins(map: Map<String, Parser>): Builder {
+    fun addFileExtensionMappins(map: Map<String, Parser>): Builder = apply {
       map.forEach {
         val (ext, parser) = it
         this.parserStaging[ext] = parser
       }
-      return this
     }
 
-    fun strict(): Builder {
+    fun strict(): Builder = apply {
       this.mode = DecodeMode.Strict
-      return this
     }
 
     fun addSource(source: PropertySource) = addPropertySource(source)
 
-    fun addPropertySource(propertySource: PropertySource): Builder {
+    fun addPropertySource(propertySource: PropertySource): Builder = apply {
       this.propertySourceStaging.add(propertySource)
-      return this
     }
 
     fun addSources(sources: Iterable<PropertySource>) = addPropertySources(sources)
 
-    fun addPropertySources(propertySources: Iterable<PropertySource>): Builder {
+    fun addPropertySources(propertySources: Iterable<PropertySource>): Builder = apply {
       this.propertySourceStaging.addAll(propertySources)
-      return this
     }
 
-    fun addPreprocessor(preprocessor: Preprocessor): Builder {
+    fun addPreprocessor(preprocessor: Preprocessor): Builder = apply {
       this.preprocessorStaging.add(preprocessor)
-      return this
     }
 
-    fun addPreprocessors(preprocessors: Iterable<Preprocessor>): Builder {
+    fun addPreprocessors(preprocessors: Iterable<Preprocessor>): Builder = apply {
       this.preprocessorStaging.addAll(preprocessors)
-      return this
     }
 
-    fun addParameterMapper(paramMapper: ParameterMapper): Builder {
+    fun addParameterMapper(paramMapper: ParameterMapper): Builder = apply {
       this.paramMapperStaging.add(paramMapper)
-      return this
     }
 
-    fun addParameterMappers(paramMappers: Iterable<ParameterMapper>): Builder {
+    fun addParameterMappers(paramMappers: Iterable<ParameterMapper>): Builder = apply {
       this.paramMapperStaging.addAll(paramMappers)
-      return this
     }
 
     /**
@@ -201,9 +212,20 @@ class ConfigLoader constructor(
         }
 
       // other defaults
-      val propertySources = defaultPropertySources() + this.propertySourceStaging
-      val preprocessors = defaultPreprocessors() + this.preprocessorStaging
-      val paramMappers = defaultParamMappers() + this.paramMapperStaging
+      val propertySources = when {
+        defaultSources -> defaultPropertySources() + this.propertySourceStaging
+        else -> this.propertySourceStaging
+      }
+
+      val preprocessors = when {
+        defaultPreprocessors -> defaultPreprocessors() + this.preprocessorStaging
+        else -> this.preprocessorStaging
+      }
+
+      val paramMappers = when {
+        defaultParamMappers -> defaultParamMappers() + this.paramMapperStaging
+        else -> this.paramMapperStaging
+      }
 
       return ConfigLoader(
         decoderRegistry = decoderRegistry,
@@ -352,7 +374,7 @@ class ConfigLoader constructor(
   private fun loadNode(configs: List<ConfigSource>): ConfigResult<Node> {
     val srcs = propertySources + configs.map { ConfigFilePropertySource(it) }
     return srcs.map { it.node(PropertySourceContext(parserRegistry)) }.sequence()
-      .map { it.reduce { acc, b -> acc.merge(b) } }
+      .map { it.takeUnless { it.isEmpty() }?.reduce { acc, b -> acc.merge(b) } ?: NullNode(Pos.NoPos)}
       .mapInvalid {
         val multipleFailures = ConfigFailure.MultipleFailures(it)
         multipleFailures
