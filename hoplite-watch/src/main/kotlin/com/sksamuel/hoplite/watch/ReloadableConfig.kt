@@ -7,14 +7,23 @@ import kotlin.reflect.KClass
 
 class ReloadableConfig<A : Any>(private val configLoader: ConfigLoader, private val clazz: KClass<A>) {
   private val config = AtomicReference(configLoader.loadConfig(clazz, emptyList()).getOrElse { null })
+  private var errorHandler: ((Throwable) -> Unit)? = null
 
   fun addWatcher(watchable: Watchable): ReloadableConfig<A> {
     watchable.watch { reloadConfig() }
     return this
   }
 
+  fun addErrorHandler(handler: (Throwable) -> Unit) {
+    errorHandler = handler
+  }
+
   private fun reloadConfig() {
-    config.set(configLoader.loadConfig(clazz, emptyList()).getOrElse { null })
+    kotlin.runCatching { configLoader.loadConfigOrThrow(clazz, emptyList()) }
+      .fold(
+        { config.set(it) },
+        { errorHandler?.invoke(it) }
+      )
   }
 
   fun getLatest() : A? {

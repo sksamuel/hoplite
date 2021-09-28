@@ -1,13 +1,7 @@
 package com.sksamuel.hoplite.watch
 
-import com.orbitz.consul.Consul
-import com.orbitz.consul.cache.KVCache
-import com.pszymczyk.consul.ConsulProcess
-import com.pszymczyk.consul.ConsulStarterBuilder
 import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.PropertySource
-import com.sksamuel.hoplite.consul.ConsulConfigPreprocessor
-import com.sksamuel.hoplite.watch.watchers.ConsulWatcher
 import com.sksamuel.hoplite.watch.watchers.FileWatcher
 import io.kotest.common.ExperimentalKotest
 import io.kotest.core.spec.style.FunSpec
@@ -15,7 +9,7 @@ import io.kotest.engine.spec.tempfile
 import io.kotest.framework.concurrency.eventually
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import kotlin.time.ExperimentalTime
+import io.kotest.matchers.string.shouldContain
 
 
 class TestWatcher: Watchable {
@@ -32,16 +26,21 @@ class TestWatcher: Watchable {
 data class TestConfig(val foo: String)
 
 @ExperimentalKotest
-@OptIn(ExperimentalTime::class)
 class WatcherTest : FunSpec({
-  lateinit var consul : ConsulProcess
+  test("will call the provided error handler if reloadConfig throws") {
+    val configLoader = ConfigLoader.Builder()
+      .addSource(PropertySource.resource("does-not-exist.yml"))
 
-  beforeSpec {
-    consul = ConsulStarterBuilder.consulStarter().buildAndStart()
-  }
+    val watcher = TestWatcher()
+    var error: Throwable? = null
+    ReloadableConfig(configLoader.build(), TestConfig::class)
+      .addWatcher(watcher)
+      .addErrorHandler { error = it }
 
-  afterSpec {
-    consul.close()
+    watcher.update()
+
+    error shouldNotBe null
+    error?.message shouldContain "Could not find config file does-not-exist.yml"
   }
 
   test("will reload the config when the watchable triggers an update") {
@@ -84,34 +83,6 @@ class WatcherTest : FunSpec({
       val reloadedConfig = reloadableConfig.getLatest()
       reloadedConfig shouldNotBe null
       reloadedConfig?.foo shouldBe "baz"
-    }
-  }
-
-  test("Can reload values from a consul cache") {
-    val embeddedConsulURL = "http://localhost:${consul.httpPort}"
-    val kvClient = Consul.builder()
-      .withUrl(embeddedConsulURL)
-      .build()
-      .keyValueClient()
-    kvClient.putValue("foo", "bar")
-
-    val configLoader = ConfigLoader.Builder()
-      .addSource(PropertySource.resource("/consulConfig.yml"))
-      .addPreprocessor(ConsulConfigPreprocessor(embeddedConsulURL))
-      .build()
-
-    val kvCache = KVCache.newCache(kvClient, "foo", 3)
-    val reloadableConfig = ReloadableConfig(configLoader, TestConfig::class)
-      .addWatcher(ConsulWatcher(kvCache))
-
-    var latest = reloadableConfig.getLatest()
-    latest?.foo shouldBe "bar"
-
-    kvClient.putValue("foo", "baz")
-
-    eventually(2000) {
-      latest = reloadableConfig.getLatest()
-      latest?.foo shouldBe "baz"
     }
   }
 })
