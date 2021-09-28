@@ -1,22 +1,23 @@
 package com.sksamuel.hoplite.watch.watchers
 
 import com.sksamuel.hoplite.watch.Watchable
-import kotlinx.coroutines.asCoroutineDispatcher
 import java.nio.file.FileSystems
 import java.nio.file.Paths
 import java.nio.file.StandardWatchEventKinds
 import java.util.concurrent.Executors
 
 class FileWatcher(private val dir: String) : Watchable {
-  val watchService = FileSystems.getDefault().newWatchService()
-  val pathToWatch = Paths.get(dir).toAbsolutePath()
   var cb = {}
 
   override fun watch(callback: () -> Unit) {
     cb = callback
+    start()
   }
 
-  init {
+  private fun start() {
+    val watchService = FileSystems.getDefault().newWatchService()
+    val pathToWatch = Paths.get(dir).toAbsolutePath()
+
     pathToWatch.register(
       watchService,
       StandardWatchEventKinds.ENTRY_CREATE,
@@ -24,20 +25,22 @@ class FileWatcher(private val dir: String) : Watchable {
       StandardWatchEventKinds.ENTRY_DELETE
     )
 
-    Executors.newSingleThreadExecutor().asCoroutineDispatcher().executor.execute(Runnable {
+    Executors.newSingleThreadExecutor().submit {
       while (true) {
         val watchKey = watchService.take()
-        if (watchKey.pollEvents().size > 0) {
-          println("Reloading configuration")
-          cb()
-        }
+        if (watchKey != null) {
+          val events = watchKey.pollEvents()
+          if (events.size > 0) {
+            cb()
+          }
 
-        if (!watchKey.reset()) {
-          watchKey.cancel()
-          watchService.close()
-          break
+          if (!watchKey.reset()) {
+            watchKey.cancel()
+            watchService.close()
+            break
+          }
         }
       }
-    })
+    }
   }
 }

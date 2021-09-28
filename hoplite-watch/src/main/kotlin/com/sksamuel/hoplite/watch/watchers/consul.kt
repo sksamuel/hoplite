@@ -1,6 +1,5 @@
 package com.sksamuel.hoplite.watch.watchers
 
-import com.orbitz.consul.KeyValueClient
 import com.orbitz.consul.cache.KVCache
 import com.sksamuel.hoplite.watch.Watchable
 

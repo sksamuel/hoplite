@@ -4,7 +4,6 @@ plugins {
 
 dependencies {
    api(project(":hoplite-core"))
-   api(project(":hoplite-yaml"))
 
    implementation(Libs.Kotlin.coroutines)
    implementation(Libs.Snake.snakeyml)

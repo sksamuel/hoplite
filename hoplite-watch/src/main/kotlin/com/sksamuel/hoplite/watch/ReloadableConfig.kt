@@ -14,7 +14,6 @@ class ReloadableConfig<A : Any>(private val configLoader: ConfigLoader, private 
   }
 
   private fun reloadConfig() {
-    println("Reloading Config...")
     config.set(configLoader.loadConfig(clazz, emptyList()).getOrElse { null })
   }
 

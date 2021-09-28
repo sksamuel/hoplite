@@ -58,6 +58,7 @@ class WatcherTest : FunSpec({
 
     map["foo"] = "baz"
     watcher.update()
+
     val reloadedConfig = reloadableConfig.getLatest()
     reloadedConfig shouldNotBe null
     reloadedConfig?.foo shouldBe "baz"
@@ -71,18 +72,13 @@ class WatcherTest : FunSpec({
       .addSource(PropertySource.file(tmpFile))
       .build()
 
-    val c1 = configLoader.loadConfigOrThrow<TestConfig>()
-    println("config: " + c1.foo)
-
     val reloadableConfig = ReloadableConfig(configLoader, TestConfig::class)
       .addWatcher(FileWatcher(tmpFile.parent))
 
     val config = reloadableConfig.getLatest()
     config?.foo shouldBe "bar"
 
-    Thread.sleep(2000)
     tmpFile.writeText("""{"foo": "baz"}""")
-    Thread.sleep(2000)
 
     eventually(10000) {
       val reloadedConfig = reloadableConfig.getLatest()
@@ -92,15 +88,16 @@ class WatcherTest : FunSpec({
   }
 
   test("Can reload values from a consul cache") {
+    val embeddedConsulURL = "http://localhost:${consul.httpPort}"
     val kvClient = Consul.builder()
-      .withUrl("http://localhost:${consul.httpPort}")
+      .withUrl(embeddedConsulURL)
       .build()
       .keyValueClient()
     kvClient.putValue("foo", "bar")
 
     val configLoader = ConfigLoader.Builder()
       .addSource(PropertySource.resource("/consulConfig.yml"))
-      .addPreprocessor(ConsulConfigPreprocessor("http://localhost:${consul.httpPort}"))
+      .addPreprocessor(ConsulConfigPreprocessor(embeddedConsulURL))
       .build()
 
     val kvCache = KVCache.newCache(kvClient, "foo", 3)
