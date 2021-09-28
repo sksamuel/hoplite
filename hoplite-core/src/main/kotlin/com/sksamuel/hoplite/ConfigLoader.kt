@@ -230,7 +230,7 @@ class ConfigLoader constructor(
 
   /**
    * Attempts to load config from the registered property sources marshalled as an instance of A.
-   * If any properties are missing, or cannot be convered into the applicable types, then an this
+   * If any properties are missing, or cannot be converted into the applicable types, then an this
    * function will throw.
    *
    * This function is intended to be used when you have registered all config files via the
