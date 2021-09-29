@@ -84,6 +84,17 @@ interface PropertySource {
       CommandLinePropertySource(arguments, prefix, delimiter)
 
     /**
+     * Returns a [PropertySource] that will read the environment settings.
+     *
+     * @param arguments command line arguments as passed to main method
+     * @param prefix argument prefix
+     * @param delimiter key value delimiter
+     */
+    fun environment(useUnderscoresAsSeparator: Boolean = true, allowUppercaseNames: Boolean = true) =
+      EnvironmentVariablesPropertySource(useUnderscoresAsSeparator, allowUppercaseNames)
+
+
+    /**
      * Returns a [PropertySource] that will read from the specified string.
      *
      * @param str the string to read from
