@@ -10,12 +10,16 @@ class ReloadableConfig<A : Any>(private val configLoader: ConfigLoader, private 
   private var errorHandler: ((Throwable) -> Unit)? = null
 
   fun addWatcher(watchable: Watchable): ReloadableConfig<A> {
-    watchable.watch { reloadConfig() }
+    watchable.watch(
+      { reloadConfig() },
+      { errorHandler?.invoke(it) }
+    )
     return this
   }
 
-  fun addErrorHandler(handler: (Throwable) -> Unit) {
+  fun addErrorHandler(handler: (Throwable) -> Unit): ReloadableConfig<A> {
     errorHandler = handler
+    return this
   }
 
   private fun reloadConfig() {
@@ -32,5 +36,5 @@ class ReloadableConfig<A : Any>(private val configLoader: ConfigLoader, private 
 }
 
 interface Watchable {
-  fun watch(callback: () -> Unit)
+  fun watch(callback: () -> Unit, errorHandler: (Throwable) -> Unit)
 }

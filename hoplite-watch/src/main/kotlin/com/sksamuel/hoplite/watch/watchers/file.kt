@@ -7,10 +7,12 @@ import java.nio.file.StandardWatchEventKinds
 import java.util.concurrent.Executors
 
 class FileWatcher(private val dir: String) : Watchable {
-  var cb = {}
+  private var cb = {}
+  private var errorCallback: ((Throwable) -> Unit) = { }
 
-  override fun watch(callback: () -> Unit) {
+  override fun watch(callback: () -> Unit, errorHandler: (Throwable) -> Unit) {
     cb = callback
+    errorCallback = errorHandler
     start()
   }
 
@@ -27,18 +29,22 @@ class FileWatcher(private val dir: String) : Watchable {
 
     Executors.newSingleThreadExecutor().submit {
       while (true) {
-        val watchKey = watchService.take()
-        if (watchKey != null) {
-          val events = watchKey.pollEvents()
-          if (events.size > 0) {
-            cb()
-          }
+        try {
+          val watchKey = watchService.take()
+          if (watchKey != null) {
+            val events = watchKey.pollEvents()
+            if (events.size > 0) {
+              cb()
+            }
 
-          if (!watchKey.reset()) {
-            watchKey.cancel()
-            watchService.close()
-            break
+            if (!watchKey.reset()) {
+              watchKey.cancel()
+              watchService.close()
+              break
+            }
           }
+        } catch (e: Exception) {
+          errorCallback(e)
         }
       }
     }

@@ -10,11 +10,12 @@ import io.kotest.framework.concurrency.eventually
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
+import kotlinx.coroutines.delay
 
 
 class TestWatcher: Watchable {
   var cb: (() -> Unit)? = null
-  override fun watch(callback: () -> Unit) {
+  override fun watch(callback: () -> Unit, errorHandler: (Throwable) -> Unit) {
     cb = callback
   }
 
@@ -77,6 +78,7 @@ class WatcherTest : FunSpec({
     val config = reloadableConfig.getLatest()
     config?.foo shouldBe "bar"
 
+    delay(1000)
     tmpFile.writeText("""{"foo": "baz"}""")
 
     eventually(10000) {

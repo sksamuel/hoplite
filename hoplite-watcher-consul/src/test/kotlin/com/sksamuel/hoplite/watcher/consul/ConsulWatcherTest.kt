@@ -1,14 +1,12 @@
 package com.sksamuel.hoplite.watcher.consul
 
 import com.orbitz.consul.Consul
-import com.orbitz.consul.cache.KVCache
 import com.pszymczyk.consul.ConsulProcess
 import com.pszymczyk.consul.ConsulStarterBuilder
 import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.PropertySource
 import com.sksamuel.hoplite.consul.ConsulConfigPreprocessor
 import com.sksamuel.hoplite.watch.ReloadableConfig
-import com.sksamuel.hoplite.watch.watchers.ConsulWatcher
 import io.kotest.common.ExperimentalKotest
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.framework.concurrency.eventually
@@ -41,9 +39,8 @@ class ConsulWatcherTest: FunSpec({
       .addPreprocessor(ConsulConfigPreprocessor(embeddedConsulURL))
       .build()
 
-    val kvCache = KVCache.newCache(kvClient, "foo", 3)
     val reloadableConfig = ReloadableConfig(configLoader, TestConfig::class)
-      .addWatcher(ConsulWatcher(kvCache))
+      .addWatcher(ConsulWatcher(kvClient, listOf("foo")))
 
     configLoader.loadConfigOrThrow<TestConfig>()
     var latest = reloadableConfig.getLatest()
