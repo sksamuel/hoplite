@@ -1,5 +1,13 @@
 # Changelog
 
+### 1.4.9
+
+* Added `Minutes` and `Seconds` as types and added decoders for both.
+
+### 1.4.8
+
+* Added support for watchers via the `hoplite-watch` and `hoplite-watch-consul` modules.
+
 ### 1.4.7
 
 * Re-added support for Java8
