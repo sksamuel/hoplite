@@ -7,6 +7,7 @@
 ### 1.4.8
 
 * Added support for watchers via the `hoplite-watch` and `hoplite-watch-consul` modules.
+* Added config builder option to not include the default decoders and processors.
 
 ### 1.4.7
 
