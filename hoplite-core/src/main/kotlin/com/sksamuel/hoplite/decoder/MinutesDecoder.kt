@@ -11,6 +11,8 @@ import com.sksamuel.hoplite.fp.Try
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import kotlin.reflect.KType
+import kotlin.time.Duration
+import kotlin.time.ExperimentalTime
 
 class MinutesDecoder : NonNullableLeafDecoder<Minutes> {
 
@@ -27,3 +29,6 @@ class MinutesDecoder : NonNullableLeafDecoder<Minutes> {
 }
 
 data class Minutes(val value: Long)
+
+@ExperimentalTime
+fun Minutes.duration() = Duration.minutes(value)
