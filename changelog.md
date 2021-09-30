@@ -1,5 +1,9 @@
 # Changelog
 
+### 1.4.10 [unreleased
+
+* Added extension methods for Minutes and Seconds to Kotlin durations.
+
 ### 1.4.9
 
 * Added `Minutes` and `Seconds` as types and added decoders for both.
