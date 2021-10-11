@@ -6,8 +6,6 @@ import com.sksamuel.hoplite.ConfigException
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
-import com.sksamuel.hoplite.fp.Try
-import com.sksamuel.hoplite.fp.getOrElse
 import com.sksamuel.hoplite.preprocessor.TraversingPrimitivePreprocessor
 
 object ParameterStorePreprocessor : TraversingPrimitivePreprocessor() {
@@ -15,7 +13,7 @@ object ParameterStorePreprocessor : TraversingPrimitivePreprocessor() {
   private val client by lazy { AWSSimpleSystemsManagementClientBuilder.defaultClient() }
   private val regex = "\\$\\{ssm:(.+?)}".toRegex()
 
-  private fun fetchParameterStoreValue(key: String): Try<String> = Try {
+  private fun fetchParameterStoreValue(key: String): Result<String> = runCatching {
     val req = GetParameterRequest().withName(key).withWithDecryption(true)
     client.getParameter(req).parameter.value
   }

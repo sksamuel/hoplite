@@ -1,6 +1,5 @@
 package com.sksamuel.hoplite
 
-import com.sksamuel.hoplite.fp.Try
 import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
@@ -26,7 +25,7 @@ object Durations {
 
 fun parseDuration(s: String): ConfigResult<Duration> {
   val unit = s.trim().reversed().takeWhile { it.isLetter() }.reversed()
-  return Try { s.trim().dropLast(unit.length).trim().toLong() }
+  return runCatching { s.trim().dropLast(unit.length).trim().toLong() }
     .toValidated { ConfigFailure.Generic("Cannot parse $s to into value/units") }
     .flatMap { value ->
       when (Durations.unitMappings[unit]) {

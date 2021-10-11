@@ -5,8 +5,6 @@ import com.sksamuel.hoplite.ConfigException
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
-import com.sksamuel.hoplite.fp.Try
-import com.sksamuel.hoplite.fp.getOrElse
 import com.sksamuel.hoplite.preprocessor.TraversingPrimitivePreprocessor
 
 /**
@@ -30,7 +28,7 @@ class ConsulConfigPreprocessor(
     return builder.build()
   }
 
-  private fun fetchConsulValue(key: String): Try<String> = Try {
+  private fun fetchConsulValue(key: String): Result<String> = runCatching {
     client.keyValueClient().getValueAsString(key).orElseThrow { RuntimeException("Unable to locate consul key $key") }
   }
 

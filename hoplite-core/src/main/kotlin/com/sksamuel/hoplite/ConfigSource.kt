@@ -1,6 +1,5 @@
 package com.sksamuel.hoplite
 
-import com.sksamuel.hoplite.fp.Try
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.sequence
 import com.sksamuel.hoplite.fp.valid
@@ -20,7 +19,7 @@ abstract class ConfigSource {
     override fun describe(): String = path.toString()
     override fun ext() = path.fileName.toString().split('.').last()
     override fun open(): ConfigResult<InputStream> =
-      Try { Files.newInputStream(path) }
+      runCatching { Files.newInputStream(path) }
         .toValidated { ConfigFailure.UnknownSource(path.toString()) }
   }
 
@@ -28,7 +27,7 @@ abstract class ConfigSource {
     override fun describe(): String = file.absolutePath
     override fun ext() = file.extension
     override fun open(): ConfigResult<InputStream> =
-      Try { FileInputStream(file) }
+      runCatching { FileInputStream(file) }
         .toValidated { ConfigFailure.UnknownSource(file.absolutePath) }
   }
 
@@ -50,7 +49,7 @@ abstract class ConfigSource {
 
     fun fromPaths(paths: List<Path>): ConfigResult<List<ConfigSource>> {
       return paths.map { path ->
-        Try { Files.newInputStream(path) }.fold(
+        runCatching { Files.newInputStream(path) }.fold(
           { ConfigFailure.UnknownSource(path.toString()).invalid() },
           { PathSource(path).valid() }
         )

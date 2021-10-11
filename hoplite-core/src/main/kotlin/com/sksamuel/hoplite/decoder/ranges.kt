@@ -1,16 +1,14 @@
 package com.sksamuel.hoplite.decoder
 
-import kotlin.reflect.KType
-
-import com.sksamuel.hoplite.fp.invalid
-import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
-import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
-import com.sksamuel.hoplite.fp.Try
-import com.sksamuel.hoplite.fp.getOrElse
+import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.flatMap
+import com.sksamuel.hoplite.fp.invalid
+import com.sksamuel.hoplite.fp.valid
+import kotlin.reflect.KType
 
 class IntRangeDecoder : NullHandlingDecoder<IntRange> {
   override fun supports(type: KType): Boolean = type.classifier == IntRange::class
@@ -51,22 +49,22 @@ object RangeDecoders {
 
   private val textRangePattern = "(\\w+)\\.\\.(\\w+)".toRegex()
 
-  fun intRange(value: String): Try<IntRange> {
+  fun intRange(value: String): Result<IntRange> {
     return extractContents(value, numericRangePattern)
-      .flatMap { (first, second) -> Try { IntRange(first.toInt(), second.toInt()) } }
+      .flatMap { (first, second) -> runCatching { IntRange(first.toInt(), second.toInt()) } }
   }
 
-  fun longRange(value: String): Try<LongRange> {
+  fun longRange(value: String): Result<LongRange> {
     return extractContents(value, numericRangePattern)
-      .flatMap { (first, second) -> Try { LongRange(first.toLong(), second.toLong()) } }
+      .flatMap { (first, second) -> runCatching { LongRange(first.toLong(), second.toLong()) } }
   }
 
-  fun charRange(value: String): Try<CharRange> {
+  fun charRange(value: String): Result<CharRange> {
     return extractContents(value, textRangePattern)
-      .flatMap { (first, second) -> Try { CharRange(first[0], second[0]) } }
+      .flatMap { (first, second) -> runCatching { CharRange(first[0], second[0]) } }
   }
 
-  private fun extractContents(value: String, r: Regex): Try<Pair<String, String>> = Try {
+  private fun extractContents(value: String, r: Regex): Result<Pair<String, String>> = runCatching {
       val (_, start, endInclusive) = r.matchEntire(value)?.groupValues ?: emptyList()
       Pair(start, endInclusive)
     }

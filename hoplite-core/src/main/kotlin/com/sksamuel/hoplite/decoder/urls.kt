@@ -6,7 +6,6 @@ import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
-import com.sksamuel.hoplite.fp.Try
 import java.net.URI
 import java.net.URL
 import kotlin.reflect.KType
@@ -16,7 +15,7 @@ class URLDecoder : NullHandlingDecoder<URL> {
   override fun safeDecode(node: Node,
                           type: KType,
                           context: DecoderContext): ConfigResult<URL> = when (node) {
-    is StringNode -> Try { URL(node.value) }.toValidated { ConfigFailure.DecodeError(node, type) }
+    is StringNode -> runCatching { URL(node.value) }.toValidated { ConfigFailure.DecodeError(node, type) }
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }
@@ -26,7 +25,7 @@ class URIDecoder : NullHandlingDecoder<URI> {
   override fun safeDecode(node: Node,
                           type: KType,
                           context: DecoderContext): ConfigResult<URI> = when (node) {
-    is StringNode -> Try { URI.create(node.value) }.toValidated { ConfigFailure.DecodeError(node, type) }
+    is StringNode -> runCatching { URI.create(node.value) }.toValidated { ConfigFailure.DecodeError(node, type) }
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }

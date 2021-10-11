@@ -7,8 +7,6 @@ import com.sksamuel.hoplite.ConfigException
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
-import com.sksamuel.hoplite.fp.Try
-import com.sksamuel.hoplite.fp.getOrElse
 import com.sksamuel.hoplite.preprocessor.TraversingPrimitivePreprocessor
 
 class AwsSecretsManagerPreprocessor(
@@ -24,7 +22,7 @@ class AwsSecretsManagerPreprocessor(
     return builder.build()
   }
 
-  private fun fetchValue(key: String): Try<String> = Try {
+  private fun fetchValue(key: String): Result<String> = runCatching {
     val req = GetSecretValueRequest().withSecretId(key)
     client.getSecretValue(req).secretString
   }
