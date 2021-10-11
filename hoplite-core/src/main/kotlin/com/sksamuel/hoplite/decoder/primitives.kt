@@ -11,7 +11,6 @@ import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.ThrowableFailure
-import com.sksamuel.hoplite.fp.Try
 import java.lang.NumberFormatException
 import kotlin.reflect.KType
 
@@ -33,7 +32,7 @@ class DoubleDecoder : NonNullableLeafDecoder<Double> {
   override fun safeLeafDecode(node: Node,
                               type: KType,
                               context: DecoderContext): ConfigResult<Double> = when (node) {
-    is StringNode -> Try { node.value.toDouble() }.toValidated {
+    is StringNode -> runCatching { node.value.toDouble() }.toValidated {
       when (it) {
         is NumberFormatException -> ConfigFailure.NumberConversionError(node, type)
         else -> ThrowableFailure(it)
@@ -49,7 +48,7 @@ class FloatDecoder : NonNullableLeafDecoder<Float> {
   override fun safeLeafDecode(node: Node,
                               type: KType,
                               context: DecoderContext): ConfigResult<Float> = when (node) {
-    is StringNode -> Try { node.value.toFloat() }.toValidated {
+    is StringNode -> runCatching { node.value.toFloat() }.toValidated {
       when (it) {
         is NumberFormatException -> ConfigFailure.NumberConversionError(node, type)
         else -> ThrowableFailure(it)
@@ -65,7 +64,7 @@ class LongDecoder : NonNullableLeafDecoder<Long> {
   override fun safeLeafDecode(node: Node,
                               type: KType,
                               context: DecoderContext): ConfigResult<Long> = when (node) {
-    is StringNode -> Try { node.value.toLong() }.toValidated {
+    is StringNode -> runCatching { node.value.toLong() }.toValidated {
       when (it) {
         is NumberFormatException -> ConfigFailure.NumberConversionError(node, type)
         else -> ThrowableFailure(it)
@@ -81,7 +80,7 @@ class IntDecoder : NonNullableLeafDecoder<Int> {
   override fun safeLeafDecode(node: Node,
                               type: KType,
                               context: DecoderContext): ConfigResult<Int> = when (node) {
-    is StringNode -> Try { node.value.toInt() }.toValidated {
+    is StringNode -> runCatching { node.value.toInt() }.toValidated {
       when (it) {
         is NumberFormatException -> ConfigFailure.NumberConversionError(node, type)
         else -> ThrowableFailure(it)
@@ -98,13 +97,13 @@ class ByteDecoder : NonNullableLeafDecoder<Byte> {
   override fun safeLeafDecode(node: Node,
                               type: KType,
                               context: DecoderContext): ConfigResult<Byte> = when (node) {
-    is StringNode -> Try { node.value.toByte() }.toValidated {
+    is StringNode -> runCatching { node.value.toByte() }.toValidated {
       when (it) {
         is NumberFormatException -> ConfigFailure.NumberConversionError(node, type)
         else -> ThrowableFailure(it)
       }
     }
-    is DoubleNode -> Try { node.value.toInt().toByte() }.toValidated { ThrowableFailure(it) }
+    is DoubleNode -> runCatching { node.value.toInt().toByte() }.toValidated { ThrowableFailure(it) }
     is LongNode -> node.value.toByte().valid()
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
@@ -115,7 +114,7 @@ class ShortDecoder : NonNullableLeafDecoder<Short> {
   override fun safeLeafDecode(node: Node,
                               type: KType,
                               context: DecoderContext): ConfigResult<Short> = when (node) {
-    is StringNode -> Try { node.value.toShort() }.toValidated { ThrowableFailure(it) }
+    is StringNode -> runCatching { node.value.toShort() }.toValidated { ThrowableFailure(it) }
     is LongNode -> node.value.toShort().valid()
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }

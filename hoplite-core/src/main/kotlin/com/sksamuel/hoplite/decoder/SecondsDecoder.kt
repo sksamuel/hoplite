@@ -7,7 +7,6 @@ import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.ThrowableFailure
-import com.sksamuel.hoplite.fp.Try
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import kotlin.reflect.KType
@@ -22,7 +21,7 @@ class SecondsDecoder : NonNullableLeafDecoder<Seconds> {
     type: KType,
     context: DecoderContext
   ): ConfigResult<Seconds> = when (node) {
-    is StringNode -> Try { Seconds(node.value.toLong()) }.toValidated { ThrowableFailure(it) }
+    is StringNode -> runCatching { Seconds(node.value.toLong()) }.toValidated { ThrowableFailure(it) }
     is LongNode -> Seconds(node.value).valid()
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }

@@ -6,7 +6,6 @@ import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
-import com.sksamuel.hoplite.fp.Try
 import java.util.*
 import kotlin.reflect.KType
 
@@ -16,7 +15,7 @@ class UUIDDecoder : NullHandlingDecoder<UUID> {
                           type: KType,
                           context: DecoderContext): ConfigResult<UUID> = when (node) {
     is StringNode ->
-      Try { UUID.fromString(node.value) }
+      runCatching { UUID.fromString(node.value) }
         .toValidated { ConfigFailure.DecodeError(node, type) }
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }

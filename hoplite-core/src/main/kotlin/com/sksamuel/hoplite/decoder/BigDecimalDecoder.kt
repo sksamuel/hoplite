@@ -10,7 +10,6 @@ import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.ThrowableFailure
-import com.sksamuel.hoplite.fp.Try
 import java.math.BigDecimal
 import kotlin.reflect.KType
 
@@ -19,7 +18,7 @@ class BigDecimalDecoder : NonNullableLeafDecoder<BigDecimal> {
   override fun safeLeafDecode(node: Node,
                               type: KType,
                               context: DecoderContext): ConfigResult<BigDecimal> = when (node) {
-    is StringNode -> Try { node.value.toDouble().toBigDecimal() }.toValidated { ThrowableFailure(it) }
+    is StringNode -> runCatching { node.value.toDouble().toBigDecimal() }.toValidated { ThrowableFailure(it) }
     is LongNode -> node.value.toBigDecimal().valid()
     is DoubleNode -> node.value.toBigDecimal().valid()
     else -> ConfigFailure.DecodeError(node, type).invalid()
