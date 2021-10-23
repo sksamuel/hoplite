@@ -114,20 +114,20 @@ class ConfigLoader constructor(
     private val paramMapperStaging = mutableListOf<ParameterMapper>()
     private val failureCallbacks = mutableListOf<(Throwable) -> Unit>()
     private var mode: DecodeMode = DecodeMode.Lenient
-    private var defaultSources = true
-    private var defaultPreprocessors = true
-    private var defaultParamMappers = true
+    private var defaultSources: DefaultOrder? = null
+    private var defaultPreprocessors: DefaultOrder? = null
+    private var defaultParamMappers: DefaultOrder? = null
 
-    fun withDefaultSources(defaultSources: Boolean): Builder = apply {
-      this.defaultSources = defaultSources
+    fun withDefaultSources(defaultOrder: DefaultOrder?): Builder = apply {
+      this.defaultSources = defaultOrder
     }
 
-    fun withDefaultPreprocessors(defaultPreprocessors: Boolean): Builder = apply {
-      this.defaultPreprocessors = defaultPreprocessors
+    fun withDefaultPreprocessors(defaultOrder: DefaultOrder?): Builder = apply {
+      this.defaultPreprocessors = defaultOrder
     }
 
-    fun withDefaultParamMappers(defaultParamMappers: Boolean): Builder = apply {
-      this.defaultParamMappers = defaultParamMappers
+    fun withDefaultParamMappers(defaultOrder: DefaultOrder?): Builder = apply {
+      this.defaultParamMappers = defaultOrder
     }
 
     fun withClassLoader(classLoader: ClassLoader): Builder = apply {
@@ -212,19 +212,22 @@ class ConfigLoader constructor(
         }
 
       // other defaults
-      val propertySources = when {
-        defaultSources -> defaultPropertySources() + this.propertySourceStaging
-        else -> this.propertySourceStaging
+      val propertySources = when (defaultSources) {
+        DefaultOrder.Before -> defaultPropertySources() + this.propertySourceStaging
+        DefaultOrder.After -> this.propertySourceStaging + defaultPropertySources()
+        null -> this.propertySourceStaging
       }
 
-      val preprocessors = when {
-        defaultPreprocessors -> defaultPreprocessors() + this.preprocessorStaging
-        else -> this.preprocessorStaging
+      val preprocessors = when (defaultPreprocessors) {
+        DefaultOrder.Before -> defaultPreprocessors() + this.preprocessorStaging
+        DefaultOrder.After -> this.preprocessorStaging + defaultPreprocessors()
+        null -> this.preprocessorStaging
       }
 
-      val paramMappers = when {
-        defaultParamMappers -> defaultParamMappers() + this.paramMapperStaging
-        else -> this.paramMapperStaging
+      val paramMappers = when (defaultParamMappers) {
+        DefaultOrder.Before -> defaultParamMappers() + this.paramMapperStaging
+        DefaultOrder.After -> this.paramMapperStaging + defaultParamMappers()
+        null -> this.paramMapperStaging
       }
 
       return ConfigLoader(
@@ -374,11 +377,15 @@ class ConfigLoader constructor(
   private fun loadNode(configs: List<ConfigSource>): ConfigResult<Node> {
     val srcs = propertySources + configs.map { ConfigFilePropertySource(it) }
     return srcs.map { it.node(PropertySourceContext(parserRegistry)) }.sequence()
-      .map { it.takeUnless { it.isEmpty() }?.reduce { acc, b -> acc.merge(b) } ?: NullNode(Pos.NoPos)}
+      .map { it.takeUnless { it.isEmpty() }?.reduce { acc, b -> acc.merge(b) } ?: NullNode(Pos.NoPos) }
       .mapInvalid {
         val multipleFailures = ConfigFailure.MultipleFailures(it)
         multipleFailures
       }
+  }
+
+  enum class DefaultOrder {
+    Before, After
   }
 }
 
