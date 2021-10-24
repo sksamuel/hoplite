@@ -17,6 +17,7 @@ import java.time.YearMonth
 import java.time.ZoneOffset
 import kotlin.reflect.full.createType
 
+enum class FooEnum { FIRST, SECOND, THIRD }
 class DataClassDecoderTest : StringSpec() {
   init {
     "convert basic data class" {
@@ -131,6 +132,74 @@ class DataClassDecoderTest : StringSpec() {
         Foo::class.createType(),
         DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), emptyList())
       ) shouldBe Foo("value", "default b", false).valid()
+    }
+
+    "supports single param value constructor" {
+      data class Foo(val value: FooEnum)
+
+      val node = StringNode("SECOND", Pos.NoPos)
+
+      DataClassDecoder().decode(
+        node,
+        Foo::class.createType(),
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), emptyList())
+      ) shouldBe Foo(FooEnum.SECOND).valid()
+    }
+
+    "supports multiple constructors with single param value constructor" {
+      data class Foo(val a: FooEnum, val b: String?, val c: Boolean?){
+        constructor(value: FooEnum) : this( value, null, null)
+      }
+
+      val node = StringNode("THIRD", Pos.NoPos)
+
+      DataClassDecoder().decode(
+        node,
+        Foo::class.createType(),
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), emptyList())
+      ) shouldBe Foo(FooEnum.THIRD).valid()
+    }
+
+    "calls multiple param constructors with type that has single param value constructor" {
+      data class Foo(val a: FooEnum, val b: String?, val c: Boolean?){
+        constructor(value: FooEnum) : this( value, null, null)
+      }
+
+      val node = MapNode(
+        mapOf(
+          "a" to StringNode("FIRST", Pos.NoPos),
+          "b" to StringNode("MultiParamCallExpected", Pos.NoPos),
+          "c" to BooleanNode(false, Pos.NoPos)
+        ),
+        Pos.NoPos
+      )
+
+      DataClassDecoder().decode(
+        node,
+        Foo::class.createType(),
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), emptyList())
+      ) shouldBe Foo(FooEnum.FIRST, "MultiParamCallExpected", false).valid()
+    }
+
+    "calls partial param constructors with type that has single param value constructor" {
+      data class Foo(val a: FooEnum, val b: String?, val c: Boolean?){
+        constructor(value: FooEnum) : this( value, null, null)
+        constructor(value: FooEnum, c: Boolean) : this( value, null, c)
+      }
+
+      val node = MapNode(
+        mapOf(
+          "a" to StringNode("THIRD", Pos.NoPos),
+          "c" to BooleanNode(true, Pos.NoPos)
+        ),
+        Pos.NoPos
+      )
+
+      DataClassDecoder().decode(
+        node,
+        Foo::class.createType(),
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), emptyList())
+      ) shouldBe Foo(FooEnum.THIRD, true).valid()
     }
   }
 }

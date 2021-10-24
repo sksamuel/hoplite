@@ -13,8 +13,8 @@ class WithoutDefaultsRegistryTest : FunSpec() {
         addMapSource(mapOf("custom_value" to "\${PATH}"))
       }
       val e = loader.loadConfig<Config>()
-      e as Validated.Valid<Config>
-      e.value.customValue shouldNotBe "\${path}"
+      e as Validated.Invalid<ConfigFailure>
+      e.error shouldBe instanceOf(ConfigFailure.DataClassFieldErrors::class)
     }
 
     test("empty sources registry throws error") {
@@ -44,8 +44,8 @@ class WithoutDefaultsRegistryTest : FunSpec() {
         addMapSource(mapOf("custom_value" to "\${PATH}"))
       }
       val e = loader.loadConfig<Config>()
-      e as Validated.Valid<Config>
-      e.value.customValue shouldBe "\${PATH}"
+      e as Validated.Invalid<ConfigFailure>
+      e.error shouldBe instanceOf(ConfigFailure.DataClassFieldErrors::class)
     }
 
   }

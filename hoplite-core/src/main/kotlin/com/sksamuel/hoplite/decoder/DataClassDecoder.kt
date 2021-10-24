@@ -53,65 +53,70 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
       return ConfigFailure.DataClassWithoutConstructor(klass).invalid()
     }
 
-    val constructor = klass.constructors.first()
-
-    // we have a special case, which is a data class with a single field with the name 'value'.
-    // we call this a "value type" and we can instantiate a value directly into this data class
-    // without needing nested config, if the node is a primitive type
-
-    // try for the value type
-    if (constructor.parameters.size == 1 && constructor.parameters[0].name == "value" && node is PrimitiveNode) {
-      return context.decoder(constructor.parameters[0])
-        .flatMap { it.decode(node, constructor.parameters[0].type, context) }
-        .map { constructor.parameters[0] to it }
-        .mapInvalid { ConfigFailure.ValueTypeFailure(klass, constructor.parameters[0], it) }
-        .flatMap { construct(type, constructor, mapOf(it)) }
-    }
-
-    data class Arg(val parameter: KParameter,
+    data class Arg(val constructor: KFunction<Any>,
+                   val parameter: KParameter,
                    val configName: String, // the config value name that was used
                    val value: Any?)
 
-    // create a map of parameter to value. in the case of defaults, we skip the parameter completely.
-    val args: ValidatedNel<ConfigFailure, List<Arg>> = constructor.parameters.mapNotNull { param ->
+    val argsList = klass.constructors.map { constructor ->
 
-      var name = "<<undefined>>"
-
-      // try each parameter mapper in turn to find the node
-      val n = context.paramMappers.fold<ParameterMapper, Node>(Undefined) { n, mapper ->
-        if (n.isDefined) n else {
-          name = mapper.map(param)
-          node.atKey(name)
-        }
+      // try for the value type
+      // we have a special case, which is a data class with a single field with the name 'value'.
+      // we call this a "value type" and we can instantiate a value directly into this data class
+      // without needing nested config, if the node is a primitive type
+      if (constructor.parameters.size == 1 && constructor.parameters[0].name == "value" && node is PrimitiveNode) {
+        return context.decoder(constructor.parameters[0])
+          .flatMap { it.decode(node, constructor.parameters[0].type, context) }
+          .map { constructor.parameters[0] to it }
+          .mapInvalid { ConfigFailure.ValueTypeFailure(klass, constructor.parameters[0], it) }
+          .flatMap { construct(type, constructor, mapOf(it)) }
       }
 
-      when {
-        // if we have no value for this parameter at all, and it is optional we can skip it, and
-        // kotlin will use the default
-        param.isOptional && n is Undefined -> null
-        else -> context.decoder(param)
-          .flatMap { it.decode(n, param.type, context) }
-          .map { Arg(param, name, it) }
-          .mapInvalid { ConfigFailure.ParamFailure(param, it) }
-      }
-    }.sequence()
+      // create a map of parameter to value. in the case of defaults, we skip the parameter completely.
+      val args: ValidatedNel<ConfigFailure, List<Arg>> = constructor.parameters.mapNotNull { param ->
 
-    return when (args) {
-      // in invalid we wrap in an error containing each individual error
-      is Validated.Invalid -> ConfigFailure.DataClassFieldErrors(args.error, type, node.pos).invalid()
-      is Validated.Valid -> {
+        var name = "<<undefined>>"
 
-        // in strict mode we throw an error if not all config values were used for the class
-        if (node is MapNode) {
-          if (context.mode == DecodeMode.Strict && args.value.size != node.size) {
-            val unusedValues = node.map.keys.minus(args.value.map { it.configName })
-            return ConfigFailure.UnusedConfigValues(unusedValues.toList()).invalid()
+        // try each parameter mapper in turn to find the node
+        val n = context.paramMappers.fold<ParameterMapper, Node>(Undefined) { n, mapper ->
+          if (n.isDefined) n else {
+            name = mapper.map(param)
+            node.atKey(name)
           }
         }
 
-        construct(type, constructor, args.value.map { it.parameter to it.value }.toMap())
-      }
+        when {
+          // if we have no value for this parameter at all, and it is optional we can skip it, and
+          // kotlin will use the default
+          param.isOptional && n is Undefined -> null
+          else -> context.decoder(param)
+            .flatMap { it.decode(n, param.type, context) }
+            .map { Arg(constructor, param, name, it) }
+            .mapInvalid { ConfigFailure.ParamFailure(param, it) }
+        }
+      }.sequence()
+      args
     }
+    val firstValidOrLastInvalidArgs = argsList.firstOrNull{ it is Validated.Valid } ?:
+    argsList.last { it is Validated.Invalid }
+    return when (firstValidOrLastInvalidArgs) {
+        // in invalid we wrap in an error containing each individual error
+        is Validated.Invalid -> ConfigFailure.DataClassFieldErrors(
+                                    firstValidOrLastInvalidArgs.error, type, node.pos).invalid()
+        is Validated.Valid -> {
+
+          // in strict mode we throw an error if not all config values were used for the class
+          if (node is MapNode) {
+            if (context.mode == DecodeMode.Strict && firstValidOrLastInvalidArgs.value.size != node.size) {
+              val unusedValues = node.map.keys.minus(firstValidOrLastInvalidArgs.value.map { it.configName })
+              return ConfigFailure.UnusedConfigValues(unusedValues.toList()).invalid()
+            }
+          }
+
+           return construct(type, firstValidOrLastInvalidArgs.value.first().constructor,
+             firstValidOrLastInvalidArgs.value.map { it.parameter to it.value }.toMap())
+        }
+      }
   }
 
   private fun <A> construct(
