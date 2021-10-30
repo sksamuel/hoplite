@@ -10,7 +10,7 @@ class WithoutDefaultsRegistryTest : FunSpec() {
   init {
     test("default registry throws no error") {
       val loader = ConfigLoader {
-        addMapSource(mapOf("custom_value" to "\${PATH}"))
+        addMapSource(mapOf("custom_value" to "\${PATH}", "PATH" to "\${PATH}"))
       }
       val e = loader.loadConfig<Config>()
       e as Validated.Valid<Config>
@@ -41,7 +41,7 @@ class WithoutDefaultsRegistryTest : FunSpec() {
     test("empty preprocessors registry throws error") {
       val loader = ConfigLoader {
         withDefaultPreprocessors(false)
-        addMapSource(mapOf("custom_value" to "\${PATH}"))
+        addMapSource(mapOf("custom_value" to "\${PATH}", "PATH" to "\${PATH}"))
       }
       val e = loader.loadConfig<Config>()
       e as Validated.Valid<Config>
@@ -49,6 +49,6 @@ class WithoutDefaultsRegistryTest : FunSpec() {
     }
 
   }
-
+   // if your env vars is not "PATH" and is "Path" auto inject doesn't work
   data class Config(val PATH: String, val customValue: String)
 }
