@@ -1,6 +1,7 @@
 package com.sksamuel.hoplite
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.extensions.system.withEnvironment
 import io.kotest.matchers.shouldBe
 
 class PropertySourceTest : FunSpec() {
@@ -76,5 +77,49 @@ class PropertySourceTest : FunSpec() {
       config shouldBe TestConfig("A value", 42, listOf("Value1", "Value2"))
     }
 
+    test("reads from added source before defaults") {
+      data class TestConfig(val a: String, val b: Int, val other: List<String>)
+
+      withEnvironment(mapOf("b" to "91", "other" to "Random13")) {
+
+        val arguments = arrayOf(
+          "--a=A value",
+          "--b=42",
+          "some other value",
+          "--other=Value1",
+          "--other=Value2",
+        )
+
+        val config = ConfigLoader.Builder()
+          .addPropertySource(PropertySource.commandLine(arguments))
+          .addDefaultPropertySources()
+          .build()
+          .loadConfigOrThrow<TestConfig>()
+
+        config shouldBe TestConfig("A value", 42, listOf("Value1", "Value2"))
+      }
+    }
+
+    test("reads from default source before specified") {
+      data class TestConfig(val a: String, val b: Int, val other: List<String>)
+
+      withEnvironment(mapOf("b" to "91", "other" to "Random13")) {
+        val arguments = arrayOf(
+          "--a=A value",
+          "--b=42",
+          "some other value",
+          "--other=Value1",
+          "--other=Value2",
+        )
+
+        val config = ConfigLoader.Builder()
+          .addDefaultPropertySources()
+          .addPropertySource(PropertySource.commandLine(arguments))
+          .build()
+          .loadConfigOrThrow<TestConfig>()
+
+        config shouldBe TestConfig("A value", 91, listOf("Random13"))
+      }
+    }
   }
 }
