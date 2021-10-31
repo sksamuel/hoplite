@@ -118,14 +118,23 @@ class ConfigLoader constructor(
     private var defaultPreprocessors = true
     private var defaultParamMappers = true
 
+    /**
+     * Adds before the specified ones
+     */
     fun withDefaultSources(defaultSources: Boolean): Builder = apply {
       this.defaultSources = defaultSources
     }
 
+    /**
+     * Adds before the specified ones
+     */
     fun withDefaultPreprocessors(defaultPreprocessors: Boolean): Builder = apply {
       this.defaultPreprocessors = defaultPreprocessors
     }
 
+    /**
+     * Adds before the specified ones
+     */
     fun withDefaultParamMappers(defaultParamMappers: Boolean): Builder = apply {
       this.defaultParamMappers = defaultParamMappers
     }
@@ -167,8 +176,20 @@ class ConfigLoader constructor(
 
     fun addSources(sources: Iterable<PropertySource>) = addPropertySources(sources)
 
+    fun addDefaultSources(): Builder {
+      withDefaultSources(false)
+
+      return addPropertySources(defaultPropertySources())
+    }
+
     fun addPropertySources(propertySources: Iterable<PropertySource>): Builder = apply {
       this.propertySourceStaging.addAll(propertySources)
+    }
+
+    fun addDefaultPropertySources(): Builder {
+      withDefaultSources(false)
+
+      return addPropertySources(defaultPropertySources())
     }
 
     fun addPreprocessor(preprocessor: Preprocessor): Builder = apply {
@@ -179,12 +200,24 @@ class ConfigLoader constructor(
       this.preprocessorStaging.addAll(preprocessors)
     }
 
+    fun addDefaultPreprocessors(): Builder {
+      withDefaultPreprocessors(false)
+
+      return addPreprocessors(defaultPreprocessors())
+    }
+
     fun addParameterMapper(paramMapper: ParameterMapper): Builder = apply {
       this.paramMapperStaging.add(paramMapper)
     }
 
     fun addParameterMappers(paramMappers: Iterable<ParameterMapper>): Builder = apply {
       this.paramMapperStaging.addAll(paramMappers)
+    }
+
+    fun addDefaultParameterMappers(): Builder {
+      withDefaultParamMappers(false)
+
+      return addParameterMappers(defaultParamMappers())
     }
 
     /**
@@ -374,7 +407,7 @@ class ConfigLoader constructor(
   private fun loadNode(configs: List<ConfigSource>): ConfigResult<Node> {
     val srcs = propertySources + configs.map { ConfigFilePropertySource(it) }
     return srcs.map { it.node(PropertySourceContext(parserRegistry)) }.sequence()
-      .map { it.takeUnless { it.isEmpty() }?.reduce { acc, b -> acc.merge(b) } ?: NullNode(Pos.NoPos)}
+      .map { it.takeUnless { it.isEmpty() }?.reduce { acc, b -> acc.merge(b) } ?: NullNode(Pos.NoPos) }
       .mapInvalid {
         val multipleFailures = ConfigFailure.MultipleFailures(it)
         multipleFailures
