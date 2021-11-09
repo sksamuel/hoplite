@@ -47,6 +47,10 @@ sealed class ConfigFailure {
         "Expected args are ${constructor.parameters.map { it.type.simpleName }}. Underlying error was $e"
   }
 
+  data class PropertySourceFailure(val msg: String) : ConfigFailure() {
+    override fun description(): String = msg
+  }
+
   data class DataClassWithoutConstructor(val kclass: KClass<*>) : ConfigFailure() {
     override fun description(): String = "Data class ${kclass.qualifiedName} has no constructors"
   }

@@ -3,14 +3,19 @@ package com.sksamuel.hoplite.aws
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClientBuilder
 import com.amazonaws.services.simplesystemsmanagement.model.GetParametersByPathRequest
 import com.amazonaws.services.simplesystemsmanagement.model.Parameter
-import com.sksamuel.hoplite.ConfigException
+import com.sksamuel.hoplite.ConfigFailure
+import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
-import com.sksamuel.hoplite.PrimitiveNode
+import com.sksamuel.hoplite.Pos
+import com.sksamuel.hoplite.PropertySource
+import com.sksamuel.hoplite.PropertySourceContext
 import com.sksamuel.hoplite.StringNode
-import com.sksamuel.hoplite.preprocessor.TraversingPrimitivePreprocessor
+import com.sksamuel.hoplite.fp.invalid
+import com.sksamuel.hoplite.fp.valid
 
 /**
- * Loads all config keys under the given path and then makes them available for substitutions.
+ * Provides all keys under a path as config values.
  *
  * Note: If the values are encrypted, you must enable withDecryption inside the configure block.
  *
@@ -18,33 +23,27 @@ import com.sksamuel.hoplite.preprocessor.TraversingPrimitivePreprocessor
  * @param configure the AWS request object for custom configuration. Optional.
  *
  */
-class ParameterStorePathPreprocessor(
+class ParameterStorePathPropertySource(
   private val path: String,
   private val configure: GetParametersByPathRequest.() -> Unit
-) : TraversingPrimitivePreprocessor() {
+) : PropertySource {
 
   private val client by lazy { AWSSimpleSystemsManagementClientBuilder.defaultClient() }
-  private val regex = "\\$\\{ssm:(.+?)}".toRegex()
 
   private fun fetchParameterStoreValues(): Result<List<Parameter>> = runCatching {
     val req = GetParametersByPathRequest().withPath(path).apply(configure)
     client.getParametersByPath(req).parameters
   }
 
-  override fun handle(node: PrimitiveNode): Node = when (node) {
-    is StringNode -> {
-      when (val match = regex.matchEntire(node.value)) {
-        null -> node
-        else -> {
-          val key = match.groupValues[1]
-          val values = fetchParameterStoreValues().getOrElse { throw ConfigException("Failed to load parameters", it) }
-          val value = values
-            .firstOrNull { it.name == key }
-            ?: throw ConfigException("Could not find path: $path in paths: ${values.map { it.name }}")
-          node.copy(value = value.value)
-        }
+  override fun node(context: PropertySourceContext): ConfigResult<Node> {
+    return fetchParameterStoreValues().map { params ->
+      val map = params.associate { param -> param.name to StringNode(param.value, Pos.NoPos) }
+      MapNode(map, Pos.NoPos)
+    }.fold(
+      { it.valid() },
+      {
+        ConfigFailure.PropertySourceFailure("Could not fetch data from AWS parameter store: ${it.message}").invalid()
       }
-    }
-    else -> node
+    )
   }
 }
