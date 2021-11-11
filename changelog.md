@@ -1,5 +1,9 @@
 # Changelog
 
+### 1.4.13
+
+* Fixed regression with ConfigSouce::fromPath #234
+
 ### 1.4.12
 
 * Added ParameterStorePathPreprocessor
