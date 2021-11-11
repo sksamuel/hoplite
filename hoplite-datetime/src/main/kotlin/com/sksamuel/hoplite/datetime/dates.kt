@@ -15,6 +15,8 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import kotlin.reflect.KType
 
 class LocalDateTimeDecoder : NonNullableLeafDecoder<LocalDateTime> {
@@ -37,6 +39,20 @@ class LocalDateDecoder : NonNullableLeafDecoder<LocalDate> {
                               type: KType,
                               context: DecoderContext): ConfigResult<LocalDate> = when (node) {
     is StringNode -> runCatching { LocalDate.parse(node.value) }.toValidated {
+      ConfigFailure.DecodeError(node, type)
+    }
+    else -> ConfigFailure.DecodeError(node, type).invalid()
+  }
+}
+
+class LocalTimeDecoder : NonNullableLeafDecoder<LocalTime> {
+  override fun supports(type: KType): Boolean = type.classifier == LocalTime::class
+  override fun safeLeafDecode(
+    node: Node,
+    type: KType,
+    context: DecoderContext,
+  ): ConfigResult<LocalTime> = when (node) {
+    is StringNode -> runCatching { LocalTime.parse(node.value, DateTimeFormatter.ISO_LOCAL_TIME) }.toValidated {
       ConfigFailure.DecodeError(node, type)
     }
     else -> ConfigFailure.DecodeError(node, type).invalid()
