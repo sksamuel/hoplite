@@ -1,20 +1,27 @@
 package com.sksamuel.hoplite.parsers
 
-import com.sksamuel.hoplite.*
-import java.util.*
+import com.sksamuel.hoplite.ArrayNode
+import com.sksamuel.hoplite.MapNode
+import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.Pos
+import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.Undefined
+import java.util.Properties
 
 @Suppress("UNCHECKED_CAST")
-fun Properties.toNode(source: String) = asIterable().toNode(
+fun Properties.toNode(source: String, delimiter: String = "/") = asIterable().toNode(
   source = source,
   keyExtractor = { it.key.toString() },
-  valueExtractor = { it.value }
+  valueExtractor = { it.value },
+  delimiter = delimiter,
 )
 
 @Suppress("UNCHECKED_CAST")
-fun <T : Any> Map<String, T?>.toNode(source: String) = entries.toNode(
+fun <T : Any> Map<String, T?>.toNode(source: String, delimiter: String = "/") = entries.toNode(
   source = source,
   keyExtractor = { it.key },
   valueExtractor = { it.value },
+  delimiter = delimiter,
 )
 
 data class Element(
@@ -23,13 +30,18 @@ data class Element(
 )
 
 @Suppress("UNCHECKED_CAST")
-private fun <T> Iterable<T>.toNode(source: String, keyExtractor: (T) -> String, valueExtractor: (T) -> Any?): Node {
+private fun <T> Iterable<T>.toNode(
+  source: String,
+  keyExtractor: (T) -> String,
+  valueExtractor: (T) -> Any?,
+  delimiter: String = "."
+): Node {
   val map = Element()
 
   forEach { item ->
     val key = keyExtractor(item)
     val value = valueExtractor(item)
-    val segments = key.split(".")
+    val segments = key.split(delimiter)
 
     segments.foldIndexed(map) { index, element, segment ->
       element.values.computeIfAbsent(segment) { Element() }.also {
@@ -66,6 +78,5 @@ private fun <T> Iterable<T>.toNode(source: String, keyExtractor: (T) -> String, 
     else -> StringNode(this.toString(), pos)
   }
 
-  val result = map.transform()
-  return result
+  return map.transform()
 }
