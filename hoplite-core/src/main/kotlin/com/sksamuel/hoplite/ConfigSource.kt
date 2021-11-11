@@ -50,8 +50,8 @@ abstract class ConfigSource {
     fun fromPaths(paths: List<Path>): ConfigResult<List<ConfigSource>> {
       return paths.map { path ->
         runCatching { Files.newInputStream(path) }.fold(
+          { PathSource(path).valid() },
           { ConfigFailure.UnknownSource(path.toString()).invalid() },
-          { PathSource(path).valid() }
         )
       }.sequence()
         .mapInvalid { ConfigFailure.MultipleFailures(it) }
