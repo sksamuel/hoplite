@@ -9,7 +9,7 @@ import com.sksamuel.hoplite.Undefined
 import java.util.Properties
 
 @Suppress("UNCHECKED_CAST")
-fun Properties.toNode(source: String, delimiter: String = "/") = asIterable().toNode(
+fun Properties.toNode(source: String, delimiter: String = ".") = asIterable().toNode(
   source = source,
   keyExtractor = { it.key.toString() },
   valueExtractor = { it.value },
@@ -17,7 +17,7 @@ fun Properties.toNode(source: String, delimiter: String = "/") = asIterable().to
 )
 
 @Suppress("UNCHECKED_CAST")
-fun <T : Any> Map<String, T?>.toNode(source: String, delimiter: String = "/") = entries.toNode(
+fun <T : Any> Map<String, T?>.toNode(source: String, delimiter: String = ".") = entries.toNode(
   source = source,
   keyExtractor = { it.key },
   valueExtractor = { it.value },
