@@ -41,7 +41,7 @@ class ParameterStorePathPropertySource(
       val props = Properties()
       params.forEach {
         val name = if (stripPath) it.name.removePrefix(prefix) else it.name
-        props[name] = it.value
+        props[name.removePrefix("/")] = it.value
       }
       props.toNode("aws_parameter_store at $prefix", "/")
     }.fold(
