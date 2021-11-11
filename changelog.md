@@ -1,8 +1,19 @@
 # Changelog
 
-### 1.4.10 [unreleased
+### 1.4.12
+
+* Added ParameterStorePathPreprocessor
+* Added ParameterStorePathPropertySource
+* add LocalTimeDecoder (#233) - Jan Brezina
+
+### 1.4.11
+
+* Added order to defaults (Sources, Preprocessors and ParamMappers) (#229) - David Gomes
+
+### 1.4.10
 
 * Added extension methods for Minutes and Seconds to Kotlin durations.
+* data class with multiple constructors can select appropriate constructor to load (#231) - alexis-airwallex
 
 ### 1.4.9
 
