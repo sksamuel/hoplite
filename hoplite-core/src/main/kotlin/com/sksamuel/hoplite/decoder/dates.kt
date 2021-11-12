@@ -24,6 +24,7 @@ import com.sksamuel.hoplite.fp.Validated
 import com.sksamuel.hoplite.fp.flatMapInvalid
 import com.sksamuel.hoplite.parseDuration
 import com.sksamuel.hoplite.parsePeriod
+import java.time.LocalTime
 import java.time.MonthDay
 import java.time.Period
 import kotlin.time.ExperimentalTime
@@ -49,6 +50,20 @@ class LocalDateDecoder : NonNullableLeafDecoder<LocalDate> {
                               type: KType,
                               context: DecoderContext): ConfigResult<LocalDate> = when (node) {
     is StringNode -> runCatching { LocalDate.parse(node.value) }.toValidated {
+      ConfigFailure.DecodeError(node, type)
+    }
+    else -> ConfigFailure.DecodeError(node, type).invalid()
+  }
+}
+
+class LocalTimeDecoder : NonNullableLeafDecoder<LocalTime> {
+  override fun supports(type: KType): Boolean = type.classifier == LocalTime::class
+  override fun safeLeafDecode(
+    node: Node,
+    type: KType,
+    context: DecoderContext,
+  ): ConfigResult<LocalTime> = when (node) {
+    is StringNode -> runCatching { LocalTime.parse(node.value, DateTimeFormatter.ISO_LOCAL_TIME) }.toValidated {
       ConfigFailure.DecodeError(node, type)
     }
     else -> ConfigFailure.DecodeError(node, type).invalid()

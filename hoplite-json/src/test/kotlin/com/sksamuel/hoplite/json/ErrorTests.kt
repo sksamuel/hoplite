@@ -9,9 +9,8 @@ import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 
-data class Wibble(val a: LocalDateTime, val b: LocalDate, val c: Instant, val d: LocalTime)
+data class Wibble(val a: LocalDateTime, val b: LocalDate, val c: Instant, val d: ThreadGroup)
 enum class Season { Fall }
 
 data class Foo(val wrongType: Boolean,
@@ -57,7 +56,7 @@ class ErrorTests : StringSpec({
 
             - 'c': Required type class java.time.Instant could not be decoded from a String value: qwqwe (/error1.json:12:17)
 
-            - 'd': Unable to locate a decoder for class java.time.LocalTime"""
+            - 'd': Unable to locate a decoder for class java.lang.ThreadGroup"""
   }
 
   "error handling for resource file failures" {

@@ -1,6 +1,8 @@
 com.sksamuel.hoplite.decoder.UUIDDecoder
 com.sksamuel.hoplite.decoder.LocalDateDecoder
 com.sksamuel.hoplite.decoder.LocalDateTimeDecoder
+com.sksamuel.hoplite.decoder.LocalTimeDecoder
+com.sksamuel.hoplite.decoder.InstantDecoder
 com.sksamuel.hoplite.decoder.DurationDecoder
 com.sksamuel.hoplite.decoder.KotlinDurationDecoder
 com.sksamuel.hoplite.decoder.PeriodDecoder
@@ -31,7 +33,6 @@ com.sksamuel.hoplite.decoder.URLDecoder
 com.sksamuel.hoplite.decoder.KClassDecoder
 com.sksamuel.hoplite.decoder.URIDecoder
 com.sksamuel.hoplite.decoder.MaskedDecoder
-com.sksamuel.hoplite.decoder.InstantDecoder
 com.sksamuel.hoplite.decoder.TripleDecoder
 com.sksamuel.hoplite.decoder.PairDecoder
 com.sksamuel.hoplite.decoder.YearDecoder

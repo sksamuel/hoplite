@@ -1,9 +1,8 @@
-package com.sksamuel.hoplite.datetime
+package com.sksamuel.hoplite.decoder
 
 import com.sksamuel.hoplite.ConfigLoader
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import kotlinx.datetime.LocalDate
 import java.time.LocalTime
 
 class LocalTimeDecoderTest : FunSpec() {
