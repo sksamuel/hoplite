@@ -1,5 +1,9 @@
 # Changelog
 
+### 1.4.14
+
+* Fixed regression with multiple constructors introduced in 1.4.10
+
 ### 1.4.13
 
 * Fixed regression with ConfigSouce::fromPath #234

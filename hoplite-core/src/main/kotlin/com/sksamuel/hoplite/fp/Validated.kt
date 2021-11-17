@@ -13,24 +13,24 @@ sealed class Validated<out E, out A> {
   }
 
   fun <B> map(f: (A) -> B): Validated<E, B> = when (this) {
-    is Validated.Valid -> f(this.value).valid()
-    is Validated.Invalid -> this
+    is Valid -> f(this.value).valid()
+    is Invalid -> this
   }
 
   fun <F> mapInvalid(f: (E) -> F): Validated<F, A> = when (this) {
-    is Validated.Invalid -> f(this.error).invalid()
-    is Validated.Valid -> this
+    is Invalid -> f(this.error).invalid()
+    is Valid -> this
   }
 
   fun toValidatedNel(): Validated<NonEmptyList<E>, A> = when (this) {
-    is Validated.Valid -> value.valid()
-    is Validated.Invalid -> NonEmptyList.of(error).invalid()
+    is Valid -> value.valid()
+    is Invalid -> NonEmptyList.of(error).invalid()
   }
 
-  fun fold(ifInvalid: (E) -> Unit, ifValid: (A) -> Unit) {
-    when (this) {
-      is Validated.Valid -> ifValid(this.value)
-      is Validated.Invalid -> ifInvalid(this.error)
+  fun <T> fold(ifInvalid: (E) -> T, ifValid: (A) -> T): T {
+    return when (this) {
+      is Valid -> ifValid(this.value)
+      is Invalid -> ifInvalid(this.error)
     }
   }
 

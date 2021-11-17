@@ -1,7 +1,5 @@
 package com.sksamuel.hoplite.decoder
 
-import com.sksamuel.hoplite.fp.invalid
-import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecodeMode
@@ -12,13 +10,15 @@ import com.sksamuel.hoplite.ParameterMapper
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Undefined
+import com.sksamuel.hoplite.fp.NonEmptyList
 import com.sksamuel.hoplite.fp.Validated
 import com.sksamuel.hoplite.fp.ValidatedNel
 import com.sksamuel.hoplite.fp.flatMap
+import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.sequence
+import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.isDefined
 import com.sksamuel.hoplite.simpleName
-import java.lang.IllegalArgumentException
 import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -53,12 +53,18 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
       return ConfigFailure.DataClassWithoutConstructor(klass).invalid()
     }
 
-    data class Arg(val constructor: KFunction<Any>,
-                   val parameter: KParameter,
-                   val configName: String, // the config value name that was used
-                   val value: Any?)
+    data class Arg(
+      val parameter: KParameter,
+      val configName: String, // the config value name that was used
+      val value: Any?,
+    )
 
-    val argsList = klass.constructors.map { constructor ->
+    data class Constructor(
+      val constructor: KFunction<Any>,
+      val args: List<Arg>,
+    )
+
+    val constructors = klass.constructors.map { constructor ->
 
       // try for the value type
       // we have a special case, which is a data class with a single field with the name 'value'.
@@ -91,32 +97,36 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
           param.isOptional && n is Undefined -> null
           else -> context.decoder(param)
             .flatMap { it.decode(n, param.type, context) }
-            .map { Arg(constructor, param, name, it) }
+            .map { Arg(param, name, it) }
             .mapInvalid { ConfigFailure.ParamFailure(param, it) }
         }
       }.sequence()
-      args
+
+      args.map { Constructor(constructor, it) }
     }
-    val firstValidOrLastInvalidArgs = argsList.firstOrNull{ it is Validated.Valid } ?:
-    argsList.last { it is Validated.Invalid }
-    return when (firstValidOrLastInvalidArgs) {
-        // in invalid we wrap in an error containing each individual error
-        is Validated.Invalid -> ConfigFailure.DataClassFieldErrors(
-                                    firstValidOrLastInvalidArgs.error, type, node.pos).invalid()
-        is Validated.Valid -> {
 
-          // in strict mode we throw an error if not all config values were used for the class
-          if (node is MapNode) {
-            if (context.mode == DecodeMode.Strict && firstValidOrLastInvalidArgs.value.size != node.size) {
-              val unusedValues = node.map.keys.minus(firstValidOrLastInvalidArgs.value.map { it.configName })
-              return ConfigFailure.UnusedConfigValues(unusedValues.toList()).invalid()
-            }
-          }
+    // see if one of the constructors worked
+    val firstValidOrLastInvalidArgs: Validated<NonEmptyList<ConfigFailure>, Constructor> = constructors
+      .find { it is Validated.Valid } ?: constructors.last { it is Validated.Invalid }
 
-           return construct(type, firstValidOrLastInvalidArgs.value.first().constructor,
-             firstValidOrLastInvalidArgs.value.map { it.parameter to it.value }.toMap())
+    return firstValidOrLastInvalidArgs.fold(
+      // if invalid, we wrap in an error containing each individual error
+      { ConfigFailure.DataClassFieldErrors(it, type, node.pos).invalid() },
+      { constructor ->
+
+        // in strict mode we throw an error if not all config values were used for the class
+        if (node is MapNode && context.mode == DecodeMode.Strict && constructor.args.size != node.size) {
+          val unusedValues = node.map.keys.minus(constructor.args.map { it.configName }.toSet())
+          ConfigFailure.UnusedConfigValues(unusedValues.toList()).invalid()
+        } else {
+          construct(
+            type = type,
+            constructor = constructor.constructor,
+            args = constructor.args.associate { it.parameter to it.value },
+          )
         }
       }
+    )
   }
 
   private fun <A> construct(
