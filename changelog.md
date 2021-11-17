@@ -1,8 +1,12 @@
 # Changelog
 
-### 1.4.14
+### 1.4.15
 
 * Fixed regression with multiple constructors introduced in 1.4.10
+
+### 1.4.14
+
+* Moved LocalTimeDecoder to core module
 
 ### 1.4.13
 
