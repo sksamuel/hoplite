@@ -6,8 +6,11 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-inline class Port(val value: Int)
-inline class Port2(val value: Boolean)
+@JvmInline
+value class Port(val value: Int)
+
+@JvmInline
+value class Port2(val value: Boolean)
 
 class InlineClassTest : FunSpec({
 
@@ -26,5 +29,10 @@ class InlineClassTest : FunSpec({
     - Could not instantiate 'com.sksamuel.hoplite.hocon.`InlineClassTest${'$'}1${'$'}2${"\$Config"}`' because:
 
         - 'port': Inline type kotlin.Boolean is incompatible with a Long value: 9200 (/valuetype.conf:2)"""
+  }
+
+  test("decoding into a nullable inline type") {
+    data class Config(val port: Port?, val host: String)
+    ConfigLoader().loadConfigOrThrow<Config>("/valuetype.conf") shouldBe Config(Port(9200), "localhost")
   }
 })
