@@ -609,7 +609,7 @@ And then this config file:
 
 ```yaml
 port: 9200
-host: locahost
+host: localhost
 ```
 
 We can parse directly:
