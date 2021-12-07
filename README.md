@@ -13,7 +13,7 @@ into the required type will cause the config to fail with detailed error message
 
 - **Multiple formats:** Write your configuration in [several formats](#supported-formats): Yaml, JSON, Toml, Hocon, or
   Java .properties files or even mix and match formats in the same system.
-- **Property Sources:** Per-system [overrides](#property-sources-new-in-110) are possible from JVM system properties,
+- **Property Sources:** Per-system overrides are possible from JVM system properties,
   environment variables, JDNI or a per-user local config file.
 - **Batteries included:** Support for many [standard types](#decoders) such as primitives, enums, dates, collection
   types, inline classes, uuids, nullable types, as well as popular Kotlin third party library types such
@@ -133,13 +133,13 @@ Hoplite supports config files in several formats. You can mix and match formats 
 For each format you wish to use, you must include the appropriate hoplite module on your classpath.
 The format that hoplite uses to parse a file is determined by the file extension.
 
-| Format | Module | File Extensions |
-|:---|:---|:---|
-| Json | [`hoplite-json`](https://search.maven.org/search?q=hoplite-json) | .json |
-| [Yaml](https://yaml.org/) | [`hoplite-yaml`](https://search.maven.org/search?q=hoplite-yaml) | .yml, .yaml |
-| [Toml](https://github.com/toml-lang/toml) | [`hoplite-toml`](https://search.maven.org/search?q=hoplite-toml) | .toml |
-| [Hocon](https://github.com/lightbend/config) | [`hoplite-hocon`](https://search.maven.org/search?q=hoplite-hocon) | .conf |
-| Java Properties files | built-in | .props, .properties |
+| Format                                       | Module                                                             | File Extensions     |
+|:---------------------------------------------|:-------------------------------------------------------------------|:--------------------|
+| Json                                         | [`hoplite-json`](https://search.maven.org/search?q=hoplite-json)   | .json               |
+| [Yaml](https://yaml.org/)                    | [`hoplite-yaml`](https://search.maven.org/search?q=hoplite-yaml)   | .yml, .yaml         |
+| [Toml](https://github.com/toml-lang/toml)    | [`hoplite-toml`](https://search.maven.org/search?q=hoplite-toml)   | .toml               |
+| [Hocon](https://github.com/lightbend/config) | [`hoplite-hocon`](https://search.maven.org/search?q=hoplite-hocon) | .conf               |
+| Java Properties files                        | built-in                                                           | .props, .properties |
 
 If you wish to add another format you can extend `Parser` and provide an instance of that implementation to the `ConfigLoader.Builder` via `withFileExtensionMapping`.
 
@@ -425,74 +425,74 @@ database:
 Hoplite converts the raw value in config files to JDK types using instances of the `Decoder` interface.
 There are built in decoders for all the standard day to day types, such as primitives, dates, lists, sets, maps, enums, arrow types and so on. The full list is below:
 
-| Basic JDK Types  | Conversion Notes |
-|---|---|
-| `String` |
-| `Long` |
-| `Int` |
-| `Short` |
-| `Byte` |
-| `Boolean` | Creates a Boolean from the following values: `"true"`, `"t"`, `"1"`, `"yes"` map to `true` and `"false"`, `"f"`, `"0"`, `"no"` map to `false` |
-| `Double` |
-| `Float` |
-| `Enums` | Java and Kotlin enums are both supported. An instance of the defined Enum class will be created with the constant value given in config. |
-| `BigDecimal` | Converts from a String, Long, Int, Double, or Float into a BigDecimal |
-| `BigInteger` | Converts from a String, Long or Int into a BigInteger. |
-| `UUID` | Creates a `java.util.UUID` from a String |
-| **java.time types** | |
-| `LocalDateTime` |
-| `LocalDate` |
-| `LocalTime` |
-| `Duration` | Converts a String into a Duration, where the string uses a value and unit such as "10 seconds" or "5m". The set of units supported is the same as [here](https://github.com/lightbend/config/blob/master/HOCON.md#duration-format). Also supports a long value which will be interpreted as a Duration of milliseconds. |
-| `Instant` | Creates an instance of `Instant` from an offset from the unix epoc in milliseconds. |
-| `Year` | Creates an instance of `Year` from a String in the format `2007` |
-| `YearMonth` | Creates an instance of `YearMonth` from a String in the format `2007-12` |
-| `MonthDay` | Creates an instance of `MonthDay` from a String in the format `08-18` |
-| `java.util.Date` | |
-| **java.net types** | |
-| `URI` |  |
-| `URL` |  |
-| `InetAddress` |  |
-| **JDK IO types** | |
-| `File` | Creates a java.io.File from a String path |
-| `Path` | Creates a java.nio.Path from a String path |
-| **Kotlin stdlib types** | |
-| `Pair<A,B>` | Converts from an array of three two into an instance of `Pair<A,B>`. Will fail if the array does not have exactly two elements. |
-| `Triple<A,B,C>` | Converts from an array of three elements into an instance of `Triple<A,B,C>`. Will fail if the array does not have exactly three elements. |
-| `kotlin.text.Regex` | Creates a `kotlin.text.Regex` from a regex compatible string |
-| **Collections** | |
-| `List<A>` | Creates a List from either an array or a string delimited by commas. |
-| `Set<A>` | Creates a Set from either an array or a string delimited by commas. |
-| `SortedSet<A>` | Creates a SortedSet from either an array or a string delimited by commas. |
-| `Map<K,V>` | |
-| `LinkedHashMap<K,V>` | A Map that mains the order defined in config |
-| **hoplite types** | |
-| `Masked` | Wraps a String in a Masked object that redacts toString() |
-| `SizeInBytes` | Returns a SizeInBytes object which parses values like 12Mib or 9KB |
-| **javax.security.auth** | |
-| `X500Principal` | Creates an instance of `X500Principal` for String values |
-| `KerberosPrincipal` | Creates an instance of `KerberosPrincipal` for String values |
-| `JMXPrincipal` | Creates an instance of `JMXPrincipal` for String values |
-| `Principal` | Creates an instance of `BasicPrincipal` for String values |
-| **Arrow** | Requires `hoplite-arrow` module |
-| `arrow.data.NonEmptyList<A>` | Converts arrays into a `NonEmptyList<A>` if the array is non empty. If the array is empty then an error is raised. |
-| `arrow.core.Option<A>` | A `None` is used for null or undefined values, and present values are converted to a `Some<A>`. |
-| `arrow.core.Tuple2<A,B>` | Converts an array of two elements into an instance of `Tuple2<A,B>`.  Will fail if the array does not have exactly two elements.|
-| `arrow.core.Tuple3<A,B,C>` | Converts an array of three elements into an instance of `Tuple3<A,B,C>`. Will fail if the array does not have exactly three elements. |
-| `arrow.core.Tuple4<A,B,C,D>` | Converts an array of four elements into an instance of `Tuple4<A,B,C,D>`. Will fail if the array does not have exactly four elements. |
-| `arrow.core.Tuple5<A,B,C,D,E>` | Converts an array of five elements into an instance of `Tuple5<A,B,C,D,E>`. Will fail if the array does not have exactly five elements. |
-| **Hikari Connection Pool** | Requires `hoplite-arrow` module |
-| `HikariDataSource` | Converts nested config into a `HikariDataSource`. Any keys nested under the field name will be passed through to the `HikariConfig` object as the datasource is created. Requires `hoplite-hikaricp` module |
-| **Hadoop Types** | Requires `hoplite-hdfs` module |
-| `org.apache.hadoop.fs.Path` | Returns instances of HDFS Path objects |
-| **CronUtils types** | Requires `hoplite-cronutils` module |
-| `com.cronutils.model.Cron` | Returns parsed instance of a cron expression |
-| **kotlinx datetime Types** | Requires `hoplite-datetime` module |
-| `kotlinx.datetime.LocalDateTime` |  |
-| `kotlinx.datetime.LocalDate` |  |
-| `kotlinx.datetime.Instant` |  |
-| **AWS SDK types** | Requires `hoplite-aws` module |
-| `com.amazonaws.regions.Region` |
+| Basic JDK Types                  | Conversion Notes                                                                                                                                                                                                                                                                                                        |
+|----------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `String`                         |
+| `Long`                           |
+| `Int`                            |
+| `Short`                          |
+| `Byte`                           |
+| `Boolean`                        | Creates a Boolean from the following values: `"true"`, `"t"`, `"1"`, `"yes"` map to `true` and `"false"`, `"f"`, `"0"`, `"no"` map to `false`                                                                                                                                                                           |
+| `Double`                         |
+| `Float`                          |
+| `Enums`                          | Java and Kotlin enums are both supported. An instance of the defined Enum class will be created with the constant value given in config.                                                                                                                                                                                |
+| `BigDecimal`                     | Converts from a String, Long, Int, Double, or Float into a BigDecimal                                                                                                                                                                                                                                                   |
+| `BigInteger`                     | Converts from a String, Long or Int into a BigInteger.                                                                                                                                                                                                                                                                  |
+| `UUID`                           | Creates a `java.util.UUID` from a String                                                                                                                                                                                                                                                                                |
+| **java.time types**              |                                                                                                                                                                                                                                                                                                                         |
+| `LocalDateTime`                  |
+| `LocalDate`                      |
+| `LocalTime`                      |
+| `Duration`                       | Converts a String into a Duration, where the string uses a value and unit such as "10 seconds" or "5m". The set of units supported is the same as [here](https://github.com/lightbend/config/blob/master/HOCON.md#duration-format). Also supports a long value which will be interpreted as a Duration of milliseconds. |
+| `Instant`                        | Creates an instance of `Instant` from an offset from the unix epoc in milliseconds.                                                                                                                                                                                                                                     |
+| `Year`                           | Creates an instance of `Year` from a String in the format `2007`                                                                                                                                                                                                                                                        |
+| `YearMonth`                      | Creates an instance of `YearMonth` from a String in the format `2007-12`                                                                                                                                                                                                                                                |
+| `MonthDay`                       | Creates an instance of `MonthDay` from a String in the format `08-18`                                                                                                                                                                                                                                                   |
+| `java.util.Date`                 |                                                                                                                                                                                                                                                                                                                         |
+| **java.net types**               |                                                                                                                                                                                                                                                                                                                         |
+| `URI`                            |                                                                                                                                                                                                                                                                                                                         |
+| `URL`                            |                                                                                                                                                                                                                                                                                                                         |
+| `InetAddress`                    |                                                                                                                                                                                                                                                                                                                         |
+| **JDK IO types**                 |                                                                                                                                                                                                                                                                                                                         |
+| `File`                           | Creates a java.io.File from a String path                                                                                                                                                                                                                                                                               |
+| `Path`                           | Creates a java.nio.Path from a String path                                                                                                                                                                                                                                                                              |
+| **Kotlin stdlib types**          |                                                                                                                                                                                                                                                                                                                         |
+| `Pair<A,B>`                      | Converts from an array of three two into an instance of `Pair<A,B>`. Will fail if the array does not have exactly two elements.                                                                                                                                                                                         |
+| `Triple<A,B,C>`                  | Converts from an array of three elements into an instance of `Triple<A,B,C>`. Will fail if the array does not have exactly three elements.                                                                                                                                                                              |
+| `kotlin.text.Regex`              | Creates a `kotlin.text.Regex` from a regex compatible string                                                                                                                                                                                                                                                            |
+| **Collections**                  |                                                                                                                                                                                                                                                                                                                         |
+| `List<A>`                        | Creates a List from either an array or a string delimited by commas.                                                                                                                                                                                                                                                    |
+| `Set<A>`                         | Creates a Set from either an array or a string delimited by commas.                                                                                                                                                                                                                                                     |
+| `SortedSet<A>`                   | Creates a SortedSet from either an array or a string delimited by commas.                                                                                                                                                                                                                                               |
+| `Map<K,V>`                       |                                                                                                                                                                                                                                                                                                                         |
+| `LinkedHashMap<K,V>`             | A Map that mains the order defined in config                                                                                                                                                                                                                                                                            |
+| **hoplite types**                |                                                                                                                                                                                                                                                                                                                         |
+| `Masked`                         | Wraps a String in a Masked object that redacts toString()                                                                                                                                                                                                                                                               |
+| `SizeInBytes`                    | Returns a SizeInBytes object which parses values like 12Mib or 9KB                                                                                                                                                                                                                                                      |
+| **javax.security.auth**          |                                                                                                                                                                                                                                                                                                                         |
+| `X500Principal`                  | Creates an instance of `X500Principal` for String values                                                                                                                                                                                                                                                                |
+| `KerberosPrincipal`              | Creates an instance of `KerberosPrincipal` for String values                                                                                                                                                                                                                                                            |
+| `JMXPrincipal`                   | Creates an instance of `JMXPrincipal` for String values                                                                                                                                                                                                                                                                 |
+| `Principal`                      | Creates an instance of `BasicPrincipal` for String values                                                                                                                                                                                                                                                               |
+| **Arrow**                        | Requires `hoplite-arrow` module                                                                                                                                                                                                                                                                                         |
+| `arrow.data.NonEmptyList<A>`     | Converts arrays into a `NonEmptyList<A>` if the array is non empty. If the array is empty then an error is raised.                                                                                                                                                                                                      |
+| `arrow.core.Option<A>`           | A `None` is used for null or undefined values, and present values are converted to a `Some<A>`.                                                                                                                                                                                                                         |
+| `arrow.core.Tuple2<A,B>`         | Converts an array of two elements into an instance of `Tuple2<A,B>`.  Will fail if the array does not have exactly two elements.                                                                                                                                                                                        |
+| `arrow.core.Tuple3<A,B,C>`       | Converts an array of three elements into an instance of `Tuple3<A,B,C>`. Will fail if the array does not have exactly three elements.                                                                                                                                                                                   |
+| `arrow.core.Tuple4<A,B,C,D>`     | Converts an array of four elements into an instance of `Tuple4<A,B,C,D>`. Will fail if the array does not have exactly four elements.                                                                                                                                                                                   |
+| `arrow.core.Tuple5<A,B,C,D,E>`   | Converts an array of five elements into an instance of `Tuple5<A,B,C,D,E>`. Will fail if the array does not have exactly five elements.                                                                                                                                                                                 |
+| **Hikari Connection Pool**       | Requires `hoplite-arrow` module                                                                                                                                                                                                                                                                                         |
+| `HikariDataSource`               | Converts nested config into a `HikariDataSource`. Any keys nested under the field name will be passed through to the `HikariConfig` object as the datasource is created. Requires `hoplite-hikaricp` module                                                                                                             |
+| **Hadoop Types**                 | Requires `hoplite-hdfs` module                                                                                                                                                                                                                                                                                          |
+| `org.apache.hadoop.fs.Path`      | Returns instances of HDFS Path objects                                                                                                                                                                                                                                                                                  |
+| **CronUtils types**              | Requires `hoplite-cronutils` module                                                                                                                                                                                                                                                                                     |
+| `com.cronutils.model.Cron`       | Returns parsed instance of a cron expression                                                                                                                                                                                                                                                                            |
+| **kotlinx datetime Types**       | Requires `hoplite-datetime` module                                                                                                                                                                                                                                                                                      |
+| `kotlinx.datetime.LocalDateTime` |                                                                                                                                                                                                                                                                                                                         |
+| `kotlinx.datetime.LocalDate`     |                                                                                                                                                                                                                                                                                                                         |
+| `kotlinx.datetime.Instant`       |                                                                                                                                                                                                                                                                                                                         |
+| **AWS SDK types**                | Requires `hoplite-aws` module                                                                                                                                                                                                                                                                                           |
+| `com.amazonaws.regions.Region`   |
 
 ## Preprocessors
 
@@ -519,37 +519,37 @@ database:
 
 These built-in preprocessors are registered automatically.
 
-| Preprocessor        | Function                                                                                                                                                                                                                                                                                |
-|:--------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| EnvVar Preprocessor | Replaces any strings of the form ${VAR} with the environment variable $VAR if defined. These replacement strings can occur between other strings.<br/><br/>For example `foo: hello ${USERNAME}!` would result in foo being assigned the value `hello Sam!` assuming the env var `USERNAME` was set to `SAM`. Also the expressions can have default values using the usual bash expression style syntax `foo: hello ${USERNAME:-fallback}!` |
-| System Property Preprocessor | Replaces any strings of the form ${VAR} with the system property $VAR if defined. These replacement strings can occur between other strings.<br/><br/>For example `debug: ${DEBUG}` would result in debug being assigned the value `true` assuming the application had been started with `-Ddebug=true` |
-| Random Preprocessor | Inserts random strings into the config. See the section on Random Preprocessor for syntax. |
-| Props File Preprocessor | Replaces any strings of the form ${key} with the value of the key in a provided `java.util.Properties` file. The file can be specified by a `Path` or a resource on the classpath. |
-| Lookup Preprocessor | Replaces any strings of the form {{key}} with the value of that node in the already parsed config. In other words, this allow substitution from config in one place to another place (even across files). |
+| Preprocessor                 | Function                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+|:-----------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| EnvVar Preprocessor          | Replaces any strings of the form ${VAR} with the environment variable $VAR if defined. These replacement strings can occur between other strings.<br/><br/>For example `foo: hello ${USERNAME}!` would result in foo being assigned the value `hello Sam!` assuming the env var `USERNAME` was set to `SAM`. Also the expressions can have default values using the usual bash expression style syntax `foo: hello ${USERNAME:-fallback}!` |
+| System Property Preprocessor | Replaces any strings of the form ${VAR} with the system property $VAR if defined. These replacement strings can occur between other strings.<br/><br/>For example `debug: ${DEBUG}` would result in debug being assigned the value `true` assuming the application had been started with `-Ddebug=true`                                                                                                                                    |
+| Random Preprocessor          | Inserts random strings into the config. See the section on Random Preprocessor for syntax.                                                                                                                                                                                                                                                                                                                                                 |
+| Props File Preprocessor      | Replaces any strings of the form ${key} with the value of the key in a provided `java.util.Properties` file. The file can be specified by a `Path` or a resource on the classpath.                                                                                                                                                                                                                                                         |
+| Lookup Preprocessor          | Replaces any strings of the form {{key}} with the value of that node in the already parsed config. In other words, this allow substitution from config in one place to another place (even across files).                                                                                                                                                                                                                                  |
 
 ### Optional Preprocessors
 
 These preprocessors must be added to the `ConfigBuilder` before they take effect, and require extra modules to be added to the build.
 
-| Preprocessor        | Function
-|:--------------------|:-----------|
+| Preprocessor                    | Function                                                                                                                                                                                                                                                                                                               |
+|:--------------------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `ParameterStorePreprocessor`    | Replaces strings of the form ${ssm:key} by looking up the value of 'key' from the [AWS Systems Manager Parameter Store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html).<br/><br/>This preprocessor requires the `hoplite-aws` module to be added to the classpath. |
-| `AwsSecretsManagerPreprocessor` | Replaces strings of the form ${awssecret:key} by looking up the value of 'key' from the [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/).<br/><br/>This preprocessor requires the `hoplite-aws` module to be added to the classpath. |
-| `ConsulConfigPreprocessor`      | Replaces strings of the form ${consul:key} by looking up the value of 'key' from a [Consul](https://www.consul.io/) server.<br/><br/>This preprocessor requires the `hoplite-consul` module to be added to the classpath. |
+| `AwsSecretsManagerPreprocessor` | Replaces strings of the form ${awssecret:key} by looking up the value of 'key' from the [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/).<br/><br/>This preprocessor requires the `hoplite-aws` module to be added to the classpath.                                                                     |
+| `ConsulConfigPreprocessor`      | Replaces strings of the form ${consul:key} by looking up the value of 'key' from a [Consul](https://www.consul.io/) server.<br/><br/>This preprocessor requires the `hoplite-consul` module to be added to the classpath.                                                                                              |
 
 ### Random Preprocessor
 
 The random preprocessor replaces placeholder strings with random values.
 
-| Placeholder           | Generated random value |
-|:----------------------|:------------------------------------------------------------|
-| ${random.int}         | A random int |
-| ${random.int(k)}      | A positive random int between 0 and k |
-| ${random.int(k, j)}   | A random int between k and j |
-| ${random.double}      | A random double |
-| ${random.boolean      | A random boolean |
-| ${random.string(k)}   | A random alphanumeric string of length k |
-| ${random.uuid}        | A randomly generated type 4 UUID |
+| Placeholder         | Generated random value                   |
+|:--------------------|:-----------------------------------------|
+| ${random.int}       | A random int                             |
+| ${random.int(k)}    | A positive random int between 0 and k    |
+| ${random.int(k, j)} | A random int between k and j             |
+| ${random.double}    | A random double                          |
+| ${random.boolean    | A random boolean                         |
+| ${random.string(k)} | A random alphanumeric string of length k |
+| ${random.uuid}      | A randomly generated type 4 UUID         |
 
 For example:
 
@@ -626,7 +626,8 @@ println(config.host) // Hostname("localhost")
 
 ## Sealed Classes
 
-Hoplite will support sealed classes where it is able to match up the available config keys with the parameters of one of the implementations. For example, lets create a a config hierarchy as implementations of a sealed class.
+Hoplite will support sealed classes where it is able to match up the available config keys with the parameters
+of one of the implementations. For example, lets create a config hierarchy as implementations of a sealed class.
 
 ```kotlin
 sealed class Database {
@@ -637,7 +638,10 @@ sealed class Database {
 data class TestConfig(val databases: List<Database>)
 ```
 
-For the above implementations, if hoplite encountered a `host`, `port`, and `index` then it would be clear that it should instantiate an `Elasticsearch` instance. Similarly, if the config keys were `host`, `port`, `schema`, and `table`, then the `Postgres` implementation should be used. If the keys don't match an implementation, the config loader would fail. If keys match multiple implementations then the first match is taken.
+For the above definition, if hoplite encountered a `host`, `port`, and `index` then it would be clear
+that it should instantiate an `Elasticsearch` instance. Similarly, if the config keys were `host`, `port`,
+`schema`, and `table`, then the `Postgres` implementation should be used. If the keys don't match an implementation,
+the config loader would fail. If keys match multiple implementations then the first match is taken.
 
 For example, the following yaml config file could be used:
 
@@ -667,20 +671,82 @@ TestConfig(
 )
 ```
 
+### Objects in sealed classes
+
+Hoplite additionally supports using objects in sealed classes.
+For example, lets expand the database definition to include an `Embedded` object subclass:
+
+```kotlin
+sealed class Database {
+  data class Elasticsearch(val host: String, val port: Int, val index: String) : Database()
+  data class Postgres(val host: String, val port: Int, val schema: String, val table: String) : Database()
+  object Embedded : Database()
+}
+
+data class TestConfig(val databases: List<Database>)
+```
+
+We can indicate to Hoplite to use the `Embedded` option in two ways. The first is by referencing the type name:
+
+For example, in yaml:
+
+```yaml
+database: Embedded
+```
+
+Or in Json:
+
+```json
+{
+  "database": "Embedded"
+}
+```
+
+This also works for lists, and we can mix and match:
+
+Yaml:
+
+```yaml
+databases:
+  - "Embedded"
+  - host: localhost
+    port: 9300
+    index: bar
+```
+
+Json:
+
+```json
+{
+  "databases": ["Embedded", { "host": "localhost", "port": 9200, "index": "foo" }]
+}
+```
+
+The second method is only for Json by specifying an empty object:
+
+```json
+{
+  "database": { }
+}
+```
+
+When using the second option, there must be only a single object instance in the hierarchy, otherwise a disambiguation error is thrown.
+If you want to support multiple object instances, then refer to the type by name.
+
 ## Add on Modules
 
 Hoplite makes available several other modules that add functionality outside of the main core module. They are in seperate modules because they bring in dependencies from those projects and so the modules are optional.
 
-| Module         | Function          |
-|:---------------|:------------------|
-| hoplite-arrow     | Provides decoders for common arrow types |
-| hoplite-aws       | Provides decoder for aws `Region` and a preprocessor for Amazon's parameter store |
-| hoplite-consul    | Provides a preprocessor for retreiving values from a Consul server |
-| hoplite-datetime  | Provides decoders for [kotlinx datetime](https://github.com/Kotlin/kotlinx-datetime). Requires Kotlin 1.4.x |
-| hoplite-hdfs      | Provides decoder for hadoop `Path` |
-| hoplite-hikaricp  | Provides decoder for `HikariDataSource` |
-| hoplite-javax     | Provides decoders for Principals |
-| hoplite-vavr      | Provides decoders for [vavr](https://github.com/vavr-io/vavr) |
+| Module           | Function                                                                                                    |
+|:-----------------|:------------------------------------------------------------------------------------------------------------|
+| hoplite-arrow    | Provides decoders for common arrow types                                                                    |
+| hoplite-aws      | Provides decoder for aws `Region` and a preprocessor for Amazon's parameter store                           |
+| hoplite-consul   | Provides a preprocessor for retreiving values from a Consul server                                          |
+| hoplite-datetime | Provides decoders for [kotlinx datetime](https://github.com/Kotlin/kotlinx-datetime). Requires Kotlin 1.4.x |
+| hoplite-hdfs     | Provides decoder for hadoop `Path`                                                                          |
+| hoplite-hikaricp | Provides decoder for `HikariDataSource`                                                                     |
+| hoplite-javax    | Provides decoders for Principals                                                                            |
+| hoplite-vavr     | Provides decoders for [vavr](https://github.com/vavr-io/vavr)                                               |
 
 ## License
 ```
