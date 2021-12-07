@@ -8,16 +8,18 @@ import java.io.File
 import java.nio.file.Path
 
 /**
- * An implementation of [PropertySource] that loads values from a file located
- * via a [ConfigSource]. The file is parsed using an instance of [Parser] retrieved
- * from the [ParserRegistry] based on file extension.
+ * A [PropertySource] that loads values from a config value, provided by a [ConfigSource].
  *
- * @param optional if true then if a file is missing, this property source will be skipped. If false, then a missing
- * file will cause the config to fail. Defaults to false.
+ * The file is parsed using a [Parser] that is retrieved from the [ParserRegistry]
+ * based on file extension.
+ *
+ * @param optional if true then a missing file will be skipped.
+ *                 if false, then a missing file will return an error.
+ *                 Defaults to false.
  */
 class ConfigFilePropertySource(
-   private val config: ConfigSource,
-   private val optional: Boolean = false
+  private val config: ConfigSource,
+  private val optional: Boolean = false,
 ) : PropertySource {
 
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
