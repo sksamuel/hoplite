@@ -1,24 +1,18 @@
 package com.sksamuel.hoplite
 
-import com.sksamuel.hoplite.fp.Validated
-import com.sksamuel.hoplite.fp.flatRecover
-import com.sksamuel.hoplite.fp.invalid
-import com.sksamuel.hoplite.fp.valid
-import com.sksamuel.hoplite.parsers.Parser
 import com.sksamuel.hoplite.parsers.ParserRegistry
-import com.sksamuel.hoplite.parsers.toNode
 import java.io.File
 import java.io.InputStream
 import java.nio.file.Path
-import java.nio.file.Paths
-import java.util.*
 
 data class PropertySourceContext(
   val parsers: ParserRegistry,
 )
 
 /**
- * A [PropertySource] provides [Node]s.
+ * A [PropertySource] provides a tree of config values.
+ *
+ * This tree of config values is rooted with a [Node].
  *
  * A property source may retrieve its values from a config file, or env variables, system properties, and so on,
  * depending on the implementation.
@@ -26,7 +20,8 @@ data class PropertySourceContext(
 interface PropertySource {
 
   /**
-   * Returns the node generated from this property source.
+   * Returns the root [Node] provided by this property source, or an error
+   * if the values could not be retrieved.
    */
   fun node(context: PropertySourceContext): ConfigResult<Node>
 
@@ -102,196 +97,8 @@ interface PropertySource {
   }
 }
 
-fun defaultPropertySources(): List<PropertySource> =
-  listOf(
-    EnvironmentVariablesPropertySource(useUnderscoresAsSeparator = true, allowUppercaseNames = false),
-    SystemPropertiesPropertySource,
-    UserSettingsPropertySource
-  )
-
-/**
- * An implementation of [PropertySource] that provides config through system properties
- * that are prefixed with 'config.override.'
- * In other words, if a System property is defined 'config.override.user.name=sam' then
- * the property 'user.name=sam' is made available.
- */
-object SystemPropertiesPropertySource : PropertySource {
-  private const val prefix = "config.override."
-  override fun node(context: PropertySourceContext): ConfigResult<Node> {
-    val props = Properties()
-    System.getProperties()
-      .stringPropertyNames()
-      .filter { it.startsWith(prefix) }
-      .forEach { props[it.removePrefix(prefix)] = System.getProperty(it) }
-    return if (props.isEmpty) Undefined.valid() else props.toNode("sysprops").valid()
-  }
-}
-
-class EnvironmentVariablesPropertySource(
-  private val useUnderscoresAsSeparator: Boolean,
-  private val allowUppercaseNames: Boolean
-) : PropertySource {
-  override fun node(context: PropertySourceContext): ConfigResult<Node> {
-    val props = Properties()
-    System.getenv().forEach {
-      val key = it.key
-        .let { key -> if (useUnderscoresAsSeparator) key.replace("__", ".") else key }
-        .let { key ->
-          if (allowUppercaseNames && Character.isUpperCase(key.codePointAt(0))) {
-            key.split(".").joinToString(separator = ".") { value ->
-              value.fold("") { acc, char ->
-                when {
-                  acc.isEmpty() -> acc + char.toLowerCase()
-                  acc.last() == '_' -> acc.dropLast(1) + char.toUpperCase()
-                  else -> acc + char.toLowerCase()
-                }
-              }
-            }
-          } else {
-            key
-          }
-        }
-      props[key] = it.value
-    }
-    return props.toNode("env").valid()
-  }
-}
-
-/**
- * An implementation of [PropertySource] that provides config based on command line arguments.
- *
- * Parameters will be processed if they start with a given prefix. Key and value are split by a given delimiter.
- */
-class MapPropertySource(
-  private val map: Map<String, Any?>,
-) : PropertySource {
-  override fun node(context: PropertySourceContext): ConfigResult<Node> {
-    return when {
-      map.isEmpty() -> Undefined.valid()
-      else -> map.toNode("map").valid()
-    }
-  }
-}
-
-/**
- * An implementation of [PropertySource] that provides config based on command line arguments.
- *
- * Parameters will be processed if they start with a given prefix. Key and value are split by a given delimiter.
- */
-class CommandLinePropertySource(
-  private val arguments: Array<String>,
-  private val prefix: String,
-  private val delimiter: String,
-) : PropertySource {
-  override fun node(context: PropertySourceContext): ConfigResult<Node> {
-    val values = arguments.asSequence().filter {
-      it.startsWith(prefix) && it.contains(delimiter)
-    }.map {
-      it.removePrefix(prefix).split(delimiter, limit = 2)
-    }.groupingBy {
-      it[0]
-    }.aggregate { _, accumulator: Any?, element, _ ->
-      when (accumulator) {
-        null -> element[1]
-        is List<*> -> accumulator + element[1]
-        else -> listOf(accumulator, element[1])
-      }
-    }
-    return when {
-      values.isEmpty() -> Undefined.valid()
-      else -> values.toNode("commandLine").valid()
-    }
-  }
-}
-
-/**
- * An implementation of [PropertySource] that provides config through a config file
- * defined at ~/.userconfig.ext
- *
- * This file must use either the java properties format, or another format that you
- * have included the correct module for.
- *
- * Eg, if you have included hoplite-yaml module in your build, then your file can be
- * ~/.userconfig.yaml
- */
-object UserSettingsPropertySource : PropertySource {
-
-  private fun path(ext: String): Path = Paths.get(System.getProperty("user.home")).resolve(".userconfig.$ext")
-
-  override fun node(context: PropertySourceContext): ConfigResult<Node> {
-    val ext = context.parsers.registeredExtensions().firstOrNull {
-      path(it).toFile().exists()
-    }
-    return if (ext == null) Undefined.valid() else {
-      val path = path(ext)
-      val input = path.toFile().inputStream()
-      context.parsers.locate(ext).map {
-        it.load(input, path.toString())
-      }
-    }
-  }
-}
-
-/**
- * An implementation of [PropertySource] that provides config via an [InputStream].
- * You must specify the config type in addition to the stream source.
- *
- * @param input the input stream that contains the config.
- *
- * @param ext the file extension that will be used in the parser registry to locate the
- * correct parser to use. For example, pass in "yml" if the input stream represents a yml file.
- * It is important the right extension type is passed in, because the input stream doesn't itself
- * offer any indication what type of file it contains.
- */
-class InputStreamPropertySource(
-  private val input: InputStream,
-  private val ext: String
-) : PropertySource {
-
-  override fun node(context: PropertySourceContext): ConfigResult<Node> {
-    return context.parsers.locate(ext).map {
-      it.load(input, "input-stream")
-    }
-  }
-}
-
-/**
- * An implementation of [PropertySource] that loads values from a file located
- * via a [ConfigSource]. The file is parsed using an instance of [Parser] retrieved
- * from the [ParserRegistry] based on file extension.
- *
- * @param optional if true then if a file is missing, this property source will be skipped. If false, then a missing
- * file will cause the config to fail. Defaults to false.
- */
-class ConfigFilePropertySource(
-  private val config: ConfigSource,
-  private val optional: Boolean = false
-) : PropertySource {
-
-  override fun node(context: PropertySourceContext): ConfigResult<Node> {
-    val parser = context.parsers.locate(config.ext())
-    val input = config.open()
-    return Validated.ap(parser, input) { a, b -> a.load(b, config.describe()) }
-      .mapInvalid { ConfigFailure.MultipleFailures(it) }
-      .flatRecover { if (optional) Undefined.valid() else it.invalid() }
-  }
-
-  companion object {
-
-    fun optionalPath(
-      path: Path,
-    ): ConfigFilePropertySource =
-      ConfigFilePropertySource(ConfigSource.PathSource(path), true)
-
-    fun optionalFile(
-      file: File,
-    ): ConfigFilePropertySource =
-      ConfigFilePropertySource(ConfigSource.FileSource(file), true)
-
-    fun optionalResource(
-      resource: String,
-    ): ConfigFilePropertySource =
-      ConfigFilePropertySource(ConfigSource.ClasspathSource(resource), true)
-  }
-}
-
+fun defaultPropertySources(): List<PropertySource> = listOf(
+  EnvironmentVariablesPropertySource(useUnderscoresAsSeparator = true, allowUppercaseNames = false),
+  SystemPropertiesPropertySource,
+  UserSettingsPropertySource
+)
