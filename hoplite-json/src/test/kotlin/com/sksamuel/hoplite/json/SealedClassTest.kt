@@ -18,8 +18,13 @@ class SealedClassTest : FunSpec({
     }
   }
 
-  test("should support objects") {
+  test("should support objects with empty node") {
     val actual = ConfigLoader().loadConfigOrThrow<Config>("/sealed_test_2.json").database
+    actual shouldBe Database.Embedded
+  }
+
+  test("should support objects with string name") {
+    val actual = ConfigLoader().loadConfigOrThrow<Config>("/sealed_test_3.json").database
     actual shouldBe Database.Embedded
   }
 
