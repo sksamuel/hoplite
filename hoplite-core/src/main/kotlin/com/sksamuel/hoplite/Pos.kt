@@ -1,19 +1,31 @@
 package com.sksamuel.hoplite
 
+/**
+ * Tracks where in a file a config value was retrieved.
+ */
 sealed class Pos {
 
-  abstract val line: Int
+  /**
+   * Used if no positional information was present. For example, an environment
+   * variable would not have file information.
+   */
+  object NoPos : Pos()
 
-  object NoPos : Pos() {
-    override val line: Int = -1
-  }
+  /**
+   * Used when the only information available is the file name.
+   * For example, when processing from an input stream.
+   */
+  data class FilePos(val source: String) : Pos()
 
-  data class FilePos(val source: String) : Pos() {
-    override val line: Int = -1
-  }
+  /**
+   * Used when we know the filename and the line.
+   */
+  data class LinePos(val line: Int, val source: String) : Pos()
 
-  data class LinePos(override val line: Int, val source: String) : Pos()
-  data class LineColPos(override val line: Int, val col: Int, val source: String) : Pos()
+  /**
+   * Used when we know the filename, line and columnn.
+   */
+  data class LineColPos(val line: Int, val col: Int, val source: String) : Pos()
 }
 
 fun Pos.loc() = when (this) {
