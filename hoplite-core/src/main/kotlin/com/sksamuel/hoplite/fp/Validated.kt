@@ -101,7 +101,7 @@ inline fun <E, A, B> Validated<E, A>.map(f: (A) -> B) = when (this) {
   is Validated.Valid -> f(this.value).valid()
 }
 
-fun <E, F, A> Validated<E, A>.flatMapInvalid(f: (E) -> Validated<F, A>): Validated<F, A> = when (this) {
+fun <E, F, A> Validated<E, A>.flatRecover(f: (E) -> Validated<F, A>): Validated<F, A> = when (this) {
   is Validated.Invalid -> f(this.error)
   is Validated.Valid -> this
 }
