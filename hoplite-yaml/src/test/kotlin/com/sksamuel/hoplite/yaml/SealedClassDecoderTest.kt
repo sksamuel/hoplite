@@ -53,13 +53,13 @@ class SealedClassDecoderTest : FunSpec({
       "        - 'lonely': Sealed class class com.sksamuel.hoplite.yaml.Lonely does not define any subclasses"
   }
 
-  test("object inside sealed class decoding"){
+  test("object inside sealed class decoding") {
     data class Config(val poolingStrategy: PoolingStrategy)
     val config = ConfigLoader().loadConfigOrThrow<Config>("/sealed_class_with_object.yaml")
     config.poolingStrategy shouldBe PoolingStrategy.OsVersion
   }
 
-  test("list of object inside sealed class decoding"){
+  test("list of object inside sealed class decoding") {
     data class Config(val poolingStrategy: PoolingStrategy)
     val config = ConfigLoader().loadConfigOrThrow<Config>("/sealed_class_with_list_of_objects.yaml")
     config.poolingStrategy shouldBe PoolingStrategy.Combo(listOf(PoolingStrategy.Omni, PoolingStrategy.OsVersion))

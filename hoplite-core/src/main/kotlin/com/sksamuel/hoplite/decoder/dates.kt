@@ -21,7 +21,7 @@ import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.fp.Validated
-import com.sksamuel.hoplite.fp.flatMapInvalid
+import com.sksamuel.hoplite.fp.flatRecover
 import com.sksamuel.hoplite.parseDuration
 import com.sksamuel.hoplite.parsePeriod
 import java.time.LocalTime
@@ -75,7 +75,7 @@ class DurationDecoder : NonNullableLeafDecoder<Duration> {
   override fun safeLeafDecode(node: Node,
                               type: KType,
                               context: DecoderContext): ConfigResult<Duration> = when (node) {
-    is StringNode -> parseDuration(node.value).flatMapInvalid {
+    is StringNode -> parseDuration(node.value).flatRecover {
       runCatching { Duration.parse(node.value) }.toValidated { ConfigFailure.DecodeError(node, type) }
     }.mapInvalid { ConfigFailure.DecodeError(node, type) }
     is LongNode -> Duration.ofMillis(node.value).valid()

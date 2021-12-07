@@ -78,6 +78,14 @@ sealed class ConfigFailure {
     override fun description(): String = "Sealed class $type does not define any subclasses"
   }
 
+  data class SealedClassWithoutObject(val type: KClass<*>) : ConfigFailure() {
+    override fun description(): String = "Sealed class $type does not define an object instance"
+  }
+
+  data class SealedClassDisambiguationError(val types: List<Any>) : ConfigFailure() {
+    override fun description(): String = "Cannot disambiguate between sealed class implementations: ${types.joinToString(", ")}"
+  }
+
   data class MissingPrimaryConstructor(val type: KType) : ConfigFailure() {
     override fun description(): String = "$type does not implement a primary constructor"
   }

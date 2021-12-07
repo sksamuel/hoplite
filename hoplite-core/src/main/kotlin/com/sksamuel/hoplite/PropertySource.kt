@@ -1,7 +1,7 @@
 package com.sksamuel.hoplite
 
 import com.sksamuel.hoplite.fp.Validated
-import com.sksamuel.hoplite.fp.flatMapInvalid
+import com.sksamuel.hoplite.fp.flatRecover
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.parsers.Parser
@@ -85,10 +85,6 @@ interface PropertySource {
 
     /**
      * Returns a [PropertySource] that will read the environment settings.
-     *
-     * @param arguments command line arguments as passed to main method
-     * @param prefix argument prefix
-     * @param delimiter key value delimiter
      */
     fun environment(useUnderscoresAsSeparator: Boolean = true, allowUppercaseNames: Boolean = true) =
       EnvironmentVariablesPropertySource(useUnderscoresAsSeparator, allowUppercaseNames)
@@ -277,7 +273,7 @@ class ConfigFilePropertySource(
     val input = config.open()
     return Validated.ap(parser, input) { a, b -> a.load(b, config.describe()) }
       .mapInvalid { ConfigFailure.MultipleFailures(it) }
-      .flatMapInvalid { if (optional) Undefined.valid() else it.invalid() }
+      .flatRecover { if (optional) Undefined.valid() else it.invalid() }
   }
 
   companion object {
