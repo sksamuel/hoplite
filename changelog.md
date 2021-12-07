@@ -1,5 +1,9 @@
 # Changelog
 
+### 1.4.16
+
+* Added support for sealed class objects in Json by defining empty maps #245
+
 ### 1.4.15
 
 * Fixed regression with multiple constructors introduced in 1.4.10
