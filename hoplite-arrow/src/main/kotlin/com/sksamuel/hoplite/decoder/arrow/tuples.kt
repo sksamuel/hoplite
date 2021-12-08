@@ -28,7 +28,7 @@ class Tuple2Decoder : NullHandlingDecoder<Pair<*, *>> {
         val adecoder = context.decoder(aType).flatMap { it.decode(node.atIndex(0), aType, context) }
         val bdecoder = context.decoder(bType).flatMap { it.decode(node.atIndex(1), bType, context) }
         Validated
-          .ap(adecoder, bdecoder) { a, b -> Pair(a, b) }
+          .mapN(adecoder, bdecoder) { a, b -> Pair(a, b) }
           .mapInvalid { ConfigFailure.TupleErrors(node, it) }
       } else ConfigFailure.Generic("Tuple2 requires a list of two elements but list had size ${node.elements.size}").invalid()
     }
@@ -57,7 +57,7 @@ class Tuple3Decoder : NullHandlingDecoder<Triple<*, *, *>> {
         val bdecoder = context.decoder(bType).flatMap { it.decode(node.atIndex(1), bType, context) }
         val cdecoder = context.decoder(cType).flatMap { it.decode(node.atIndex(2), cType, context) }
         Validated
-          .ap(adecoder, bdecoder, cdecoder) { a, b, c -> Triple(a, b, c) }
+          .mapN(adecoder, bdecoder, cdecoder) { a, b, c -> Triple(a, b, c) }
           .mapInvalid { ConfigFailure.TupleErrors(node, it) }
       } else ConfigFailure.Generic("Tuple3 requires a list of three elements but list had size ${node.elements.size}").invalid()
     }
@@ -88,7 +88,7 @@ class Tuple4Decoder : NullHandlingDecoder<Tuple4<*, *, *, *>> {
         val cdecoder = context.decoder(cType).flatMap { it.decode(node.atIndex(2), cType, context) }
         val ddecoder = context.decoder(dType).flatMap { it.decode(node.atIndex(3), dType, context) }
         Validated
-          .ap(adecoder, bdecoder, cdecoder, ddecoder) { a, b, c, d -> Tuple4(a, b, c, d) }
+          .mapN(adecoder, bdecoder, cdecoder, ddecoder) { a, b, c, d -> Tuple4(a, b, c, d) }
           .mapInvalid { ConfigFailure.TupleErrors(node, it) }
       } else ConfigFailure.Generic("Tuple4 requires a list of four elements but list had size ${node.elements.size}").invalid()
     }
@@ -120,7 +120,7 @@ class Tuple5Decoder : NullHandlingDecoder<Tuple5<*, *, *, *, *>> {
         val cdecoder = context.decoder(cType).flatMap { it.decode(node.atIndex(2), cType, context) }
         val ddecoder = context.decoder(dType).flatMap { it.decode(node.atIndex(3), dType, context) }
         val edecoder = context.decoder(eType).flatMap { it.decode(node.atIndex(4), eType, context) }
-        Validated.ap(
+        Validated.mapN(
           adecoder,
           bdecoder,
           cdecoder,

@@ -25,7 +25,7 @@ class PairDecoder : NullHandlingDecoder<Pair<*, *>> {
         val bType = type.arguments[1].type!!
         val adecoder = context.decoder(aType).flatMap { it.decode(node.atIndex(0), aType, context) }
         val bdecoder = context.decoder(bType).flatMap { it.decode(node.atIndex(1), bType, context) }
-        Validated.ap(adecoder, bdecoder) { a, b -> Pair(a, b) }
+        Validated.mapN(adecoder, bdecoder) { a, b -> Pair(a, b) }
           .mapInvalid { ConfigFailure.TupleErrors(node, it) }
       } else ConfigFailure.Generic("Pair requires a list of two elements but list had size ${node.elements.size}").invalid()
     }
@@ -52,7 +52,7 @@ class TripleDecoder : NullHandlingDecoder<Triple<*, *, *>> {
       val adecoder = context.decoder(aType).flatMap { it.decode(a, aType, context) }
       val bdecoder = context.decoder(bType).flatMap { it.decode(b, bType, context) }
       val cdecoder = context.decoder(cType).flatMap { it.decode(c, cType, context) }
-      return Validated.ap(adecoder, bdecoder, cdecoder) { a, b, c -> Triple(a, b, c) }
+      return Validated.mapN(adecoder, bdecoder, cdecoder) { a, b, c -> Triple(a, b, c) }
         .mapInvalid { ConfigFailure.TupleErrors(node, it) }
     }
 

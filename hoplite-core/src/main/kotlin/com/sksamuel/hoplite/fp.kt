@@ -2,6 +2,7 @@ package com.sksamuel.hoplite
 
 import com.sksamuel.hoplite.fp.Validated
 
+// just a validated instance where the error type is fixed to ConfigFailure
 typealias ConfigResult<A> = Validated<ConfigFailure, A>
 
 fun <T, U> Result<T>.flatMap(f: (T) -> Result<U>) = fold({ f(it) }, { Result.failure<Nothing>(it) })

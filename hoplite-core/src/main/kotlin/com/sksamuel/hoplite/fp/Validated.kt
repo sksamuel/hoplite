@@ -36,48 +36,48 @@ sealed class Validated<out E, out A> {
 
   companion object {
 
-    fun <A, B, R, E> ap(a: Validated<E, A>,
-                        b: Validated<E, B>,
-                        f: (A, B) -> R): Validated<NonEmptyList<E>, R> {
+    fun <A, B, R, E> mapN(a: Validated<E, A>,
+                          b: Validated<E, B>,
+                          f: (A, B) -> R): Validated<NonEmptyList<E>, R> {
       return when (a) {
-        is Validated.Invalid -> when (b) {
-          is Validated.Invalid -> NonEmptyList.of(a.error, b.error).invalid()
-          is Validated.Valid -> NonEmptyList.of(a.error).invalid()
+        is Invalid -> when (b) {
+          is Invalid -> NonEmptyList.of(a.error, b.error).invalid()
+          is Valid -> NonEmptyList.of(a.error).invalid()
         }
-        is Validated.Valid -> when (b) {
-          is Validated.Invalid -> NonEmptyList.of(b.error).invalid()
-          is Validated.Valid -> f(a.value, b.value).valid()
+        is Valid -> when (b) {
+          is Invalid -> NonEmptyList.of(b.error).invalid()
+          is Valid -> f(a.value, b.value).valid()
         }
       }
     }
 
-    fun <A, B, C, R, E> ap(a: Validated<E, A>,
-                           b: Validated<E, B>,
-                           c: Validated<E, C>,
-                           f: (A, B, C) -> R): Validated<NonEmptyList<E>, R> {
+    fun <A, B, C, R, E> mapN(a: Validated<E, A>,
+                             b: Validated<E, B>,
+                             c: Validated<E, C>,
+                             f: (A, B, C) -> R): Validated<NonEmptyList<E>, R> {
       val errors = listOf(a, b, c).filterIsInstance<Invalid<E>>().map { it.error }
       return if (errors.isNotEmpty()) NonEmptyList(errors).invalid() else {
         f(a.getUnsafe(), b.getUnsafe(), c.getUnsafe()).valid()
       }
     }
 
-    fun <A, B, C, D, E, R> ap(a: Validated<E, A>,
-                              b: Validated<E, B>,
-                              c: Validated<E, C>,
-                              d: Validated<E, D>,
-                              f: (A, B, C, D) -> R): Validated<NonEmptyList<E>, R> {
+    fun <A, B, C, D, E, R> mapN(a: Validated<E, A>,
+                                b: Validated<E, B>,
+                                c: Validated<E, C>,
+                                d: Validated<E, D>,
+                                f: (A, B, C, D) -> R): Validated<NonEmptyList<E>, R> {
       val errors = listOf(a, b, c, d).filterIsInstance<Invalid<E>>().map { it.error }
       return if (errors.isNotEmpty()) NonEmptyList(errors).invalid() else {
         f(a.getUnsafe(), b.getUnsafe(), c.getUnsafe(), d.getUnsafe()).valid()
       }
     }
 
-    fun <A, B, C, D, E, Z, R> ap(a: Validated<Z, A>,
-                                 b: Validated<Z, B>,
-                                 c: Validated<Z, C>,
-                                 d: Validated<Z, D>,
-                                 e: Validated<Z, E>,
-                                 f: (A, B, C, D, E) -> R): Validated<NonEmptyList<Z>, R> {
+    fun <A, B, C, D, E, Z, R> mapN(a: Validated<Z, A>,
+                                   b: Validated<Z, B>,
+                                   c: Validated<Z, C>,
+                                   d: Validated<Z, D>,
+                                   e: Validated<Z, E>,
+                                   f: (A, B, C, D, E) -> R): Validated<NonEmptyList<Z>, R> {
       val errors = listOf(a, b, c, d, e).filterIsInstance<Invalid<Z>>().map { it.error }
       return if (errors.isNotEmpty()) NonEmptyList(errors).invalid() else {
         f(a.getUnsafe(), b.getUnsafe(), c.getUnsafe(), d.getUnsafe(), e.getUnsafe()).valid()
