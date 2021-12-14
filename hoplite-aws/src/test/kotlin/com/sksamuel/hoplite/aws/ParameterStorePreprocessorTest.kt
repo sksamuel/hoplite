@@ -13,7 +13,7 @@ class ParameterStorePreprocessorTest : FunSpec() {
 
     test("prefix should be detected and used") {
       shouldThrow<ConfigException> {
-        ParameterStorePreprocessor.process(StringNode("\${ssm:/foo}", Pos.NoPos))
+        ParameterStorePreprocessor.process(StringNode("\${ssm:/foo}", Pos.None))
       }
     }
 

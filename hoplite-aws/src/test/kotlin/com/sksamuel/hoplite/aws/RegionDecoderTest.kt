@@ -16,13 +16,13 @@ class RegionDecoderTest : StringSpec() {
   init {
     "region converter" {
       RegionDecoder().safeDecode(
-        StringNode("us-east-1", Pos.NoPos),
+        StringNode("us-east-1", Pos.None),
         Region::class.createType(),
         DecoderContext.zero
       ) shouldBe Region.getRegion(Regions.US_EAST_1).valid()
 
       RegionDecoder().safeDecode(
-        StringNode("us-qwewqe-1", Pos.NoPos),
+        StringNode("us-qwewqe-1", Pos.None),
         Region::class.createType(),
         DecoderContext.zero
       ) shouldBe

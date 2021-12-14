@@ -18,13 +18,15 @@ interface PropsSource {
 interface Props {
 
   /**
-   * Returns the [Value] at the given [Path].
+   * Returns the [Value] at the given [Path] along with the [Pos].
    *
    * The value returned will be [Undefined] if the path is not present
    * in this source.
    */
-  fun at(path: Path): Value
+  fun at(path: Path): PropsValue
 }
+
+data class PropsValue(val path: Path, val value: Value, val pos: Pos)
 
 data class Path(val components: List<String>) {
   fun append(name: String): Path = Path(components + name)
@@ -33,33 +35,20 @@ data class Path(val components: List<String>) {
 }
 
 object EmptyProps : Props {
-  override fun at(path: Path): Value = Value.UndefinedValue
+  override fun at(path: Path): PropsValue = PropsValue(path, Value.UndefinedValue, Pos.None)
 }
 
 sealed interface Value {
 
   // complex
 
-  data class MapNode(
-    val map: Map<String, Node>,
-    override val pos: Pos,
-    val value: Node = Undefined
-  ) : ContainerNode() {
-    override val simpleName: String = "Map"
-    override fun atKey(key: String): Node = map[key] ?: Undefined
-    override fun atIndex(index: Int): Node = Undefined
-    override val size: Int = map.size
-  }
+  data class MapValue(
+    val map: Map<String, Value>,
+    // some formats can have values "at the map level" as well as inside the map itself
+    val value: Value = UndefinedValue
+  ) : Value
 
-  data class ArrayNode(
-    val elements: List<Node>,
-    override val pos: Pos
-  ) : ContainerNode() {
-    override val simpleName: String = "List"
-    override fun atKey(key: String): Node = Undefined
-    override fun atIndex(index: Int): Node = elements.getOrElse(index) { Undefined }
-    override val size: Int = elements.size
-  }
+  data class ArrayValue(val elements: List<Value>) : Value
 
   // primitives
   data class StringValue(val value: String) : Value
@@ -72,7 +61,7 @@ sealed interface Value {
 }
 
 /**
- * A [PropsSource] that loads values from a config file, provided by a [ConfigSource].
+ * A [PropsSource] that provides a [Props] from a config file, provided by a [ConfigSource].
  *
  * The file is parsed using a [Parser] that is retrieved from the [ParserRegistry]
  * based on file extension.
@@ -88,15 +77,9 @@ class ConfigFilePropsSource(
   override fun props(context: PropertySourceContext): ConfigResult<Props> {
     val parser = context.parsers.locate(config.ext())
     val input = config.open()
-    return Validated.mapN(parser, input) { a, b -> ConfigFileProps(a.load(b, config.describe())) }
+    return Validated.mapN(parser, input) { a, b -> a.load(b, config.describe()) }
       .mapInvalid { ConfigFailure.MultipleFailures(it) }
       .flatRecover { if (optional) EmptyProps.valid() else it.invalid() }
-  }
-}
-
-class ConfigFileProps(load: Node) : Props {
-  override fun at(path: Path): Value {
-    return Value.UndefinedValue
   }
 }
 
@@ -112,10 +95,12 @@ class EnvVarsProps(
   private val useUnderscoresAsSeparator: Boolean,
   private val caseInsensitive: Boolean,
 ) : Props {
-  override fun at(path: Path): Value {
+  override fun at(path: Path): PropsValue {
     val key = path.asString(if (useUnderscoresAsSeparator) "__" else ".")
-    val value = System.getenv().toList().firstOrNull { it.first.equals(key, caseInsensitive) }?.second
-    return if (value == null) Value.UndefinedValue else Value.StringValue(value)
+    val value = System.getenv().toList()
+      .firstOrNull { it.first.equals(key, caseInsensitive) }?.second
+      .let { if (it == null) Value.UndefinedValue else Value.StringValue(it) }
+    return PropsValue(path, value, Pos.SourceNamePos("env-vars"))
   }
 }
 
@@ -131,11 +116,12 @@ object SystemPropertiesPropsSource : PropsSource {
 
 object SystemPropertiesProps : Props {
   private const val prefix = "config.override."
-  override fun at(path: Path): Value {
+  override fun at(path: Path): PropsValue {
     val key = prefix + path.asString(".")
     val value = System.getProperties()
       .stringPropertyNames()
       .find { it == key }
-    return if (value == null) Value.UndefinedValue else Value.StringValue(value)
+      .let { if (it == null) Value.UndefinedValue else Value.StringValue(it) }
+    return PropsValue(path, value, Pos.SourceNamePos("sysprops"))
   }
 }

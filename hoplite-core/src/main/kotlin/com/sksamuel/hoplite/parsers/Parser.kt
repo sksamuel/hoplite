@@ -1,15 +1,15 @@
 package com.sksamuel.hoplite.parsers
 
-import com.sksamuel.hoplite.fp.invalid
-import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
-import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.Props
+import com.sksamuel.hoplite.fp.invalid
+import com.sksamuel.hoplite.fp.valid
 import java.io.InputStream
-import java.util.*
+import java.util.ServiceLoader
 
 interface Parser {
-  fun load(input: InputStream, source: String): Node
+  fun load(input: InputStream, source: String): Props
   fun defaultFileExtensions(): List<String>
 }
 

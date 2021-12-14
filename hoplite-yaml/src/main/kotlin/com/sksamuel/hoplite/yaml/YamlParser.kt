@@ -5,8 +5,10 @@ import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.Pos
-import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.Props
+import com.sksamuel.hoplite.PropsValue
 import com.sksamuel.hoplite.Undefined
+import com.sksamuel.hoplite.Value
 import com.sksamuel.hoplite.parsers.Parser
 import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.Yaml
@@ -27,9 +29,11 @@ import java.io.InputStream
 import java.io.InputStreamReader
 
 class YamlParser : Parser {
+
   override fun defaultFileExtensions(): List<String> = listOf("yml", "yaml")
   private val yaml = Yaml(SafeConstructor())
-  override fun load(input: InputStream, source: String): Node {
+
+  override fun load(input: InputStream, source: String): Props {
     val reader = InputStreamReader(input)
     val events = yaml.parse(reader).iterator()
     val stream = TokenStream(events)
@@ -76,8 +80,8 @@ object TokenProduction {
   operator fun invoke(
     stream: TokenStream<Event>,
     source: String,
-    anchors: Map<String, Node>,
-  ): Pair<Node, Map<String, Node>> {
+    anchors: Map<String, Value>,
+  ): Pair<Value, Map<String, Value>> {
     return when (val event = stream.current()) {
       is MappingStartEvent -> MapProduction(stream, source, anchors)
       is SequenceStartEvent -> SequenceProduction(stream, source, anchors)
@@ -93,7 +97,7 @@ object TokenProduction {
         val node = if (event.value == "null" && event.scalarStyle == DumperOptions.ScalarStyle.PLAIN)
           NullNode(event.startMark.toPos(source))
         else
-          StringNode(event.value, event.startMark.toPos(source))
+          Value.StringValue(event.value), event.startMark.toPos(source))
         if (event.anchor == null) Pair(node, anchors) else Pair(node, anchors.plus(event.anchor to node))
       }
       is AliasEvent -> {
@@ -142,24 +146,24 @@ object SequenceProduction {
   operator fun invoke(
     stream: TokenStream<Event>,
     source: String,
-    anchors: Map<String, Node>
+    anchors: Map<String, Value>
   ): Pair<Node, Map<String, Node>> {
-    require(
-      stream.current().`is`(Event.ID.SequenceStart)
-    ) { "Expected sequence start at ${stream.current().startMark}" }
+    require(stream.current().`is`(Event.ID.SequenceStart)) { "Expected SequenceStart at ${stream.current().startMark}" }
     val mark = stream.current().startMark
-    val list = mutableListOf<Node>()
+    val list = mutableListOf<Value>()
     var index = 0
-    var tempAnchors: Map<String, Node> = anchors
+    var tempAnchors: Map<String, Value> = anchors
     while (stream.next().id() != Event.ID.SequenceEnd) {
-      val (node, returnedAnchors) = TokenProduction(stream, source, tempAnchors)
-      list.add(node)
+      val (v, returnedAnchors) = TokenProduction(stream, source, tempAnchors)
+      list.add(v)
       index++
       tempAnchors = returnedAnchors
     }
-    require(stream.current().`is`(Event.ID.SequenceEnd)) { "Expected sequence end at ${stream.current().startMark}" }
-    return Pair(ArrayNode(list.toList(), mark.toPos(source)), tempAnchors)
+    require(stream.current().`is`(Event.ID.SequenceEnd)) { "Expected SequenceEnd at ${stream.current().startMark}" }
+    return Props(Value.ArrayValue(list.toList(), mark.toPos(source)), tempAnchors)
   }
 }
+
+data class YamlObject()
 
 fun Mark.toPos(source: String): Pos = Pos.LineColPos(line, column, source)

@@ -50,7 +50,7 @@ private fun <T> Iterable<T>.toNode(
     }
   }
 
-  val pos = Pos.FilePos(source)
+  val pos = Pos.SourceNamePos(source)
 
   fun Any.transform(): Node = when (this) {
     is Element -> when {

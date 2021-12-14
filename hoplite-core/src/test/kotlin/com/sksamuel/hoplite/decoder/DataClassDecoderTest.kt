@@ -25,11 +25,11 @@ class DataClassDecoderTest : StringSpec() {
 
       val node = MapNode(
         mapOf(
-          "a" to StringNode("hello", Pos.NoPos),
-          "b" to LongNode(123L, Pos.NoPos),
-          "c" to BooleanNode(true, Pos.NoPos)
+          "a" to StringNode("hello", Pos.None),
+          "b" to LongNode(123L, Pos.None),
+          "c" to BooleanNode(true, Pos.None)
         ),
-        Pos.NoPos
+        Pos.None
       )
       DataClassDecoder().decode(
         node,
@@ -43,11 +43,11 @@ class DataClassDecoderTest : StringSpec() {
 
       val node = MapNode(
         mapOf(
-          "a" to NullNode(Pos.NoPos),
-          "b" to NullNode(Pos.NoPos),
-          "c" to NullNode(Pos.NoPos)
+          "a" to NullNode(Pos.None),
+          "b" to NullNode(Pos.None),
+          "c" to NullNode(Pos.None)
         ),
-        Pos.NoPos
+        Pos.None
       )
 
       DataClassDecoder().decode(
@@ -62,11 +62,11 @@ class DataClassDecoderTest : StringSpec() {
 
       val node = MapNode(
         mapOf(
-          "a" to StringNode("hello", Pos.NoPos),
-          "b" to LongNode(123L, Pos.NoPos),
-          "c" to BooleanNode(true, Pos.NoPos)
+          "a" to StringNode("hello", Pos.None),
+          "b" to LongNode(123L, Pos.None),
+          "c" to BooleanNode(true, Pos.None)
         ),
-        Pos.NoPos
+        Pos.None
       )
       DataClassDecoder().decode(
         node,
@@ -86,12 +86,12 @@ class DataClassDecoderTest : StringSpec() {
 
       val node = MapNode(
         mapOf(
-          "a" to StringNode("1991", Pos.NoPos),
-          "b" to LongNode(millis.toEpochMilli(), Pos.NoPos),
-          "c" to StringNode("2007-12", Pos.NoPos),
-          "d" to LongNode(millis.toEpochMilli(), Pos.NoPos)
+          "a" to StringNode("1991", Pos.None),
+          "b" to LongNode(millis.toEpochMilli(), Pos.None),
+          "c" to StringNode("2007-12", Pos.None),
+          "d" to LongNode(millis.toEpochMilli(), Pos.None)
         ),
-        Pos.NoPos
+        Pos.None
       )
       DataClassDecoder().decode(node,
         Foo::class.createType(),
@@ -104,11 +104,11 @@ class DataClassDecoderTest : StringSpec() {
 
       val node = MapNode(
         mapOf(
-          "a" to StringNode("1..4", Pos.NoPos),
-          "b" to StringNode("50..60", Pos.NoPos),
-          "c" to StringNode("d..g", Pos.NoPos)
+          "a" to StringNode("1..4", Pos.None),
+          "b" to StringNode("50..60", Pos.None),
+          "c" to StringNode("d..g", Pos.None)
         ),
-        Pos.NoPos
+        Pos.None
       )
       DataClassDecoder().decode(
         node,
@@ -122,9 +122,9 @@ class DataClassDecoderTest : StringSpec() {
 
       val node = MapNode(
         mapOf(
-          "a" to StringNode("value", Pos.NoPos)
+          "a" to StringNode("value", Pos.None)
         ),
-        Pos.NoPos
+        Pos.None
       )
 
       DataClassDecoder().decode(
@@ -137,7 +137,7 @@ class DataClassDecoderTest : StringSpec() {
     "supports single param value constructor" {
       data class Foo(val value: FooEnum)
 
-      val node = StringNode("SECOND", Pos.NoPos)
+      val node = StringNode("SECOND", Pos.None)
 
       DataClassDecoder().decode(
         node,
@@ -151,7 +151,7 @@ class DataClassDecoderTest : StringSpec() {
         constructor(value: FooEnum) : this( value, null, null)
       }
 
-      val node = StringNode("THIRD", Pos.NoPos)
+      val node = StringNode("THIRD", Pos.None)
 
       DataClassDecoder().decode(
         node,
@@ -167,11 +167,11 @@ class DataClassDecoderTest : StringSpec() {
 
       val node = MapNode(
         mapOf(
-          "a" to StringNode("FIRST", Pos.NoPos),
-          "b" to StringNode("MultiParamCallExpected", Pos.NoPos),
-          "c" to BooleanNode(false, Pos.NoPos)
+          "a" to StringNode("FIRST", Pos.None),
+          "b" to StringNode("MultiParamCallExpected", Pos.None),
+          "c" to BooleanNode(false, Pos.None)
         ),
-        Pos.NoPos
+        Pos.None
       )
 
       DataClassDecoder().decode(
@@ -189,10 +189,10 @@ class DataClassDecoderTest : StringSpec() {
 
       val node = MapNode(
         mapOf(
-          "a" to StringNode("THIRD", Pos.NoPos),
-          "c" to BooleanNode(true, Pos.NoPos)
+          "a" to StringNode("THIRD", Pos.None),
+          "c" to BooleanNode(true, Pos.None)
         ),
-        Pos.NoPos
+        Pos.None
       )
 
       DataClassDecoder().decode(

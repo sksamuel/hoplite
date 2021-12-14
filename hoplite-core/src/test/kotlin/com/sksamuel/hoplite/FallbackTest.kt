@@ -9,70 +9,70 @@ class FallbackTest : FunSpec({
 
     val node1 = MapNode(
       mapOf(
-        "a" to StringNode("foo", Pos.NoPos),
-        "b" to StringNode("bar", Pos.NoPos)
+        "a" to StringNode("foo", Pos.None),
+        "b" to StringNode("bar", Pos.None)
       ),
-      Pos.NoPos
+      Pos.None
     )
 
     val node2 = MapNode(
       mapOf(
-        "a" to StringNode("faz", Pos.NoPos),
-        "c" to StringNode("baz", Pos.NoPos)
+        "a" to StringNode("faz", Pos.None),
+        "c" to StringNode("baz", Pos.None)
       ),
-      Pos.NoPos
+      Pos.None
     )
 
     val f = node1.merge(node2)
-    f["a"] shouldBe StringNode("foo", Pos.NoPos)
-    f["b"] shouldBe StringNode("bar", Pos.NoPos)
-    f["c"] shouldBe StringNode("baz", Pos.NoPos)
+    f["a"] shouldBe StringNode("foo", Pos.None)
+    f["b"] shouldBe StringNode("bar", Pos.None)
+    f["c"] shouldBe StringNode("baz", Pos.None)
 
     val g = node2.merge(node1)
-    g["a"] shouldBe StringNode("faz", Pos.NoPos)
-    g["b"] shouldBe StringNode("bar", Pos.NoPos)
-    g["c"] shouldBe StringNode("baz", Pos.NoPos)
+    g["a"] shouldBe StringNode("faz", Pos.None)
+    g["b"] shouldBe StringNode("bar", Pos.None)
+    g["c"] shouldBe StringNode("baz", Pos.None)
   }
 
   test("fallback should work with two maps at arbitrary depth") {
 
     val node1 = MapNode(
       mapOf(
-        "a" to StringNode("foo", Pos.NoPos),
+        "a" to StringNode("foo", Pos.None),
         "b" to MapNode(
           mapOf(
-            "j" to StringNode("jen", Pos.NoPos),
-            "k" to StringNode("ken", Pos.NoPos)
+            "j" to StringNode("jen", Pos.None),
+            "k" to StringNode("ken", Pos.None)
           ),
-          Pos.NoPos
+          Pos.None
         )
       ),
-      Pos.NoPos
+      Pos.None
     )
 
     val node2 = MapNode(
       mapOf(
         "b" to MapNode(
           mapOf(
-            "k" to StringNode("kez", Pos.NoPos)
+            "k" to StringNode("kez", Pos.None)
           ),
-          Pos.NoPos
+          Pos.None
         ),
-        "c" to StringNode("baz", Pos.NoPos)
+        "c" to StringNode("baz", Pos.None)
       ),
-      Pos.NoPos
+      Pos.None
     )
 
     val f = node1.merge(node2)
-    f["a"] shouldBe StringNode("foo", Pos.NoPos)
-    f["b"]["j"] shouldBe StringNode("jen", Pos.NoPos)
-    f["b"]["k"] shouldBe StringNode("ken", Pos.NoPos)
-    f["c"] shouldBe StringNode("baz", Pos.NoPos)
+    f["a"] shouldBe StringNode("foo", Pos.None)
+    f["b"]["j"] shouldBe StringNode("jen", Pos.None)
+    f["b"]["k"] shouldBe StringNode("ken", Pos.None)
+    f["c"] shouldBe StringNode("baz", Pos.None)
 
     val g = node2.merge(node1)
-    g["a"] shouldBe StringNode("foo", Pos.NoPos)
-    g["b"]["j"] shouldBe StringNode("jen", Pos.NoPos)
-    g["b"]["k"] shouldBe StringNode("kez", Pos.NoPos)
-    g["c"] shouldBe StringNode("baz", Pos.NoPos)
+    g["a"] shouldBe StringNode("foo", Pos.None)
+    g["b"]["j"] shouldBe StringNode("jen", Pos.None)
+    g["b"]["k"] shouldBe StringNode("kez", Pos.None)
+    g["c"] shouldBe StringNode("baz", Pos.None)
   }
 })

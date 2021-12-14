@@ -120,7 +120,7 @@ data class NullNode(override val pos: Pos) : PrimitiveNode() {
 
 object Undefined : Node {
   override val simpleName: String = "Undefined"
-  override val pos: Pos = Pos.NoPos
+  override val pos: Pos = Pos.None
   override fun atKey(key: String): Node = this
   override fun atIndex(index: Int): Node = this
   override val size: Int = 0

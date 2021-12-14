@@ -407,7 +407,7 @@ class ConfigLoader constructor(
   private fun loadNode(configs: List<ConfigSource>): ConfigResult<Node> {
     val srcs = propertySources + configs.map { ConfigFilePropertySource(it) }
     return srcs.map { it.node(PropertySourceContext(parserRegistry)) }.sequence()
-      .map { it.takeUnless { it.isEmpty() }?.reduce { acc, b -> acc.merge(b) } ?: NullNode(Pos.NoPos) }
+      .map { it.takeUnless { it.isEmpty() }?.reduce { acc, b -> acc.merge(b) } ?: NullNode(Pos.None) }
       .mapInvalid {
         val multipleFailures = ConfigFailure.MultipleFailures(it)
         multipleFailures

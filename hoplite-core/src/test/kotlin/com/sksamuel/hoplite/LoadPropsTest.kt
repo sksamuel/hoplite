@@ -20,32 +20,32 @@ class LoadPropsTest : FunSpec({
           mapOf(
             "b" to MapNode(
               mapOf(
-                "c" to StringNode("wibble", pos = Pos.FilePos(source = "source")),
-                "d" to StringNode("123", pos = Pos.FilePos(source = "source"))
+                "c" to StringNode("wibble", pos = Pos.SourceNamePos(source = "source")),
+                "d" to StringNode("123", pos = Pos.SourceNamePos(source = "source"))
               ),
-              pos = Pos.FilePos(source = "source"),
+              pos = Pos.SourceNamePos(source = "source"),
               value = Undefined
             ),
-            "d" to StringNode("true", pos = Pos.FilePos(source = "source"))
+            "d" to StringNode("true", pos = Pos.SourceNamePos(source = "source"))
           ),
-          pos = Pos.FilePos(source = "source"),
-          value = StringNode("foo", Pos.FilePos(source = "source"))
+          pos = Pos.SourceNamePos(source = "source"),
+          value = StringNode("foo", Pos.SourceNamePos(source = "source"))
         ),
         "e" to MapNode(
           mapOf(
             "f" to MapNode(
               mapOf(
-                "g" to StringNode("goo", pos = Pos.FilePos(source = "source"))
+                "g" to StringNode("goo", pos = Pos.SourceNamePos(source = "source"))
               ),
-              pos = Pos.FilePos(source = "source"),
-              value = StringNode("6", Pos.FilePos(source = "source"))
+              pos = Pos.SourceNamePos(source = "source"),
+              value = StringNode("6", Pos.SourceNamePos(source = "source"))
             )
           ),
-          pos = Pos.FilePos(source = "source"),
-          value = StringNode("5.5", Pos.FilePos(source = "source"))
+          pos = Pos.SourceNamePos(source = "source"),
+          value = StringNode("5.5", Pos.SourceNamePos(source = "source"))
         )
       ),
-      pos = Pos.FilePos(source = "source"),
+      pos = Pos.SourceNamePos(source = "source"),
       value = Undefined
     )
 

@@ -22,7 +22,7 @@ class TomlParser : Parser {
   override fun defaultFileExtensions(): List<String> = listOf("toml")
   override fun load(input: InputStream, source: String): Node {
     val result = Toml.parse(input)
-    return TableProduction(result, Pos.NoPos, source)
+    return TableProduction(result, Pos.None, source)
   }
 }
 
@@ -76,5 +76,5 @@ object ListProduction {
 
 fun TomlTable.toPos(key: String, source: String): Pos = inputPositionOf(key)?.let {
   Pos.LineColPos(it.line(), it.column(), source)
-} ?: Pos.NoPos
+} ?: Pos.None
 

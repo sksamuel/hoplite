@@ -9,13 +9,13 @@ sealed class Pos {
    * Used if no positional information was present. For example, an environment
    * variable would not have file information.
    */
-  object NoPos : Pos()
+  object None : Pos()
 
   /**
-   * Used when the only information available is the file name.
-   * For example, when processing from an input stream.
+   * Used when the only information available is the name of the source, such as the filename,
+   * or a generic name, such as 'env-vars'.
    */
-  data class FilePos(val source: String) : Pos()
+  data class SourceNamePos(val source: String) : Pos()
 
   /**
    * Used when we know the filename and the line.
@@ -29,8 +29,8 @@ sealed class Pos {
 }
 
 fun Pos.loc() = when (this) {
-  is Pos.NoPos -> ""
-  is Pos.FilePos -> "($source)"
+  is Pos.None -> ""
+  is Pos.SourceNamePos -> "($source)"
   is Pos.LineColPos -> "($source:$line:$col)"
   is Pos.LinePos -> "($source:$line)"
 }

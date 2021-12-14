@@ -35,7 +35,7 @@ class CustomDataClassDecoderTest : FunSpec({
       .fold(
         { fail("error finding decoder ") },
         { decoder ->
-          decoder.decode(StringNode("qqqq", Pos.NoPos), Foo::class.createType(), DecoderContext.zero).fold(
+          decoder.decode(StringNode("qqqq", Pos.None), Foo::class.createType(), DecoderContext.zero).fold(
             { fail("error decoding ${it.description()}") },
             { it.a shouldBe "wibble" }
           )
