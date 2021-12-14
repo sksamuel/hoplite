@@ -15,7 +15,7 @@ object Libs {
   }
 
   object Aws {
-    private const val version = "1.12.36"
+    private const val version = "1.12.128"
     const val core = "com.amazonaws:aws-java-sdk-core:$version"
     const val ssm = "com.amazonaws:aws-java-sdk-ssm:$version"
     const val secrets = "com.amazonaws:aws-java-sdk-secretsmanager:$version"
