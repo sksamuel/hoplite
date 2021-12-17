@@ -135,7 +135,7 @@ The format that hoplite uses to parse a file is determined by the file extension
 
 | Format                                       | Module                                                             | File Extensions     |
 |:---------------------------------------------|:-------------------------------------------------------------------|:--------------------|
-| Json                                         | [`hoplite-json`](https://search.maven.org/search?q=hoplite-json)   | .json               |
+| [Json](https://www.json.org/)                | [`hoplite-json`](https://search.maven.org/search?q=hoplite-json)   | .json               |
 | [Yaml](https://yaml.org/)                    | [`hoplite-yaml`](https://search.maven.org/search?q=hoplite-yaml)   | .yml, .yaml         |
 | [Toml](https://github.com/toml-lang/toml)    | [`hoplite-toml`](https://search.maven.org/search?q=hoplite-toml)   | .toml               |
 | [Hocon](https://github.com/lightbend/config) | [`hoplite-hocon`](https://search.maven.org/search?q=hoplite-hocon) | .conf               |
