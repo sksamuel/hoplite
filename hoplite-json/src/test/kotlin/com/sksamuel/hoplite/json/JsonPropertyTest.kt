@@ -12,7 +12,12 @@ class JsonPropertyTest : FunSpec({
 
   test("json property on config fields") {
     withSystemProperties(mapOf("config.override.foo" to "x", "config.override.c" to "123")) {
-      ConfigLoader().withParameterMapper(JsonPropertyParamMapper).loadConfigOrThrow<Config>() shouldBe Config("x", 123L)
+      val config = ConfigLoader.Builder()
+        .addParameterMapper(JsonPropertyParamMapper)
+        .build()
+        .loadConfigOrThrow<Config>()
+
+      config shouldBe Config("x", 123L)
     }
   }
 
