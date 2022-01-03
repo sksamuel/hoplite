@@ -6,8 +6,10 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-inline class Port(val value: Int)
-inline class Port2(val value: Boolean)
+@JvmInline
+value class Port(val value: Int)
+@JvmInline
+value class Port2(val value: Boolean)
 
 class InlineClassTest : FunSpec({
 

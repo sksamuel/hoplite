@@ -7,7 +7,8 @@ import io.kotest.matchers.shouldBe
 import io.kotest.core.spec.style.StringSpec
 import java.util.*
 
-inline class Port(val value: Int)
+@JvmInline
+value class Port(val value: Int)
 
 class TupleDecoderTest : StringSpec({
 

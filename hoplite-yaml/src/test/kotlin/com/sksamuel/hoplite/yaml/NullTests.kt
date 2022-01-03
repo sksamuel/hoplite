@@ -6,7 +6,8 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 
-inline class Username(val value: String)
+@JvmInline
+value class Username(val value: String)
 
 class NullTests : StringSpec() {
   init {
