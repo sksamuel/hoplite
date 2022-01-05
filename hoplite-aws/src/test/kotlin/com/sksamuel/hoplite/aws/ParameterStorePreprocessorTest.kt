@@ -19,7 +19,10 @@ class ParameterStorePreprocessorTest : FunSpec() {
 
     test("loading yml should use processor") {
       shouldThrow<ConfigException> {
-        ConfigLoader().withPreprocessor(ParameterStorePreprocessor).loadConfigOrThrow<ConfigHolder>("/ssm.props")
+        ConfigLoader.Builder()
+          .addPreprocessor(ParameterStorePreprocessor)
+          .build()
+          .loadConfigOrThrow<ConfigHolder>("/ssm.props")
       }
     }
   }

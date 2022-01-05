@@ -12,7 +12,10 @@ class InputStreamPropertySourceTest : StringSpec({
     data class Test(val a: Set<Long>, val b: Set<String>)
 
     val stream = javaClass.getResourceAsStream("/sets.yml")
-    val config = ConfigLoader().withPropertySource(InputStreamPropertySource(stream, "yml")).loadConfigOrThrow<Test>()
+    val config = ConfigLoader.Builder()
+      .addPropertySource(InputStreamPropertySource(stream, "yml"))
+      .build()
+      .loadConfigOrThrow<Test>()
 
     config shouldBe Test(setOf(1, 2, 3), setOf("1", "2"))
     config.a.shouldBeInstanceOf<HashSet<*>>()

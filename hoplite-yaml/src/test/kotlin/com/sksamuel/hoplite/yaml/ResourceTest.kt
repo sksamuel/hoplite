@@ -19,9 +19,12 @@ class ResourceTest : FunSpec({
   test("do not return failure for optional file property source") {
     data class Foo(val a: String)
 
-    ConfigLoader()
-      .withPropertySource(ConfigFilePropertySource.optionalResource("/missing.yml"))
-      .loadConfig<Foo>("/basic.yml").getUnsafe().a shouldBe "hello"
+    run {
+      ConfigLoader.Builder()
+        .addPropertySource(ConfigFilePropertySource.optionalResource("/missing.yml"))
+        .build()
+        .loadConfig<Foo>("/basic.yml").getUnsafe().a
+    } shouldBe "hello"
   }
 
   test("support fallback") {
