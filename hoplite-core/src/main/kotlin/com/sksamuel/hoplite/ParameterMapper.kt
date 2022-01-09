@@ -57,8 +57,8 @@ object SnakeCaseParamMapper : ParameterMapper {
   override fun map(param: KParameter): String {
     return (param.name ?: "<anon>").fold("") { acc, char ->
       when {
-        char.isUpperCase() && acc.isEmpty() -> char.toLowerCase().toString()
-        char.isUpperCase() -> acc + "_" + char.toLowerCase()
+        char.isUpperCase() && acc.isEmpty() -> char.lowercaseChar().toString()
+        char.isUpperCase() -> acc + "_" + char.lowercaseChar()
         else -> acc + char
       }
     }
@@ -76,8 +76,8 @@ object KebabCaseParamMapper : ParameterMapper {
   override fun map(param: KParameter): String {
     return (param.name ?: "<anon>").fold("") { acc, char ->
       when {
-        char.isUpperCase() && acc.isEmpty() -> char.toLowerCase().toString()
-        char.isUpperCase() -> acc + "-" + char.toLowerCase()
+        char.isUpperCase() && acc.isEmpty() -> char.lowercaseChar().toString()
+        char.isUpperCase() -> acc + "-" + char.lowercaseChar()
         else -> acc + char
       }
     }
