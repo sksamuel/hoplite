@@ -29,7 +29,7 @@ data class SizeInBytes(val size: Long) {
       val (size, symbol) = "(\\d+)(.*?)".toRegex().matchEntire(input.trim())?.destructured ?: return null
       val unit = InformationUnit::class.sealedSubclasses
         .mapNotNull { it.objectInstance }
-        .find { it.symbol.toLowerCase() == symbol.trim().toLowerCase() }
+        .find { it.symbol.equals(symbol.trim(), ignoreCase = true) }
         ?: return null
       val bytes = unit.ratioToPrimary * size.toLong()
       return SizeInBytes(bytes.toLong())
