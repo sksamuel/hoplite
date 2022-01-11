@@ -19,7 +19,7 @@ class EnvironmentVariablesPropertySource(
               value.fold("") { acc, char ->
                 when {
                   acc.isEmpty() -> acc + char.lowercaseChar()
-                  acc.last() == '_' -> acc.dropLast(1) + char.toUpperCase()
+                  acc.last() == '_' -> acc.dropLast(1) + char.uppercaseChar()
                   else -> acc + char.lowercaseChar()
                 }
               }
