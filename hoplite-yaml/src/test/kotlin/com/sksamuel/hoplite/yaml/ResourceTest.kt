@@ -1,5 +1,6 @@
 package com.sksamuel.hoplite.yaml
 
+import com.sksamuel.hoplite.ClasspathResourceLoader.Companion.toClasspathResourceLoader
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigFilePropertySource
 import com.sksamuel.hoplite.ConfigLoader
@@ -31,6 +32,18 @@ class ResourceTest : FunSpec({
     data class Test(val a: String, val b: String, val c: String, val d: String)
 
     val config = ConfigLoader().loadConfigOrThrow<Test>("/fallback_1.yml", "/fallback_2.yml", "/fallback_3.yml")
+    config.a shouldBe "foo"
+    config.b shouldBe "voo"
+    config.c shouldBe "woo"
+    config.d shouldBe "roo"
+  }
+  test("support fallback with thread classloader") {
+    data class Test(val a: String, val b: String, val c: String, val d: String)
+
+    val config = ConfigLoader().loadConfigOrThrow<Test>(
+      listOf("fallback_1.yml", "fallback_2.yml", "fallback_3.yml"),
+      Thread.currentThread().contextClassLoader.toClasspathResourceLoader(),
+    )
     config.a shouldBe "foo"
     config.b shouldBe "voo"
     config.c shouldBe "woo"
