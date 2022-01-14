@@ -11,6 +11,10 @@ import java.nio.file.Path
 
 abstract class ConfigSource {
 
+  /**
+   * Opens a new [InputStream], the caller should call [AutoCloseable.close]
+   * when they no longer need the [InputStream].
+   */
   abstract fun open(): ConfigResult<InputStream>
   abstract fun describe(): String
   abstract fun ext(): String
