@@ -41,7 +41,7 @@ abstract class ConfigSource {
   companion object {
     fun fromClasspathResources(resources: List<String>): ConfigResult<List<ConfigSource>> {
       return resources.map { resource ->
-        this::class.java.getResourceAsStream(resource)?.let { ClasspathSource(resource).valid() }
+        this::class.java.getResource(resource)?.let { ClasspathSource(resource).valid() }
           ?: ConfigFailure.UnknownSource(resource).invalid()
       }.sequence()
         .mapInvalid { ConfigFailure.MultipleFailures(it) }
