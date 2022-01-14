@@ -303,11 +303,17 @@ class ConfigLoader constructor(
   inline fun <reified A : Any> loadConfig(vararg resources: String): ConfigResult<A> = loadConfig(resources.toList())
 
   @JvmName("loadConfigFromResources")
-  inline fun <reified A : Any> loadConfig(resources: List<String>): ConfigResult<A> =
-    ConfigSource.fromClasspathResources(resources.toList()).flatMap { loadConfig(A::class, it) }
+  inline fun <reified A : Any> loadConfig(
+    resources: List<String>,
+    classLoader: ClassLoader = Thread.currentThread().contextClassLoader,
+  ): ConfigResult<A> =
+    ConfigSource.fromClasspathResources(resources.toList(), classLoader).flatMap { loadConfig(A::class, it) }
 
-  fun loadNodeOrThrow(resources: List<String>): Node =
-    ConfigSource.fromClasspathResources(resources.toList()).flatMap { loadNode(it) }.returnOrThrow()
+  fun loadNodeOrThrow(
+    resources: List<String>,
+    classLoader: ClassLoader = Thread.currentThread().contextClassLoader,
+  ): Node =
+    ConfigSource.fromClasspathResources(resources.toList(), classLoader).flatMap { loadNode(it) }.returnOrThrow()
 
   fun loadNodeOrThrow(): Node = loadNode(emptyList()).returnOrThrow()
 
