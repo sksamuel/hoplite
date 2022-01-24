@@ -1,0 +1,18 @@
+{
+  "resources":{
+  "includes":[
+    {
+      "pattern":"\\QMETA-INF/services/com.sksamuel.hoplite.decoder.Decoder\\E"
+    }, 
+    {
+      "pattern":"\\QMETA-INF/services/com.sksamuel.hoplite.parsers.Parser\\E"
+    }, 
+    {
+      "pattern":"\\QMETA-INF/services/kotlin.reflect.jvm.internal.impl.builtins.BuiltInsLoader\\E"
+    }, 
+    {
+      "pattern":"\\QMETA-INF/services/kotlin.reflect.jvm.internal.impl.resolve.ExternalOverridabilityCondition\\E"
+    }
+  ]},
+  "bundles":[]
+}
