@@ -1,0 +1,106 @@
+[
+{
+  "name":"com.sksamuel.hoplite.example.MyConfig",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.String","com.sksamuel.hoplite.example.NestedConfig"] }]}
+,
+{
+  "name":"com.sksamuel.hoplite.example.NestedConfig",
+  "methods":[{"name":"<init>","parameterTypes":["java.util.List"] }]}
+,
+{
+  "name":"java.lang.AbstractStringBuilder"}
+,
+{
+  "name":"java.lang.CharSequence"}
+,
+{
+  "name":"java.lang.Comparable"}
+,
+{
+  "name":"java.lang.Deprecated",
+  "queryAllDeclaredMethods":true,
+  "methods":[
+    {"name":"forRemoval","parameterTypes":[] }, 
+    {"name":"since","parameterTypes":[] }
+  ]}
+,
+{
+  "name":"java.lang.Integer",
+  "queryAllDeclaredConstructors":true}
+,
+{
+  "name":"java.lang.Iterable"}
+,
+{
+  "name":"java.lang.Number"}
+,
+{
+  "name":"java.lang.Object"}
+,
+{
+  "name":"java.lang.String",
+  "queryAllDeclaredConstructors":true}
+,
+{
+  "name":"java.lang.StringBuffer"}
+,
+{
+  "name":"java.lang.StringBuilder"}
+,
+{
+  "name":"java.lang.Void"}
+,
+{
+  "name":"java.lang.reflect.Constructor"}
+,
+{
+  "name":"java.lang.reflect.Executable",
+  "methods":[{"name":"getParameters","parameterTypes":[] }]}
+,
+{
+  "name":"java.lang.reflect.Parameter",
+  "methods":[{"name":"getName","parameterTypes":[] }]}
+,
+{
+  "name":"java.nio.charset.Charset"}
+,
+{
+  "name":"java.sql.Date"}
+,
+{
+  "name":"java.sql.Timestamp"}
+,
+{
+  "name":"java.util.Collection"}
+,
+{
+  "name":"java.util.LinkedHashMap"}
+,
+{
+  "name":"java.util.List"}
+,
+{
+  "name":"java.util.SortedSet"}
+,
+{
+  "name":"kotlin.Metadata",
+  "queryAllDeclaredMethods":true,
+  "methods":[
+    {"name":"bv","parameterTypes":[] }, 
+    {"name":"d1","parameterTypes":[] }, 
+    {"name":"d2","parameterTypes":[] }, 
+    {"name":"k","parameterTypes":[] }, 
+    {"name":"mv","parameterTypes":[] }, 
+    {"name":"pn","parameterTypes":[] }, 
+    {"name":"xi","parameterTypes":[] }, 
+    {"name":"xs","parameterTypes":[] }
+  ]}
+,
+{
+  "name":"kotlin.jvm.internal.DefaultConstructorMarker"}
+,
+{
+  "name":"kotlin.reflect.jvm.internal.ReflectionFactoryImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]}
+
+]
