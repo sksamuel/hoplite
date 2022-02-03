@@ -2,6 +2,7 @@
 
 package com.sksamuel.hoplite
 
+import com.sksamuel.hoplite.ClasspathResourceLoader.Companion.toClasspathResourceLoader
 import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.decoder.defaultDecoderRegistry
@@ -279,9 +280,19 @@ class ConfigLoader constructor(
    * This function implements fallback, such that the first resource is scanned first, and the second
    * resource is scanned if the first does not contain a given path, and so on.
    */
-  inline fun <reified A : Any> loadConfigOrThrow(vararg resources: String): A = loadConfigOrThrow(resources.toList())
+  inline fun <reified A : Any> loadConfigOrThrow(
+    vararg resources: String
+  ): A = loadConfigOrThrow(resources.toList())
 
-  inline fun <reified A : Any> loadConfigOrThrow(resources: List<String>): A = loadConfig<A>(resources).returnOrThrow()
+  inline fun <reified A : Any> loadConfigOrThrow(
+    resource: String,
+    classpathResourceLoader: ClasspathResourceLoader = ConfigSource.Companion::class.java.toClasspathResourceLoader(),
+  ): A = loadConfigOrThrow(listOf(resource), classpathResourceLoader)
+
+  inline fun <reified A : Any> loadConfigOrThrow(
+    resources: List<String>,
+    classpathResourceLoader: ClasspathResourceLoader = ConfigSource.Companion::class.java.toClasspathResourceLoader(),
+  ): A = loadConfig<A>(resources, classpathResourceLoader).returnOrThrow()
 
   /**
    * Attempts to load config from the registered property sources marshalled as an instance of A.
@@ -303,11 +314,20 @@ class ConfigLoader constructor(
   inline fun <reified A : Any> loadConfig(vararg resources: String): ConfigResult<A> = loadConfig(resources.toList())
 
   @JvmName("loadConfigFromResources")
-  inline fun <reified A : Any> loadConfig(resources: List<String>): ConfigResult<A> =
-    ConfigSource.fromClasspathResources(resources.toList()).flatMap { loadConfig(A::class, it) }
+  inline fun <reified A : Any> loadConfig(
+    resources: List<String>,
+    classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader(),
+  ): ConfigResult<A> =
+    ConfigSource.fromClasspathResources(resources.toList(), classpathResourceLoader)
+      .flatMap { loadConfig(A::class, it) }
 
-  fun loadNodeOrThrow(resources: List<String>): Node =
-    ConfigSource.fromClasspathResources(resources.toList()).flatMap { loadNode(it) }.returnOrThrow()
+  fun loadNodeOrThrow(
+    resources: List<String>,
+    classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader(),
+  ): Node =
+    ConfigSource.fromClasspathResources(resources.toList(), classpathResourceLoader)
+      .flatMap { loadNode(it) }
+      .returnOrThrow()
 
   fun loadNodeOrThrow(): Node = loadNode(emptyList()).returnOrThrow()
 

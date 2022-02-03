@@ -1,5 +1,6 @@
 package com.sksamuel.hoplite
 
+import com.sksamuel.hoplite.ClasspathResourceLoader.Companion.toClasspathResourceLoader
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.sequence
 import com.sksamuel.hoplite.fp.valid
@@ -35,17 +36,24 @@ abstract class ConfigSource {
         .toValidated { ConfigFailure.UnknownSource(file.absolutePath) }
   }
 
-  class ClasspathSource(private val resource: String) : ConfigSource() {
+  class ClasspathSource(
+    private val resource: String,
+    private val classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader(),
+  ) : ConfigSource() {
     override fun describe(): String = resource
     override fun ext() = resource.split('.').last()
     override fun open(): ConfigResult<InputStream> =
-      this.javaClass.getResourceAsStream(resource)?.valid() ?: ConfigFailure.UnknownSource(resource).invalid()
+      classpathResourceLoader.getResourceAsStream(resource)?.valid() ?: ConfigFailure.UnknownSource(resource).invalid()
   }
 
   companion object {
-    fun fromClasspathResources(resources: List<String>): ConfigResult<List<ConfigSource>> {
+    fun fromClasspathResources(
+      resources: List<String>,
+      classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader(),
+    ): ConfigResult<List<ConfigSource>> {
       return resources.map { resource ->
-        this::class.java.getResource(resource)?.let { ClasspathSource(resource).valid() }
+        classpathResourceLoader.getResourceAsStream(resource)
+          ?.let { ClasspathSource(resource, classpathResourceLoader).valid() }
           ?: ConfigFailure.UnknownSource(resource).invalid()
       }.sequence()
         .mapInvalid { ConfigFailure.MultipleFailures(it) }
