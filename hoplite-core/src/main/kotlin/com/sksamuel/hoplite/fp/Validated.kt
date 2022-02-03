@@ -40,13 +40,13 @@ sealed class Validated<out E, out A> {
                         b: Validated<E, B>,
                         f: (A, B) -> R): Validated<NonEmptyList<E>, R> {
       return when (a) {
-        is Validated.Invalid -> when (b) {
-          is Validated.Invalid -> NonEmptyList.of(a.error, b.error).invalid()
-          is Validated.Valid -> NonEmptyList.of(a.error).invalid()
+        is Invalid -> when (b) {
+          is Invalid -> NonEmptyList.of(a.error, b.error).invalid()
+          is Valid -> NonEmptyList.of(a.error).invalid()
         }
-        is Validated.Valid -> when (b) {
-          is Validated.Invalid -> NonEmptyList.of(b.error).invalid()
-          is Validated.Valid -> f(a.value, b.value).valid()
+        is Valid -> when (b) {
+          is Invalid -> NonEmptyList.of(b.error).invalid()
+          is Valid -> f(a.value, b.value).valid()
         }
       }
     }

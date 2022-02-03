@@ -748,6 +748,10 @@ Hoplite makes available several other modules that add functionality outside of 
 | hoplite-javax    | Provides decoders for Principals                                                                            |
 | hoplite-vavr     | Provides decoders for [vavr](https://github.com/vavr-io/vavr)                                               |
 
+## GraalVM native image
+
+GraalVM native image example can be found inside an [example-native](https://github.com/sksamuel/hoplite/tree/master/example-native) subdirectory.
+
 ## License
 ```
 This software is licensed under the Apache 2 license, quoted below.
