@@ -38,12 +38,13 @@ object Libs {
   }
 
   object Jackson {
-    const val core = "com.fasterxml.jackson.core:jackson-core:2.12.3"
-    const val databind = "com.fasterxml.jackson.core:jackson-databind:2.12.3"
+    private const val version = "2.12.3"
+    const val core = "com.fasterxml.jackson.core:jackson-core:$version"
+    const val databind = "com.fasterxml.jackson.core:jackson-databind:$version"
   }
 
   object Kotest {
-    private const val version = "4.6.1"
+    private const val version = "5.1.0"
     const val assertions = "io.kotest:kotest-assertions-core-jvm:$version"
     const val junit5 = "io.kotest:kotest-runner-junit5-jvm:$version"
   }
