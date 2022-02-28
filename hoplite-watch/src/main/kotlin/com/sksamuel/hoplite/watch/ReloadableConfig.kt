@@ -45,11 +45,10 @@ class ReloadableConfig<A : Any>(
   }
 
   private fun reloadConfig() {
-    kotlin.runCatching { configLoader.loadConfigOrThrow(clazz, emptyList()) }
-      .fold(
-        { config.set(it) },
-        { errorHandler?.invoke(it) }
-      )
+    runCatching { configLoader.loadConfigOrThrow(clazz, emptyList()) }.fold(
+      { config.set(it) },
+      { errorHandler?.invoke(it) }
+    )
   }
 
   fun getLatest(): A {
