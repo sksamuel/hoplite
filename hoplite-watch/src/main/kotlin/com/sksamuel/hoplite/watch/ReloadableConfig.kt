@@ -1,12 +1,23 @@
 package com.sksamuel.hoplite.watch
 
 import com.sksamuel.hoplite.ConfigLoader
-import com.sksamuel.hoplite.fp.getOrElse
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.reflect.KClass
 
-class ReloadableConfig<A : Any>(private val configLoader: ConfigLoader, private val clazz: KClass<A>) {
-  private val config = AtomicReference(configLoader.loadConfig(clazz, emptyList()).getOrElse { null })
+/**
+ * A [ReloadableConfig] accepts a [ConfigLoader] and a target config [KClass].
+ *
+ * One or more [Watchable]s can be added to this class, and when they trigger an update,
+ * the config is reloaded.
+ *
+ * You can retrieve the latest config at any time with [getLatest].
+ */
+class ReloadableConfig<A : Any>(
+  private val configLoader: ConfigLoader,
+  private val clazz: KClass<A>
+) {
+
+  private val config = AtomicReference<A>(configLoader.loadConfigOrThrow(clazz, emptyList()))
   private var errorHandler: ((Throwable) -> Unit)? = null
 
   fun addWatcher(watchable: Watchable): ReloadableConfig<A> {
@@ -30,7 +41,7 @@ class ReloadableConfig<A : Any>(private val configLoader: ConfigLoader, private 
       )
   }
 
-  fun getLatest() : A? {
+  fun getLatest(): A {
     return config.get()
   }
 }
