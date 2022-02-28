@@ -17,11 +17,22 @@ class ReloadableConfig<A : Any>(
   private val clazz: KClass<A>
 ) {
 
-  private val config = AtomicReference<A>(configLoader.loadConfigOrThrow(clazz, emptyList()))
+  private val config = AtomicReference(configLoader.loadConfigOrThrow(clazz, emptyList()))
   private var errorHandler: ((Throwable) -> Unit)? = null
 
   fun addWatcher(watchable: Watchable): ReloadableConfig<A> {
     watchable.watch(
+      { reloadConfig() },
+      { errorHandler?.invoke(it) }
+    )
+    return this
+  }
+
+  /**
+   * Add a watcher that refresh this config on a fixed interval.
+   */
+  fun addInterval(millis: Long): ReloadableConfig<A> {
+    FixedIntervalWatchable(millis).watch(
       { reloadConfig() },
       { errorHandler?.invoke(it) }
     )
@@ -44,8 +55,4 @@ class ReloadableConfig<A : Any>(
   fun getLatest(): A {
     return config.get()
   }
-}
-
-interface Watchable {
-  fun watch(callback: () -> Unit, errorHandler: (Throwable) -> Unit)
 }
