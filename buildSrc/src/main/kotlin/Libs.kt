@@ -58,8 +58,7 @@ object Libs {
   }
 
   object Snake {
-    private const val version = "1.28"
-    const val snakeyml = "org.yaml:snakeyaml:$version"
+    const val snakeyaml = "org.yaml:snakeyaml:1.30"
   }
 
   object Toml {
