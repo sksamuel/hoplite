@@ -6,11 +6,12 @@ import java.util.Properties
 
 class EnvironmentVariablesPropertySource(
   private val useUnderscoresAsSeparator: Boolean,
-  private val allowUppercaseNames: Boolean
+  private val allowUppercaseNames: Boolean,
+  private val environmentVariableMap: () -> Map<String, String> = { System.getenv() },
 ) : PropertySource {
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
     val props = Properties()
-    System.getenv().forEach {
+    environmentVariableMap().forEach {
       val key = it.key
         .let { key -> if (useUnderscoresAsSeparator) key.replace("__", ".") else key }
         .let { key ->
