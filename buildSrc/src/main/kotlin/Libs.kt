@@ -7,7 +7,7 @@ object Libs {
     const val reflect = "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
     const val stdlib = "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
     const val datetime = "org.jetbrains.kotlinx:kotlinx-datetime:0.2.0"
-    const val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinVersion"
+    const val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0"
   }
 
   object Arrow {
