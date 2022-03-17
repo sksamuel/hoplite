@@ -3,6 +3,8 @@ package com.sksamuel.hoplite
 import com.sksamuel.hoplite.fp.valid
 import java.nio.file.Path
 import java.nio.file.Paths
+import kotlin.io.path.exists
+import kotlin.io.path.inputStream
 
 /**
  * An implementation of [PropertySource] that provides config through a config file
@@ -20,11 +22,11 @@ object UserSettingsPropertySource : PropertySource {
 
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
     val ext = context.parsers.registeredExtensions().firstOrNull {
-      path(it).toFile().exists()
+      path(it).exists()
     }
     return if (ext == null) Undefined.valid() else {
       val path = path(ext)
-      val input = path.toFile().inputStream()
+      val input = path.inputStream()
       context.parsers.locate(ext).map {
         it.load(input, path.toString())
       }
