@@ -96,8 +96,3 @@ interface PropertySource {
 
   }
 }
-
-fun defaultPropertySources(): List<PropertySource> = listOf(
-  SystemPropertiesPropertySource,
-  UserSettingsPropertySource
-)

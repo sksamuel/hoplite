@@ -10,7 +10,7 @@ class PropertySourceTest : FunSpec() {
     test("reads config from string") {
       data class TestConfig(val a: String, val b: Int)
 
-      val config = ConfigLoader.Builder()
+      val config = ConfigLoaderBuilder.default()
         .addPropertySource(
           PropertySource.string(
             """
@@ -33,7 +33,7 @@ class PropertySourceTest : FunSpec() {
           b = 42
           """.trimIndent().byteInputStream(Charsets.UTF_8)
 
-      val config = ConfigLoader.Builder()
+      val config = ConfigLoaderBuilder.default()
         .addPropertySource(PropertySource.stream(stream, "props"))
         .build()
         .loadConfigOrThrow<TestConfig>()
@@ -50,7 +50,7 @@ class PropertySourceTest : FunSpec() {
         "other" to listOf("Value1", "Value2"),
       )
 
-      val config = ConfigLoader.Builder()
+      val config = ConfigLoaderBuilder.default()
         .addPropertySource(PropertySource.map(arguments))
         .build()
         .loadConfigOrThrow<TestConfig>()
@@ -69,7 +69,7 @@ class PropertySourceTest : FunSpec() {
         "--other=Value2",
       )
 
-      val config = ConfigLoader.Builder()
+      val config = ConfigLoaderBuilder.default()
         .addPropertySource(PropertySource.commandLine(arguments))
         .build()
         .loadConfigOrThrow<TestConfig>()
@@ -90,7 +90,7 @@ class PropertySourceTest : FunSpec() {
           "--other=Value2",
         )
 
-        val config = ConfigLoader.Builder()
+        val config = ConfigLoaderBuilder.default()
           .addPropertySource(PropertySource.commandLine(arguments))
           .addDefaultPropertySources()
           .addEnvironmentSource()
@@ -113,7 +113,7 @@ class PropertySourceTest : FunSpec() {
           "--other=Value2",
         )
 
-        val config = ConfigLoader.Builder()
+        val config = ConfigLoaderBuilder.default()
           .addEnvironmentSource()
           .addDefaultPropertySources()
           .addPropertySource(PropertySource.commandLine(arguments))

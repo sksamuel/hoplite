@@ -1,7 +1,7 @@
 package com.sksamuel.hoplite.aws
 
 import com.sksamuel.hoplite.ConfigException
-import com.sksamuel.hoplite.ConfigLoader
+import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
 import io.kotest.assertions.throwables.shouldThrow
@@ -19,7 +19,7 @@ class ParameterStorePreprocessorTest : FunSpec() {
 
     test("loading yml should use processor") {
       shouldThrow<ConfigException> {
-        ConfigLoader.Builder()
+        ConfigLoaderBuilder.default()
           .addPreprocessor(ParameterStorePreprocessor)
           .build()
           .loadConfigOrThrow<ConfigHolder>("/ssm.props")

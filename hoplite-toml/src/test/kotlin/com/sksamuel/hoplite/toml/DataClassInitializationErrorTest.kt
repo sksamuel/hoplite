@@ -1,6 +1,6 @@
 package com.sksamuel.hoplite.toml
 
-import com.sksamuel.hoplite.ConfigLoader
+import com.sksamuel.hoplite.ConfigLoaderBuilder
 import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
@@ -11,7 +11,7 @@ class DataClassInitializationErrorTest : FunSpec() {
   init {
     test("an error when instantiating a class should be propagated") {
       shouldThrowAny {
-        ConfigLoader.Builder()
+        ConfigLoaderBuilder.default()
           .addSource(TomlPropertySource("a = 123123213123"))
           .build()
           .loadConfigOrThrow<Foo>()

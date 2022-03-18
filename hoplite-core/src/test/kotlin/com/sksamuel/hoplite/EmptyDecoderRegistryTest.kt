@@ -3,7 +3,6 @@ package com.sksamuel.hoplite
 import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.fp.Validated
 import com.sksamuel.hoplite.parsers.defaultParserRegistry
-import com.sksamuel.hoplite.preprocessor.defaultPreprocessors
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 

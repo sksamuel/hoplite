@@ -2,13 +2,6 @@ package com.sksamuel.hoplite
 
 import kotlin.reflect.KParameter
 
-fun defaultParamMappers(): List<ParameterMapper> = listOf(
-  DefaultParamMapper,
-  SnakeCaseParamMapper,
-  KebabCaseParamMapper,
-  AliasAnnotationParamMapper,
-)
-
 /**
  * A [ParameterMapper] takes a parameter and returns the name to be used to look
  * a config value for that parameter. This allows implementations to tweak the

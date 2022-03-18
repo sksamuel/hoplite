@@ -1,6 +1,6 @@
 package com.sksamuel.hoplite.yaml
 
-import com.sksamuel.hoplite.ConfigLoader
+import com.sksamuel.hoplite.ConfigLoaderBuilder
 import io.kotest.core.spec.style.FreeSpec
 
 data class A(
@@ -17,7 +17,7 @@ class Issue236Test : FreeSpec({
     "}"
 
   "Bug Reproduce" {
-    ConfigLoader.Builder()
+    ConfigLoaderBuilder.default()
       .addSource(YamlPropertySource(config))
       .build()
       .loadConfigOrThrow<A>()

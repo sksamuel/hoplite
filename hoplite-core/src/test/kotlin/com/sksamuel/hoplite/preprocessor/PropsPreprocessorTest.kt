@@ -1,6 +1,6 @@
 package com.sksamuel.hoplite.preprocessor
 
-import com.sksamuel.hoplite.ConfigLoader
+import com.sksamuel.hoplite.ConfigLoaderBuilder
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.extensions.system.withEnvironment
 import io.kotest.matchers.shouldBe
@@ -13,7 +13,7 @@ class PropsPreprocessorTest : StringSpec() {
 
       val preprocessor = PropsPreprocessor("/sample.properties")
 
-      val config = ConfigLoader.Builder()
+      val config = ConfigLoaderBuilder.default()
         .addPreprocessor(preprocessor)
         .build()
         .loadConfigOrThrow<Config>("/processme.props")
@@ -28,7 +28,7 @@ class PropsPreprocessorTest : StringSpec() {
 
         val preprocessor = PropsPreprocessor("/sample.properties")
 
-        val config = ConfigLoader.Builder()
+        val config = ConfigLoaderBuilder.default()
           .addDefaultPreprocessors()
           .addPreprocessor(preprocessor)
           .build()
@@ -44,9 +44,9 @@ class PropsPreprocessorTest : StringSpec() {
       withEnvironment(mapOf("git.branch" to "main", "foo" to "nevermind, it does!")) {
         val preprocessor = PropsPreprocessor("/sample.properties")
 
-        val config = ConfigLoader.Builder()
+        val config = ConfigLoaderBuilder.empty()
           .addPreprocessor(preprocessor)
-          .addDefaultPreprocessors()
+          .addDefaults()
           .build()
           .loadConfigOrThrow<Config>("/processme.props")
 
