@@ -41,6 +41,8 @@ class ConfigLoader constructor(
       return Builder().build()
     }
 
+    fun builder(): Builder = Builder()
+
     /**
      * Returns a [ConfigLoader] with default options overriden by whatever commands are included
      * in the given [block].
