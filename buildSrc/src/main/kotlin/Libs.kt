@@ -11,7 +11,7 @@ object Libs {
   }
 
   object Arrow {
-    const val Core = "io.arrow-kt:arrow-core:1.0.2"
+    const val Core = "io.arrow-kt:arrow-core:1.0.1"
   }
 
   object Aws {
