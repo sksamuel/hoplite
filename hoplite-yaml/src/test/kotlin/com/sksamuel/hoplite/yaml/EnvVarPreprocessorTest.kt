@@ -1,6 +1,7 @@
 package com.sksamuel.hoplite.yaml
 
 import com.sksamuel.hoplite.ConfigLoader
+import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.system.withEnvironment
 import io.kotest.matchers.shouldBe
@@ -15,8 +16,6 @@ class EnvVarPreprocessorTest : FunSpec() {
                   val f: String,
                   val g: String,
                   val h: String,
-                  val i: String,
-                  val j: String
   )
 
   data class Test2(
@@ -28,16 +27,15 @@ class EnvVarPreprocessorTest : FunSpec() {
     test("replace env vars") {
       withEnvironment("wibble", "wobble") {
         ConfigLoader().loadConfigOrThrow<Test>("/test_env_replacement.yml") shouldBe
-          Test(a = "foo",
+          Test(
+            a = "foo",
             b = "wobble",
             c = "aawobble",
             d = "wobblebb",
             e = "aawobblebb",
-            f = "\${unknown}",
-            g = "\$wibble",
-            h = "\${unknown}\$wibble",
-            i = "default",
-            j = "wobble"
+            f = "\$wibble",
+            g = "default",
+            h = "wobble"
           )
       }
     }
@@ -47,6 +45,16 @@ class EnvVarPreprocessorTest : FunSpec() {
         ConfigLoader().loadConfigOrThrow<Test2>("/test_env_replacement2.yml") shouldBe
           Test2(a = "foo", b = mapOf("c" to "bar"))
       }
+    }
+
+    test("env replacement with unknown value should error") {
+      data class Test(val a: String)
+      shouldThrowAny {
+        ConfigLoader.builder()
+          .addSource(YamlPropertySource("a: \${wibble}"))
+          .build()
+          .loadConfigOrThrow<Test>()
+      }.message shouldBe "Unknown replacement value: wibble"
     }
   }
 }

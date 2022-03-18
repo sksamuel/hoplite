@@ -1,5 +1,15 @@
 # Changelog
 
+### 2.0.0 (In progress)
+
+#### Breaking Changes
+
+* ConfigLoader.Builder is removed and replaced with ConfigLoaderBuilder which has clearer semantics around defaults, and
+  how to override defaults.
+* The env vars property source is no longer registered by default. Env vars are typically used to override specific
+  config values, not as an entire source of values, so this clears up some misunderstandings.
+* Using ${env} without a specific fallback is now an error.
+
 ### 1.4.16
 
 * Added support for sealed class objects in Json by defining empty maps #245
