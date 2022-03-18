@@ -20,9 +20,8 @@ fun ConfigLoaderBuilder.addResourceSource(resource: String, optional: Boolean = 
  * @param file the [File] to be read
  * @param optional if true, the config loader will ignore this source if the resource does not exist
  */
-fun ConfigLoaderBuilder.addFileSource(file: File, optional: Boolean = false) = addPropertySource(
-  ConfigFilePropertySource(ConfigSource.FileSource(file), optional = optional)
-)
+fun ConfigLoaderBuilder.addFileSource(file: File, optional: Boolean = false) =
+  addPathSource(file.toPath(), optional)
 
 /**
  * Returns a [PropertySource] that will read the specified resource from the classpath.

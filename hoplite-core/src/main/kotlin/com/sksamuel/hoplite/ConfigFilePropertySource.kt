@@ -37,9 +37,8 @@ class ConfigFilePropertySource(
        ConfigFilePropertySource(ConfigSource.PathSource(path), true)
 
     fun optionalFile(
-       file: File,
-    ): ConfigFilePropertySource =
-       ConfigFilePropertySource(ConfigSource.FileSource(file), true)
+      file: File,
+    ): ConfigFilePropertySource = optionalPath(file.toPath())
 
     fun optionalResource(
       resource: String,
