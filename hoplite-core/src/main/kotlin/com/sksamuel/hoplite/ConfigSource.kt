@@ -54,7 +54,7 @@ abstract class ConfigSource {
      * otherwise if this [resourceOrFile] is located in the filesystem returns a [ConfigSource.PathSource].
      * If the resource is neither on the classpath nor the fileystem, returns a [ConfigFailure].
      */
-    fun invoke(
+    fun fromResourcesOrFiles(
       resourceOrFile: String,
       classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader(),
     ): ConfigResult<ConfigSource> {
@@ -66,6 +66,20 @@ abstract class ConfigSource {
           ?.let { ClasspathSource(resourceOrFile, classpathResourceLoader).valid() }
           ?: ConfigFailure.UnknownSource(resourceOrFile).invalid()
       }
+    }
+
+    /**
+     * If this [resourceOrFile] is located in the classpath returns a [ConfigSource.ClasspathSource],
+     * otherwise if this [resourceOrFile] is located in the filesystem returns a [ConfigSource.PathSource].
+     * If the resource is neither on the classpath nor the fileystem, returns a [ConfigFailure].
+     */
+    fun fromResourcesOrFiles(
+      resourceOrFiles: List<String>,
+      classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader(),
+    ): ConfigResult<List<ConfigSource>> {
+      return resourceOrFiles.map { fromResourcesOrFiles(it, classpathResourceLoader) }
+        .sequence()
+        .mapInvalid { ConfigFailure.MultipleFailures(it) }
     }
 
     fun fromClasspathResources(
