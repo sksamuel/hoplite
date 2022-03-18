@@ -3,7 +3,7 @@ package com.sksamuel.hoplite.watcher.consul
 import com.orbitz.consul.Consul
 import com.pszymczyk.consul.ConsulProcess
 import com.pszymczyk.consul.ConsulStarterBuilder
-import com.sksamuel.hoplite.ConfigLoader
+import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.PropertySource
 import com.sksamuel.hoplite.consul.ConsulConfigPreprocessor
 import com.sksamuel.hoplite.watch.ReloadableConfig
@@ -34,7 +34,7 @@ class ConsulWatcherTest: FunSpec({
       .keyValueClient()
     kvClient.putValue("foo", "bar")
 
-    val configLoader = ConfigLoader.Builder()
+    val configLoader = ConfigLoaderBuilder.default()
       .addSource(PropertySource.resource("/consulConfig.yml"))
       .addPreprocessor(ConsulConfigPreprocessor(embeddedConsulURL))
       .build()
@@ -44,13 +44,13 @@ class ConsulWatcherTest: FunSpec({
 
     configLoader.loadConfigOrThrow<TestConfig>()
     var latest = reloadableConfig.getLatest()
-    latest?.foo shouldBe "bar"
+    latest.foo shouldBe "bar"
 
     kvClient.putValue("foo", "baz")
 
     eventually(2000) {
       latest = reloadableConfig.getLatest()
-      latest?.foo shouldBe "baz"
+      latest.foo shouldBe "baz"
     }
   }
 })

@@ -4,6 +4,7 @@ import com.sksamuel.hoplite.ClasspathResourceLoader.Companion.toClasspathResourc
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigFilePropertySource
 import com.sksamuel.hoplite.ConfigLoader
+import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.fp.Validated
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -21,7 +22,7 @@ class ResourceTest : FunSpec({
     data class Foo(val a: String)
 
     run {
-      ConfigLoader.Builder()
+      ConfigLoaderBuilder.default()
         .addPropertySource(ConfigFilePropertySource.optionalResource("/missing.yml"))
         .build()
         .loadConfig<Foo>("/basic.yml").getUnsafe().a

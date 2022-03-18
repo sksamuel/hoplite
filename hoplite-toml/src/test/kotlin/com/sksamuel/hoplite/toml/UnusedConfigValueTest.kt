@@ -1,6 +1,7 @@
 package com.sksamuel.hoplite.toml
 
 import com.sksamuel.hoplite.ConfigLoader
+import com.sksamuel.hoplite.ConfigLoaderBuilder
 import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.string.shouldContain
@@ -19,7 +20,7 @@ class UnusedConfigValueTest : FunSpec() {
     }
     test("unused values should throw in strict mode") {
       val error = shouldThrowAny {
-        ConfigLoader.Builder().strict().build().loadConfigOrThrow<Unused>("/unused.toml")
+        ConfigLoaderBuilder.default().strict().build().loadConfigOrThrow<Unused>("/unused.toml")
       }
       error.message.shouldContain("'owner': Config values were not used: dob")
       error.message.shouldContain("'database': Config values were not used: connection_max, enabled")

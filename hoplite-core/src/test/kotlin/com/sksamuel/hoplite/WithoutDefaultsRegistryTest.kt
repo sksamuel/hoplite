@@ -19,7 +19,6 @@ class WithoutDefaultsRegistryTest : FunSpec() {
 
     test("empty sources registry throws error") {
       val loader = ConfigLoader {
-        withDefaultSources(false)
         addMapSource(mapOf("custom_value" to "\${PATH}"))
       }
       val e = loader.loadConfig<Config>()
@@ -29,7 +28,6 @@ class WithoutDefaultsRegistryTest : FunSpec() {
 
     test("empty param mappers registry throws error") {
       val loader = ConfigLoader {
-        withDefaultParamMappers(false)
         addMapSource(mapOf("custom_value" to "\${PATH}"))
       }
 
@@ -40,7 +38,6 @@ class WithoutDefaultsRegistryTest : FunSpec() {
 
     test("empty preprocessors registry throws error") {
       val loader = ConfigLoader {
-        withDefaultPreprocessors(false)
         addMapSource(mapOf("custom_value" to "\${PATH}", "PATH" to "\${PATH}"))
       }
       val e = loader.loadConfig<Config>()

@@ -3,18 +3,13 @@
 package com.sksamuel.hoplite
 
 import com.sksamuel.hoplite.ClasspathResourceLoader.Companion.toClasspathResourceLoader
-import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.decoder.DecoderRegistry
-import com.sksamuel.hoplite.decoder.defaultDecoderRegistry
 import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.getOrElse
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.sequence
-import com.sksamuel.hoplite.parsers.Parser
 import com.sksamuel.hoplite.parsers.ParserRegistry
-import com.sksamuel.hoplite.parsers.defaultParserRegistry
 import com.sksamuel.hoplite.preprocessor.Preprocessor
-import com.sksamuel.hoplite.preprocessor.defaultPreprocessors
 import java.io.File
 import java.nio.file.Path
 import kotlin.reflect.KClass
@@ -35,17 +30,17 @@ class ConfigLoader constructor(
   companion object {
 
     /**
-     * Returns a [ConfigLoader] with default options.
+     * Returns a [ConfigLoader] with default options applied.
      */
-    operator fun invoke(): ConfigLoader {
-      return Builder().build()
-    }
-
-    fun builder(): Builder = Builder()
+    operator fun invoke(): ConfigLoader = ConfigLoaderBuilder.default().build()
 
     /**
-     * Returns a [ConfigLoader] with default options overriden by whatever commands are included
-     * in the given [block].
+     * Returns a [ConfigLoaderBuilder] with default options applied, which can be further customized.
+     */
+    fun builder(): ConfigLoaderBuilder = ConfigLoaderBuilder.default()
+
+    /**
+     * Returns a [ConfigLoader] with default options with the given [block] applied.
      *
      * Eg,
      *
@@ -55,179 +50,8 @@ class ConfigLoader constructor(
      * }
      *
      */
-    inline operator fun invoke(block: Builder.() -> Unit): ConfigLoader {
-      return Builder().apply(block).build()
-    }
-  }
-
-  class Builder {
-
-    // this is the default class loader that ServiceLoader::load(Class<T>)
-    // gets before delegating to ServiceLoader::load(Class<T>, ClassLoader)
-    private var classLoader: ClassLoader = Thread.currentThread().contextClassLoader
-
-    private val decoderStaging = mutableListOf<Decoder<*>>()
-    private val parserStaging = mutableMapOf<String, Parser>()
-    private val propertySourceStaging = mutableListOf<PropertySource>()
-    private val preprocessorStaging = mutableListOf<Preprocessor>()
-    private val paramMapperStaging = mutableListOf<ParameterMapper>()
-    private val failureCallbacks = mutableListOf<(Throwable) -> Unit>()
-    private var mode: DecodeMode = DecodeMode.Lenient
-    private var defaultSources = true
-    private var defaultPreprocessors = true
-    private var defaultParamMappers = true
-
-    /**
-     * Adds before the specified ones
-     */
-    fun withDefaultSources(defaultSources: Boolean): Builder = apply {
-      this.defaultSources = defaultSources
-    }
-
-    /**
-     * Adds before the specified ones
-     */
-    fun withDefaultPreprocessors(defaultPreprocessors: Boolean): Builder = apply {
-      this.defaultPreprocessors = defaultPreprocessors
-    }
-
-    /**
-     * Adds before the specified ones
-     */
-    fun withDefaultParamMappers(defaultParamMappers: Boolean): Builder = apply {
-      this.defaultParamMappers = defaultParamMappers
-    }
-
-    fun withClassLoader(classLoader: ClassLoader): Builder = apply {
-      if (this.classLoader !== classLoader) {
-        this.classLoader = classLoader
-      }
-    }
-
-    fun addDecoder(decoder: Decoder<*>): Builder = apply {
-      this.decoderStaging.add(decoder)
-    }
-
-    fun addDecoders(decoders: Iterable<Decoder<*>>): Builder = apply {
-      this.decoderStaging.addAll(decoders)
-    }
-
-    fun addFileExtensionMapping(ext: String, parser: Parser): Builder = apply {
-      this.parserStaging[ext] = parser
-    }
-
-    fun addFileExtensionMappins(map: Map<String, Parser>): Builder = apply {
-      map.forEach {
-        val (ext, parser) = it
-        this.parserStaging[ext] = parser
-      }
-    }
-
-    fun strict(): Builder = apply {
-      this.mode = DecodeMode.Strict
-    }
-
-    fun addSource(source: PropertySource) = addPropertySource(source)
-
-    fun addPropertySource(propertySource: PropertySource): Builder = apply {
-      this.propertySourceStaging.add(propertySource)
-    }
-
-    fun addSources(sources: Iterable<PropertySource>) = addPropertySources(sources)
-
-    fun addDefaultSources(): Builder {
-      withDefaultSources(false)
-
-      return addPropertySources(defaultPropertySources())
-    }
-
-    fun addPropertySources(propertySources: Iterable<PropertySource>): Builder = apply {
-      this.propertySourceStaging.addAll(propertySources)
-    }
-
-    fun addDefaultPropertySources(): Builder {
-      withDefaultSources(false)
-
-      return addPropertySources(defaultPropertySources())
-    }
-
-    fun addPreprocessor(preprocessor: Preprocessor): Builder = apply {
-      this.preprocessorStaging.add(preprocessor)
-    }
-
-    fun addPreprocessors(preprocessors: Iterable<Preprocessor>): Builder = apply {
-      this.preprocessorStaging.addAll(preprocessors)
-    }
-
-    fun addDefaultPreprocessors(): Builder {
-      withDefaultPreprocessors(false)
-
-      return addPreprocessors(defaultPreprocessors())
-    }
-
-    fun addParameterMapper(paramMapper: ParameterMapper): Builder = apply {
-      this.paramMapperStaging.add(paramMapper)
-    }
-
-    fun addParameterMappers(paramMappers: Iterable<ParameterMapper>): Builder = apply {
-      this.paramMapperStaging.addAll(paramMappers)
-    }
-
-    fun addDefaultParameterMappers(): Builder {
-      withDefaultParamMappers(false)
-
-      return addParameterMappers(defaultParamMappers())
-    }
-
-    /**
-     * Registers a callback that will be invoked with any exception generated when
-     * the [loadConfigOrThrow] operation is used. The callback will be invoked immediately
-     * before the exception is thrown.
-     *
-     * Note: [loadConfig] methods will not invoke this callback, instead, you can use the
-     * functions available on the returned error.
-     */
-    fun addOnFailureCallback(f: (Throwable) -> Unit): Builder {
-      this.failureCallbacks.add(f)
-      return this
-    }
-
-    fun build(): ConfigLoader {
-      val decoderRegistry = this.decoderStaging.fold(defaultDecoderRegistry(this.classLoader)) { registry, decoder ->
-        registry.register(decoder)
-      }
-
-      // build the DefaultParserRegistry
-      val parserRegistry =
-        this.parserStaging.asSequence().fold(defaultParserRegistry(this.classLoader)) { registry, (ext, parser) ->
-          registry.register(ext, parser)
-        }
-
-      // other defaults
-      val propertySources = when {
-        defaultSources -> defaultPropertySources() + this.propertySourceStaging
-        else -> this.propertySourceStaging
-      }
-
-      val preprocessors = when {
-        defaultPreprocessors -> defaultPreprocessors() + this.preprocessorStaging
-        else -> this.preprocessorStaging
-      }
-
-      val paramMappers = when {
-        defaultParamMappers -> defaultParamMappers() + this.paramMapperStaging
-        else -> this.paramMapperStaging
-      }
-
-      return ConfigLoader(
-        decoderRegistry = decoderRegistry,
-        propertySources = propertySources.toList(),
-        parserRegistry = parserRegistry,
-        preprocessors = preprocessors.toList(),
-        paramMappers = paramMappers.toList(),
-        onFailure = failureCallbacks.toList(),
-        mode = mode,
-      )
+    inline operator fun invoke(block: ConfigLoaderBuilder.() -> Unit): ConfigLoader {
+      return ConfigLoaderBuilder.default().apply(block).build()
     }
   }
 

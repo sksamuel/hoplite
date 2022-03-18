@@ -1,6 +1,6 @@
 package com.sksamuel.hoplite.yaml
 
-import com.sksamuel.hoplite.ConfigLoader
+import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.InputStreamPropertySource
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -12,7 +12,7 @@ class InputStreamPropertySourceTest : StringSpec({
     data class Test(val a: Set<Long>, val b: Set<String>)
 
     val stream = javaClass.getResourceAsStream("/sets.yml")
-    val config = ConfigLoader.Builder()
+    val config = ConfigLoaderBuilder.default()
       .addPropertySource(InputStreamPropertySource(stream, "yml"))
       .build()
       .loadConfigOrThrow<Test>()

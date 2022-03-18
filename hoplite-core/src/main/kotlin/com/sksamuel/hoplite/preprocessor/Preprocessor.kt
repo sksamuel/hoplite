@@ -40,13 +40,6 @@ abstract class TraversingPrimitivePreprocessor : Preprocessor {
   }
 }
 
-fun defaultPreprocessors() = listOf(
-  EnvVarPreprocessor,
-  SystemPropertyPreprocessor,
-  RandomPreprocessor,
-  LookupPreprocessor
-)
-
 /**
  * Process property strings that start with a given prefix. When specifying the prefix, include any punctuation
  * separating it from the actual value. The entire prefix, including any punctuation, will be stripped off before

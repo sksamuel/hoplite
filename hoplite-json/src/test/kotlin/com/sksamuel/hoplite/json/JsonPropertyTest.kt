@@ -1,7 +1,7 @@
 package com.sksamuel.hoplite.json
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.sksamuel.hoplite.ConfigLoader
+import com.sksamuel.hoplite.ConfigLoaderBuilder
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.system.withSystemProperties
 import io.kotest.matchers.shouldBe
@@ -12,7 +12,7 @@ class JsonPropertyTest : FunSpec({
 
   test("json property on config fields") {
     withSystemProperties(mapOf("config.override.foo" to "x", "config.override.c" to "123")) {
-      val config = ConfigLoader.Builder()
+      val config = ConfigLoaderBuilder.default()
         .addParameterMapper(JsonPropertyParamMapper)
         .build()
         .loadConfigOrThrow<Config>()

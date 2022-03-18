@@ -5,12 +5,13 @@ import io.kotest.matchers.maps.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import java.util.Properties
 class SystemPropertiesPropertySourceTest : FunSpec() {
+
   init {
+
     test("reads config from string") {
       data class TestConfig(val a: String, val b: Int)
 
       val config = ConfigLoader {
-        withDefaultSources(false)
         addPropertySource(
           SystemPropertiesPropertySource(
             systemPropertiesMap = {

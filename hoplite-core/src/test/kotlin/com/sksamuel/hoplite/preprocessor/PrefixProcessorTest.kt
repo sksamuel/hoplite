@@ -1,6 +1,6 @@
 package com.sksamuel.hoplite.preprocessor
 
-import com.sksamuel.hoplite.ConfigLoader
+import com.sksamuel.hoplite.ConfigLoaderBuilder
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 
@@ -14,7 +14,7 @@ class PrefixProcessorTest : StringSpec() {
 
       data class Config(val a: String, val b: String)
 
-      val config = ConfigLoader.Builder()
+      val config = ConfigLoaderBuilder.default()
         .addPreprocessor(Upcaser)
         .build()
         .loadConfigOrThrow<Config>("/prefixProcessor.props")

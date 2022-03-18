@@ -10,7 +10,7 @@ import java.nio.file.Path
  * @param resource the resource to be read
  * @param optional if true, the config loader will ignore this source if the resource does not exist
  */
-fun ConfigLoader.Builder.addResourceSource(resource: String, optional: Boolean = false) = addSource(
+fun ConfigLoaderBuilder.addResourceSource(resource: String, optional: Boolean = false) = addPropertySource(
   ConfigFilePropertySource(ConfigSource.ClasspathSource(resource), optional = optional)
 )
 
@@ -20,7 +20,7 @@ fun ConfigLoader.Builder.addResourceSource(resource: String, optional: Boolean =
  * @param file the [File] to be read
  * @param optional if true, the config loader will ignore this source if the resource does not exist
  */
-fun ConfigLoader.Builder.addFileSource(file: File, optional: Boolean = false) = addSource(
+fun ConfigLoaderBuilder.addFileSource(file: File, optional: Boolean = false) = addPropertySource(
   ConfigFilePropertySource(ConfigSource.FileSource(file), optional = optional)
 )
 
@@ -30,7 +30,7 @@ fun ConfigLoader.Builder.addFileSource(file: File, optional: Boolean = false) = 
  * @param path the [Path] of the resource to be read
  * @param optional if true, the config loader will ignore this source if the resource does not exist
  */
-fun ConfigLoader.Builder.addPathSource(path: Path, optional: Boolean = false) = addSource(
+fun ConfigLoaderBuilder.addPathSource(path: Path, optional: Boolean = false) = addPropertySource(
   ConfigFilePropertySource(ConfigSource.PathSource(path), optional = optional)
 )
 
@@ -40,7 +40,7 @@ fun ConfigLoader.Builder.addPathSource(path: Path, optional: Boolean = false) = 
  * @param input the [InputStream] to read from
  * @param ext the file extension of the input format
  */
-fun ConfigLoader.Builder.addStreamSource(input: InputStream, ext: String) = addSource(
+fun ConfigLoaderBuilder.addStreamSource(input: InputStream, ext: String) = addPropertySource(
   InputStreamPropertySource(input, ext)
 )
 
@@ -49,7 +49,7 @@ fun ConfigLoader.Builder.addStreamSource(input: InputStream, ext: String) = addS
  *
  * @param map the [Map] to read from
  */
-fun ConfigLoader.Builder.addMapSource(map: Map<String, Any>) = addSource(
+fun ConfigLoaderBuilder.addMapSource(map: Map<String, Any>) = addPropertySource(
   MapPropertySource(map)
 )
 
@@ -60,11 +60,11 @@ fun ConfigLoader.Builder.addMapSource(map: Map<String, Any>) = addSource(
  * @param prefix argument prefix
  * @param delimiter key value delimiter
  */
-fun ConfigLoader.Builder.addCommandLineSource(
+fun ConfigLoaderBuilder.addCommandLineSource(
   arguments: Array<String>,
   prefix: String = "--",
   delimiter: String = "=",
-) = addSource(
+) = addPropertySource(
   CommandLinePropertySource(arguments, prefix, delimiter)
 )
 
@@ -74,10 +74,10 @@ fun ConfigLoader.Builder.addCommandLineSource(
  * @param useUnderscoresAsSeparator if true, use double underscore instead of period to separate keys in nested config
  * @param allowUppercaseNames if true, allow uppercase-only names
  */
-fun ConfigLoader.Builder.addEnvironmentSource(
+fun ConfigLoaderBuilder.addEnvironmentSource(
   useUnderscoresAsSeparator: Boolean = true,
   allowUppercaseNames: Boolean = true,
-) = addSource(
+) = addPropertySource(
   EnvironmentVariablesPropertySource(useUnderscoresAsSeparator, allowUppercaseNames)
 )
 
@@ -87,6 +87,6 @@ fun ConfigLoader.Builder.addEnvironmentSource(
  * @param str the [String] to read from
  * @param ext the file extension of the input format
  */
-fun ConfigLoader.Builder.string(
+fun ConfigLoaderBuilder.string(
   str: String, ext: String
 ) = addStreamSource(str.byteInputStream(), ext)

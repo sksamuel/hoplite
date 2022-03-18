@@ -1,7 +1,7 @@
 package com.sksamuel.hoplite.watch
 
 import com.sksamuel.hoplite.ConfigFailure
-import com.sksamuel.hoplite.ConfigLoader
+import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PropertySource
@@ -36,7 +36,7 @@ class WatcherTest : FunSpec({
 
   test("should throw on startup if there is an initial error") {
 
-    val configLoader = ConfigLoader.Builder()
+    val configLoader = ConfigLoaderBuilder.default()
       .addSource(PropertySource.resource("does-not-exist.yml"))
 
     val watcher = TestWatcher()
@@ -62,7 +62,7 @@ class WatcherTest : FunSpec({
       }
     }
 
-    val configLoader = ConfigLoader.Builder()
+    val configLoader = ConfigLoaderBuilder.default()
       .addSource(onetimesource)
 
     val watcher = TestWatcher()
@@ -79,7 +79,7 @@ class WatcherTest : FunSpec({
 
   test("will reload the config when the watchable triggers an update") {
     val map = mutableMapOf("foo" to "bar")
-    val configLoader = ConfigLoader.Builder()
+    val configLoader = ConfigLoaderBuilder.default()
       .addSource(PropertySource.map(map))
 
     val watcher = TestWatcher()
@@ -101,7 +101,7 @@ class WatcherTest : FunSpec({
     val tmpFile = tempfile("file", ".json")
     tmpFile.writeText("""{"foo": "bar"}""")
 
-    val configLoader = ConfigLoader.Builder()
+    val configLoader = ConfigLoaderBuilder.default()
       .addSource(PropertySource.file(tmpFile))
       .build()
 
