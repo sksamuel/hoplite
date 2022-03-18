@@ -15,7 +15,8 @@ class AwsSecretsManagerPreprocessor(
 
   private val client by lazy { createClient() }
   private val regex1 = "\\$\\{awssecret:(.+?)}".toRegex()
-  private val regex2 = "awssm://(.+?)".toRegex()
+  private val regex2 = "\\$\\{awssm:(.+?)}".toRegex()
+  private val regex3 = "awssm://(.+?)".toRegex()
 
   private fun fetchValue(key: String): Result<String> = runCatching {
     val req = GetSecretValueRequest().withSecretId(key)
@@ -24,7 +25,10 @@ class AwsSecretsManagerPreprocessor(
 
   override fun handle(node: PrimitiveNode): Node = when (node) {
     is StringNode -> {
-      when (val match = regex1.matchEntire(node.value) ?: regex2.matchEntire(node.value)) {
+      when (val match = regex1.matchEntire(node.value)
+        ?: regex2.matchEntire(node.value)
+        ?: regex3.matchEntire(node.value)
+      ) {
         null -> node
         else -> {
           val key = match.groupValues[1]
