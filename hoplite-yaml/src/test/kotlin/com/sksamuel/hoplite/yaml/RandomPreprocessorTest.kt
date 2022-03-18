@@ -3,13 +3,12 @@ package com.sksamuel.hoplite.yaml
 import com.sksamuel.hoplite.ConfigLoader
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.ints.shouldBePositive
-import io.kotest.matchers.string.shouldHaveLength
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldHaveLength
 
 class RandomPreprocessorTest : FunSpec() {
 
-  data class Test(val a: String,
-                  val b: String,
+  data class Test(
                   val c: Int,
                   val d: Boolean,
                   val e: String,
@@ -24,8 +23,6 @@ class RandomPreprocessorTest : FunSpec() {
     test("replace env vars") {
       for (k in 1..100) {
         val test = ConfigLoader().loadConfigOrThrow<Test>("/test_random_preprocessor.yml")
-        test.a.length shouldBe 6
-        test.b.length shouldBe 18
         test.c.shouldBePositive()
         test.e.length shouldBe 1
         test.f.length shouldBe 3

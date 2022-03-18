@@ -5,6 +5,7 @@ import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.system.withEnvironment
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 
 class EnvVarPreprocessorTest : FunSpec() {
 
@@ -54,7 +55,7 @@ class EnvVarPreprocessorTest : FunSpec() {
           .addSource(YamlPropertySource("a: \${wibble}"))
           .build()
           .loadConfigOrThrow<Test>()
-      }.message shouldBe "Unknown replacement value: wibble"
+      }.message.shouldContain("Resolved substitution \${wibble}")
     }
   }
 }

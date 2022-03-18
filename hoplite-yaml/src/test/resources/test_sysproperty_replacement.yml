@@ -3,6 +3,4 @@ b: ${wibble}
 c: aa${wibble}
 d: ${wibble}bb
 e: aa${wibble}bb
-f: ${unknown}
-g: $wibble
-h: ${unknown}$wibble
+f: $wibble
