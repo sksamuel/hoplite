@@ -44,7 +44,7 @@ class PropsPreprocessorTest : StringSpec() {
       withEnvironment(mapOf("git.branch" to "main", "foo" to "nevermind, it does!")) {
         val preprocessor = PropsPreprocessor("/sample.properties")
 
-        val config = ConfigLoaderBuilder.default()
+        val config = ConfigLoaderBuilder.empty()
           .addPreprocessor(preprocessor)
           .addDefaultPreprocessors()
           .build()

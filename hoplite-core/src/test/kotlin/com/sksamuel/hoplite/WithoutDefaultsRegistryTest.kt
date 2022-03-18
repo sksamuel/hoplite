@@ -37,9 +37,9 @@ class WithoutDefaultsRegistryTest : FunSpec() {
     }
 
     test("empty preprocessors registry throws error") {
-      val loader = ConfigLoader {
+      val loader = ConfigLoaderBuilder.empty {
         addMapSource(mapOf("custom_value" to "\${PATH}", "PATH" to "\${PATH}"))
-      }
+      }.build()
       val e = loader.loadConfig<Config>()
       e as Validated.Valid<Config>
       e.value.customValue shouldBe "\${PATH}"

@@ -48,6 +48,12 @@ class ConfigLoaderBuilder private constructor() {
     }
 
     fun empty(): ConfigLoaderBuilder = ConfigLoaderBuilder()
+
+    fun empty(block: ConfigLoaderBuilder.() -> Unit): ConfigLoaderBuilder {
+      val builder = ConfigLoaderBuilder()
+      builder.block()
+      return builder
+    }
   }
 
   fun addSource(propertySource: PropertySource) = addPropertySource(propertySource)
