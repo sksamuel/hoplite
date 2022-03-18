@@ -3,6 +3,8 @@ package com.sksamuel.hoplite
 import java.io.File
 import java.io.InputStream
 import java.nio.file.Path
+import java.nio.file.Paths
+import kotlin.io.path.exists
 
 /**
  * Returns a [PropertySource] that will read the specified resource from the classpath.
@@ -32,6 +34,25 @@ fun ConfigLoaderBuilder.addFileSource(file: File, optional: Boolean = false) =
 fun ConfigLoaderBuilder.addPathSource(path: Path, optional: Boolean = false) = addPropertySource(
   ConfigFilePropertySource(ConfigSource.PathSource(path), optional = optional)
 )
+
+/**
+ * Adds a [PropertySource] to this [ConfigLoaderBuilder] that will read the specified [resourceOrFile]
+ * from either the classpath or the filesystem.
+ *
+ * @param resourceOrFile the classpath resource or filesystem file.
+ * @param optional if true, the config loader will ignore this source if the resourceOrFile does not exist
+ */
+fun ConfigLoaderBuilder.addResourceOrFileSource(
+  resourceOrFile: String,
+  optional: Boolean = false
+): ConfigLoaderBuilder {
+  val path = Paths.get(resourceOrFile)
+  return if (path.exists()) {
+    addPropertySource(ConfigFilePropertySource(ConfigSource.PathSource(path)))
+  } else {
+    addPropertySource(ConfigFilePropertySource(ConfigSource.ClasspathSource(resourceOrFile), optional))
+  }
+}
 
 /**
  * Returns a [PropertySource] that will read the specified input stream.
