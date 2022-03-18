@@ -7,7 +7,7 @@ import java.nio.file.Paths
 import kotlin.io.path.exists
 
 /**
- * Returns a [PropertySource] that will read the specified resource from the classpath.
+ * Adds a [PropertySource] that will read the specified resource from the classpath.
  *
  * @param resource the resource to be read
  * @param optional if true, the config loader will ignore this source if the resource does not exist
@@ -17,7 +17,7 @@ fun ConfigLoaderBuilder.addResourceSource(resource: String, optional: Boolean = 
 )
 
 /**
- * Returns a [PropertySource] that will read the specified file from the filesystem.
+ * Adds a [PropertySource] that will read the specified file from the filesystem.
  *
  * @param file the [File] to be read
  * @param optional if true, the config loader will ignore this source if the resource does not exist
@@ -26,7 +26,7 @@ fun ConfigLoaderBuilder.addFileSource(file: File, optional: Boolean = false) =
   addPathSource(file.toPath(), optional)
 
 /**
- * Returns a [PropertySource] that will read the specified resource from the classpath.
+ * Adds a [PropertySource] that will read the specified resource from the classpath.
  *
  * @param path the [Path] of the resource to be read
  * @param optional if true, the config loader will ignore this source if the resource does not exist
@@ -55,7 +55,7 @@ fun ConfigLoaderBuilder.addResourceOrFileSource(
 }
 
 /**
- * Returns a [PropertySource] that will read the specified input stream.
+ * Adds a [PropertySource] that will read the specified input stream.
  *
  * @param input the [InputStream] to read from
  * @param ext the file extension of the input format
@@ -65,7 +65,7 @@ fun ConfigLoaderBuilder.addStreamSource(input: InputStream, ext: String) = addPr
 )
 
 /**
- * Returns a [PropertySource] that will read the specified map values.
+ * Adds a [PropertySource] that will read the specified map values.
  *
  * @param map the [Map] to read from
  */
@@ -74,7 +74,7 @@ fun ConfigLoaderBuilder.addMapSource(map: Map<String, Any>) = addPropertySource(
 )
 
 /**
- * Returns a [PropertySource] that will read the specified command line arguments.
+ * Adds a [PropertySource] that will read the specified command line arguments.
  *
  * @param arguments command line arguments as passed to main method
  * @param prefix argument prefix
@@ -89,7 +89,7 @@ fun ConfigLoaderBuilder.addCommandLineSource(
 )
 
 /**
- * Returns a [PropertySource] that will read the environment settings.
+ * Adds a [PropertySource] that will read the environment settings.
  *
  * @param useUnderscoresAsSeparator if true, use double underscore instead of period to separate keys in nested config
  * @param allowUppercaseNames if true, allow uppercase-only names
@@ -102,7 +102,7 @@ fun ConfigLoaderBuilder.addEnvironmentSource(
 )
 
 /**
- * Returns a [PropertySource] that will read from the specified string.
+ * Adds a [PropertySource] that will read from the specified string.
  *
  * @param str the [String] to read from
  * @param ext the file extension of the input format
