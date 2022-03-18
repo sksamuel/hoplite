@@ -1,3 +1,5 @@
+@file:Suppress("RegExpRedundantEscape")
+
 package com.sksamuel.hoplite.preprocessor
 
 import com.sksamuel.hoplite.Node
@@ -5,10 +7,12 @@ import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
 
 /**
- * Replaces strings of the form ${var} with the value of the env variable 'var'.
+ * Replaces strings of the form ${var} with the value of the env variable or system property 'var'.
  * Defaults can also be applied in case the env var is not available: ${var:-default}.
+ *
+ * If a replacement var is not available, then this preprocessor will throw an error.
  */
-object EnvVarPreprocessor : TraversingPrimitivePreprocessor() {
+object EnvOrSystemPropertyPreprocessor : TraversingPrimitivePreprocessor() {
 
   // Redundant escaping required for Android support.
   private val regex = "\\$\\{(.*?)\\}".toRegex()
@@ -16,12 +20,16 @@ object EnvVarPreprocessor : TraversingPrimitivePreprocessor() {
 
   override fun handle(node: PrimitiveNode): Node = when (node) {
     is StringNode -> {
-      val value = regex.replace(node.value) {
-        val key = it.groupValues[1]
+      val value = regex.replace(node.value) { match ->
+        val key = match.groupValues[1]
         when (val matchWithDefault = valueWithDefaultRegex.matchEntire(key)) {
-          null -> System.getenv(key) ?: it.value
+          null -> System.getProperty(key) ?: System.getenv(key) ?: match.value
           // lookup with default value fallback
-          else -> matchWithDefault.let { m -> System.getenv(m.groups[1]!!.value) ?: m.groups[2]!!.value }
+          else -> matchWithDefault.let { m ->
+            val key2 = m.groupValues[1]
+            val default = m.groupValues[2]
+            System.getProperty(key2) ?: System.getenv(key2) ?: default
+          }
         }
       }
       node.copy(value = value)

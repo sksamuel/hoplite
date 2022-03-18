@@ -4,11 +4,10 @@ import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.decoder.DefaultDecoderRegistry
 import com.sksamuel.hoplite.parsers.DefaultParserRegistry
 import com.sksamuel.hoplite.parsers.Parser
-import com.sksamuel.hoplite.preprocessor.EnvVarPreprocessor
+import com.sksamuel.hoplite.preprocessor.EnvOrSystemPropertyPreprocessor
 import com.sksamuel.hoplite.preprocessor.LookupPreprocessor
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.preprocessor.RandomPreprocessor
-import com.sksamuel.hoplite.preprocessor.SystemPropertyPreprocessor
 import java.util.ServiceLoader
 
 class ConfigLoaderBuilder private constructor() {
@@ -94,7 +93,6 @@ class ConfigLoaderBuilder private constructor() {
 
   fun addDefaultPreprocessors() = addPreprocessors(defaultPreprocessors())
 
-
   fun addParser(ext: String, parser: Parser) = addFileExtensionMapping(ext, parser)
   fun addParsers(map: Map<String, Parser>) = addFileExtensionMappings(map)
 
@@ -158,8 +156,7 @@ fun defaultPropertySources(): List<PropertySource> = listOf(
 )
 
 fun defaultPreprocessors() = listOf(
-  EnvVarPreprocessor,
-  SystemPropertyPreprocessor,
+  EnvOrSystemPropertyPreprocessor,
   RandomPreprocessor,
   LookupPreprocessor
 )

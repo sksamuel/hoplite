@@ -74,6 +74,12 @@ sealed class ConfigFailure {
     }
   }
 
+  data class UnresolvedSubstitution(val value: String, val node: Node) : ConfigFailure() {
+    override fun description(): String {
+      return "Resolved substitution $value at ${node.pos.loc()}"
+    }
+  }
+
   data class SealedClassWithoutImpls(val type: KClass<*>) : ConfigFailure() {
     override fun description(): String = "Sealed class $type does not define any subclasses"
   }

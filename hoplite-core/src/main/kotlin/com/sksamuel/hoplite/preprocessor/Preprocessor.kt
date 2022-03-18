@@ -1,6 +1,9 @@
+@file:Suppress("RegExpRedundantEscape")
+
 package com.sksamuel.hoplite.preprocessor
 
 import com.sksamuel.hoplite.ArrayNode
+import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PrimitiveNode
@@ -19,6 +22,31 @@ import com.sksamuel.hoplite.StringNode
  */
 interface Preprocessor {
   fun process(node: Node): Node
+}
+
+object UnresolvedSubstitutionChecker {
+
+  private val regex = "\\$\\{(.*?)\\}".toRegex()
+
+  fun process(node: Node): List<ConfigFailure> = when (node) {
+    is MapNode -> {
+      val a = when (node.value) {
+        is StringNode -> check(node.value)
+        else -> null
+      }
+      listOfNotNull(a) + node.map.flatMap { (_, v) -> process(v) }
+    }
+    is ArrayNode -> node.elements.flatMap { process(it) }
+    is StringNode -> listOfNotNull(check(node))
+    else -> emptyList()
+  }
+
+  private fun check(node: StringNode): ConfigFailure.UnresolvedSubstitution? {
+    return if (regex.containsMatchIn(node.value))
+      ConfigFailure.UnresolvedSubstitution(node.value, node)
+    else
+      null
+  }
 }
 
 /**

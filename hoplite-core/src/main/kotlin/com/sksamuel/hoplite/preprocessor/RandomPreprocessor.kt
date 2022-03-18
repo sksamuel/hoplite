@@ -1,29 +1,21 @@
+// Redundant escaping in this file required for Android support.
+@file:Suppress("RegExpRedundantEscape")
+
 package com.sksamuel.hoplite.preprocessor
 
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
-import java.util.*
+import java.util.UUID
 import kotlin.math.abs
 import kotlin.random.Random
 
 private typealias Rule = (String) -> String
 
-// Redundant escaping in this file required for Android support.
-
 object RandomPreprocessor : TraversingPrimitivePreprocessor() {
 
-  private const val a = 33 // '!'
-  private const val z = 126 // '~'
-
-  private val oldRule: Rule = {
-    val regex = "\\\$RANDOM_STRING\\((\\d+)\\)".toRegex()
-    regex.replace(it) { match ->
-      val length = match.groupValues[1].toInt()
-      val chars = CharArray(length) { Random.nextInt(a, z).toChar() }
-      String(chars)
-    }
-  }
+  private const val a = 'a'
+  private const val z = 'z'
 
   private val intRule: Rule = {
     val regex = "\\$\\{random.int\\}".toRegex()
@@ -66,7 +58,7 @@ object RandomPreprocessor : TraversingPrimitivePreprocessor() {
     val regex = "\\$\\{random.string\\(\\s*(\\d+)\\s*\\)\\}".toRegex()
     regex.replace(it) { match ->
       val length = match.groupValues[1].toInt()
-      val chars = CharArray(length) { Random.nextInt(a, z).toChar() }
+      val chars = CharArray(length) { Random.nextInt(a.code, z.code).toChar() }
       String(chars)
     }
   }
@@ -79,7 +71,6 @@ object RandomPreprocessor : TraversingPrimitivePreprocessor() {
   }
 
   private val rules = listOf(
-    oldRule,
     intRule,
     longRule,
     intWithMaxRule,

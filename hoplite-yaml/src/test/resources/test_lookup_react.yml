@@ -3,4 +3,3 @@ b: b${a}
 c: c{{a}}.hello
 d: d{{e:-def}}.boo
 e: E
-f: f{{unknown}}

@@ -7,7 +7,8 @@ import com.sksamuel.hoplite.PropertySourceContext
 import com.sksamuel.hoplite.fp.valid
 
 /**
- * A [PropertySource] that provides values via a given yaml string.
+ * A [PropertySource] that allows providing JSON directly.
+ *
  * For example:
  *
  *   JsonParser(

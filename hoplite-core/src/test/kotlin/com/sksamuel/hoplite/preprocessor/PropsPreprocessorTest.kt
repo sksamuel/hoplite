@@ -9,7 +9,7 @@ class PropsPreprocessorTest : StringSpec() {
   init {
     "should replace props from file" {
 
-      data class Config(val a: String, val b: String)
+      data class Config(val a: String)
 
       val preprocessor = PropsPreprocessor("/sample.properties")
 
@@ -18,11 +18,11 @@ class PropsPreprocessorTest : StringSpec() {
         .build()
         .loadConfigOrThrow<Config>("/processme.props")
 
-      config shouldBe Config(a = "I'm on branch master", b = "this replacement doesn't exist \${foo}")
+      config shouldBe Config(a = "I'm on branch master")
     }
 
     "should replace props from file, by defaults before specified" {
-      data class Config(val a: String, val b: String)
+      data class Config(val a: String)
 
       withEnvironment(mapOf("git.branch" to "main")) {
 
@@ -34,14 +34,14 @@ class PropsPreprocessorTest : StringSpec() {
           .build()
           .loadConfigOrThrow<Config>("/processme.props")
 
-        config shouldBe Config(a = "I'm on branch main", b = "this replacement doesn't exist \${foo}")
+        config shouldBe Config(a = "I'm on branch main")
       }
     }
 
     "should replace props from file, by specified before defaults" {
-      data class Config(val a: String, val b: String)
+      data class Config(val a: String)
 
-      withEnvironment(mapOf("git.branch" to "main", "foo" to "nevermind, it does!")) {
+      withEnvironment(mapOf("git.branch" to "main")) {
         val preprocessor = PropsPreprocessor("/sample.properties")
 
         val config = ConfigLoaderBuilder.empty()
@@ -50,8 +50,7 @@ class PropsPreprocessorTest : StringSpec() {
           .build()
           .loadConfigOrThrow<Config>("/processme.props")
 
-        config shouldBe Config(a = "I'm on branch master",
-          b = "this replacement doesn't exist nevermind, it does!")
+        config shouldBe Config(a = "I'm on branch master")
       }
     }
   }

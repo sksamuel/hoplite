@@ -1,2 +1,1 @@
 a=I'm on branch ${git.branch}
-b=this replacement doesn't exist ${foo}
