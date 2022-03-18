@@ -12,8 +12,6 @@ import com.sksamuel.hoplite.fp.sequence
 import com.sksamuel.hoplite.parsers.ParserRegistry
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.preprocessor.UnresolvedSubstitutionChecker
-import java.io.File
-import java.nio.file.Path
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
@@ -65,18 +63,25 @@ class ConfigLoader constructor(
    * resource is scanned if the first does not contain a given path, and so on.
    */
   inline fun <reified A : Any> loadConfigOrThrow(
-    vararg resources: String
-  ): A = loadConfigOrThrow(resources.toList())
+    vararg resourceOrFiles: String
+  ): A = loadConfigOrThrow(resourceOrFiles.toList())
+
+  /**
+   * Attempts to load config from the specified resources on the class path and returns
+   * an instance of <A> if the values can be appropriately converted.
+   *
+   * This function implements fallback, such that the first resource is scanned first, and the second
+   * resource is scanned if the first does not contain a given path, and so on.
+   */
+  inline fun <reified A : Any> loadConfigOrThrow(
+    resourceOrFile: String,
+    classpathResourceLoader: ClasspathResourceLoader = ConfigSource.Companion::class.java.toClasspathResourceLoader(),
+  ): A = loadConfigOrThrow(listOf(resourceOrFile), classpathResourceLoader)
 
   inline fun <reified A : Any> loadConfigOrThrow(
-    resource: String,
+    resourceOrFiles: List<String>,
     classpathResourceLoader: ClasspathResourceLoader = ConfigSource.Companion::class.java.toClasspathResourceLoader(),
-  ): A = loadConfigOrThrow(listOf(resource), classpathResourceLoader)
-
-  inline fun <reified A : Any> loadConfigOrThrow(
-    resources: List<String>,
-    classpathResourceLoader: ClasspathResourceLoader = ConfigSource.Companion::class.java.toClasspathResourceLoader(),
-  ): A = loadConfig<A>(resources, classpathResourceLoader).returnOrThrow()
+  ): A = loadConfig<A>(resourceOrFiles, classpathResourceLoader).returnOrThrow()
 
   /**
    * Attempts to load config from the registered property sources marshalled as an instance of A.
@@ -89,96 +94,55 @@ class ConfigLoader constructor(
   inline fun <reified A : Any> loadConfigOrThrow(): A = loadConfig(A::class, emptyList()).returnOrThrow()
 
   /**
-   * Attempts to load config from the specified resources on the class path and returns
-   * a [ConfigResult] with either the errors during load, or the successfully created instance A.
+   * Attempts to load config from the specified resources either on the class path or as files on the
+   * file system, and returns a [ConfigResult] with either the errors during load, or the successfully
+   * created instance A.
    *
    * This function implements fallback, such that the first resource is scanned first, and the second
    * resource is scanned if the first does not contain a given path, and so on.
    */
   inline fun <reified A : Any> loadConfig(vararg resources: String): ConfigResult<A> = loadConfig(resources.toList())
 
+  /**
+   * Attempts to load config from the specified resources either on the class path or as files on the
+   * file system, and returns a [ConfigResult] with either the errors during load, or the successfully
+   * created instance A.
+   *
+   * This function implements fallback, such that the first resource is scanned first, and the second
+   * resource is scanned if the first does not contain a given path, and so on.
+   */
   @JvmName("loadConfigFromResources")
   inline fun <reified A : Any> loadConfig(
-    resources: List<String>,
+    resourceOrFiles: List<String>,
     classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader(),
   ): ConfigResult<A> =
-    ConfigSource.fromClasspathResources(resources.toList(), classpathResourceLoader)
+    ConfigSource
+      .fromResourcesOrFiles(resourceOrFiles.toList(), classpathResourceLoader)
       .flatMap { loadConfig(A::class, it) }
 
+  /**
+   * Attempts to load config from the specified resources either on the class path or as files on the
+   * file system, and returns a [ConfigResult] with either the errors during load, or the successfully
+   * created instance A.
+   *
+   * This function implements fallback, such that the first resource is scanned first, and the second
+   * resource is scanned if the first does not contain a given path, and so on.
+   */
   fun loadNodeOrThrow(
-    resources: List<String>,
+    resourceOrFiles: List<String>,
     classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader(),
   ): Node =
-    ConfigSource.fromClasspathResources(resources.toList(), classpathResourceLoader)
+    ConfigSource
+      .fromResourcesOrFiles(resourceOrFiles.toList(), classpathResourceLoader)
       .flatMap { loadNode(it) }
       .returnOrThrow()
 
   fun loadNodeOrThrow(): Node = loadNode(emptyList()).returnOrThrow()
 
-  /**
-   * Attempts to load config from the specified resources on the class path and returns
-   * an instance of <A> if the values can be appropriately converted.
-   *
-   * This function implements fallback, such that the first resource is scanned first, and the second
-   * resource is scanned if the first does not contain a given path, and so on.
-   */
-  inline fun <reified A : Any> loadConfigOrThrow(vararg paths: Path): A = loadConfigOrThrow(paths.toList())
-
-  @JvmName("loadConfigOrThrowFromPaths")
-  inline fun <reified A : Any> loadConfigOrThrow(paths: List<Path>): A = loadConfig<A>(paths).returnOrThrow()
-
-  @JvmName("loadNodeOrThrowFromPaths")
-  fun loadNodeOrThrow(paths: List<Path>): Node =
-    ConfigSource.fromPaths(paths.toList()).flatMap { loadNode(it) }.returnOrThrow()
-
-  /**
-   * Attempts to load config from the specified Paths and returns
-   * a [ConfigResult] with either the errors during load, or the successfully created instance A.
-   *
-   * This function implements fallback, such that the first resource is scanned first, and the second
-   * resource is scanned if the first does not contain a given path, and so on.
-   */
-  inline fun <reified A : Any> loadConfig(vararg paths: Path): ConfigResult<A> = loadConfig(paths.toList())
-
   inline fun <reified A : Any> loadConfig(): ConfigResult<A> = loadConfig(A::class, emptyList())
-
-  @JvmName("loadConfigFromPaths")
-  inline fun <reified A : Any> loadConfig(paths: List<Path>): ConfigResult<A> {
-    return ConfigSource.fromPaths(paths.toList()).flatMap { loadConfig(A::class, it) }
-  }
-
-  /**
-   * Attempts to load config from the specified Files and returns
-   * an instance of <A> if the values can be appropriately converted.
-   *
-   * This function implements fallback, such that the first resource is scanned first, and the second
-   * resource is scanned if the first does not contain a given path, and so on.
-   */
-  inline fun <reified A : Any> loadConfigOrThrow(vararg files: File): A = loadConfigOrThrow(files.toList())
-
-  @JvmName("loadConfigOrThrowFromFiles")
-  inline fun <reified A : Any> loadConfigOrThrow(files: List<File>): A = loadConfig<A>(files).returnOrThrow()
 
   fun <A : Any> loadConfigOrThrow(klass: KClass<A>, inputs: List<ConfigSource>): A =
     loadConfig(klass, inputs).returnOrThrow()
-
-  @JvmName("loadNodeOrThrowFromFiles")
-  fun loadNodeOrThrow(files: List<File>): Node =
-    ConfigSource.fromFiles(files.toList()).flatMap { loadNode(it) }.returnOrThrow()
-
-  /**
-   * Attempts to load config from the specified Files and returns
-   * a [ConfigResult] with either the errors during load, or the successfully created instance A.
-   *
-   * This function implements fallback, such that the first resource is scanned first, and the second
-   * resource is scanned if the first does not contain a given path, and so on.
-   */
-  inline fun <reified A : Any> loadConfig(vararg files: File): ConfigResult<A> = loadConfig(files.toList())
-
-  @JvmName("loadConfigFromFiles")
-  inline fun <reified A : Any> loadConfig(files: List<File>): ConfigResult<A> {
-    return ConfigSource.fromFiles(files.toList()).flatMap { loadConfig(A::class, it) }
-  }
 
   fun <A : Any> loadConfig(klass: KClass<A>, inputs: List<ConfigSource>): ConfigResult<A> {
     // This is where the actual processing takes place. All other loadConfig or throw methods

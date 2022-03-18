@@ -14,8 +14,8 @@ data class PropertySourceContext(
  *
  * This tree of config values is rooted with a [Node].
  *
- * A property source may retrieve its values from a config file, or env variables, system properties, and so on,
- * depending on the implementation.
+ * A [PropertySource] may retrieve its values from a number of sources, such as config files,
+ *  environment variables, system properties, AWS secrets manager, and so on.
  */
 interface PropertySource {
 
@@ -40,8 +40,7 @@ interface PropertySource {
      *
      * @param optional if true then the resource can not exist and the config loader will ignore this source
      */
-    fun file(file: File, optional: Boolean = false) =
-      ConfigFilePropertySource(ConfigSource.FileSource(file), optional = optional)
+    fun file(file: File, optional: Boolean = false) = path(file.toPath(), optional)
 
     /**
      * Returns a [PropertySource] that will read the specified resource from the classpath.
