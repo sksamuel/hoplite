@@ -10,17 +10,12 @@ import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.preprocessor.TraversingPrimitivePreprocessor
 
 class AwsSecretsManagerPreprocessor(
-  private val configure: (AWSSecretsManagerClientBuilder) -> Unit = {}
+  private val createClient: () -> AWSSecretsManager = { AWSSecretsManagerClientBuilder.standard().build() }
 ) : TraversingPrimitivePreprocessor() {
 
   private val client by lazy { createClient() }
-  private val regex = "\\$\\{awssecret:(.+?)}".toRegex()
-
-  private fun createClient(): AWSSecretsManager {
-    val builder = AWSSecretsManagerClientBuilder.standard()
-    configure.invoke(builder)
-    return builder.build()
-  }
+  private val regex1 = "\\$\\{awssecret:(.+?)}".toRegex()
+  private val regex2 = "awssm://(.+?)".toRegex()
 
   private fun fetchValue(key: String): Result<String> = runCatching {
     val req = GetSecretValueRequest().withSecretId(key)
@@ -29,7 +24,7 @@ class AwsSecretsManagerPreprocessor(
 
   override fun handle(node: PrimitiveNode): Node = when (node) {
     is StringNode -> {
-      when (val match = regex.matchEntire(node.value)) {
+      when (val match = regex1.matchEntire(node.value) ?: regex2.matchEntire(node.value)) {
         null -> node
         else -> {
           val key = match.groupValues[1]
