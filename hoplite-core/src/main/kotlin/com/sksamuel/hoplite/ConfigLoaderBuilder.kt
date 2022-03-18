@@ -123,6 +123,14 @@ class ConfigLoaderBuilder private constructor() {
     this.failureCallbacks.add(f)
   }
 
+  fun addDefaults(): ConfigLoaderBuilder {
+    return addDefaultDecoders()
+      .addDefaultParsers()
+      .addDefaultPreprocessors()
+      .addDefaultParamMappers()
+      .addDefaultPropertySources()
+  }
+
   fun strict(): ConfigLoaderBuilder = apply {
     this.mode = DecodeMode.Strict
   }

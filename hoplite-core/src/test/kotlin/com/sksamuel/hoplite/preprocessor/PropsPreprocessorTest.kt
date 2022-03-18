@@ -46,7 +46,7 @@ class PropsPreprocessorTest : StringSpec() {
 
         val config = ConfigLoaderBuilder.empty()
           .addPreprocessor(preprocessor)
-          .addDefaultPreprocessors()
+          .addDefaults()
           .build()
           .loadConfigOrThrow<Config>("/processme.props")
 
