@@ -98,7 +98,6 @@ interface PropertySource {
 }
 
 fun defaultPropertySources(): List<PropertySource> = listOf(
-  EnvironmentVariablesPropertySource(useUnderscoresAsSeparator = true, allowUppercaseNames = false),
   SystemPropertiesPropertySource,
   UserSettingsPropertySource
 )
