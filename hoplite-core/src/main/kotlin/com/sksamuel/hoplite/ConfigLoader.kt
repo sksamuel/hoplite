@@ -4,12 +4,14 @@ package com.sksamuel.hoplite
 
 import com.sksamuel.hoplite.ClasspathResourceLoader.Companion.toClasspathResourceLoader
 import com.sksamuel.hoplite.decoder.DecoderRegistry
+import com.sksamuel.hoplite.fp.NonEmptyList
 import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.getOrElse
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.sequence
 import com.sksamuel.hoplite.parsers.ParserRegistry
 import com.sksamuel.hoplite.preprocessor.Preprocessor
+import com.sksamuel.hoplite.preprocessor.UnresolvedSubstitutionChecker
 import java.io.File
 import java.nio.file.Path
 import kotlin.reflect.KClass
@@ -199,7 +201,11 @@ class ConfigLoader constructor(
     return decoderRegistry.decoder(kclass).flatMap { decoder ->
       val context = DecoderContext(decoderRegistry, paramMappers, preprocessors, mode)
       val preprocessed = context.preprocessors.fold(node) { acc, preprocessor -> preprocessor.process(acc) }
-      decoder.decode(preprocessed, kclass.createType(), context)
+      val errors = UnresolvedSubstitutionChecker.process(preprocessed)
+      if (errors.isNotEmpty())
+        ConfigFailure.MultipleFailures(NonEmptyList(errors)).invalid()
+      else
+        decoder.decode(preprocessed, kclass.createType(), context)
     }
   }
 

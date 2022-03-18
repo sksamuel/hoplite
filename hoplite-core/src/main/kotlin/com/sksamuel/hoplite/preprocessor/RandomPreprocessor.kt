@@ -1,3 +1,6 @@
+// Redundant escaping in this file required for Android support.
+@file:Suppress("RegExpRedundantEscape")
+
 package com.sksamuel.hoplite.preprocessor
 
 import com.sksamuel.hoplite.Node
@@ -8,8 +11,6 @@ import kotlin.math.abs
 import kotlin.random.Random
 
 private typealias Rule = (String) -> String
-
-// Redundant escaping in this file required for Android support.
 
 object RandomPreprocessor : TraversingPrimitivePreprocessor() {
 

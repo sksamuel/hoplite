@@ -1,3 +1,5 @@
+@file:Suppress("RegExpRedundantEscape")
+
 package com.sksamuel.hoplite.preprocessor
 
 import com.sksamuel.hoplite.Node
@@ -21,7 +23,7 @@ object EnvOrSystemPropertyPreprocessor : TraversingPrimitivePreprocessor() {
       val value = regex.replace(node.value) { match ->
         val key = match.groupValues[1]
         when (val matchWithDefault = valueWithDefaultRegex.matchEntire(key)) {
-          null -> System.getProperty(key) ?: System.getenv(key) ?: error("Unknown replacement value: $key")
+          null -> System.getProperty(key) ?: System.getenv(key) ?: match.value
           // lookup with default value fallback
           else -> matchWithDefault.let { m ->
             val key2 = m.groupValues[1]

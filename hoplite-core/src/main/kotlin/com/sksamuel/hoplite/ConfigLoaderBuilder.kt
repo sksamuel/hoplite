@@ -93,7 +93,6 @@ class ConfigLoaderBuilder private constructor() {
 
   fun addDefaultPreprocessors() = addPreprocessors(defaultPreprocessors())
 
-
   fun addParser(ext: String, parser: Parser) = addFileExtensionMapping(ext, parser)
   fun addParsers(map: Map<String, Parser>) = addFileExtensionMappings(map)
 
