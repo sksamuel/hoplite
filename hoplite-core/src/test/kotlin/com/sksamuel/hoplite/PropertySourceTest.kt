@@ -77,7 +77,7 @@ class PropertySourceTest : FunSpec() {
       config shouldBe TestConfig("A value", 42, listOf("Value1", "Value2"))
     }
 
-    test("reads from added source before defaults") {
+    test("reads from added source before default sources") {
       data class TestConfig(val a: String, val b: Int, val other: List<String>)
 
       withEnvironment(mapOf("b" to "91", "other" to "Random13")) {
@@ -93,6 +93,7 @@ class PropertySourceTest : FunSpec() {
         val config = ConfigLoader.Builder()
           .addPropertySource(PropertySource.commandLine(arguments))
           .addDefaultPropertySources()
+          .addEnvironmentSource()
           .build()
           .loadConfigOrThrow<TestConfig>()
 
@@ -113,6 +114,7 @@ class PropertySourceTest : FunSpec() {
         )
 
         val config = ConfigLoader.Builder()
+          .addEnvironmentSource()
           .addDefaultPropertySources()
           .addPropertySource(PropertySource.commandLine(arguments))
           .build()
