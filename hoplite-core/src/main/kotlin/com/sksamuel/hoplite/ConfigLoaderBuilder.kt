@@ -1,9 +1,9 @@
 package com.sksamuel.hoplite
 
 import com.sksamuel.hoplite.decoder.Decoder
-import com.sksamuel.hoplite.decoder.defaultDecoderRegistry
+import com.sksamuel.hoplite.decoder.DefaultDecoderRegistry
+import com.sksamuel.hoplite.parsers.DefaultParserRegistry
 import com.sksamuel.hoplite.parsers.Parser
-import com.sksamuel.hoplite.parsers.defaultParserRegistry
 import com.sksamuel.hoplite.preprocessor.EnvVarPreprocessor
 import com.sksamuel.hoplite.preprocessor.LookupPreprocessor
 import com.sksamuel.hoplite.preprocessor.Preprocessor
@@ -94,11 +94,9 @@ class ConfigLoaderBuilder private constructor() {
 
   fun addDefaultPreprocessors() = addPreprocessors(defaultPreprocessors())
 
-  fun addDefaultParsers() = apply {
-    ServiceLoader.load(Parser::class.java, classLoader).toList().forEach { parser ->
-      parser.defaultFileExtensions().forEach { ext -> addFileExtensionMapping(ext, parser) }
-    }
-  }
+
+  fun addParser(ext: String, parser: Parser) = addFileExtensionMapping(ext, parser)
+  fun addParsers(map: Map<String, Parser>) = addFileExtensionMappings(map)
 
   fun addFileExtensionMapping(ext: String, parser: Parser): ConfigLoaderBuilder = apply {
     this.parsers[ext] = parser
@@ -108,6 +106,12 @@ class ConfigLoaderBuilder private constructor() {
     map.forEach {
       val (ext, parser) = it
       this.parsers[ext] = parser
+    }
+  }
+
+  fun addDefaultParsers() = apply {
+    ServiceLoader.load(Parser::class.java, classLoader).toList().forEach { parser ->
+      parser.defaultFileExtensions().forEach { ext -> addFileExtensionMapping(ext, parser) }
     }
   }
 
@@ -136,21 +140,10 @@ class ConfigLoaderBuilder private constructor() {
   }
 
   fun build(): ConfigLoader {
-
-    val decoderRegistry = this.decoders.fold(defaultDecoderRegistry(this.classLoader)) { registry, decoder ->
-      registry.register(decoder)
-    }
-
-    // build the DefaultParserRegistry
-    val parserRegistry =
-      this.parsers.asSequence().fold(defaultParserRegistry(this.classLoader)) { registry, (ext, parser) ->
-        registry.register(ext, parser)
-      }
-
     return ConfigLoader(
-      decoderRegistry = decoderRegistry,
+      decoderRegistry = DefaultDecoderRegistry(decoders),
       propertySources = propertySources.toList(),
-      parserRegistry = parserRegistry,
+      parserRegistry = DefaultParserRegistry(parsers),
       preprocessors = preprocessors.toList(),
       paramMappers = paramMappers.toList(),
       onFailure = failureCallbacks.toList(),
