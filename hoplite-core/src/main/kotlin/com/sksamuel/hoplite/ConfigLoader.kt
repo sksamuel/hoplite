@@ -33,73 +33,31 @@ class ConfigLoader constructor(
 ) {
 
   companion object {
+
+    /**
+     * Returns a [ConfigLoader] with default options.
+     */
     operator fun invoke(): ConfigLoader {
       return Builder().build()
     }
 
+    fun builder(): Builder = Builder()
+
+    /**
+     * Returns a [ConfigLoader] with default options overriden by whatever commands are included
+     * in the given [block].
+     *
+     * Eg,
+     *
+     * val loader = ConfigLoader {
+     *   addDecoder(MyDecoder)
+     *   addPropertySource(propSource)
+     * }
+     *
+     */
     inline operator fun invoke(block: Builder.() -> Unit): ConfigLoader {
       return Builder().apply(block).build()
     }
-  }
-
-  @Deprecated(
-    message = "Please use the ConfigLoader.Builder instead",
-    level = DeprecationLevel.WARNING,
-    replaceWith = ReplaceWith(
-      "Builder().addPreprocessor(preprocessor).build()",
-      "com.sksamuel.hoplite.ConfigLoader.Builder"
-    )
-  )
-  fun withPreprocessor(preprocessor: Preprocessor): ConfigLoader {
-    return Builder().addPreprocessor(preprocessor).build()
-  }
-
-  @Deprecated(
-    message = "Please use the ConfigLoader.Builder instead",
-    level = DeprecationLevel.WARNING,
-    replaceWith = ReplaceWith(
-      "Builder().addDecoder(decoder).build()",
-      "com.sksamuel.hoplite.ConfigLoader.Builder"
-    )
-  )
-  fun withDecoder(decoder: Decoder<*>): ConfigLoader {
-    return Builder().addDecoder(decoder).build()
-  }
-
-  @Deprecated(
-    message = "Please use the ConfigLoader.Builder instead",
-    level = DeprecationLevel.WARNING,
-    replaceWith = ReplaceWith(
-      "Builder().addFileExtensionMapping(ext, parser).build()",
-      "com.sksamuel.hoplite.ConfigLoader.Builder"
-    )
-  )
-  fun withFileExtensionMapping(ext: String, parser: Parser): ConfigLoader {
-    return Builder().addFileExtensionMapping(ext, parser).build()
-  }
-
-  @Deprecated(
-    message = "Please use the ConfigLoader.Builder instead.",
-    level = DeprecationLevel.WARNING,
-    replaceWith = ReplaceWith(
-      "Builder().addParameterMapper(mapper).build()",
-      "com.sksamuel.hoplite.ConfigLoader.Builder"
-    )
-  )
-  fun withParameterMapper(mapper: ParameterMapper): ConfigLoader {
-    return Builder().addParameterMapper(mapper).build()
-  }
-
-  @Deprecated(
-    message = "Please use the ConfigLoader.Builder instead.",
-    level = DeprecationLevel.WARNING,
-    replaceWith = ReplaceWith(
-      "Builder().addPropertySource(source).build()",
-      "com.sksamuel.hoplite.ConfigLoader.Builder"
-    )
-  )
-  fun withPropertySource(source: PropertySource): ConfigLoader {
-    return Builder().addPropertySource(source).build()
   }
 
   class Builder {

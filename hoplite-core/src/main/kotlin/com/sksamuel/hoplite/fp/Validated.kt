@@ -116,28 +116,10 @@ inline fun <A, E, T> Validated<E, A>.fold(ifInvalid: (E) -> T, ifValid: (A) -> T
   is Validated.Valid -> ifValid(value)
 }
 
-inline fun <A, E> Validated<E, A>.onValid(f: (A) -> Unit): Validated<E, A> = when (this) {
-  is Validated.Invalid -> this
-  is Validated.Valid -> {
-    f(this.value)
-    this
-  }
-}
-
-inline fun <A, E> Validated<E, A>.onInvalid(f: (E) -> Unit): Validated<E, A> = when (this) {
-  is Validated.Valid -> this
-  is Validated.Invalid -> {
-    f(this.error)
-    this
-  }
-}
-
-
 inline fun <A, E, F> Validated<E, A>.mapInvalid(f: (E) -> F): Validated<F, A> = when (this) {
   is Validated.Invalid -> f(error).invalid()
   is Validated.Valid -> this
 }
-
 
 fun <A, E> List<Validated<E, A>>.sequence(): Validated<NonEmptyList<E>, List<A>> {
   val invalids = filterIsInstance<Validated.Invalid<E>>()
