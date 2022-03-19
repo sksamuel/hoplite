@@ -11,15 +11,12 @@ import kotlin.reflect.KType
 /**
  * Contains the configuration needed for decoders to work. For example, the context allows access to the
  * [DecoderRegistry] through which decoders can look up other decoders to be used for nested types.
- *
- * @param mode decoders use the [DecodeMode] to determine if unused fields should error for a data class.
  */
 data class DecoderContext(
   val decoders: DecoderRegistry,
   val paramMappers: List<ParameterMapper>,
   val preprocessors: List<Preprocessor>,
   val usedPaths: MutableSet<DotPath> = mutableSetOf(),
-  val mode: DecodeMode = DecodeMode.Lenient,
 ) {
 
   /**
@@ -34,18 +31,13 @@ data class DecoderContext(
 
   companion object {
 
-    val zero = DecoderContext(DecoderRegistry.zero, emptyList(), emptyList(), mutableSetOf(), DecodeMode.Lenient)
+    val zero = DecoderContext(DecoderRegistry.zero, emptyList(), emptyList(), mutableSetOf())
 
     operator fun invoke(registry: DecoderRegistry) =
-      DecoderContext(registry, emptyList(), emptyList(), mutableSetOf(), DecodeMode.Lenient)
+      DecoderContext(registry, emptyList(), emptyList(), mutableSetOf())
   }
 }
 
 enum class DecodeMode {
   Strict, Lenient
 }
-
-/**
- * A Key is a path to a value in config.
- */
-data class Key(val paths: List<String>)

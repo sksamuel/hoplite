@@ -1,6 +1,7 @@
 package com.sksamuel.hoplite
 
 import com.sksamuel.hoplite.decoder.Decoder
+import com.sksamuel.hoplite.decoder.DotPath
 import com.sksamuel.hoplite.fp.NonEmptyList
 import com.sksamuel.hoplite.parsers.Parser
 import kotlin.reflect.KClass
@@ -26,6 +27,12 @@ sealed interface ConfigFailure {
    * A human-readable description of the failure.
    */
   fun description(): String
+
+  data class UnusedPaths(val path: DotPath, val pos: Pos) : ConfigFailure {
+    override fun description(): String {
+      return "${path.flatten()} at ${pos.loc()} was unused"
+    }
+  }
 
   object NoSources : ConfigFailure {
     override fun description(): String = "No registered property sources or config files"

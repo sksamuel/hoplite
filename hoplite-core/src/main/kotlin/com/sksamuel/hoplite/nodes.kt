@@ -56,6 +56,15 @@ sealed interface Node {
 val Node.isDefined: Boolean
   get() = this !is Undefined
 
+/**
+ * Return all paths in this tree.
+ */
+fun Node.paths(): Set<Pair<DotPath, Pos>> = setOf(this.path to this.pos) + when (this) {
+  is ArrayNode -> this.elements.flatMap { it.paths() }
+  is MapNode -> this.map.map { it.value.paths() }.flatten()
+  else -> emptySet()
+}
+
 sealed class ContainerNode : Node
 
 data class MapNode(

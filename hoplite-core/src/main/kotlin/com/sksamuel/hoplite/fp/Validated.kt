@@ -111,6 +111,14 @@ inline fun <E, A, B> Validated<E, A>.flatMap(f: (A) -> Validated<E, B>) = when (
   is Validated.Valid -> f(this.value)
 }
 
+fun <E, A> Validated<E, A>.onValid(f: (A) -> Unit): Validated<E, A> = when (this) {
+  is Validated.Invalid -> this
+  is Validated.Valid -> {
+    f(this.value)
+    this
+  }
+}
+
 inline fun <A, E, T> Validated<E, A>.fold(ifInvalid: (E) -> T, ifValid: (A) -> T): T = when (this) {
   is Validated.Invalid -> ifInvalid(error)
   is Validated.Valid -> ifValid(value)

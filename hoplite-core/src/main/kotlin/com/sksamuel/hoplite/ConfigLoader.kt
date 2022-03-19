@@ -81,16 +81,6 @@ class ConfigLoader constructor(
   ): A = loadConfig<A>(resourceOrFiles, classpathResourceLoader).returnOrThrow()
 
   /**
-   * Attempts to load config from the registered property sources marshalled as an instance of A.
-   * If any properties are missing, or cannot be converted into the applicable types, then an this
-   * function will throw.
-   *
-   * This function is intended to be used when you have registered all config files via the
-   * builder's addPropertySource method.
-   */
-  inline fun <reified A : Any> loadConfigOrThrow(): A = loadConfig(A::class, emptyList()).returnOrThrow()
-
-  /**
    * Attempts to load config from the specified resources either on the class path or as files on the
    * file system, and returns a [ConfigResult] with either the errors during load, or the successfully
    * created instance A.
@@ -99,6 +89,16 @@ class ConfigLoader constructor(
    * resource is scanned if the first does not contain a given path, and so on.
    */
   inline fun <reified A : Any> loadConfig(vararg resources: String): ConfigResult<A> = loadConfig(resources.toList())
+
+  /**
+   * Attempts to load config from the registered property sources marshalled as an instance of A.
+   * If any properties are missing, or cannot be converted into the applicable types, then an this
+   * function will throw.
+   *
+   * This function is intended to be used when you have registered all config files via the
+   * builder's addPropertySource method.
+   */
+  fun loadNodeOrThrow(): Node = loadNode(emptyList()).returnOrThrow()
 
   /**
    * Attempts to load config from the specified resources either on the class path or as files on the
@@ -118,6 +118,21 @@ class ConfigLoader constructor(
       .flatMap { loadConfig(A::class, it) }
 
   /**
+   * Attempts to load config from the registered property sources marshalled as an instance of A.
+   * If any properties are missing, or cannot be converted into the applicable types, then an this
+   * function will throw.
+   *
+   * This function is intended to be used when you have registered all config files via the
+   * builder's addPropertySource method.
+   */
+  inline fun <reified A : Any> loadConfigOrThrow(): A = loadConfig(A::class, emptyList()).returnOrThrow()
+
+  fun loadNodeOrThrow(
+    vararg resourceOrFiles: String,
+    classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader(),
+  ): Node = loadNodeOrThrow(resourceOrFiles.toList(), classpathResourceLoader)
+
+  /**
    * Attempts to load config from the specified resources either on the class path or as files on the
    * file system, and returns a [ConfigResult] with either the errors during load, or the successfully
    * created instance A.
@@ -133,8 +148,6 @@ class ConfigLoader constructor(
       .fromResourcesOrFiles(resourceOrFiles.toList(), classpathResourceLoader)
       .flatMap { loadNode(it) }
       .returnOrThrow()
-
-  fun loadNodeOrThrow(): Node = loadNode(emptyList()).returnOrThrow()
 
   inline fun <reified A : Any> loadConfig(): ConfigResult<A> = loadConfig(A::class, emptyList())
 
@@ -160,7 +173,7 @@ class ConfigLoader constructor(
 
   private fun <A : Any> decode(kclass: KClass<A>, node: Node): ConfigResult<A> {
     val decoding = Decoding(decoderRegistry, paramMappers, preprocessors)
-    return decoding.decode(kclass, node)
+    return decoding.decode(kclass, node, mode)
   }
 
   /**

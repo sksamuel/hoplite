@@ -2,9 +2,7 @@ package com.sksamuel.hoplite.decoder
 
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
-import com.sksamuel.hoplite.DecodeMode
 import com.sksamuel.hoplite.DecoderContext
-import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.ParameterMapper
 import com.sksamuel.hoplite.PrimitiveNode
@@ -112,17 +110,11 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
       { ConfigFailure.DataClassFieldErrors(it, type, node.pos).invalid() },
       { constructor ->
 
-        // in strict mode we throw an error if not all config values were used for the class
-        if (node is MapNode && context.mode == DecodeMode.Strict && constructor.args.size != node.size) {
-          val unusedValues = node.map.keys.minus(constructor.args.map { it.configName }.toSet())
-          ConfigFailure.UnusedConfigValues(unusedValues.toList()).invalid()
-        } else {
-          construct(
-            type = type,
-            constructor = constructor.constructor,
-            args = constructor.args.associate { it.parameter to it.value },
-          )
-        }
+        construct(
+          type = type,
+          constructor = constructor.constructor,
+          args = constructor.args.associate { it.parameter to it.value },
+        )
       }
     )
   }
