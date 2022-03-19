@@ -37,7 +37,7 @@ class Decoding(
     usedPaths: MutableSet<DotPath>,
     mode: DecodeMode,
   ): ConfigResult<DecodingResult<A>> {
-    val (used, unused) = node.paths().partition { usedPaths.contains(it.first) }
+    val (used, unused) = node.paths().filterNot { it.first == DotPath.root }.partition { usedPaths.contains(it.first) }
     val result = DecodingResult(a, used, unused)
     return when (mode) {
       DecodeMode.Strict -> ensureAllUsed(result)
