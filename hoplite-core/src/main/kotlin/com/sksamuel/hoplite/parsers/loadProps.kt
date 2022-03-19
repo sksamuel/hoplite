@@ -51,37 +51,37 @@ private fun <T> Iterable<T>.toNode(
     }
   }
 
-  val pos = Pos.FilePos(source)
+  val pos = Pos.SourcePos(source)
 
-  fun Any.transform(): Node = when (this) {
+  fun Any.transform(path: DotPath): Node = when (this) {
     is Element -> when {
-      value != null && values.isEmpty() -> value?.transform() ?: Undefined
+      value != null && values.isEmpty() -> value?.transform(path) ?: Undefined
       else -> MapNode(
-        map = values.takeUnless { it.isEmpty() }?.mapValues { it.value.transform() } ?: emptyMap(),
+        map = values.takeUnless { it.isEmpty() }?.mapValues { it.value.transform(path.with(it.key)) } ?: emptyMap(),
         pos = pos,
-        path = DotPath.root,
-        value = value?.transform() ?: Undefined, // todo
+        path = path,
+        value = value?.transform(path) ?: Undefined,
       )
     }
     is Array<*> -> ArrayNode(
-      elements = mapNotNull { it?.transform() },
+      elements = mapNotNull { it?.transform(path) },
       pos = pos,
-      path = DotPath.root, // todo
+      path = path,
     )
     is Collection<*> -> ArrayNode(
-      elements = mapNotNull { it?.transform() },
+      elements = mapNotNull { it?.transform(path) },
       pos = pos,
-      path = DotPath.root, // todo
+      path = path,
     )
     is Map<*, *> -> MapNode(
       map = takeUnless { it.isEmpty() }?.mapNotNull { entry ->
-        entry.value?.let { entry.key.toString() to it.transform() }
+        entry.value?.let { entry.key.toString() to it.transform(path.with(entry.key.toString())) }
       }?.toMap() ?: emptyMap(),
       pos = pos,
-      path = DotPath.root, // todo
+      path = path,
     )
-    else -> StringNode(this.toString(), pos, path = DotPath.root) // todo
+    else -> StringNode(this.toString(), pos, path = path)
   }
 
-  return map.transform()
+  return map.transform(DotPath.root)
 }

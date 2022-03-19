@@ -15,21 +15,25 @@ class PropsParserTest : StringSpec() {
               mapOf(
                 "b" to MapNode(
                   map = mapOf(
-                    "c" to StringNode(value = "wibble", pos = Pos.FilePos(source = "a.props"), DotPath.root),
-                    "d" to StringNode(value = "123", pos = Pos.FilePos(source = "a.props"), DotPath.root)
+                    "c" to StringNode(
+                      value = "wibble",
+                      pos = Pos.SourcePos(source = "a.props"),
+                      DotPath("a", "b", "c")
+                    ),
+                    "d" to StringNode(value = "123", pos = Pos.SourcePos(source = "a.props"), DotPath("a", "b", "d"))
                   ),
-                  pos = Pos.FilePos(source = "a.props"),
-                  DotPath.root,
-                  value = StringNode("qqq", pos = Pos.FilePos(source = "a.props"), DotPath.root)
+                  pos = Pos.SourcePos(source = "a.props"),
+                  DotPath("a", "b"),
+                  value = StringNode("qqq", pos = Pos.SourcePos(source = "a.props"), DotPath("a", "b"))
                 ),
-                "g" to StringNode(value = "true", pos = Pos.FilePos(source = "a.props"), DotPath.root)
+                "g" to StringNode(value = "true", pos = Pos.SourcePos(source = "a.props"), DotPath("a", "g"))
               ),
-              pos = Pos.FilePos(source = "a.props"),
-              DotPath.root
+              pos = Pos.SourcePos(source = "a.props"),
+              DotPath("a")
             ),
-            "e" to StringNode(value = "5.5", pos = Pos.FilePos(source = "a.props"), DotPath.root)
+            "e" to StringNode(value = "5.5", pos = Pos.SourcePos(source = "a.props"), DotPath("e"))
           ),
-          pos = Pos.FilePos(source = "a.props"),
+          pos = Pos.SourcePos(source = "a.props"),
           DotPath.root
         )
     }
@@ -38,7 +42,7 @@ class PropsParserTest : StringSpec() {
       PropsParser().load(javaClass.getResourceAsStream("/empty.props"), source = "a.props") shouldBe
         MapNode(
           emptyMap(),
-          pos = Pos.FilePos("a.props"),
+          pos = Pos.SourcePos("a.props"),
           DotPath.root,
         )
     }

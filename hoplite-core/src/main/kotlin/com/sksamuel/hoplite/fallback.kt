@@ -5,14 +5,15 @@ package com.sksamuel.hoplite
  * with keys in this node taking preccence if they are defined and not null.
  */
 internal fun Node.merge(other: Node): Node {
-  require(this.path == other.path)
+
+  if (other is Undefined) return this
+  if (this is Undefined) return other
+
+  require(this.path == other.path) { "Trying to merge node with path $path with node with path ${other.path}" }
+
   return when (this) {
-    is Undefined -> other
     // if I am null, and the other is defined, then that takes precedence
-    is NullNode -> when (other) {
-      is Undefined -> this
-      else -> other
-    }
+    is NullNode -> other
     is MapNode -> when (other) {
       // if both are maps we merge
       is MapNode -> {

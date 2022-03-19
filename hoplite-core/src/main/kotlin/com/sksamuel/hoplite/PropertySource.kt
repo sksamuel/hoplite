@@ -7,7 +7,11 @@ import java.nio.file.Path
 
 data class PropertySourceContext(
   val parsers: ParserRegistry,
-)
+) {
+  companion object {
+    val empty = PropertySourceContext(ParserRegistry.empty)
+  }
+}
 
 /**
  * A [PropertySource] provides a tree of config values.

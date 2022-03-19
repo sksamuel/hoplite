@@ -21,36 +21,36 @@ class LoadPropsTest : FunSpec({
           mapOf(
             "b" to MapNode(
               mapOf(
-                "c" to StringNode("wibble", pos = Pos.FilePos(source = "source"), DotPath.root),
-                "d" to StringNode("123", pos = Pos.FilePos(source = "source"), DotPath.root)
+                "c" to StringNode("wibble", pos = Pos.SourcePos(source = "source"), DotPath("a", "b", "c")),
+                "d" to StringNode("123", pos = Pos.SourcePos(source = "source"), DotPath("a", "b", "d"))
               ),
-              pos = Pos.FilePos(source = "source"),
-              DotPath.root,
+              pos = Pos.SourcePos(source = "source"),
+              DotPath("a", "b"),
               value = Undefined,
             ),
-            "d" to StringNode("true", pos = Pos.FilePos(source = "source"), DotPath.root)
+            "d" to StringNode("true", pos = Pos.SourcePos(source = "source"), DotPath("a", "d"))
           ),
-          pos = Pos.FilePos(source = "source"),
-          DotPath.root,
-          value = StringNode("foo", Pos.FilePos(source = "source"), DotPath.root)
+          pos = Pos.SourcePos(source = "source"),
+          DotPath("a"),
+          value = StringNode("foo", Pos.SourcePos(source = "source"), DotPath("a"))
         ),
         "e" to MapNode(
           mapOf(
             "f" to MapNode(
               mapOf(
-                "g" to StringNode("goo", pos = Pos.FilePos(source = "source"), DotPath.root)
+                "g" to StringNode("goo", pos = Pos.SourcePos(source = "source"), DotPath("e", "f", "g"))
               ),
-              pos = Pos.FilePos(source = "source"),
-              DotPath.root,
-              value = StringNode("6", Pos.FilePos(source = "source"), DotPath.root)
+              pos = Pos.SourcePos(source = "source"),
+              DotPath("e", "f"),
+              value = StringNode("6", Pos.SourcePos(source = "source"), DotPath("e", "f"))
             )
           ),
-          pos = Pos.FilePos(source = "source"),
-          DotPath.root,
-          value = StringNode("5.5", Pos.FilePos(source = "source"), DotPath.root)
+          pos = Pos.SourcePos(source = "source"),
+          DotPath("e"),
+          value = StringNode("5.5", Pos.SourcePos(source = "source"), DotPath("e"))
         )
       ),
-      pos = Pos.FilePos(source = "source"),
+      pos = Pos.SourcePos(source = "source"),
       DotPath.root,
       value = Undefined,
     )
