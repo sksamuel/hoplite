@@ -22,6 +22,8 @@ class ConfigFilePropertySource(
   private val optional: Boolean = false,
 ) : PropertySource {
 
+  override fun source(): String = "Config File"
+
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
     val parser = context.parsers.locate(config.ext())
     return Validated.ap(parser, config.open()) { a, b -> b.use { a.load(it, config.describe()) } }

@@ -9,6 +9,9 @@ class EnvironmentVariablesPropertySource(
   private val allowUppercaseNames: Boolean,
   private val environmentVariableMap: () -> Map<String, String> = { System.getenv() },
 ) : PropertySource {
+
+  override fun source(): String = "Env Var"
+
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
     val props = Properties()
     environmentVariableMap().forEach {

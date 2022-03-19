@@ -11,6 +11,9 @@ import com.sksamuel.hoplite.parsers.toNode
 class MapPropertySource(
   private val map: Map<String, Any?>,
 ) : PropertySource {
+
+  override fun source(): String = "Provided Map"
+
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
     return when {
       map.isEmpty() -> Undefined.valid()

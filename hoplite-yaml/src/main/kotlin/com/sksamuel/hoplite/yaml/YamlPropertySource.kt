@@ -21,5 +21,9 @@ import com.sksamuel.hoplite.fp.valid
 class YamlPropertySource(
   private val str: String
 ) : PropertySource {
-  override fun node(context: PropertySourceContext): ConfigResult<Node> = YamlParser().load(str.byteInputStream(), "").valid()
+
+  override fun source(): String = "Provided YAML"
+
+  override fun node(context: PropertySourceContext): ConfigResult<Node> =
+    YamlParser().load(str.byteInputStream(), "").valid()
 }

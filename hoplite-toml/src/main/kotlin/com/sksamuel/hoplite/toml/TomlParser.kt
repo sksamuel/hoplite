@@ -33,7 +33,11 @@ class TomlParser : Parser {
 class TomlPropertySource(
   private val str: String
 ) : PropertySource {
-  override fun node(context: PropertySourceContext): ConfigResult<Node> = TomlParser().load(str.byteInputStream(), "").valid()
+
+  override fun source(): String = "Provided TOML"
+
+  override fun node(context: PropertySourceContext): ConfigResult<Node> =
+    TomlParser().load(str.byteInputStream(), "").valid()
 }
 
 object TableProduction {

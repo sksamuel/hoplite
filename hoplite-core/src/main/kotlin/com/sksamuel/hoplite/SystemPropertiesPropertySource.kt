@@ -13,6 +13,9 @@ import java.util.Properties
 open class SystemPropertiesPropertySource(
   private val systemPropertiesMap: () -> Map<String, String> = { System.getProperties().toStringMap() }
 ) : PropertySource {
+
+  override fun source(): String = "System Properties"
+
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
     val props = Properties()
     systemPropertiesMap().let { systemPropertiesMap ->

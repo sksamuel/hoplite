@@ -5,7 +5,7 @@ import io.kotest.matchers.shouldBe
 
 class ReporterTest : FunSpec({
 
-  test("reporter happy path") {
+  test("report node") {
 
     val node = ConfigLoaderBuilder.default()
       .addPropertySource(
@@ -31,6 +31,21 @@ class ReporterTest : FunSpec({
 | database.name            | props string source | my database       |
 +--------------------------+---------------------+-------------------+
 """.trim()
+
+  }
+
+  test("report sources") {
+    Reporter().report(
+      ConfigLoaderBuilder.default()
+        .addEnvironmentSource()
+        .build()
+        .propertySources
+    ).trim() shouldBe """
+3 sources (highest to lowest priority):
+  - System Properties
+  - /home/sam/.userconfig.<ext>
+  - Env Var
+""".trimIndent().trim()
 
   }
 

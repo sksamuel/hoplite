@@ -25,6 +25,8 @@ interface PropertySource {
    */
   fun node(context: PropertySourceContext): ConfigResult<Node>
 
+  fun source(): String
+
   companion object {
 
     /**

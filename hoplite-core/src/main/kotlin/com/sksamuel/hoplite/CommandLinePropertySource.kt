@@ -13,6 +13,9 @@ class CommandLinePropertySource(
   private val prefix: String,
   private val delimiter: String,
 ) : PropertySource {
+
+  override fun source(): String = "Arguments delimited by $delimiter"
+
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
     val values = arguments.asSequence().filter {
       it.startsWith(prefix) && it.contains(delimiter)

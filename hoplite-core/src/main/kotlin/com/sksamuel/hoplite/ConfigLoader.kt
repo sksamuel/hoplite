@@ -18,13 +18,13 @@ import kotlin.reflect.full.createType
 class ConfigException(msg: String, val t: Throwable? = null) : java.lang.RuntimeException(msg, t)
 
 class ConfigLoader constructor(
-  private val decoderRegistry: DecoderRegistry,
-  private val propertySources: List<PropertySource>,
-  private val parserRegistry: ParserRegistry,
-  private val preprocessors: List<Preprocessor>,
-  private val paramMappers: List<ParameterMapper>,
-  private val onFailure: List<(Throwable) -> Unit> = emptyList(),
-  private val mode: DecodeMode = DecodeMode.Lenient,
+  val decoderRegistry: DecoderRegistry,
+  val propertySources: List<PropertySource>,
+  val parserRegistry: ParserRegistry,
+  val preprocessors: List<Preprocessor>,
+  val paramMappers: List<ParameterMapper>,
+  val onFailure: List<(Throwable) -> Unit> = emptyList(),
+  val mode: DecodeMode = DecodeMode.Lenient,
 ) {
 
   companion object {

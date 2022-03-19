@@ -18,6 +18,8 @@ import kotlin.io.path.inputStream
  */
 object UserSettingsPropertySource : PropertySource {
 
+  override fun source(): String = System.getProperty("user.home") + "/.userconfig.<ext>"
+
   private fun path(ext: String): Path = Paths.get(System.getProperty("user.home")).resolve(".userconfig.$ext")
 
   override fun node(context: PropertySourceContext): ConfigResult<Node> {

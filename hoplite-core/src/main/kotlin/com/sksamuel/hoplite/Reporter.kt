@@ -2,6 +2,11 @@ package com.sksamuel.hoplite
 
 class Reporter {
 
+  fun report(sources: List<PropertySource>): String {
+    return "\n${sources.size} sources (highest to lowest priority):\n" +
+      sources.joinToString("\n  - ", "  - ", "\n") { it.source() }
+  }
+
   fun report(node: Node): String {
     val keys = report("", node)
     val keyPad = keys.maxOf { it.key.length }

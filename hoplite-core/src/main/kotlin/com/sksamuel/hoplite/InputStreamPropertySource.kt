@@ -19,6 +19,8 @@ class InputStreamPropertySource(
   private val source: String,
 ) : PropertySource {
 
+  override fun source(): String = source
+
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
     return context.parsers.locate(ext).map {
       it.load(input, source)

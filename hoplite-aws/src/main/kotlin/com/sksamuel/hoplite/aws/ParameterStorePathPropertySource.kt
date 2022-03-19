@@ -29,6 +29,8 @@ class ParameterStorePathPropertySource(
   private val configure: GetParametersByPathRequest.() -> Unit
 ) : PropertySource {
 
+  override fun source(): String = "AWS SSM Parameter Store"
+
   private val client by lazy { AWSSimpleSystemsManagementClientBuilder.defaultClient() }
 
   private fun fetchParameterStoreValues(): Result<List<Parameter>> = runCatching {
