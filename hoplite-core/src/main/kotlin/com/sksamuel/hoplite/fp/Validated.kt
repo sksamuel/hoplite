@@ -96,11 +96,6 @@ fun <E, A, B : A> Validated<E, A>.getOrElse(ifInvalid: (E) -> B): A = when (this
 fun <A> A.valid(): Validated<Nothing, A> = Validated.Valid(this)
 fun <E> E.invalid(): Validated<E, Nothing> = Validated.Invalid(this)
 
-inline fun <E, A, B> Validated<E, A>.map(f: (A) -> B) = when (this) {
-  is Validated.Invalid -> this
-  is Validated.Valid -> f(this.value).valid()
-}
-
 fun <E, F, A> Validated<E, A>.flatRecover(f: (E) -> Validated<F, A>): Validated<F, A> = when (this) {
   is Validated.Invalid -> f(this.error)
   is Validated.Valid -> this
@@ -111,26 +106,11 @@ inline fun <E, A, B> Validated<E, A>.flatMap(f: (A) -> Validated<E, B>) = when (
   is Validated.Valid -> f(this.value)
 }
 
-fun <E, A> Validated<E, A>.onValid(f: (A) -> Unit): Validated<E, A> = when (this) {
-  is Validated.Invalid -> this
-  is Validated.Valid -> {
-    f(this.value)
-    this
-  }
-}
-
-inline fun <A, E, T> Validated<E, A>.fold(ifInvalid: (E) -> T, ifValid: (A) -> T): T = when (this) {
-  is Validated.Invalid -> ifInvalid(error)
-  is Validated.Valid -> ifValid(value)
-}
-
-inline fun <A, E, F> Validated<E, A>.mapInvalid(f: (E) -> F): Validated<F, A> = when (this) {
-  is Validated.Invalid -> f(error).invalid()
-  is Validated.Valid -> this
-}
-
 fun <A, E> List<Validated<E, A>>.sequence(): Validated<NonEmptyList<E>, List<A>> {
   val invalids = filterIsInstance<Validated.Invalid<E>>()
   val valids = filterIsInstance<Validated.Valid<A>>()
-  return if (invalids.isEmpty()) valids.map { it.value }.valid() else invalids.map { it.error }.nel().invalid()
+  return if (invalids.isEmpty())
+    valids.map { it.value }.valid()
+  else
+    NonEmptyList.unsafe(invalids.map { it.error }).invalid()
 }

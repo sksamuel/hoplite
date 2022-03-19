@@ -5,7 +5,6 @@ import com.sksamuel.hoplite.decoder.DotPath
 import com.sksamuel.hoplite.fp.NonEmptyList
 import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.invalid
-import com.sksamuel.hoplite.fp.nel
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.preprocessor.UnresolvedSubstitutionChecker
@@ -47,7 +46,7 @@ class Decoding(
 
   private fun <A : Any> ensureAllUsed(result: DecodingResult<A>): ConfigResult<DecodingResult<A>> {
     return if (result.unused.isEmpty()) result.valid() else {
-      val errors = result.unused.map { ConfigFailure.UnusedPaths(it.first, it.second) }.nel()
+      val errors = NonEmptyList.unsafe(result.unused.map { ConfigFailure.UnusedPaths(it.first, it.second) })
       ConfigFailure.MultipleFailures(errors).invalid()
     }
   }
