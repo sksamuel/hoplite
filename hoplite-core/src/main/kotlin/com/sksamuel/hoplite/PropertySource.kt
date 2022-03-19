@@ -57,7 +57,7 @@ interface PropertySource {
      * @param ext the file extension of the input format
      */
     fun stream(input: InputStream, ext: String) =
-      InputStreamPropertySource(input, ext)
+      InputStreamPropertySource(input, ext, "$ext input stream")
 
     /**
      * Returns a [PropertySource] that read the specified map values.
@@ -91,7 +91,7 @@ interface PropertySource {
      * @param ext the file extension of the input format
      */
     fun string(str: String, ext: String) =
-      stream(str.byteInputStream(), ext)
+      InputStreamPropertySource(str.byteInputStream(), ext, "$ext string source")
 
   }
 }

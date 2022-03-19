@@ -14,13 +14,14 @@ import java.io.InputStream
  * offer any indication what type of file it contains.
  */
 class InputStreamPropertySource(
-   private val input: InputStream,
-   private val ext: String
+  private val input: InputStream,
+  private val ext: String,
+  private val source: String,
 ) : PropertySource {
 
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
     return context.parsers.locate(ext).map {
-      it.load(input, "input-stream")
+      it.load(input, source)
     }
   }
 }

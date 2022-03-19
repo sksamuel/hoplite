@@ -61,7 +61,7 @@ fun ConfigLoaderBuilder.addResourceOrFileSource(
  * @param ext the file extension of the input format
  */
 fun ConfigLoaderBuilder.addStreamSource(input: InputStream, ext: String) = addPropertySource(
-  InputStreamPropertySource(input, ext)
+  InputStreamPropertySource(input, ext, "$ext input stream")
 )
 
 /**

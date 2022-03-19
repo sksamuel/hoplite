@@ -1,6 +1,6 @@
 package com.sksamuel.hoplite
 
-interface Node {
+sealed interface Node {
 
   /**
    * Returns the positional information of this value.

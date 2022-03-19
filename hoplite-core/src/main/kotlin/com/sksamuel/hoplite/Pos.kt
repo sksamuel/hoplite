@@ -26,6 +26,13 @@ sealed class Pos {
    * Used when we know the filename, line and columnn.
    */
   data class LineColPos(val line: Int, val col: Int, val source: String) : Pos()
+
+  fun source(): String? = when (this) {
+    is FilePos -> this.source
+    is LineColPos -> this.source
+    is LinePos -> this.source
+    NoPos -> null
+  }
 }
 
 fun Pos.loc() = when (this) {
