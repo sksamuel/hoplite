@@ -73,6 +73,6 @@ class SealedClassDecoderTest : FunSpec({
       "\n" +
       "    - Could not instantiate 'com.sksamuel.hoplite.yaml.`SealedClassDecoderTest\$1\$6\$Config`' because:\n" +
       "\n" +
-      "        - 'poolingStrategy': Could not find appropriate subclass of class com.sksamuel.hoplite.yaml.PoolingStrategy: Tried com.sksamuel.hoplite.yaml.PoolingStrategy\$ABI, com.sksamuel.hoplite.yaml.PoolingStrategy\$Combo, com.sksamuel.hoplite.yaml.PoolingStrategy\$Omni, com.sksamuel.hoplite.yaml.PoolingStrategy\$OsVersion (/sealed_class_with_object_invalid_value.yaml:0:17)"
+      "        - 'poolingStrategy': Could not find appropriate subclass of class com.sksamuel.hoplite.yaml.PoolingStrategy: Tried com.sksamuel.hoplite.yaml.PoolingStrategy\$ABI, com.sksamuel.hoplite.yaml.PoolingStrategy\$Combo, com.sksamuel.hoplite.yaml.PoolingStrategy\$Omni, com.sksamuel.hoplite.yaml.PoolingStrategy\$OsVersion (classpath:/sealed_class_with_object_invalid_value.yaml:0:17)"
   }
 })
