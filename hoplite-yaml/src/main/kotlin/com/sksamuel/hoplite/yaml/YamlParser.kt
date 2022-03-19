@@ -156,7 +156,7 @@ object SequenceProduction {
     var index = 0
     var tempAnchors: Map<String, Node> = anchors
     while (stream.next().id() != Event.ID.SequenceEnd) {
-      val (node, returnedAnchors) = TokenProduction(stream, source, tempAnchors, DotPath.root)
+      val (node, returnedAnchors) = TokenProduction(stream, source, tempAnchors, path)
       list.add(node)
       index++
       tempAnchors = returnedAnchors
