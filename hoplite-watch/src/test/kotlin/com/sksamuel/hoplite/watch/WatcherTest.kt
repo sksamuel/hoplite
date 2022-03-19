@@ -52,6 +52,7 @@ class WatcherTest : FunSpec({
     val map = mutableMapOf("foo" to "bar")
     var firsttime = true
     val onetimesource = object : PropertySource {
+      override fun source(): String = "foo"
       override fun node(context: PropertySourceContext): ConfigResult<Node> {
         return if (firsttime) {
           firsttime = false

@@ -13,7 +13,7 @@ class InputStreamPropertySourceTest : StringSpec({
 
     val stream = javaClass.getResourceAsStream("/sets.yml")
     val config = ConfigLoaderBuilder.default()
-      .addPropertySource(InputStreamPropertySource(stream, "yml"))
+      .addPropertySource(InputStreamPropertySource(stream, "yml", "yml input stream"))
       .build()
       .loadConfigOrThrow<Test>()
 
