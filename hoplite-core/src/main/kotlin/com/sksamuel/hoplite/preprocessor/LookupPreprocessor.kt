@@ -8,14 +8,15 @@ import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
 
 /**
- * Replaces strings of the form ${some.path} by looking up some.path in the parsed config.
+ * Replaces strings of the form ${path} by looking up path in the parsed config.
  * Defaults can also be applied in case the path does not exist: ${var:-some.path}
  */
 object LookupPreprocessor : Preprocessor {
 
   // Redundant escaping required for Android support.
   private val regex1 = "\\$\\{(.*?)\\}".toRegex()
-  // syntax {{a.b.c}}
+
+  // react syntax {{a.b.c}}
   private val regex2 = "\\{\\{(.*?)\\}\\}".toRegex()
   private val valueWithDefaultRegex = "(.*?):-(.*?)".toRegex()
 
@@ -42,9 +43,9 @@ object LookupPreprocessor : Preprocessor {
     fun handle(n: Node): Node = when (n) {
       is MapNode -> {
         val value = if (n.value is StringNode) replace(replace(n.value, regex1), regex2) else n.value
-        MapNode(n.map.map { (k, v) -> k to handle(v) }.toMap(), n.pos, value)
+        MapNode(n.map.map { (k, v) -> k to handle(v) }.toMap(), n.pos, n.path, value)
       }
-      is ArrayNode -> ArrayNode(n.elements.map { handle(it) }, n.pos)
+      is ArrayNode -> ArrayNode(n.elements.map { handle(it) }, n.pos, n.path)
       is StringNode -> replace(replace(n, regex1), regex2)
       else -> n
     }

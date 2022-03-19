@@ -6,16 +6,14 @@ package com.sksamuel.hoplite
 sealed class Pos {
 
   /**
-   * Used if no positional information was present. For example, an environment
-   * variable would not have file information.
+   * Used if no positional information was present.
    */
   object NoPos : Pos()
 
   /**
-   * Used when the only information available is the file name.
-   * For example, when processing from an input stream.
+   * Used when the only information available is a source name, such as env-vars or input streams.
    */
-  data class FilePos(val source: String) : Pos()
+  data class SourcePos(val source: String) : Pos()
 
   /**
    * Used when we know the filename and the line.
@@ -28,16 +26,20 @@ sealed class Pos {
   data class LineColPos(val line: Int, val col: Int, val source: String) : Pos()
 
   fun source(): String? = when (this) {
-    is FilePos -> this.source
+    is SourcePos -> this.source
     is LineColPos -> this.source
     is LinePos -> this.source
     NoPos -> null
+  }
+
+  companion object {
+    val env = SourcePos("env")
   }
 }
 
 fun Pos.loc() = when (this) {
   is Pos.NoPos -> ""
-  is Pos.FilePos -> "($source)"
+  is Pos.SourcePos -> "($source)"
   is Pos.LineColPos -> "($source:$line:$col)"
   is Pos.LinePos -> "($source:$line)"
 }

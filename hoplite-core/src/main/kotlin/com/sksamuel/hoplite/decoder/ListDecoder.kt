@@ -35,7 +35,7 @@ class ListDecoder : NullHandlingDecoder<List<*>> {
 
     fun <T> decode(node: StringNode, decoder: Decoder<T>): ConfigResult<List<T>> {
       val tokens = node.value.split(",").map {
-        StringNode(it.trim(), node.pos)
+        StringNode(it.trim(), node.pos, node.path)
       }
       return tokens
         .map { decoder.decode(it, t, context) }

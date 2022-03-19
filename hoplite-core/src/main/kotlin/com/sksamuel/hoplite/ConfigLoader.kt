@@ -4,16 +4,13 @@ package com.sksamuel.hoplite
 
 import com.sksamuel.hoplite.ClasspathResourceLoader.Companion.toClasspathResourceLoader
 import com.sksamuel.hoplite.decoder.DecoderRegistry
-import com.sksamuel.hoplite.fp.NonEmptyList
 import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.getOrElse
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.sequence
 import com.sksamuel.hoplite.parsers.ParserRegistry
 import com.sksamuel.hoplite.preprocessor.Preprocessor
-import com.sksamuel.hoplite.preprocessor.UnresolvedSubstitutionChecker
 import kotlin.reflect.KClass
-import kotlin.reflect.full.createType
 
 class ConfigException(msg: String, val t: Throwable? = null) : java.lang.RuntimeException(msg, t)
 
@@ -162,15 +159,8 @@ class ConfigLoader constructor(
   }
 
   private fun <A : Any> decode(kclass: KClass<A>, node: Node): ConfigResult<A> {
-    return decoderRegistry.decoder(kclass).flatMap { decoder ->
-      val context = DecoderContext(decoderRegistry, paramMappers, preprocessors, mode)
-      val preprocessed = context.preprocessors.fold(node) { acc, preprocessor -> preprocessor.process(acc) }
-      val errors = UnresolvedSubstitutionChecker.process(preprocessed)
-      if (errors.isNotEmpty())
-        ConfigFailure.MultipleFailures(NonEmptyList(errors)).invalid()
-      else
-        decoder.decode(preprocessed, kclass.createType(), context)
-    }
+    val decoding = Decoding(decoderRegistry, paramMappers, preprocessors)
+    return decoding.decode(kclass, node)
   }
 
   /**
@@ -178,12 +168,14 @@ class ConfigLoader constructor(
    */
   private fun loadNode(configs: List<ConfigSource>): ConfigResult<Node> {
     val srcs = propertySources + configs.map { ConfigFilePropertySource(it) }
-    return srcs.map { it.node(PropertySourceContext(parserRegistry)) }.sequence()
-      .map { it.takeUnless { it.isEmpty() }?.reduce { acc, b -> acc.merge(b) } ?: NullNode(Pos.NoPos) }
-      .mapInvalid {
-        val multipleFailures = ConfigFailure.MultipleFailures(it)
-        multipleFailures
-      }
+    if (srcs.isEmpty()) return ConfigFailure.NoSources.invalid()
+    return srcs.map { it.node(PropertySourceContext(parserRegistry)) }.sequence().map { nodes ->
+      // nodes cannot be empty, as srcs is not empty, and if any of them errored, we would not be in this map block
+      nodes.reduce { a, b -> a.merge(b) }
+    }.mapInvalid {
+      val multipleFailures = ConfigFailure.MultipleFailures(it)
+      multipleFailures
+    }
   }
 }
 

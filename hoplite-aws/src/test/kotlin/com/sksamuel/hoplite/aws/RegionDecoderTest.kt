@@ -6,6 +6,7 @@ import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.decoder.DotPath
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import io.kotest.core.spec.style.StringSpec
@@ -16,13 +17,13 @@ class RegionDecoderTest : StringSpec() {
   init {
     "region converter" {
       RegionDecoder().safeDecode(
-        StringNode("us-east-1", Pos.NoPos),
+        StringNode("us-east-1", Pos.NoPos, DotPath.root),
         Region::class.createType(),
         DecoderContext.zero
       ) shouldBe Region.getRegion(Regions.US_EAST_1).valid()
 
       RegionDecoder().safeDecode(
-        StringNode("us-qwewqe-1", Pos.NoPos),
+        StringNode("us-qwewqe-1", Pos.NoPos, DotPath.root),
         Region::class.createType(),
         DecoderContext.zero
       ) shouldBe

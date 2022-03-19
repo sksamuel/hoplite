@@ -25,7 +25,7 @@ interface ParserRegistry {
   fun registeredExtensions(): Set<String>
 
   companion object {
-    val zero: ParserRegistry = DefaultParserRegistry(emptyMap())
+    val empty: ParserRegistry = DefaultParserRegistry(emptyMap())
   }
 }
 
@@ -47,7 +47,7 @@ fun defaultParserRegistry(): ParserRegistry {
 
 fun defaultParserRegistry(classLoader: ClassLoader): ParserRegistry {
   return ServiceLoader.load(Parser::class.java, classLoader).toList()
-    .fold(ParserRegistry.zero) { registry, parser ->
+    .fold(ParserRegistry.empty) { registry, parser ->
       parser.defaultFileExtensions().fold(registry) { r, ext -> r.register(ext, parser) }
     }
 }

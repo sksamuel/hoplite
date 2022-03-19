@@ -7,6 +7,7 @@ import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Undefined
+import com.sksamuel.hoplite.decoder.DotPath
 import com.sksamuel.hoplite.parsers.Parser
 import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.Yaml
@@ -36,7 +37,7 @@ class YamlParser : Parser {
     require(stream.next().`is`(Event.ID.StreamStart)) { "Expected stream start at ${stream.current().startMark}" }
     require(stream.next().`is`(Event.ID.DocumentStart)) { "Expected document start at ${stream.current().startMark}" }
     stream.next()
-    return TokenProduction(stream, source, emptyMap()).first
+    return TokenProduction(stream, source, emptyMap(), DotPath.root).first
   }
 }
 
@@ -77,10 +78,11 @@ object TokenProduction {
     stream: TokenStream<Event>,
     source: String,
     anchors: Map<String, Node>,
+    path: DotPath,
   ): Pair<Node, Map<String, Node>> {
     return when (val event = stream.current()) {
-      is MappingStartEvent -> MapProduction(stream, source, anchors)
-      is SequenceStartEvent -> SequenceProduction(stream, source, anchors)
+      is MappingStartEvent -> MapProduction(stream, source, anchors, path)
+      is SequenceStartEvent -> SequenceProduction(stream, source, anchors, path)
       // https://yaml.org/refcard.html
       // Language Independent Scalar types:
       //    { ~, null }              : Null (no value).
@@ -91,9 +93,9 @@ object TokenProduction {
       //    { n, FALSE, No, off }    : Boolean false
       is ScalarEvent -> {
         val node = if (event.value == "null" && event.scalarStyle == DumperOptions.ScalarStyle.PLAIN)
-          NullNode(event.startMark.toPos(source))
+          NullNode(event.startMark.toPos(source), path)
         else
-          StringNode(event.value, event.startMark.toPos(source))
+          StringNode(event.value, event.startMark.toPos(source), path)
         if (event.anchor == null) Pair(node, anchors) else Pair(node, anchors.plus(event.anchor to node))
       }
       is AliasEvent -> {
@@ -111,7 +113,8 @@ object MapProduction {
   operator fun invoke(
     stream: TokenStream<Event>,
     source: String,
-    anchors: Map<String, Node>
+    anchors: Map<String, Node>,
+    path: DotPath,
   ): Pair<Node, Map<String, Node>> {
     require(stream.current().`is`(Event.ID.MappingStart)) { "Expected mapping start at ${stream.current().startMark}" }
     val mapEvent = stream.current() as MappingStartEvent
@@ -123,13 +126,13 @@ object MapProduction {
       val fieldName = field.value
       val anchor = field.anchor
       stream.next()
-      val (node, returnedAnchors) = TokenProduction(stream, source, tempAnchors)
+      val (node, returnedAnchors) = TokenProduction(stream, source, tempAnchors, path.with(fieldName))
       tempAnchors = returnedAnchors
       if (anchor != null) tempAnchors = (tempAnchors + Pair(anchor, node))
       obj[fieldName] = node
     }
     require(stream.current().`is`(Event.ID.MappingEnd)) { "Expected mapping end at ${stream.current().startMark}" }
-    val node = MapNode(obj.toMap(), mapEvent.startMark.toPos(source), Undefined)
+    val node = MapNode(obj.toMap(), mapEvent.startMark.toPos(source), path, Undefined)
     tempAnchors = when (val anchor = mapEvent.anchor) {
       null -> tempAnchors
       else -> tempAnchors + Pair(anchor, node)
@@ -142,7 +145,8 @@ object SequenceProduction {
   operator fun invoke(
     stream: TokenStream<Event>,
     source: String,
-    anchors: Map<String, Node>
+    anchors: Map<String, Node>,
+    path: DotPath,
   ): Pair<Node, Map<String, Node>> {
     require(
       stream.current().`is`(Event.ID.SequenceStart)
@@ -152,13 +156,13 @@ object SequenceProduction {
     var index = 0
     var tempAnchors: Map<String, Node> = anchors
     while (stream.next().id() != Event.ID.SequenceEnd) {
-      val (node, returnedAnchors) = TokenProduction(stream, source, tempAnchors)
+      val (node, returnedAnchors) = TokenProduction(stream, source, tempAnchors, path)
       list.add(node)
       index++
       tempAnchors = returnedAnchors
     }
     require(stream.current().`is`(Event.ID.SequenceEnd)) { "Expected sequence end at ${stream.current().startMark}" }
-    return Pair(ArrayNode(list.toList(), mark.toPos(source)), tempAnchors)
+    return Pair(ArrayNode(list.toList(), mark.toPos(source), path), tempAnchors)
   }
 }
 
