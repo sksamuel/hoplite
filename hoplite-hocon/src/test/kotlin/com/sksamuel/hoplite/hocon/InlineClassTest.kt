@@ -27,6 +27,6 @@ class InlineClassTest : FunSpec({
 
     - Could not instantiate 'com.sksamuel.hoplite.hocon.`InlineClassTest${'$'}1${'$'}2${"\$Config"}`' because:
 
-        - 'port': Inline type kotlin.Boolean is incompatible with a Long value: 9200 (/valuetype.conf:2)"""
+        - 'port': Inline type kotlin.Boolean is incompatible with a Long value: 9200 (classpath:/valuetype.conf:2)"""
   }
 })

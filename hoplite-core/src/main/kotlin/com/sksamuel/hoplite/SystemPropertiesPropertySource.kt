@@ -7,6 +7,7 @@ import java.util.Properties
 /**
  * An implementation of [PropertySource] that provides config through system properties
  * that are prefixed with 'config.override.'
+ *
  * In other words, if a System property is defined 'config.override.user.name=sam' then
  * the property 'user.name=sam' is made available.
  */

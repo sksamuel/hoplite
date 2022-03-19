@@ -23,8 +23,8 @@ class StrictModeTest : FunSpec() {
           .build()
           .loadConfigOrThrow<Foo>("/snake_case.yml")
       }.message
-        .shouldContain("dripDrop at (/snake_case.yml:0:10) was unused")
-        .shouldContain("double_trouble at (/snake_case.yml:2:16) was unused")
+        .shouldContain("dripDrop at (classpath:/snake_case.yml:0:10) was unused")
+        .shouldContain("double_trouble at (classpath:/snake_case.yml:2:16) was unused")
     }
 
     test("strict mode should not error when all config is used") {
@@ -61,11 +61,11 @@ class StrictModeTest : FunSpec() {
           .build()
           .loadConfigOrThrow<Foo>("/linked_hash_map.yml")
       }.message
-        .shouldContain("a.z at (/linked_hash_map.yml:2:5) was unused")
-        .shouldContain("a.g at (/linked_hash_map.yml:4:5) was unused")
-        .shouldContain("a.u at (/linked_hash_map.yml:5:5) was unused")
-        .shouldNotContain("a.x at (/linked_hash_map.yml:2:5) was unused")
-        .shouldNotContain("a.e at (/linked_hash_map.yml:2:5) was unused")
+        .shouldContain("a.z at (classpath:/linked_hash_map.yml:2:5) was unused")
+        .shouldContain("a.g at (classpath:/linked_hash_map.yml:4:5) was unused")
+        .shouldContain("a.u at (classpath:/linked_hash_map.yml:5:5) was unused")
+        .shouldNotContain("a.x at (classpath:/linked_hash_map.yml:2:5) was unused")
+        .shouldNotContain("a.e at (classpath:/linked_hash_map.yml:2:5) was unused")
     }
   }
 }

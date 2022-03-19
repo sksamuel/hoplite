@@ -19,11 +19,11 @@ class CollectionErrorTests : StringSpec({
 
     - Could not instantiate 'com.sksamuel.hoplite.yaml.Foo' because:
 
-        - 'suppliers': Collection element decode failure (/collections_error.yaml:1:2):
+        - 'suppliers': Collection element decode failure (classpath:/collections_error.yaml:1:2):
 
             - Could not instantiate 'com.sksamuel.hoplite.yaml.Supplier' because:
 
-                - 'parsers': Collection element decode failure (/collections_error.yaml:4:7):
+                - 'parsers': Collection element decode failure (classpath:/collections_error.yaml:4:7):
 
                     - Could not instantiate 'com.sksamuel.hoplite.yaml.Parser' because:
 
@@ -31,7 +31,7 @@ class CollectionErrorTests : StringSpec({
 
             - Could not instantiate 'com.sksamuel.hoplite.yaml.Supplier' because:
 
-                - 'parsers': Collection element decode failure (/collections_error.yaml:10:7):
+                - 'parsers': Collection element decode failure (classpath:/collections_error.yaml:10:7):
 
                     - Could not instantiate 'com.sksamuel.hoplite.yaml.Parser' because:
 
@@ -39,7 +39,7 @@ class CollectionErrorTests : StringSpec({
 
             - Could not instantiate 'com.sksamuel.hoplite.yaml.Supplier' because:
 
-                - 'parsers': Collection element decode failure (/collections_error.yaml:16:7):
+                - 'parsers': Collection element decode failure (classpath:/collections_error.yaml:16:7):
 
                     - Could not instantiate 'com.sksamuel.hoplite.yaml.Parser' because:
 
