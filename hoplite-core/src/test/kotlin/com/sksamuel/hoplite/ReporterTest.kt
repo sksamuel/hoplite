@@ -21,7 +21,8 @@ class ReporterTest : FunSpec({
       .build()
       .loadNodeOrThrow()
 
-    Reporter().report(node).trim() shouldBe """
+    Reporter().reportPaths(node.resources(), "Used").trim() shouldBe """
+Used keys 4
 +--------------------------+---------------------+-------------------+
 | Key                      | Source              | Value             |
 +--------------------------+---------------------+-------------------+
@@ -41,7 +42,7 @@ class ReporterTest : FunSpec({
         .build()
         .propertySources
     ).trim() shouldBe """
-3 sources (highest to lowest priority):
+Property sources (highest to lowest priority):
   - System Properties
   - ${System.getProperty("user.home")}/.userconfig.<ext>
   - Env Var

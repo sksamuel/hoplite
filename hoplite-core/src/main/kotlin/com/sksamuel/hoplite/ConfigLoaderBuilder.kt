@@ -26,6 +26,8 @@ class ConfigLoaderBuilder private constructor() {
   private val parsers = mutableMapOf<String, Parser>()
   private val decoders = mutableListOf<Decoder<*>>()
 
+  private var reporter: Reporter? = null
+
   companion object {
 
     /**
@@ -133,9 +135,31 @@ class ConfigLoaderBuilder private constructor() {
       .addDefaultPropertySources()
   }
 
+  /**
+   * When [DecodeMode.Strict] is enabled, if any config values from property sources are unused,
+   * the config loader will error. This enables you to easily find stale config and fix it.
+   */
   fun strict(): ConfigLoaderBuilder = apply {
     this.mode = DecodeMode.Strict
   }
+
+  /**
+   * Enables a report on all config keys, their values, and which were used or unused.
+   * Note, to avoid printing passwords or other secrets, wrap those values by using `Masked` or `Secret`
+   * as the target type instead of String.
+   *
+   * The report will be printed to standard out. If you wish to provide a logger, then use report(logger::info)
+   */
+  fun report() = apply { reporter = Reporter { println(it) } }
+
+  /**
+   * Enables a report on all config keys, their values, and which were used or unused.
+   * Note, to avoid printing passwords or other secrets, wrap those values by using `Masked` or `Secret`
+   * as the target type instead of String.
+   *
+   * The report will be printed using the given function.
+   */
+  fun report(f: (String) -> Unit) = apply { reporter = Reporter(f) }
 
   fun build(): ConfigLoader {
     return ConfigLoader(
@@ -146,6 +170,7 @@ class ConfigLoaderBuilder private constructor() {
       paramMappers = paramMappers.toList(),
       onFailure = failureCallbacks.toList(),
       mode = mode,
+      reporter = reporter,
     )
   }
 }
@@ -204,6 +229,7 @@ val defaultDecoders = listOf(
   com.sksamuel.hoplite.decoder.KClassDecoder(),
   com.sksamuel.hoplite.decoder.URIDecoder(),
   com.sksamuel.hoplite.decoder.MaskedDecoder(),
+  com.sksamuel.hoplite.decoder.SecretDecoder(),
   com.sksamuel.hoplite.decoder.TripleDecoder(),
   com.sksamuel.hoplite.decoder.PairDecoder(),
   com.sksamuel.hoplite.decoder.YearDecoder(),

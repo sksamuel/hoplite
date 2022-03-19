@@ -41,7 +41,7 @@ abstract class ConfigSource {
     private val resource: String,
     private val classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader(),
   ) : ConfigSource() {
-    override fun describe(): String = resource
+    override fun describe(): String = "classpath:$resource"
     override fun ext() = resource.split('.').last()
     override fun open(): ConfigResult<InputStream> =
       classpathResourceLoader.getResourceAsStream(resource)?.valid() ?: ConfigFailure.UnknownSource(resource).invalid()

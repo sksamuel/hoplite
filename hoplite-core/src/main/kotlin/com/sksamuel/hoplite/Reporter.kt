@@ -1,48 +1,92 @@
 package com.sksamuel.hoplite
 
-class Reporter {
+import com.sksamuel.hoplite.decoder.DotPath
+
+class Reporter(private val print: (String) -> Unit) {
+  constructor() : this({ println(it) })
+
+  fun printReport(
+    sources: List<PropertySource>,
+    node: Node,
+    used: List<Pair<DotPath, Pos>>,
+  ) {
+
+    val r = buildString {
+      appendLine()
+      appendLine("--Start Hoplite Config Report---")
+      appendLine()
+      appendLine(report(sources))
+      appendLine()
+
+      val usedPaths = used.map { it.first }
+      val (usedResources, unusedResources) = node.resources().partition { usedPaths.contains(it.path) }
+
+      if (used.isEmpty()) appendLine("Used keys: none")
+      if (used.isNotEmpty()) appendLine(reportPaths(usedResources, "Used"))
+
+      appendLine()
+
+      if (unusedResources.isEmpty()) appendLine("Unused keys: none")
+      if (unusedResources.isNotEmpty()) appendLine(reportPaths(unusedResources, "Unused"))
+
+      appendLine()
+      appendLine("--End Hoplite Config Report--")
+      appendLine()
+    }
+
+    print(r)
+  }
 
   fun report(sources: List<PropertySource>): String {
-    return "\n${sources.size} sources (highest to lowest priority):\n" +
-      sources.joinToString("\n  - ", "  - ", "\n") { it.source() }
+    return "Property sources (highest to lowest priority):" + System.lineSeparator() +
+      sources.joinToString(System.lineSeparator() + "  - ", "  - ") { it.source() }
   }
 
-  fun report(node: Node): String {
-    val keys = report("", node)
-    val keyPad = keys.maxOf { it.key.length }
-    val sourcePad = keys.maxOf { it.source.length }
-    val valuePad = keys.maxOf { it.value.length }
+  fun reportPaths(resources: List<ConfigResource>, title: String): String {
 
-    val bar = listOf("".padEnd(keyPad + 2, '-'), "".padEnd(sourcePad + 2, '-'), "".padEnd(valuePad + 2, '-'))
-      .joinToString("+", "+", "+")
+    val keyPadded = resources.maxOf { it.path.flatten().length }
+    val sourcePadded = resources.maxOf { it.source.length }
+    val valuePadded = resources.maxOf { it.value.length }
 
-    val titles = listOf("Key".padEnd(keyPad, ' '), "Source".padEnd(sourcePad, ' '), "Value".padEnd(valuePad, ' '))
-      .joinToString(" | ", "| ", " |")
+    val usedCount = "$title keys ${resources.size}"
 
-    val components = listOf(bar, titles, bar) + keys.map {
-      "| " + it.key.padEnd(keyPad, ' ') +
-        " | " + it.source.padEnd(sourcePad, ' ') +
-        " | " + it.value.padEnd(valuePad, ' ') + " |"
+    val bar = listOf(
+      "".padEnd(keyPadded + 2, '-'),
+      "".padEnd(sourcePadded + 2, '-'),
+      "".padEnd(valuePadded + 2, '-')
+    ).joinToString("+", "+", "+")
+
+    val titles =
+      listOf(
+        "Key".padEnd(keyPadded, ' '),
+        "Source".padEnd(sourcePadded, ' '),
+        "Value".padEnd(valuePadded, ' ')
+      ).joinToString(" | ", "| ", " |")
+
+    val components = listOf(usedCount, bar, titles, bar) + resources.map {
+      "| " + it.path.flatten().padEnd(keyPadded, ' ') +
+        " | " + it.source.padEnd(sourcePadded, ' ') +
+        " | " + it.value.padEnd(valuePadded, ' ') + " |"
     } + listOf(bar)
-    return components.joinToString("\n", "\n", "\n")
-  }
-
-  private fun report(name: String, node: Node): List<KeyUsage> {
-    return when (node) {
-      is ArrayNode -> emptyList()
-      is MapNode -> node.map.entries.flatMap { (key, value) -> report("$name.$key".removePrefix("."), value) }
-      is BooleanNode -> listOf(KeyUsage(name, node.pos.source() ?: "n/a", node.value.toString()))
-      is NullNode -> listOf(KeyUsage(name, node.pos.source() ?: "n/a", "<null>"))
-      is DoubleNode -> listOf(KeyUsage(name, node.pos.source() ?: "n/a", node.value.toString()))
-      is LongNode -> listOf(KeyUsage(name, node.pos.source() ?: "n/a", node.value.toString()))
-      is StringNode -> listOf(KeyUsage(name, node.pos.source() ?: "n/a", node.value))
-      Undefined -> emptyList()
-    }
+    return components.joinToString(System.lineSeparator())
   }
 }
 
-data class KeyUsage(
-  val key: String,
+fun Node.resources(): List<ConfigResource> {
+  return when (this) {
+    is ArrayNode -> emptyList()
+    is MapNode -> map.entries.map { (_, value) -> value.resources() }.flatten()
+    is BooleanNode -> listOf(ConfigResource(path, pos.source() ?: "n/a", value.toString()))
+    is NullNode -> listOf(ConfigResource(path, pos.source() ?: "n/a", "<null>"))
+    is DoubleNode -> listOf(ConfigResource(path, pos.source() ?: "n/a", value.toString()))
+    is LongNode -> listOf(ConfigResource(path, pos.source() ?: "n/a", value.toString()))
+    is StringNode -> listOf(ConfigResource(path, pos.source() ?: "n/a", value))
+    Undefined -> emptyList()
+  }
+}
+
+data class ConfigResource(
+  val path: DotPath,
   val source: String,
   val value: String,
 )

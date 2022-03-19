@@ -18,23 +18,39 @@ class Decoding(
   private val preprocessors: List<Preprocessor>,
 ) {
 
-  fun <A : Any> decode(kclass: KClass<A>, node: Node, mode: DecodeMode): ConfigResult<A> {
+  fun <A : Any> decode(kclass: KClass<A>, node: Node, mode: DecodeMode): ConfigResult<DecodingResult<A>> {
     val context = DecoderContext(decoderRegistry, paramMappers, preprocessors, mutableSetOf())
     val preprocessed = context.preprocessors.fold(node) { acc, preprocessor -> preprocessor.process(acc) }
     val errors = UnresolvedSubstitutionChecker.process(preprocessed)
     return if (errors.isNotEmpty())
       ConfigFailure.MultipleFailures(NonEmptyList(errors)).invalid()
-    else
+    else {
       decoderRegistry.decoder(kclass)
         .flatMap { it.decode(preprocessed, kclass.createType(), context) }
-        .flatMap { if (mode == DecodeMode.Strict) ensureAllUsed(it, node, context.usedPaths) else it.valid() }
+        .flatMap { decodingResult(it, node, context.usedPaths, mode) }
+    }
   }
 
-  private fun <A : Any> ensureAllUsed(a: A, node: Node, usedPaths: Set<DotPath>): ConfigResult<A> {
-    val unused = node.paths().filterNot { usedPaths.contains(it.first) }.filterNot { it.first == DotPath.root }
-    return if (unused.isEmpty()) a.valid() else {
-      val errors = unused.map { ConfigFailure.UnusedPaths(it.first, it.second) }.nel()
+  private fun <A : Any> decodingResult(
+    a: A,
+    node: Node,
+    usedPaths: MutableSet<DotPath>,
+    mode: DecodeMode,
+  ): ConfigResult<DecodingResult<A>> {
+    val (used, unused) = node.paths().partition { usedPaths.contains(it.first) }
+    val result = DecodingResult(a, used, unused)
+    return when (mode) {
+      DecodeMode.Strict -> ensureAllUsed(result)
+      DecodeMode.Lenient -> result.valid()
+    }
+  }
+
+  private fun <A : Any> ensureAllUsed(result: DecodingResult<A>): ConfigResult<DecodingResult<A>> {
+    return if (result.unused.isEmpty()) result.valid() else {
+      val errors = result.unused.map { ConfigFailure.UnusedPaths(it.first, it.second) }.nel()
       ConfigFailure.MultipleFailures(errors).invalid()
     }
   }
 }
+
+data class DecodingResult<A>(val a: A, val used: List<Pair<DotPath, Pos>>, val unused: List<Pair<DotPath, Pos>>)

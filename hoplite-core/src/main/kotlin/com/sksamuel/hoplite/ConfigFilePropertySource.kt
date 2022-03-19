@@ -22,7 +22,7 @@ class ConfigFilePropertySource(
   private val optional: Boolean = false,
 ) : PropertySource {
 
-  override fun source(): String = "Config File"
+  override fun source(): String = config.describe()
 
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
     val parser = context.parsers.locate(config.ext())
