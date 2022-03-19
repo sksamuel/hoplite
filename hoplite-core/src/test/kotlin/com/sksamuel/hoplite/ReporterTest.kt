@@ -43,7 +43,7 @@ class ReporterTest : FunSpec({
     ).trim() shouldBe """
 3 sources (highest to lowest priority):
   - System Properties
-  - /home/sam/.userconfig.<ext>
+  - ${System.getProperty("user.home")}/.userconfig.<ext>
   - Env Var
 """.trimIndent().trim()
 
