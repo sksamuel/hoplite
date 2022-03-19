@@ -38,11 +38,7 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
     }
   }
 
-  override fun safeDecode(
-    node: Node,
-    type: KType,
-    context: DecoderContext
-  ): ConfigResult<Any> {
+  override fun safeDecode(node: Node, type: KType, context: DecoderContext): ConfigResult<Any> {
 
     val klass = type.classifier as KClass<*>
     if (klass.constructors.isEmpty()) {
@@ -90,6 +86,8 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
             node.atKey(name)
           }
         }
+
+        context.usedPaths.add(n.path)
 
         when {
           // if we have no value for this parameter at all, and it is optional we can skip it, and

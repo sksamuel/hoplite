@@ -21,7 +21,7 @@ interface PropertySource {
 
   /**
    * Returns the root [Node] provided by this property source, or an error
-   * if the values could not be retrieved.
+   * if the node could not be constructed.
    */
   fun node(context: PropertySourceContext): ConfigResult<Node>
 

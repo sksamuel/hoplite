@@ -32,7 +32,7 @@ class NonEmptyListDecoder : NullHandlingDecoder<NonEmptyList<*>> {
 
     fun <T> decode(node: StringNode, decoder: Decoder<T>): ConfigResult<NonEmptyList<T>> {
       return node.value.split(",").map { it.trim() }
-        .map { decoder.decode(StringNode(it, node.pos), type, context) }.sequence()
+        .map { decoder.decode(StringNode(it, node.pos, node.path), type, context) }.sequence()
         .mapInvalid { ConfigFailure.CollectionElementErrors(node, it) }
         .map { NonEmptyList.fromListUnsafe(it) }
     }

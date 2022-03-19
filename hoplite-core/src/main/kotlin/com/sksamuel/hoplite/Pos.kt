@@ -7,7 +7,7 @@ sealed class Pos {
 
   /**
    * Used if no positional information was present. For example, an environment
-   * variable would not have file information.
+   * variable would not have positional information.
    */
   object NoPos : Pos()
 

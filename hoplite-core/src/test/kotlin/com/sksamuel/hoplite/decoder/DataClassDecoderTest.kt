@@ -1,6 +1,5 @@
 package com.sksamuel.hoplite.decoder
 
-import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.BooleanNode
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.LongNode
@@ -9,6 +8,7 @@ import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.defaultParamMappers
+import com.sksamuel.hoplite.fp.valid
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import java.time.LocalDate
@@ -25,11 +25,12 @@ class DataClassDecoderTest : StringSpec() {
 
       val node = MapNode(
         mapOf(
-          "a" to StringNode("hello", Pos.NoPos),
-          "b" to LongNode(123L, Pos.NoPos),
-          "c" to BooleanNode(true, Pos.NoPos)
+          "a" to StringNode("hello", Pos.NoPos, DotPath.root),
+          "b" to LongNode(123L, Pos.NoPos, DotPath.root),
+          "c" to BooleanNode(true, Pos.NoPos, DotPath.root)
         ),
-        Pos.NoPos
+        Pos.NoPos,
+        DotPath.root
       )
       DataClassDecoder().decode(
         node,
@@ -43,11 +44,11 @@ class DataClassDecoderTest : StringSpec() {
 
       val node = MapNode(
         mapOf(
-          "a" to NullNode(Pos.NoPos),
-          "b" to NullNode(Pos.NoPos),
-          "c" to NullNode(Pos.NoPos)
-        ),
-        Pos.NoPos
+          "a" to NullNode(Pos.NoPos, DotPath.root),
+          "b" to NullNode(Pos.NoPos, DotPath.root),
+          "c" to NullNode(Pos.NoPos, DotPath.root)
+        ), Pos.NoPos,
+        DotPath.root
       )
 
       DataClassDecoder().decode(
@@ -62,11 +63,12 @@ class DataClassDecoderTest : StringSpec() {
 
       val node = MapNode(
         mapOf(
-          "a" to StringNode("hello", Pos.NoPos),
-          "b" to LongNode(123L, Pos.NoPos),
-          "c" to BooleanNode(true, Pos.NoPos)
+          "a" to StringNode("hello", Pos.NoPos, DotPath.root),
+          "b" to LongNode(123L, Pos.NoPos, DotPath.root),
+          "c" to BooleanNode(true, Pos.NoPos, DotPath.root)
         ),
-        Pos.NoPos
+        Pos.NoPos,
+        DotPath.root,
       )
       DataClassDecoder().decode(
         node,
@@ -86,12 +88,13 @@ class DataClassDecoderTest : StringSpec() {
 
       val node = MapNode(
         mapOf(
-          "a" to StringNode("1991", Pos.NoPos),
-          "b" to LongNode(millis.toEpochMilli(), Pos.NoPos),
-          "c" to StringNode("2007-12", Pos.NoPos),
-          "d" to LongNode(millis.toEpochMilli(), Pos.NoPos)
+          "a" to StringNode("1991", Pos.NoPos, DotPath.root),
+          "b" to LongNode(millis.toEpochMilli(), Pos.NoPos, DotPath.root),
+          "c" to StringNode("2007-12", Pos.NoPos, DotPath.root),
+          "d" to LongNode(millis.toEpochMilli(), Pos.NoPos, DotPath.root)
         ),
-        Pos.NoPos
+        Pos.NoPos,
+        DotPath.root,
       )
       DataClassDecoder().decode(node,
         Foo::class.createType(),
@@ -104,11 +107,12 @@ class DataClassDecoderTest : StringSpec() {
 
       val node = MapNode(
         mapOf(
-          "a" to StringNode("1..4", Pos.NoPos),
-          "b" to StringNode("50..60", Pos.NoPos),
-          "c" to StringNode("d..g", Pos.NoPos)
+          "a" to StringNode("1..4", Pos.NoPos, DotPath.root),
+          "b" to StringNode("50..60", Pos.NoPos, DotPath.root),
+          "c" to StringNode("d..g", Pos.NoPos, DotPath.root)
         ),
-        Pos.NoPos
+        Pos.NoPos,
+        DotPath.root
       )
       DataClassDecoder().decode(
         node,
@@ -122,9 +126,10 @@ class DataClassDecoderTest : StringSpec() {
 
       val node = MapNode(
         mapOf(
-          "a" to StringNode("value", Pos.NoPos)
+          "a" to StringNode("value", Pos.NoPos, DotPath.root)
         ),
-        Pos.NoPos
+        Pos.NoPos,
+        DotPath.root,
       )
 
       DataClassDecoder().decode(
@@ -137,7 +142,7 @@ class DataClassDecoderTest : StringSpec() {
     "supports single param value constructor" {
       data class Foo(val value: FooEnum)
 
-      val node = StringNode("SECOND", Pos.NoPos)
+      val node = StringNode("SECOND", Pos.NoPos, DotPath.root)
 
       DataClassDecoder().decode(
         node,
@@ -151,7 +156,7 @@ class DataClassDecoderTest : StringSpec() {
         constructor(value: FooEnum) : this( value, null, null)
       }
 
-      val node = StringNode("THIRD", Pos.NoPos)
+      val node = StringNode("THIRD", Pos.NoPos, DotPath.root)
 
       DataClassDecoder().decode(
         node,
@@ -167,11 +172,12 @@ class DataClassDecoderTest : StringSpec() {
 
       val node = MapNode(
         mapOf(
-          "a" to StringNode("FIRST", Pos.NoPos),
-          "b" to StringNode("MultiParamCallExpected", Pos.NoPos),
-          "c" to BooleanNode(false, Pos.NoPos)
+          "a" to StringNode("FIRST", Pos.NoPos, DotPath.root),
+          "b" to StringNode("MultiParamCallExpected", Pos.NoPos, DotPath.root),
+          "c" to BooleanNode(false, Pos.NoPos, DotPath.root)
         ),
-        Pos.NoPos
+        Pos.NoPos,
+        DotPath.root
       )
 
       DataClassDecoder().decode(
@@ -189,10 +195,11 @@ class DataClassDecoderTest : StringSpec() {
 
       val node = MapNode(
         mapOf(
-          "a" to StringNode("THIRD", Pos.NoPos),
-          "c" to BooleanNode(true, Pos.NoPos)
+          "a" to StringNode("THIRD", Pos.NoPos, DotPath.root),
+          "c" to BooleanNode(true, Pos.NoPos, DotPath.root)
         ),
-        Pos.NoPos
+        Pos.NoPos,
+        DotPath.root
       )
 
       DataClassDecoder().decode(

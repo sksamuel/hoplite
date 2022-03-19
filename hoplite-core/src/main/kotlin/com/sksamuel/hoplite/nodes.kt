@@ -1,11 +1,18 @@
 package com.sksamuel.hoplite
 
+import com.sksamuel.hoplite.decoder.DotPath
+
 sealed interface Node {
 
   /**
    * Returns the positional information of this value.
    */
   val pos: Pos
+
+  /**
+   * Returns the path to this node from the root node.
+   */
+  val path: DotPath
 
   /**
    * Returns the [PrimitiveNode] at the given key.
@@ -49,39 +56,25 @@ sealed interface Node {
 val Node.isDefined: Boolean
   get() = this !is Undefined
 
-fun Node.hasKeyAt(key: String): Boolean = atKey(key).isDefined
-
-/**
- * Applies the given function to all string values, recursively calling into lists and maps.
- */
-fun Node.transform(f: (String) -> String): Node = when (this) {
-  is StringNode -> this.copy(value = f(this.value))
-  is MapNode -> MapNode(map.map { f(it.key) to it.value.transform(f) }.toMap(), pos, this.value)
-  is ArrayNode -> ArrayNode(elements.map { it.transform(f) }, pos)
-  else -> this
-}
-
-/**
- * Applies the given function to all key names, recursively calling into lists and maps.
- */
-fun Node.mapKey(f: (String) -> String): Node = when (this) {
-  is MapNode -> this.copy(map = this.map.map { f(it.key) to it.value.mapKey(f) }.toMap())
-  else -> this
-}
-
 sealed class ContainerNode : Node
 
-data class MapNode(val map: Map<String, Node>,
-                   override val pos: Pos,
-                   val value: Node = Undefined) : ContainerNode() {
+data class MapNode(
+  val map: Map<String, Node>,
+  override val pos: Pos,
+  override val path: DotPath,
+  val value: Node = Undefined
+) : ContainerNode() {
   override val simpleName: String = "Map"
   override fun atKey(key: String): Node = map[key] ?: Undefined
   override fun atIndex(index: Int): Node = Undefined
   override val size: Int = map.size
 }
 
-data class ArrayNode(val elements: List<Node>,
-                     override val pos: Pos) : ContainerNode() {
+data class ArrayNode(
+  val elements: List<Node>,
+  override val pos: Pos,
+  override val path: DotPath
+) : ContainerNode() {
   override val simpleName: String = "List"
   override fun atKey(key: String): Node = Undefined
   override fun atIndex(index: Int): Node = elements.getOrElse(index) { Undefined }
@@ -95,25 +88,44 @@ sealed class PrimitiveNode : Node {
   abstract val value: Any?
 }
 
-data class StringNode(override val value: String, override val pos: Pos) : PrimitiveNode() {
+data class StringNode(
+  override val value: String,
+  override val pos: Pos,
+  override val path: DotPath,
+) : PrimitiveNode() {
   override val simpleName: String = "String"
 }
 
-data class BooleanNode(override val value: Boolean, override val pos: Pos) : PrimitiveNode() {
+data class BooleanNode(
+  override val value: Boolean,
+  override val pos: Pos,
+  override val path: DotPath,
+) : PrimitiveNode() {
   override val simpleName: String = "Boolean"
 }
 
 sealed class NumberNode : PrimitiveNode()
 
-data class LongNode(override val value: Long, override val pos: Pos) : NumberNode() {
+data class LongNode(
+  override val value: Long,
+  override val pos: Pos,
+  override val path: DotPath,
+) : NumberNode() {
   override val simpleName: String = "Long"
 }
 
-data class DoubleNode(override val value: Double, override val pos: Pos) : NumberNode() {
+data class DoubleNode(
+  override val value: Double,
+  override val pos: Pos,
+  override val path: DotPath,
+) : NumberNode() {
   override val simpleName: String = "Double"
 }
 
-data class NullNode(override val pos: Pos) : PrimitiveNode() {
+data class NullNode(
+  override val pos: Pos,
+  override val path: DotPath,
+) : PrimitiveNode() {
   override val simpleName: String = "null"
   override val value: Any? = null
 }
@@ -121,6 +133,7 @@ data class NullNode(override val pos: Pos) : PrimitiveNode() {
 object Undefined : Node {
   override val simpleName: String = "Undefined"
   override val pos: Pos = Pos.NoPos
+  override val path = DotPath.root
   override fun atKey(key: String): Node = this
   override fun atIndex(index: Int): Node = this
   override val size: Int = 0

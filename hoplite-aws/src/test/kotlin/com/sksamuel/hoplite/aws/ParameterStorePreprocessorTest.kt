@@ -4,6 +4,7 @@ import com.sksamuel.hoplite.ConfigException
 import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.decoder.DotPath
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 
@@ -13,7 +14,7 @@ class ParameterStorePreprocessorTest : FunSpec() {
 
     test("prefix should be detected and used") {
       shouldThrow<ConfigException> {
-        ParameterStorePreprocessor.process(StringNode("\${ssm:/foo}", Pos.NoPos))
+        ParameterStorePreprocessor.process(StringNode("\${ssm:/foo}", Pos.NoPos, DotPath.root))
       }
     }
 

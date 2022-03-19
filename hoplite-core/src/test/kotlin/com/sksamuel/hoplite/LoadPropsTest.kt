@@ -2,10 +2,11 @@
 
 package com.sksamuel.hoplite
 
+import com.sksamuel.hoplite.decoder.DotPath
 import com.sksamuel.hoplite.parsers.toNode
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import java.util.*
+import java.util.Properties
 
 class LoadPropsTest : FunSpec({
 
@@ -20,33 +21,38 @@ class LoadPropsTest : FunSpec({
           mapOf(
             "b" to MapNode(
               mapOf(
-                "c" to StringNode("wibble", pos = Pos.FilePos(source = "source")),
-                "d" to StringNode("123", pos = Pos.FilePos(source = "source"))
+                "c" to StringNode("wibble", pos = Pos.FilePos(source = "source"), DotPath.root),
+                "d" to StringNode("123", pos = Pos.FilePos(source = "source"), DotPath.root)
               ),
               pos = Pos.FilePos(source = "source"),
-              value = Undefined
+              DotPath.root,
+              value = Undefined,
             ),
-            "d" to StringNode("true", pos = Pos.FilePos(source = "source"))
+            "d" to StringNode("true", pos = Pos.FilePos(source = "source"), DotPath.root)
           ),
           pos = Pos.FilePos(source = "source"),
-          value = StringNode("foo", Pos.FilePos(source = "source"))
+          DotPath.root,
+          value = StringNode("foo", Pos.FilePos(source = "source"), DotPath.root)
         ),
         "e" to MapNode(
           mapOf(
             "f" to MapNode(
               mapOf(
-                "g" to StringNode("goo", pos = Pos.FilePos(source = "source"))
+                "g" to StringNode("goo", pos = Pos.FilePos(source = "source"), DotPath.root)
               ),
               pos = Pos.FilePos(source = "source"),
-              value = StringNode("6", Pos.FilePos(source = "source"))
+              DotPath.root,
+              value = StringNode("6", Pos.FilePos(source = "source"), DotPath.root)
             )
           ),
           pos = Pos.FilePos(source = "source"),
-          value = StringNode("5.5", Pos.FilePos(source = "source"))
+          DotPath.root,
+          value = StringNode("5.5", Pos.FilePos(source = "source"), DotPath.root)
         )
       ),
       pos = Pos.FilePos(source = "source"),
-      value = Undefined
+      DotPath.root,
+      value = Undefined,
     )
 
     val actual = props.toNode("source")

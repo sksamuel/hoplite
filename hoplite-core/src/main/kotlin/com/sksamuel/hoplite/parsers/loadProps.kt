@@ -6,6 +6,7 @@ import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Undefined
+import com.sksamuel.hoplite.decoder.DotPath
 import java.util.Properties
 
 @Suppress("UNCHECKED_CAST")
@@ -57,25 +58,29 @@ private fun <T> Iterable<T>.toNode(
       value != null && values.isEmpty() -> value?.transform() ?: Undefined
       else -> MapNode(
         map = values.takeUnless { it.isEmpty() }?.mapValues { it.value.transform() } ?: emptyMap(),
-        value = value?.transform() ?: Undefined,
         pos = pos,
+        path = DotPath.root,
+        value = value?.transform() ?: Undefined, // todo
       )
     }
     is Array<*> -> ArrayNode(
       elements = mapNotNull { it?.transform() },
       pos = pos,
+      path = DotPath.root, // todo
     )
     is Collection<*> -> ArrayNode(
       elements = mapNotNull { it?.transform() },
       pos = pos,
+      path = DotPath.root, // todo
     )
     is Map<*, *> -> MapNode(
       map = takeUnless { it.isEmpty() }?.mapNotNull { entry ->
         entry.value?.let { entry.key.toString() to it.transform() }
       }?.toMap() ?: emptyMap(),
       pos = pos,
+      path = DotPath.root, // todo
     )
-    else -> StringNode(this.toString(), pos)
+    else -> StringNode(this.toString(), pos, path = DotPath.root) // todo
   }
 
   return map.transform()

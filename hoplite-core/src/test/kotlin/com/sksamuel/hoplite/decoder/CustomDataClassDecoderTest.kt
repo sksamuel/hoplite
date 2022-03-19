@@ -1,11 +1,11 @@
 package com.sksamuel.hoplite.decoder
 
-import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.fp.valid
 import io.kotest.assertions.fail
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -35,10 +35,11 @@ class CustomDataClassDecoderTest : FunSpec({
       .fold(
         { fail("error finding decoder ") },
         { decoder ->
-          decoder.decode(StringNode("qqqq", Pos.NoPos), Foo::class.createType(), DecoderContext.zero).fold(
-            { fail("error decoding ${it.description()}") },
-            { it.a shouldBe "wibble" }
-          )
+          decoder.decode(StringNode("qqqq", Pos.NoPos, DotPath.root), Foo::class.createType(), DecoderContext.zero)
+            .fold(
+              { fail("error decoding ${it.description()}") },
+              { it.a shouldBe "wibble" }
+            )
         }
       )
   }

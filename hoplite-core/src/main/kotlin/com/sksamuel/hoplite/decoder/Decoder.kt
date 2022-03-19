@@ -1,6 +1,5 @@
 package com.sksamuel.hoplite.decoder
 
-import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
@@ -9,6 +8,7 @@ import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.fp.Validated
+import com.sksamuel.hoplite.fp.invalid
 import kotlin.reflect.KType
 import kotlin.reflect.full.createType
 
@@ -34,13 +34,25 @@ interface Decoder<T> {
   /**
    * Attempts to decode the given node into an instance of the given [KType].
    *
-   * @param node contains the value for the current dot path
-   * @param type the concrete type required by the caller
-   * @param context used to lookup decoders for types that have nested types, and other context related things
+   * @param node the node for the current path
+   * @param type the concrete type required by the caller, used by decoders that support type hierarchies
+   * @param context used to lookup decoders for types that have nested types.
    */
-  fun decode(node: Node,
-             type: KType,
-             context: DecoderContext): ConfigResult<T>
+  fun decode(
+    node: Node,
+    type: KType,
+    context: DecoderContext
+  ): ConfigResult<T>
+}
+
+data class DotPath(val keys: List<String>) {
+  constructor(vararg keys: String) : this(keys.toList())
+
+  companion object {
+    val root = DotPath(emptyList())
+  }
+
+  fun with(name: String): DotPath = DotPath(keys + name)
 }
 
 inline fun <T, reified U> Decoder<T>.map(crossinline f: (T) -> U): Decoder<U> = object : Decoder<U> {
@@ -76,9 +88,7 @@ interface NullHandlingDecoder<T> : Decoder<T> {
       ConfigFailure.MissingValue.invalid()
   }
 
-  override fun decode(node: Node,
-                      type: KType,
-                      context: DecoderContext): Validated<ConfigFailure, T> =
+  override fun decode(node: Node, type: KType, context: DecoderContext): ConfigResult<T> =
     when (node) {
       is Undefined -> offerUndefined(type).map { it as T }
       is NullNode -> offerNull(node, type).map { it as T }
@@ -92,9 +102,11 @@ interface NullHandlingDecoder<T> : Decoder<T> {
    * @param type the concrete type required by the caller
    * @param context used to lookup decoders for types that have nested types
    */
-  fun safeDecode(node: Node,
-                 type: KType,
-                 context: DecoderContext): ConfigResult<T>
+  fun safeDecode(
+    node: Node,
+    type: KType,
+    context: DecoderContext
+  ): ConfigResult<T>
 }
 
 interface NonNullableLeafDecoder<T> : NullHandlingDecoder<T> {
