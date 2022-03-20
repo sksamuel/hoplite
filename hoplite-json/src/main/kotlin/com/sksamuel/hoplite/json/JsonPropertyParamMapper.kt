@@ -6,8 +6,9 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.full.findAnnotation
 
 object JsonPropertyParamMapper : ParameterMapper {
-  override fun map(param: KParameter): String {
+  override fun map(param: KParameter): Set<String> {
     val jsonProperty = param.findAnnotation<JsonProperty>()
-    return jsonProperty?.value ?: param.name ?: "<anon>"
+    val value = jsonProperty?.value ?: param.name
+    return setOfNotNull(value)
   }
 }

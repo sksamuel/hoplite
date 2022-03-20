@@ -22,14 +22,14 @@ class KebabCaseParamMapperTest : StringSpec() {
 
       assertSoftly {
 
-        KebabCaseParamMapper.map(kparam("foo")) shouldBe "foo"
-        KebabCaseParamMapper.map(kparam("fooCamelCase")) shouldBe "foo-camel-case"
-        KebabCaseParamMapper.map(kparam("foo_snake_case")) shouldBe "foo_snake_case"
-        KebabCaseParamMapper.map(kparam("_underScore")) shouldBe "_under-score"
-        KebabCaseParamMapper.map(kparam("TitleCase")) shouldBe "title-case"
-        KebabCaseParamMapper.map(kparam("foo123")) shouldBe "foo123"
-        KebabCaseParamMapper.map(kparam("foo123BarFaz")) shouldBe "foo123-bar-faz"
-        KebabCaseParamMapper.map(kparam("myDSLClass")) shouldBe "my-d-s-l-class"
+        KebabCaseParamMapper.map(kparam("foo")) shouldBe setOf("foo")
+        KebabCaseParamMapper.map(kparam("fooCamelCase")) shouldBe setOf("foo-camel-case")
+        KebabCaseParamMapper.map(kparam("foo_snake_case")) shouldBe setOf("foo_snake_case")
+        KebabCaseParamMapper.map(kparam("_underScore")) shouldBe setOf("_under-score")
+        KebabCaseParamMapper.map(kparam("TitleCase")) shouldBe setOf("title-case")
+        KebabCaseParamMapper.map(kparam("foo123")) shouldBe setOf("foo123")
+        KebabCaseParamMapper.map(kparam("foo123BarFaz")) shouldBe setOf("foo123-bar-faz")
+        KebabCaseParamMapper.map(kparam("myDSLClass")) shouldBe setOf("my-d-s-l-class")
       }
     }
   }

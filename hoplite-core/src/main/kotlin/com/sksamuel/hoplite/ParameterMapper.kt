@@ -20,7 +20,7 @@ interface ParameterMapper {
 }
 
 object DefaultParamMapper : ParameterMapper {
-  override fun map(param: KParameter): Set<String> = setOf(param.name ?: "<anon>")
+  override fun map(param: KParameter): Set<String> = setOfNotNull(param.name)
 }
 
 /**
@@ -28,7 +28,7 @@ object DefaultParamMapper : ParameterMapper {
  * names unexpectedly.
  */
 object UppercaseParamMapper : ParameterMapper {
-  override fun map(param: KParameter): Set<String> = setOf(param.name?.uppercase() ?: "<anon>")
+  override fun map(param: KParameter): Set<String> = setOfNotNull(param.name?.uppercase())
 }
 
 @Repeatable
@@ -49,7 +49,8 @@ object AliasAnnotationParamMapper : ParameterMapper {
 object SnakeCaseParamMapper : ParameterMapper {
 
   override fun map(param: KParameter): Set<String> {
-    val snake = (param.name ?: "<anon>").fold("") { acc, char ->
+    val name = param.name ?: return emptySet()
+    val snake = name.fold("") { acc, char ->
       when {
         char.isUpperCase() && acc.isEmpty() -> char.lowercaseChar().toString()
         char.isUpperCase() -> acc + "_" + char.lowercaseChar()
@@ -69,7 +70,8 @@ object SnakeCaseParamMapper : ParameterMapper {
 object KebabCaseParamMapper : ParameterMapper {
 
   override fun map(param: KParameter): Set<String> {
-    val kebab = (param.name ?: "<anon>").fold("") { acc, char ->
+    val name = param.name ?: return emptySet()
+    val kebab = name.fold("") { acc, char ->
       when {
         char.isUpperCase() && acc.isEmpty() -> char.lowercaseChar().toString()
         char.isUpperCase() -> acc + "-" + char.lowercaseChar()
