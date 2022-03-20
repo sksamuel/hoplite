@@ -1,5 +1,7 @@
 package com.sksamuel.hoplite
 
+import com.sksamuel.hoplite.sources.SystemPropertiesPropertySource
+import com.sksamuel.hoplite.sources.toStringMap
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldContainExactly
 import io.kotest.matchers.shouldBe

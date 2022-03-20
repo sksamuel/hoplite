@@ -10,8 +10,7 @@ import com.sksamuel.hoplite.ThrowableFailure
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import kotlin.reflect.KType
-import kotlin.time.Duration
-import kotlin.time.ExperimentalTime
+import kotlin.time.Duration.Companion.seconds
 
 class SecondsDecoder : NonNullableLeafDecoder<Seconds> {
 
@@ -29,5 +28,4 @@ class SecondsDecoder : NonNullableLeafDecoder<Seconds> {
 
 data class Seconds(val value: Long)
 
-@ExperimentalTime
-fun Seconds.duration() = Duration.seconds(value)
+fun Seconds.duration() = value.seconds

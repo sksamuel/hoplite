@@ -1,7 +1,7 @@
 package com.sksamuel.hoplite.json
 
 import com.sksamuel.hoplite.ConfigLoader
-import com.sksamuel.hoplite.EnvironmentVariablesPropertySource
+import com.sksamuel.hoplite.sources.EnvironmentVariablesPropertySource
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 

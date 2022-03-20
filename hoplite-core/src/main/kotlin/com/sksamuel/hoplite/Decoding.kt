@@ -47,7 +47,7 @@ class Decoding(
 
   private fun <A : Any> ensureAllUsed(result: DecodingResult<A>): ConfigResult<DecodingResult<A>> {
     return if (result.unused.isEmpty()) result.valid() else {
-      val errors = NonEmptyList.unsafe(result.unused.map { ConfigFailure.UnusedPaths(it.first, it.second) })
+      val errors = NonEmptyList.unsafe(result.unused.map { ConfigFailure.UnusedPath(it.first, it.second) })
       ConfigFailure.MultipleFailures(errors).invalid()
     }
   }

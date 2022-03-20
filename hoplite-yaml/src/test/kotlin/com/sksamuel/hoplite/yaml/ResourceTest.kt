@@ -2,7 +2,7 @@ package com.sksamuel.hoplite.yaml
 
 import com.sksamuel.hoplite.ClasspathResourceLoader.Companion.toClasspathResourceLoader
 import com.sksamuel.hoplite.ConfigFailure
-import com.sksamuel.hoplite.ConfigFilePropertySource
+import com.sksamuel.hoplite.sources.ConfigFilePropertySource
 import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.fp.Validated

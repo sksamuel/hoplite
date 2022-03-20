@@ -5,7 +5,7 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 
 private object Upcaser : PrefixProcessor("upcase:") {
-  override fun processString(valueWithoutPrefix: String): String = valueWithoutPrefix.toUpperCase()
+  override fun processString(valueWithoutPrefix: String): String = valueWithoutPrefix.uppercase()
 }
 
 class PrefixProcessorTest : StringSpec() {

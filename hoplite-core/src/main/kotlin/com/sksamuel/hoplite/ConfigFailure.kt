@@ -28,7 +28,7 @@ sealed interface ConfigFailure {
    */
   fun description(): String
 
-  data class UnusedPaths(val path: DotPath, val pos: Pos) : ConfigFailure {
+  data class UnusedPath(val path: DotPath, val pos: Pos) : ConfigFailure {
     override fun description(): String {
       return "${path.flatten()} at ${pos.loc()} was unused"
     }
@@ -64,10 +64,6 @@ sealed interface ConfigFailure {
 
   data class DataClassWithoutConstructor(val kclass: KClass<*>) : ConfigFailure {
     override fun description(): String = "Data class ${kclass.qualifiedName} has no constructors"
-  }
-
-  data class UnusedConfigValues(val values: List<String>) : ConfigFailure {
-    override fun description(): String = "Config values were not used: ${values.joinToString(", ")}"
   }
 
   data class UnknownSource(val source: String) : ConfigFailure {

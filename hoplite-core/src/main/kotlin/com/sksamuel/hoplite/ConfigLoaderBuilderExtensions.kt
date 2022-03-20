@@ -1,5 +1,9 @@
 package com.sksamuel.hoplite
 
+import com.sksamuel.hoplite.sources.CommandLinePropertySource
+import com.sksamuel.hoplite.sources.ConfigFilePropertySource
+import com.sksamuel.hoplite.sources.EnvironmentVariablesPropertySource
+import com.sksamuel.hoplite.sources.InputStreamPropertySource
 import java.io.File
 import java.io.InputStream
 import java.nio.file.Path

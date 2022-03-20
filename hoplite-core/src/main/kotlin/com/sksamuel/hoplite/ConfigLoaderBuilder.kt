@@ -10,6 +10,8 @@ import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.preprocessor.RandomPreprocessor
 import com.sksamuel.hoplite.report.Reporter
 import com.sksamuel.hoplite.report.ReporterBuilder
+import com.sksamuel.hoplite.sources.SystemPropertiesPropertySource
+import com.sksamuel.hoplite.sources.UserSettingsPropertySource
 import java.util.ServiceLoader
 
 class ConfigLoaderBuilder private constructor() {

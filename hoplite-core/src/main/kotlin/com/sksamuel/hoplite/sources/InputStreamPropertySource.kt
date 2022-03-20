@@ -1,5 +1,9 @@
-package com.sksamuel.hoplite
+package com.sksamuel.hoplite.sources
 
+import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.PropertySource
+import com.sksamuel.hoplite.PropertySourceContext
 import java.io.InputStream
 
 /**

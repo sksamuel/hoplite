@@ -22,8 +22,8 @@ import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.fp.Validated
 import com.sksamuel.hoplite.fp.flatRecover
-import com.sksamuel.hoplite.parseDuration
-import com.sksamuel.hoplite.parsePeriod
+import com.sksamuel.hoplite.time.parseDuration
+import com.sksamuel.hoplite.time.parsePeriod
 import java.time.LocalTime
 import java.time.MonthDay
 import java.time.Period

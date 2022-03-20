@@ -1,17 +1,16 @@
 package com.sksamuel.hoplite.decoder
 
-import com.sksamuel.hoplite.fp.invalid
-import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.BooleanNode
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.DoubleNode
 import com.sksamuel.hoplite.LongNode
-import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.ThrowableFailure
-import java.lang.NumberFormatException
+import com.sksamuel.hoplite.fp.invalid
+import com.sksamuel.hoplite.fp.valid
 import kotlin.reflect.KType
 
 class StringDecoder : NonNullableLeafDecoder<String> {
@@ -125,7 +124,7 @@ class BooleanDecoder : NonNullableLeafDecoder<Boolean> {
   override fun safeLeafDecode(node: Node,
                               type: KType,
                               context: DecoderContext): ConfigResult<Boolean> = when (node) {
-    is StringNode -> when (node.value.toLowerCase()) {
+    is StringNode -> when (node.value.lowercase()) {
       "true", "t", "1", "yes" -> true.valid()
       "false", "f", "0", "no" -> false.valid()
       else -> ConfigFailure.DecodeError(node, type).invalid()

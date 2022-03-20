@@ -3,6 +3,7 @@ package com.sksamuel.hoplite
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.sequence
 import com.sksamuel.hoplite.parsers.ParserRegistry
+import com.sksamuel.hoplite.sources.ConfigFilePropertySource
 
 class NodeParser(private val parserRegistry: ParserRegistry) {
 
