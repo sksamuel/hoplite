@@ -2,10 +2,13 @@ package com.sksamuel.hoplite.aws
 
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClientBuilder
 import com.amazonaws.services.simplesystemsmanagement.model.GetParameterRequest
-import com.sksamuel.hoplite.ConfigException
+import com.sksamuel.hoplite.ConfigFailure
+import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.fp.invalid
+import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.preprocessor.TraversingPrimitivePreprocessor
 
 object ParameterStorePreprocessor : TraversingPrimitivePreprocessor() {
@@ -18,18 +21,19 @@ object ParameterStorePreprocessor : TraversingPrimitivePreprocessor() {
     client.getParameter(req).parameter.value
   }
 
-  override fun handle(node: PrimitiveNode): Node = when (node) {
+  override fun handle(node: PrimitiveNode): ConfigResult<Node> = when (node) {
     is StringNode -> {
       when (val match = regex.matchEntire(node.value)) {
-        null -> node
+        null -> node.valid()
         else -> {
           val key = match.groupValues[1]
-          val value = fetchParameterStoreValue(key)
-            .getOrElse { throw ConfigException("Failed loading parameter key '$key'", it) }
-          node.copy(value = value)
+          fetchParameterStoreValue(key).fold(
+            { node.copy(value = it).valid() },
+            { ConfigFailure.PreprocessorFailure("Could not load '$key' from parameter store", it).invalid() }
+          )
         }
       }
     }
-    else -> node
+    else -> node.valid()
   }
 }

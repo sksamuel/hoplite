@@ -3,9 +3,11 @@
 package com.sksamuel.hoplite.preprocessor
 
 import com.sksamuel.hoplite.ArrayNode
+import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.fp.valid
 
 /**
  * Replaces strings of the form ${path} by looking up path in the parsed config.
@@ -20,7 +22,7 @@ object LookupPreprocessor : Preprocessor {
   private val regex2 = "\\{\\{(.*?)\\}\\}".toRegex()
   private val valueWithDefaultRegex = "(.*?):-(.*?)".toRegex()
 
-  override fun process(node: Node): Node {
+  override fun process(node: Node): ConfigResult<Node> {
 
     fun lookup(key: String): String? = when (val n = node.atPath(key)) {
       is StringNode -> n.value
@@ -31,7 +33,7 @@ object LookupPreprocessor : Preprocessor {
       val value = regex.replace(node.value) { result ->
         val key = result.groupValues[1]
         when (val matchWithDefault = valueWithDefaultRegex.matchEntire(key)) {
-          // no default so we use the env key or return whatever the original string was
+          // no default, so we use the env key or return whatever the original string was
           null -> lookup(key) ?: result.value
           // lookup with default value fallback
           else -> matchWithDefault.let { m -> lookup(m.groups[1]!!.value) ?: m.groups[2]!!.value }
@@ -50,6 +52,6 @@ object LookupPreprocessor : Preprocessor {
       else -> n
     }
 
-    return handle(node)
+    return handle(node).valid()
   }
 }

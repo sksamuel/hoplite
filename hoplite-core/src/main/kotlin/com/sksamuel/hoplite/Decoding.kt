@@ -19,14 +19,14 @@ class Decoding(
 
   fun <A : Any> decode(kclass: KClass<A>, node: Node, mode: DecodeMode): ConfigResult<DecodingResult<A>> {
     val context = DecoderContext(decoderRegistry, paramMappers, preprocessors, mutableSetOf())
-    val preprocessed = context.preprocessors.fold(node) { acc, preprocessor -> preprocessor.process(acc) }
-    val errors = UnresolvedSubstitutionChecker.process(preprocessed)
-    return if (errors.isNotEmpty())
-      ConfigFailure.MultipleFailures(NonEmptyList(errors)).invalid()
-    else {
+    return context.preprocessors.fold<Preprocessor, ConfigResult<Node>>(node.valid()) { acc, preprocessor ->
+      acc.flatMap { preprocessor.process(it) }
+    }.flatMap {
+      UnresolvedSubstitutionChecker.process(it)
+    }.flatMap { preprocessed ->
       decoderRegistry.decoder(kclass)
         .flatMap { it.decode(preprocessed, kclass.createType(), context) }
-        .flatMap { decodingResult(it, node, context.usedPaths, mode, context.secrets) }
+        .flatMap { decodingResult(it, preprocessed, context.usedPaths, mode, context.secrets) }
     }
   }
 
