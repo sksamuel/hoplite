@@ -6,7 +6,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
 data class A(
-  @ConfigAlias("b") val bb: String,
+  @ConfigAlias("b") @ConfigAlias("zah") val bb: String,
   val c: Int,
 )
 
@@ -22,8 +22,17 @@ data class AliasConfig(
 
 class ConfigAliasTest : FunSpec() {
   init {
+
     test("parsers should support @ConfigAlias") {
       val config = ConfigLoader().loadConfigOrThrow<AliasConfig>("/alias.toml")
+      config.a.bb shouldBe "Tom Preston-Werner"
+      config.a.c shouldBe 5000
+      config.dd.e shouldBe "192.168.1.1"
+      config.dd.ff shouldBe true
+    }
+
+    test("parsers should support multiple @ConfigAlias") {
+      val config = ConfigLoader().loadConfigOrThrow<AliasConfig>("/repeated_alias.toml")
       config.a.bb shouldBe "Tom Preston-Werner"
       config.a.c shouldBe 5000
       config.dd.e shouldBe "192.168.1.1"

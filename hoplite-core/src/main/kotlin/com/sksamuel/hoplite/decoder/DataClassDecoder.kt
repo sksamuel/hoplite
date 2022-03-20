@@ -75,12 +75,12 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
       // create a map of parameter to value. in the case of defaults, we skip the parameter completely.
       val args: ValidatedNel<ConfigFailure, List<Arg>> = constructor.parameters.mapNotNull { param ->
 
-        var name = "<<undefined>>"
+        var usedName = "<<undefined>>"
 
-        // try each parameter mapper in turn to find the node
-        val n = context.paramMappers.fold<ParameterMapper, Node>(Undefined) { n, mapper ->
+        // use parameter mappers to retrieve alternative names, then try each one in turn
+        val names = context.paramMappers.flatMap { it.map(param) }
+        val n = names.fold<String, Node>(Undefined) { n, name ->
           if (n.isDefined) n else {
-            name = mapper.map(param)
             node.atKey(name)
           }
         }
@@ -93,7 +93,7 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
           param.isOptional && n is Undefined -> null
           else -> context.decoder(param)
             .flatMap { it.decode(n, param.type, context) }
-            .map { Arg(param, name, it) }
+            .map { Arg(param, usedName, it) }
             .mapInvalid { ConfigFailure.ParamFailure(param, it) }
         }
       }.sequence()

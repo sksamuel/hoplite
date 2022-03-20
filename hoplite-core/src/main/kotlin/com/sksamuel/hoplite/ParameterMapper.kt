@@ -16,11 +16,11 @@ import kotlin.reflect.KParameter
  * to be mixed in the same project.
  */
 interface ParameterMapper {
-  fun map(param: KParameter): String
+  fun map(param: KParameter): Set<String>
 }
 
 object DefaultParamMapper : ParameterMapper {
-  override fun map(param: KParameter): String = param.name ?: "<anon>"
+  override fun map(param: KParameter): Set<String> = setOf(param.name ?: "<anon>")
 }
 
 /**
@@ -28,14 +28,15 @@ object DefaultParamMapper : ParameterMapper {
  * names unexpectedly.
  */
 object UppercaseParamMapper : ParameterMapper {
-  override fun map(param: KParameter): String = param.name?.toUpperCase() ?: "<anon>"
+  override fun map(param: KParameter): Set<String> = setOf(param.name?.uppercase() ?: "<anon>")
 }
 
+@Repeatable
 annotation class ConfigAlias(val name: String)
 
 object AliasAnnotationParamMapper : ParameterMapper {
-  override fun map(param: KParameter): String {
-    return param.annotations.filterIsInstance<ConfigAlias>().firstOrNull()?.name ?: param.name ?: "<anon>"
+  override fun map(param: KParameter): Set<String> {
+    return param.annotations.filterIsInstance<ConfigAlias>().map { it.name }.toSet()
   }
 }
 
@@ -47,14 +48,15 @@ object AliasAnnotationParamMapper : ParameterMapper {
  */
 object SnakeCaseParamMapper : ParameterMapper {
 
-  override fun map(param: KParameter): String {
-    return (param.name ?: "<anon>").fold("") { acc, char ->
+  override fun map(param: KParameter): Set<String> {
+    val snake = (param.name ?: "<anon>").fold("") { acc, char ->
       when {
         char.isUpperCase() && acc.isEmpty() -> char.lowercaseChar().toString()
         char.isUpperCase() -> acc + "_" + char.lowercaseChar()
         else -> acc + char
       }
     }
+    return setOf(snake)
   }
 }
 
@@ -66,14 +68,15 @@ object SnakeCaseParamMapper : ParameterMapper {
  */
 object KebabCaseParamMapper : ParameterMapper {
 
-  override fun map(param: KParameter): String {
-    return (param.name ?: "<anon>").fold("") { acc, char ->
+  override fun map(param: KParameter): Set<String> {
+    val kebab = (param.name ?: "<anon>").fold("") { acc, char ->
       when {
         char.isUpperCase() && acc.isEmpty() -> char.lowercaseChar().toString()
         char.isUpperCase() -> acc + "-" + char.lowercaseChar()
         else -> acc + char
       }
     }
+    return setOf(kebab)
   }
 
 }
