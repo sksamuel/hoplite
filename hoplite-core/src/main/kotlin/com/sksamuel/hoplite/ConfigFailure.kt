@@ -140,6 +140,10 @@ sealed interface ConfigFailure {
       "Required a $type but a ${node.simpleName} cannot be converted to a collection ${node.pos.loc()}"
   }
 
+  object UndefinedForNonNullField : ConfigFailure {
+    override fun description(): String = "Type defined as not-null but no value was provided in config"
+  }
+
   data class NullValueForNonNullField(val node: Node) : ConfigFailure {
     override fun description(): String = "Type defined as not-null but null was loaded from config ${node.pos.loc()}"
   }

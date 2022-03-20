@@ -4,7 +4,6 @@ import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
-import com.sksamuel.hoplite.ParameterMapper
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Undefined
@@ -91,10 +90,14 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
           // if we have no value for this parameter at all, and it is optional we can skip it, and
           // kotlin will use the default
           param.isOptional && n is Undefined -> null
-          else -> context.decoder(param)
-            .flatMap { it.decode(n, param.type, context) }
-            .map { Arg(param, usedName, it) }
-            .mapInvalid { ConfigFailure.ParamFailure(param, it) }
+          else -> {
+            val decoder = context.decoder(param).getUnsafe()
+            val decoded = decoder.decode(n, param.type, context).getUnsafe()
+            val arg = Arg(param, usedName, decoded)
+            arg.valid()
+//              .mapInvalid { ConfigFailure.ParamFailure(param, it) }
+
+          }
         }
       }.sequence()
 

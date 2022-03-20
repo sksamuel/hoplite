@@ -44,6 +44,7 @@ com.sksamuel.hoplite.decoder.CharRangeDecoder
 com.sksamuel.hoplite.decoder.YearMonthDecoder
 com.sksamuel.hoplite.decoder.MinutesDecoder
 com.sksamuel.hoplite.decoder.SecondsDecoder
+com.sksamuel.hoplite.decoder.ValueClassDecoder
 com.sksamuel.hoplite.decoder.InlineClassDecoder
 com.sksamuel.hoplite.decoder.SealedClassDecoder
 com.sksamuel.hoplite.decoder.DataClassDecoder
