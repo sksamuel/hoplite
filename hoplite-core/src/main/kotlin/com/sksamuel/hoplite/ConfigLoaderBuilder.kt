@@ -8,6 +8,7 @@ import com.sksamuel.hoplite.preprocessor.EnvOrSystemPropertyPreprocessor
 import com.sksamuel.hoplite.preprocessor.LookupPreprocessor
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.preprocessor.RandomPreprocessor
+import com.sksamuel.hoplite.report.Reporter
 import java.util.ServiceLoader
 
 class ConfigLoaderBuilder private constructor() {

@@ -1,5 +1,7 @@
 package com.sksamuel.hoplite
 
+import com.sksamuel.hoplite.report.Reporter
+import com.sksamuel.hoplite.report.resources
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 

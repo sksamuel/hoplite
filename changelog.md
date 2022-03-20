@@ -13,7 +13,7 @@
 * Using an unresolved substitution value, eg ${foo} where foo doesn't exist, is now an error.
 * The `ConfigLoader.loadConfig` functions that accept a File or Path have been removed to simply the config loader class. Instead use the equivalent methods on `ConfigLoaderBuilder`
 
-#### Features
+#### New Features
 
 * `ConfigLoaderBuilder.report` has been added to output a report of the property sources, the resolved config values, and which config values were unused.
 * `ConfigLoaderBuilder.strict` now correctly handles unused config values at any level. If a property source provides a value that is not used, the config loader will error when strict mode is on.

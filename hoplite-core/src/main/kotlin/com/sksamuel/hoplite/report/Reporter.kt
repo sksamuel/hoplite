@@ -1,5 +1,16 @@
-package com.sksamuel.hoplite
+package com.sksamuel.hoplite.report
 
+import com.sksamuel.hoplite.ArrayNode
+import com.sksamuel.hoplite.BooleanNode
+import com.sksamuel.hoplite.DoubleNode
+import com.sksamuel.hoplite.LongNode
+import com.sksamuel.hoplite.MapNode
+import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.NullNode
+import com.sksamuel.hoplite.Pos
+import com.sksamuel.hoplite.PropertySource
+import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.decoder.DotPath
 
 class Reporter(private val print: (String) -> Unit) {
