@@ -30,7 +30,7 @@ sealed interface ConfigFailure {
 
   data class UnusedPath(val path: DotPath, val pos: Pos) : ConfigFailure {
     override fun description(): String {
-      return "${path.flatten()} at ${pos.loc()} was unused"
+      return "Config value '${path.flatten()}' at ${pos.loc()} was unused"
     }
   }
 
