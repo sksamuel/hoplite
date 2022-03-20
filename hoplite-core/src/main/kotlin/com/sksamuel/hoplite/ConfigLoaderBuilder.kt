@@ -153,7 +153,7 @@ class ConfigLoaderBuilder private constructor() {
    * The report will be printed to standard out. If you wish to provide a logger, or customize how
    * obfuscation occurs, provider a reporter using a [ReporterBuilder].
    */
-  fun report() = apply { reporter = ReporterBuilder.default() }
+  fun report() = apply { reporter = Reporter.default() }
 
   /**
    * Enables a report on all config keys, their values, and which were used or unused.

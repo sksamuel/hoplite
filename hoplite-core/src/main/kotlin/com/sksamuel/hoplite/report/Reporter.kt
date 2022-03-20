@@ -17,10 +17,6 @@ typealias Print = (String) -> Unit
 
 class ReporterBuilder {
 
-  companion object {
-    fun default(): Reporter = ReporterBuilder().build()
-  }
-
   private var print: Print = { println(it) }
   private var obfuscator: Obfuscator = DefaultObfuscator
   private var secrets: Secrets = DefaultSecrets
@@ -45,6 +41,10 @@ class Reporter(
   private val obfuscator: Obfuscator,
   private val secrets: Secrets
 ) {
+
+  companion object {
+    fun default(): Reporter = ReporterBuilder().build()
+  }
 
   fun printReport(
     sources: List<PropertySource>,
