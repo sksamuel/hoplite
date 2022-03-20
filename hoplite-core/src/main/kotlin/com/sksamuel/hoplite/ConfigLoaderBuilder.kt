@@ -9,6 +9,7 @@ import com.sksamuel.hoplite.preprocessor.LookupPreprocessor
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.preprocessor.RandomPreprocessor
 import com.sksamuel.hoplite.report.Reporter
+import com.sksamuel.hoplite.report.ReporterBuilder
 import java.util.ServiceLoader
 
 class ConfigLoaderBuilder private constructor() {
@@ -149,9 +150,10 @@ class ConfigLoaderBuilder private constructor() {
    * Note, to avoid printing passwords or other secrets, wrap those values by using `Masked` or `Secret`
    * as the target type instead of String.
    *
-   * The report will be printed to standard out. If you wish to provide a logger, then use report(logger::info)
+   * The report will be printed to standard out. If you wish to provide a logger, or customize how
+   * obfuscation occurs, provider a reporter using a [ReporterBuilder].
    */
-  fun report() = apply { reporter = Reporter { println(it) } }
+  fun report() = apply { reporter = ReporterBuilder.default() }
 
   /**
    * Enables a report on all config keys, their values, and which were used or unused.
@@ -160,7 +162,7 @@ class ConfigLoaderBuilder private constructor() {
    *
    * The report will be printed using the given function.
    */
-  fun report(f: (String) -> Unit) = apply { reporter = Reporter(f) }
+  fun report(reporter: Reporter) = apply { this.reporter = reporter }
 
   fun build(): ConfigLoader {
     return ConfigLoader(
@@ -229,7 +231,7 @@ val defaultDecoders = listOf(
   com.sksamuel.hoplite.decoder.URLDecoder(),
   com.sksamuel.hoplite.decoder.KClassDecoder(),
   com.sksamuel.hoplite.decoder.URIDecoder(),
-  com.sksamuel.hoplite.decoder.MaskedDecoder(),
+  com.sksamuel.hoplite.decoder.SecretDecoder(),
   com.sksamuel.hoplite.decoder.SecretDecoder(),
   com.sksamuel.hoplite.decoder.TripleDecoder(),
   com.sksamuel.hoplite.decoder.PairDecoder(),

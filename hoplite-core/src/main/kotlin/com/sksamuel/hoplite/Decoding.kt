@@ -26,7 +26,7 @@ class Decoding(
     else {
       decoderRegistry.decoder(kclass)
         .flatMap { it.decode(preprocessed, kclass.createType(), context) }
-        .flatMap { decodingResult(it, node, context.usedPaths, mode) }
+        .flatMap { decodingResult(it, node, context.usedPaths, mode, context.secrets) }
     }
   }
 
@@ -35,9 +35,10 @@ class Decoding(
     node: Node,
     usedPaths: MutableSet<DotPath>,
     mode: DecodeMode,
+    secrets: MutableSet<DotPath>,
   ): ConfigResult<DecodingResult<A>> {
     val (used, unused) = node.paths().filterNot { it.first == DotPath.root }.partition { usedPaths.contains(it.first) }
-    val result = DecodingResult(a, used, unused)
+    val result = DecodingResult(a, used, unused, secrets.toSet())
     return when (mode) {
       DecodeMode.Strict -> ensureAllUsed(result)
       DecodeMode.Lenient -> result.valid()
@@ -52,4 +53,9 @@ class Decoding(
   }
 }
 
-data class DecodingResult<A>(val a: A, val used: List<Pair<DotPath, Pos>>, val unused: List<Pair<DotPath, Pos>>)
+data class DecodingResult<A>(
+  val a: A,
+  val used: List<Pair<DotPath, Pos>>,
+  val unused: List<Pair<DotPath, Pos>>,
+  val secrets: Set<DotPath>,
+)

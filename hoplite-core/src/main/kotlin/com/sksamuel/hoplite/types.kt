@@ -1,9 +1,7 @@
 package com.sksamuel.hoplite
 
-data class Secret(val value: String) {
-  override fun toString(): String = value.take(2) + "****"
-}
+typealias Masked = Secret
 
-data class Masked(val value: String) {
+data class Secret(val value: String) {
   override fun toString(): String = "****"
 }

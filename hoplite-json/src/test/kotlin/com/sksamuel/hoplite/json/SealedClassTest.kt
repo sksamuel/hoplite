@@ -1,7 +1,7 @@
 package com.sksamuel.hoplite.json
 
 import com.sksamuel.hoplite.ConfigLoader
-import com.sksamuel.hoplite.Masked
+import com.sksamuel.hoplite.Secret
 import com.sksamuel.hoplite.addEnvironmentSource
 import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.FunSpec
@@ -13,7 +13,7 @@ class SealedClassTest : FunSpec({
 
   test("override sealed class attribute with env var") {
     withEnvironment("database__pass", "letmein") {
-      val expected = Database.Mysql("foo.local", 1234, "sammy", Masked("letmein"))
+      val expected = Database.Mysql("foo.local", 1234, "sammy", Secret("letmein"))
       val actual = ConfigLoader
         .builder()
         .addEnvironmentSource()
@@ -48,7 +48,7 @@ class SealedClassTest : FunSpec({
 
 data class Config(val database: Database)
 sealed class Database {
-  data class Mysql(val host: String, val port: Int, val user: String, val pass: Masked) : Database()
+  data class Mysql(val host: String, val port: Int, val user: String, val pass: Secret) : Database()
   data class Elastic(val host: String, val port: Int, val clusterName: String) : Database()
   object Embedded : Database()
 }
@@ -61,6 +61,6 @@ sealed class Database2 {
 
 data class Config3(val database: Database3)
 sealed class Database3 {
-  data class Mysql(val host: String, val port: Int, val user: String, val pass: Masked) : Database3()
+  data class Mysql(val host: String, val port: Int, val user: String, val pass: Secret) : Database3()
   data class Elastic(val host: String, val port: Int, val clusterName: String) : Database3()
 }

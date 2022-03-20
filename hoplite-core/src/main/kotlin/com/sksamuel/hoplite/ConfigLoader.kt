@@ -128,8 +128,8 @@ class ConfigLoader(
       return ConfigFailure.EmptyDecoderRegistry.invalid()
 
     return NodeParser(parserRegistry).parseNode(propertySources, configSources).flatMap { (sources, node) ->
-      decode(klass, node).map { (config, used, _) ->
-        reporter?.printReport(sources, node, used)
+      decode(klass, node).map { (config, used, _, secrets) ->
+        reporter?.printReport(sources, node, used, secrets)
         config
       }
     }

@@ -32,7 +32,6 @@ com.sksamuel.hoplite.decoder.InetAddressDecoder
 com.sksamuel.hoplite.decoder.URLDecoder
 com.sksamuel.hoplite.decoder.KClassDecoder
 com.sksamuel.hoplite.decoder.URIDecoder
-com.sksamuel.hoplite.decoder.MaskedDecoder
 com.sksamuel.hoplite.decoder.SecretDecoder
 com.sksamuel.hoplite.decoder.TripleDecoder
 com.sksamuel.hoplite.decoder.PairDecoder
