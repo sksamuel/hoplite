@@ -4,7 +4,6 @@ import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
-import com.sksamuel.hoplite.ParameterMapper
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Undefined
@@ -81,6 +80,7 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
         val names = context.paramMappers.flatMap { it.map(param) }
         val n = names.fold<String, Node>(Undefined) { n, name ->
           if (n.isDefined) n else {
+            usedName = name
             node.atKey(name)
           }
         }
