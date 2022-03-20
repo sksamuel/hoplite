@@ -47,6 +47,7 @@ object Libs {
     private const val version = "5.2.1"
     const val assertions = "io.kotest:kotest-assertions-core-jvm:$version"
     const val junit5 = "io.kotest:kotest-runner-junit5-jvm:$version"
+    const val testContainers = "io.kotest.extensions:kotest-extensions-testcontainers:1.2.1"
   }
 
   object Orbitz {

@@ -46,6 +46,15 @@ sealed interface ConfigFailure {
       "Could not detect parser for file extension '.$file' - available parsers are $map"
   }
 
+  data class PreprocessorWarning(val message: String) : ConfigFailure {
+    override fun description(): String = message
+  }
+
+  data class PreprocessorFailure(val message: String, val t: Throwable) : ConfigFailure {
+    override fun description(): String =
+      message + System.lineSeparator() + t.message + System.lineSeparator() + t.stackTraceToString()
+  }
+
   data class InvalidConstructorParameters(
     val type: KType,
     val constructor: KFunction<*>,
