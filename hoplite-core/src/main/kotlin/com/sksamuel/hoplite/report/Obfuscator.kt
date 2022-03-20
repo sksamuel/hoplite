@@ -20,9 +20,13 @@ object StrictObfuscator : Obfuscator {
 object HashObfuscator : Obfuscator {
   override fun obfuscate(path: DotPath, value: String): String {
     val digest = MessageDigest.getInstance("SHA-256")
-    return digest.digest(value.encodeToByteArray()).decodeToString().take(8)
+    return digest
+      .digest(value.encodeToByteArray())
+      .take(8)
+      .joinToString("", "hash(", ")") { "%02x".format(it) }
   }
 }
+
 
 /**
  * An [Obfuscator] that returns the first three characters only of every field.
