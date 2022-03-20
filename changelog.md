@@ -1,5 +1,11 @@
 # Changelog
 
+### 2.0.1
+
+* Improved error messages from AWS Secrets Manager
+* Adjusted default obfuscator to obfuscate all fields
+* Fixed arg names used in constructor error message
+
 ### 2.0.0
 
 #### Breaking Changes
