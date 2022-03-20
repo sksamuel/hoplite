@@ -10,12 +10,15 @@ interface Obfuscator {
   fun obfuscate(path: DotPath, value: String): String
 }
 
+/**
+ * An [Obfuscator] that returns a mask or every field.
+ */
 object StrictObfuscator : Obfuscator {
   override fun obfuscate(path: DotPath, value: String): String = "*****"
 }
 
 /**
- * Obfuscates values by taking the first 8 characters of the SHA-256 hash of the input value.
+ * An [Obfuscator] that takes the first 8 characters of the SHA-256 hash of the input value.
  */
 object HashObfuscator : Obfuscator {
   override fun obfuscate(path: DotPath, value: String): String {
