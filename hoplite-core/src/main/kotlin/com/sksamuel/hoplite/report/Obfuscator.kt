@@ -23,7 +23,7 @@ object HashObfuscator : Obfuscator {
     return digest
       .digest(value.encodeToByteArray())
       .take(8)
-      .joinToString("", "hash(", ")") { "%02x".format(it) }
+      .joinToString("", "hash(", "...)") { "%02x".format(it) }
   }
 }
 
