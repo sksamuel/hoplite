@@ -74,55 +74,66 @@ val config = ConfigLoader().loadConfigOrThrow<Config>("/application-staging.yaml
 ```
 
 If the values in the config file are compatible, then an instance of `Config` will be returned.
-Otherwise an exception will be thrown containing details of the errors.
+Otherwise, an exception will be thrown containing details of the errors.
 
 
 
 
 ## Config Loader
 
-As you have seen from the getting started guide, `ConfigLoader` is the entry point to using Hoplite.
-We can create an instance of this loader directly for simple cases, or use the `ConfigLoader.Builder` if we need to customize how the loader works.
-Then we can load config into data classes from resources on the classpath, `java.io.File`, `java.nio.Path`, or URLS.
+As you have seen from the getting started guide, `ConfigLoader` is the entry point to using Hoplite. We can create an
+instance of this loader directly for simple cases, or use the `ConfigLoaderBuilder` if we need to customize how the
+loader works. Then we can load config into data classes from resources on the classpath, `java.io.File`, `java.nio.Path`
+, or URLS.
 
-There are two ways to retrieve a populated data class from config.
-The first is to throw an exception if the config could not be resolved via the `loadConfigOrThrow<T>` function.
-Another is to return a `ConfigResult` via the `loadConfig<T>` function.
+It is preferable to use the builder approach to creating a config loader beyond very simple usecases. To start, use `ConfigLoaderBuilder.default()` and after adding your sources, call `build`. Here is an example:
 
-For most cases, when you are resolving config at application startup, the exception based approach is better.
-This is because you typically want any errors in config to abort application bootstrapping, dumping errors to the console.
+```kotlin
+ConfigLoaderBuilder.default()
+  .addResourceSource("/application-prod.yml")
+  .addResourceSource("/reference.json")
+  .build()
+  .loadConfigOrThrow<MyConfig>()
+```
 
+There are two ways to retrieve a populated data class from config. The first is to throw an exception if the config
+could not be resolved via the `loadConfigOrThrow<T>` function. Another is to return a `ConfigResult` via
+the `loadConfig<T>` function if you want to handle errors without exceptions.
+
+For most cases, when you are resolving config at application startup, the exception based approach is better. This is
+because you typically want any errors in config to abort application bootstrapping, dumping errors to the console.
 
 
 
 ## Beautiful Errors
 
-When an error does occur, if you choose to throw an exception, the errors will be formatted in a human readable way
-along with as much location information as possible.
-No more trying to track down a `NumberFormatException` in a 400 line config file.
+When an error does occur, if you choose to throw an exception, the errors will be formatted in a human-readable way
+along with as much location information as possible. No more trying to track down a `NumberFormatException` in a 400
+line config file.
 
-Here is an example of the error formatting for a test file used by the unit tests.
+Here is an example of the error formatting for a test file used by the unit tests. Notice that the errors indicate which
+file the value was pulled from.
 
 ```
 Error loading config because:
 
     - Could not instantiate 'com.sksamuel.hoplite.json.Foo' because:
 
-        - 'bar': Required type Boolean could not be decoded from a Long (/error1.json:2:19)
+        - 'bar': Required type Boolean could not be decoded from a Long (classpath:/error1.json:2:19)
 
         - 'baz': Missing from config
 
-        - 'hostname': Type defined as not-null but null was loaded from config (/error1.json:6:18)
+        - 'hostname': Type defined as not-null but null was loaded from config (classpath:/error1.json:6:18)
 
-        - 'season': Required a value for the Enum type com.sksamuel.hoplite.json.Season but given value was Fun (/error1.json:8:18)
+        - 'season': Required a value for the Enum type com.sksamuel.hoplite.json.Season but given value was Fun (/home/user/default.json:8:18)
 
-        - 'users': Defined as a List but a Boolean cannot be converted to a collection (/error1.json:3:19)
+        - 'users': Defined as a List but a Boolean cannot be converted to a collection (classpath:/error1.json:3:19)
 
-        - 'interval': Required type java.time.Duration could not be decoded from a String (/error1.json:7:26)
+        - 'interval': Required type java.time.Duration could not be decoded from a String (classpath:/error1.json:7:26)
 
         - 'nested': - Could not instantiate 'com.sksamuel.hoplite.json.Wibble' because:
 
-            - 'a': Required type java.time.LocalDateTime could not be decoded from a String (/error1.json:10:17)
+            - 'a': Required type java.time.LocalDateTime could not be decoded from a String (classpath:/error1.json:10:17)
 
             - 'b': Unable to locate a decoder for java.time.LocalTime
 ```
@@ -141,13 +152,14 @@ The format that hoplite uses to parse a file is determined by the file extension
 | [Hocon](https://github.com/lightbend/config) | [`hoplite-hocon`](https://search.maven.org/search?q=hoplite-hocon) | .conf               |
 | Java Properties files                        | built-in                                                           | .props, .properties |
 
-If you wish to add another format you can extend `Parser` and provide an instance of that implementation to the `ConfigLoader.Builder` via `withFileExtensionMapping`.
+If you wish to add another format you can extend `Parser` and provide an instance of that implementation to
+the `ConfigLoaderBuilder` via `addParser`.
 
-That same function can be used to map non-default file extensions to an existing parser. For example, if you wish to have your config in files called `application.data` but in yaml format, then you can register .data with the Yaml parser like this:
+That same function can be used to map non-default file extensions to an existing parser. For example, if you wish to
+have your config in files called `application.data` but in yaml format, then you can register .data with the Yaml parser
+like this:
 
-`ConfigLoader.Builder().addFileExtensionMapping("data", YamlParser).build()`
-
-
+`ConfigLoaderBuilder.default().addParser("data", YamlParser).build()`
 
 ## Property Sources
 
@@ -155,7 +167,7 @@ The `PropertySource` interface is how Hoplite reads configuration values.
 
 Hoplite supports several built in property source implementations, and you can write your own if required.
 
-The `EnvironmentVariablesPropertySource`, `SystemPropertiesPropertySource` and `UserSettingsPropertySource` sources are automatically registered, with
+The `SystemPropertiesPropertySource` and `UserSettingsPropertySource` sources are automatically registered, with
 precedence in that order. Other property sources can be passed to the config loader builder.
 
 ### EnvironmentVariablesPropertySource
@@ -186,33 +198,33 @@ The `InputStreamPropertySource` provides config from an input stream. This sourc
 ### ConfigFilePropertySource
 
 Config from files or resources are retrieved via instances of `ConfigFilePropertySource`. This property source is added automatically when we pass
-strings, `File`s or `Path`s to the `loadConfigOrThrow` or `loadConfig` functions.
+strings to the `loadConfigOrThrow` or `loadConfig` functions.
 
-There are convenience methods on `PropertySource` to construct `ConfigFilePropertySource`s from resources on the classpath or files.
+There are convenience methods on `ConfigLoaderBuilder` to construct `ConfigFilePropertySource`s from resources on the classpath or files.
 
 For example, the following are equivalent:
 
 ```kotlin
-ConfigLoader().loadConfig<MyConfig>("config.json")
+ConfigLoader().loadConfigOrThrow<MyConfig>("config.json")
 ```
 
 and
 
 ```kotlin
-ConfigLoader.Builder()
-   .addSource(PropertySource.resource("/config.json"))
+ConfigLoaderBuilder.default()
+   .addResourceSource("/config.json")
    .build()
-   .loadConfig<MyConfig>()
+   .loadConfigOrThrow<MyConfig>()
 ```
 
 The advantage of the second approach is that we can specify a file can be optional, for example:
 
 ```kotlin
-ConfigLoader.Builder()
-  .addSource(PropertySource.resource("/missing.yml", optional = true))
-  .addSource(PropertySource.resource("/config.json"))
+ConfigLoaderBuilder.default()
+  .addResourceSource("/missing.yml", optional = true)
+  .addResourceSource("/config.json")
   .build()
-  .loadConfig<MyConfig>()
+  .loadConfigOrThrow<MyConfig>()
 ```
 
 ### JsonPropertySource
@@ -221,10 +233,10 @@ To use a JSON string as a property source, we can use the `JsonPropertySource` i
 For example,
 
 ```kotlin
-ConfigLoader.Builder()
+ConfigLoaderBuilder.default()
    .addSource(JsonPropertySource(""" { "database": "localhost", "port": 1234 } """))
    .build()
-   .loadConfig<MyConfig>()
+   .loadConfigOrThrow<MyConfig>()
 ```
 
 ### YamlPropertySource
@@ -232,14 +244,14 @@ ConfigLoader.Builder()
 To use a Yaml string as a property source, we can use the `YamlPropertySource` implementation.
 
 ```kotlin
-ConfigLoader.Builder()
+ConfigLoaderBuilder.default()
    .addSource(YamlPropertySource(
      """
         database: "localhost"
         port: 1234
      """))
    .build()
-   .loadConfig<MyConfig>()
+   .loadConfigOrThrow<MyConfig>()
 ```
 
 ### TomlPropertySource
@@ -247,14 +259,14 @@ ConfigLoader.Builder()
 To use a Toml string as a property source, we can use the `TomlPropertySource` implementation.
 
 ```kotlin
-ConfigLoader.Builder()
+ConfigLoaderBuilder.default()
   .addSource(TomlPropertySource(
     """
         database = "localhost"
         port = 1234
      """))
   .build()
-  .loadConfig<MyConfig>()
+  .loadConfigOrThrow<MyConfig>()
 ```
 
 ## Cascading Config
@@ -353,19 +365,29 @@ The resolution rules are as follows:
 
 ## Strict Mode
 
-Hoplite can be configured to throw an error if a config value is not used. This is useful to detect stale configs.
+Hoplite can be configured to throw an error if a config value is not used.
+This is useful to detect stale configs.
 
 To enable this setting, use `.strict()` on the config builder. For example:
 
 ```kotlin
-ConfigLoader.Builder()
-  .addSource(PropertySource.resource("/config-prd.yml", true))
-  .addSource(PropertySource.resource("/config.yml"))
+ConfigLoaderBuilder.default()
+  .addResourceSource("/config-prd.yml", true)
+  .addResourceSource("/config.yml")
   .strict()
   .build()
   .loadConfig<MyConfig>()
 ```
 
+An example of this output is:
+
+```
+Error loading config because:
+
+    Config value 'drop_drop' at (classpath:/snake_case.yml:0:10) was unused
+
+    Config value 'double_trouble' at (/home/sam/.userconfig.yml:2:16) was unused
+```
 
 ## Aliases
 
@@ -418,6 +440,13 @@ But because Hoplite registers `KebabCaseParamMapper` and `SnakeCaseParamMapper` 
 ```yml
 database:
   instance-host-name: server1.prd
+```
+
+or
+
+```yml
+database:
+  instance_host_name: server1.prd
 ```
 
 ## Decoders
@@ -521,13 +550,13 @@ database:
 
 These built-in preprocessors are registered automatically.
 
-| Preprocessor                 | Function                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-|:-----------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Preprocessor                 | Function                                                                                                                                                                                                                                                                                                                                                                                                                                |
+|:-----------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | EnvVar Preprocessor          | Replaces any strings of the form ${VAR} with the environment variable $VAR if defined. These replacement strings can occur between other strings.<br/><br/>For example `foo: hello ${USERNAME}` would result in foo being assigned the value `hello Sam` assuming the env var `USERNAME` was set to `SAM`. Also the expressions can have default values using the usual bash expression style syntax `foo: hello ${USERNAME:-fallback}` |
-| System Property Preprocessor | Replaces any strings of the form ${VAR} with the system property $VAR if defined. These replacement strings can occur between other strings.<br/><br/>For example `debug: ${DEBUG}` would result in debug being assigned the value `true` assuming the application had been started with `-Ddebug=true`                                                                                                                                    |
-| Random Preprocessor          | Inserts random strings into the config. See the section on Random Preprocessor for syntax.                                                                                                                                                                                                                                                                                                                                                 |
-| Props File Preprocessor      | Replaces any strings of the form ${key} with the value of the key in a provided `java.util.Properties` file. The file can be specified by a `Path` or a resource on the classpath.                                                                                                                                                                                                                                                         |
-| Lookup Preprocessor          | Replaces any strings of the form {{key}} with the value of that node in the already parsed config. In other words, this allow substitution from config in one place to another place (even across files).                                                                                                                                                                                                                                  |
+| System Property Preprocessor | Replaces any strings of the form ${VAR} with the system property $VAR if defined. These replacement strings can occur between other strings.<br/><br/>For example `debug: ${DEBUG}` would result in debug being assigned the value `true` assuming the application had been started with `-Ddebug=true`                                                                                                                                 |
+| Random Preprocessor          | Inserts random strings into the config. See the section on Random Preprocessor for syntax.                                                                                                                                                                                                                                                                                                                                              |
+| Props File Preprocessor      | Replaces any strings of the form ${key} with the value of the key in a provided `java.util.Properties` file. The file can be specified by a `Path` or a resource on the classpath.                                                                                                                                                                                                                                                      |
+| Lookup Preprocessor          | Replaces any strings of the form {{key}} with the value of that node in the already parsed config. In other words, this allow substitution from config in one place to another place (even across files).                                                                                                                                                                                                                               |
 
 ### Optional Preprocessors
 
