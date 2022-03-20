@@ -34,9 +34,9 @@ class AwsSecretsManagerPreprocessor(
             val value = client.getSecretValue(req).secretString
             node.copy(value = value).valid()
           } catch (e: ResourceNotFoundException) {
-            ConfigFailure.PreprocessorWarning("Could not find secret '$key'").invalid()
+            ConfigFailure.PreprocessorWarning("Could not locate secret '$key' in AWS SecretsManager").invalid()
           } catch (e: Exception) {
-            ConfigFailure.PreprocessorFailure("Failed loading secrets", e).invalid()
+            ConfigFailure.PreprocessorFailure("Failed loading secrets from AWS SecretsManager", e).invalid()
           }
         }
       }
