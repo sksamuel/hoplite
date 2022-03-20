@@ -1,6 +1,6 @@
 # Changelog
 
-### 2.0.0 (In progress)
+### 2.0.0
 
 #### Breaking Changes
 
@@ -14,15 +14,18 @@
 * The `ConfigLoader.loadConfig` functions that accept a File or Path have been removed to simply the config loader
   class. Instead, use the equivalent methods on `ConfigLoaderBuilder`
 * `ParameterMapper`s now return `Set<String>` rather than `String` to allow each parameter mapper to return more than
-  one alternative name.
+  one alternative name. This is only of relevance if you have written custom parameter mappers.
+* `Preprocessor` now returns errors as types, rather than throwing exceptions. This is only of relevance if you have
+  written custom preprocessors.
 
 #### New Features
 
-* `ConfigLoaderBuilder.report` has been added to output a report of the property sources, the resolved config values,
-  and which config values were unused.
+* `ConfigLoaderBuilder.report` has been added to output a report of the property sources, the resolved config values (
+  obfuscated), and which config values were unused.
 * `ConfigLoaderBuilder.strict` mode reports unused config values at any level. If a property source provides a value
   that is not used, the config loader will error when strict mode is on.
 * Multiple `@ConfigAlias` annotations are now supported per field
+* Better error handling on preprocessors.
 
 ### 1.4.16
 
