@@ -19,6 +19,7 @@ class ReporterBuilder {
 
   private var print: Print = { println(it) }
   private var obfuscator: Obfuscator = DefaultObfuscator
+  private var secretsPolicy: SecretsPolicy = EveryFieldSecretsPolicy
 
   fun withPrint(print: Print) = apply {
     this.print = print
@@ -28,12 +29,17 @@ class ReporterBuilder {
     this.obfuscator = obfuscator
   }
 
-  fun build(): Reporter = Reporter(print, obfuscator)
+  fun withSecretsPolicy(secretsPolicy: SecretsPolicy) = apply {
+    this.secretsPolicy = secretsPolicy
+  }
+
+  fun build(): Reporter = Reporter(print, obfuscator, secretsPolicy)
 }
 
 class Reporter(
   private val print: Print,
   private val obfuscator: Obfuscator,
+  private val secretsPolicy: SecretsPolicy,
 ) {
 
   companion object {
@@ -81,7 +87,7 @@ class Reporter(
   fun reportResources(resources: List<ConfigResource>, title: String, usedSecrets: Set<DotPath>): String {
 
     val obfuscated = resources.map {
-      val value = obfuscator.obfuscate(it.path, it.value)
+      val value = if (secretsPolicy.isSecret(it.path, usedSecrets)) obfuscator.obfuscate(it.value) else it.value
       it.copy(value = value)
     }
 

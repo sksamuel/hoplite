@@ -1,27 +1,26 @@
 package com.sksamuel.hoplite.report
 
-import com.sksamuel.hoplite.decoder.DotPath
 import java.security.MessageDigest
 
 /**
  * Implementations can choose how to obfuscate values.
  */
 interface Obfuscator {
-  fun obfuscate(path: DotPath, value: String): String
+  fun obfuscate(value: String): String
 }
 
 /**
- * An [Obfuscator] that returns a mask or every field.
+ * An [Obfuscator] that returns a fixed mask.
  */
 object StrictObfuscator : Obfuscator {
-  override fun obfuscate(path: DotPath, value: String): String = "*****"
+  override fun obfuscate(value: String): String = "*****"
 }
 
 /**
  * An [Obfuscator] that takes the first 8 characters of the SHA-256 hash of the input value.
  */
 object HashObfuscator : Obfuscator {
-  override fun obfuscate(path: DotPath, value: String): String {
+  override fun obfuscate(value: String): String {
     val digest = MessageDigest.getInstance("SHA-256")
     return digest
       .digest(value.encodeToByteArray())
@@ -32,8 +31,8 @@ object HashObfuscator : Obfuscator {
 
 
 /**
- * An [Obfuscator] that returns the first three characters only of every field.
+ * An [Obfuscator] that returns the first three characters with a fixed mask.
  */
 object DefaultObfuscator : Obfuscator {
-  override fun obfuscate(path: DotPath, value: String): String = value.take(3) + "*****"
+  override fun obfuscate(value: String): String = value.take(3) + "*****"
 }
