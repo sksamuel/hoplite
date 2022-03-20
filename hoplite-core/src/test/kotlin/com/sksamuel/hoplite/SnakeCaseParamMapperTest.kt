@@ -20,14 +20,14 @@ class SnakeCaseParamMapperTest : StringSpec() {
       fun kparam(name: String): KParameter = Config::class.constructors.first().parameters.find { it.name == name }!!
 
       assertSoftly {
-        SnakeCaseParamMapper.map(kparam("foo")) shouldBe "foo"
-        SnakeCaseParamMapper.map(kparam("fooCamelCase")) shouldBe "foo_camel_case"
-        SnakeCaseParamMapper.map(kparam("foo_snake_case")) shouldBe "foo_snake_case"
-        SnakeCaseParamMapper.map(kparam("_underScore")) shouldBe "_under_score"
-        SnakeCaseParamMapper.map(kparam("TitleCase")) shouldBe "title_case"
-        SnakeCaseParamMapper.map(kparam("foo123")) shouldBe "foo123"
-        SnakeCaseParamMapper.map(kparam("foo123BarFaz")) shouldBe "foo123_bar_faz"
-        SnakeCaseParamMapper.map(kparam("myDSLClass")) shouldBe "my_d_s_l_class"
+        SnakeCaseParamMapper.map(kparam("foo")) shouldBe setOf("foo")
+        SnakeCaseParamMapper.map(kparam("fooCamelCase")) shouldBe setOf("foo_camel_case")
+        SnakeCaseParamMapper.map(kparam("foo_snake_case")) shouldBe setOf("foo_snake_case")
+        SnakeCaseParamMapper.map(kparam("_underScore")) shouldBe setOf("_under_score")
+        SnakeCaseParamMapper.map(kparam("TitleCase")) shouldBe setOf("title_case")
+        SnakeCaseParamMapper.map(kparam("foo123")) shouldBe setOf("foo123")
+        SnakeCaseParamMapper.map(kparam("foo123BarFaz")) shouldBe setOf("foo123_bar_faz")
+        SnakeCaseParamMapper.map(kparam("myDSLClass")) shouldBe setOf("my_d_s_l_class")
       }
     }
   }
