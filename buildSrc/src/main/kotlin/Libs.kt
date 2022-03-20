@@ -15,14 +15,14 @@ object Libs {
   }
 
   object Aws {
-    private const val version = "1.12.180"
+    private const val version = "1.12.181"
     const val core = "com.amazonaws:aws-java-sdk-core:$version"
     const val ssm = "com.amazonaws:aws-java-sdk-ssm:$version"
     const val secrets = "com.amazonaws:aws-java-sdk-secretsmanager:$version"
   }
 
   object CronUtils {
-    const val utils = "com.cronutils:cron-utils:9.1.3"
+    const val utils = "com.cronutils:cron-utils:9.1.6"
   }
 
   object Hadoop {
@@ -30,15 +30,15 @@ object Libs {
   }
 
   object Hikari {
-    const val core = "com.zaxxer:HikariCP:4.0.3"
+    const val core = "com.zaxxer:HikariCP:5.0.1"
   }
 
   object Typesafe {
-    const val config = "com.typesafe:config:1.4.1"
+    const val config = "com.typesafe:config:1.4.2"
   }
 
   object Jackson {
-    private const val version = "2.12.3"
+    private const val version = "2.13.1"
     const val core = "com.fasterxml.jackson.core:jackson-core:$version"
     const val databind = "com.fasterxml.jackson.core:jackson-databind:$version"
   }
@@ -54,7 +54,7 @@ object Libs {
   }
 
   object Postgres {
-    const val driver = "org.postgresql:postgresql:42.2.20"
+    const val driver = "org.postgresql:postgresql:42.3.3"
   }
 
   object Snake {
