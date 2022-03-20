@@ -46,7 +46,7 @@ sealed interface ConfigFailure {
       "Could not detect parser for file extension '.$file' - available parsers are $map"
   }
 
-  data class PreprocessorError(val message: String) : ConfigFailure {
+  data class PreprocessorWarning(val message: String) : ConfigFailure {
     override fun description(): String = message
   }
 

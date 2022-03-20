@@ -43,7 +43,7 @@ class ParameterStorePathPreprocessor(
           fetchParameterStoreValues().fold(
             { values ->
               when (val value = values.firstOrNull { it.name == key }) {
-                null -> ConfigFailure.PreprocessorError("Could not find key: $key in paths: ${values.map { it.name }}")
+                null -> ConfigFailure.PreprocessorWarning("Could not find key: $key in paths: ${values.map { it.name }}")
                   .invalid()
                 else -> node.copy(value = value.value).valid()
               }

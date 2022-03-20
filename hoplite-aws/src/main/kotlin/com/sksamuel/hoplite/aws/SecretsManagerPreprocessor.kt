@@ -34,7 +34,7 @@ class AwsSecretsManagerPreprocessor(
             val value = client.getSecretValue(req).secretString
             node.copy(value = value).valid()
           } catch (e: ResourceNotFoundException) {
-            ConfigFailure.PreprocessorError("Could not find secret '$key'").invalid()
+            ConfigFailure.PreprocessorWarning("Could not find secret '$key'").invalid()
           } catch (e: Exception) {
             ConfigFailure.PreprocessorFailure("Failed loading secrets", e).invalid()
           }

@@ -9,6 +9,7 @@ import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.preprocessor.TraversingPrimitivePreprocessor
+import java.util.Optional
 
 /**
  * Creates a Preprocessor that will replace strings of the form `${consul:a.b.c}` with the
@@ -31,8 +32,8 @@ class ConsulConfigPreprocessor(
     return builder.build()
   }
 
-  private fun fetchConsulValue(key: String): Result<String> = runCatching {
-    client.keyValueClient().getValueAsString(key).orElseThrow { RuntimeException("Unable to locate consul key $key") }
+  private fun fetchConsulValue(key: String): Result<Optional<String>> = runCatching {
+    client.keyValueClient().getValueAsString(key)
   }
 
   override fun handle(node: PrimitiveNode): ConfigResult<Node> = when (node) {
@@ -41,8 +42,13 @@ class ConsulConfigPreprocessor(
       else -> {
         val key = match.groupValues[1]
         fetchConsulValue(key).fold(
-          { node.copy(value = it).valid() },
-          { ConfigFailure.PreprocessorFailure("Failed loading consul config '$key'", it).invalid() }
+          {
+            when (val v = it.orElseGet { null }) {
+              null -> ConfigFailure.PreprocessorWarning("Unable to locate consul key '$key'").invalid()
+              else -> node.copy(value = v).valid()
+            }
+          },
+          { ConfigFailure.PreprocessorFailure("Failed loading from consul", it).invalid() }
         )
       }
     }
