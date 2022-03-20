@@ -6,17 +6,23 @@
 
 * Requires Kotlin 1.6 or higher
 * Requires JDK 11 or higher
-* `ConfigLoader.Builder` has been removed and replaced with `ConfigLoaderBuilder` which has clearer semantics around defaults, and
-  how to override defaults.
+* `ConfigLoader.Builder` has been removed and replaced with `ConfigLoaderBuilder` which has clearer semantics around
+  defaults, and how to override defaults.
 * The env vars property source is no longer registered by default. Env vars are typically used to override specific
   config values, not as an entire source of values, so this avoids some subtle runtime bugs.
 * Using an unresolved substitution value, eg ${foo} where foo doesn't exist, is now an error.
-* The `ConfigLoader.loadConfig` functions that accept a File or Path have been removed to simply the config loader class. Instead use the equivalent methods on `ConfigLoaderBuilder`
+* The `ConfigLoader.loadConfig` functions that accept a File or Path have been removed to simply the config loader
+  class. Instead, use the equivalent methods on `ConfigLoaderBuilder`
+* `ParameterMapper`s now return `Set<String>` rather than `String` to allow each parameter mapper to return more than
+  one alternative name.
 
 #### New Features
 
-* `ConfigLoaderBuilder.report` has been added to output a report of the property sources, the resolved config values, and which config values were unused.
-* `ConfigLoaderBuilder.strict` now correctly handles unused config values at any level. If a property source provides a value that is not used, the config loader will error when strict mode is on.
+* `ConfigLoaderBuilder.report` has been added to output a report of the property sources, the resolved config values,
+  and which config values were unused.
+* `ConfigLoaderBuilder.strict` mode reports unused config values at any level. If a property source provides a value
+  that is not used, the config loader will error when strict mode is on.
+* Multiple `@ConfigAlias` annotations are now supported per field
 
 ### 1.4.16
 
