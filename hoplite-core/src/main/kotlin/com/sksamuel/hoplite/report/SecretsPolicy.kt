@@ -5,11 +5,18 @@ import com.sksamuel.hoplite.decoder.DotPath
 /**
  * Implementations determine which fields are secrets.
  */
-interface Secrets {
+interface SecretsPolicy {
   fun isSecret(path: DotPath, secrets: Set<DotPath>): Boolean
 }
 
-object DefaultSecrets : Secrets {
+/**
+ * A [SecretsPolicy] which specifies that all fields should be treated as secrets.
+ */
+object AllFieldsSecretsPolicy : SecretsPolicy {
+  override fun isSecret(path: DotPath, secrets: Set<DotPath>): Boolean = true
+}
+
+object DefaultSecretsPolicy : SecretsPolicy {
   override fun isSecret(path: DotPath, secrets: Set<DotPath>): Boolean {
     val lower = path.flatten().lowercase()
     return lower.contains("password") ||

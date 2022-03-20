@@ -1,15 +1,17 @@
 package com.sksamuel.hoplite.report
 
+import com.sksamuel.hoplite.decoder.DotPath
+
 /**
  * Implementations can choose how to obfuscate values.
  */
 interface Obfuscator {
-  fun obfuscate(value: String): String
+  fun obfuscate(path: DotPath, value: String): String
 }
 
 /**
- * Obfuscates by returning the first 2 characters only.
+ * An [Obfuscator] that returns the first three characters only of every field.
  */
 object DefaultObfuscator : Obfuscator {
-  override fun obfuscate(value: String): String = value.take(2) + "*****"
+  override fun obfuscate(path: DotPath, value: String): String = value.take(3) + "*****"
 }

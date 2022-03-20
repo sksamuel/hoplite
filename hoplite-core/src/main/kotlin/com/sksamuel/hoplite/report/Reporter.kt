@@ -19,7 +19,6 @@ class ReporterBuilder {
 
   private var print: Print = { println(it) }
   private var obfuscator: Obfuscator = DefaultObfuscator
-  private var secrets: Secrets = DefaultSecrets
 
   fun withPrint(print: Print) = apply {
     this.print = print
@@ -29,17 +28,12 @@ class ReporterBuilder {
     this.obfuscator = obfuscator
   }
 
-  fun withSecrets(secrets: Secrets) = apply {
-    this.secrets = secrets
-  }
-
-  fun build(): Reporter = Reporter(print, obfuscator, secrets)
+  fun build(): Reporter = Reporter(print, obfuscator)
 }
 
 class Reporter(
   private val print: Print,
   private val obfuscator: Obfuscator,
-  private val secrets: Secrets
 ) {
 
   companion object {
@@ -64,12 +58,12 @@ class Reporter(
       val (usedResources, unusedResources) = node.resources().partition { usedPaths.contains(it.path) }
 
       if (used.isEmpty()) appendLine("Used keys: none")
-      if (used.isNotEmpty()) appendLine(reportPaths(usedResources, "Used", usedSecrets))
+      if (used.isNotEmpty()) appendLine(reportResources(usedResources, "Used", usedSecrets))
 
       appendLine()
 
       if (unusedResources.isEmpty()) appendLine("Unused keys: none")
-      if (unusedResources.isNotEmpty()) appendLine(reportPaths(unusedResources, "Unused", usedSecrets))
+      if (unusedResources.isNotEmpty()) appendLine(reportResources(unusedResources, "Unused", usedSecrets))
 
       appendLine()
       appendLine("--End Hoplite Config Report--")
@@ -84,10 +78,10 @@ class Reporter(
       sources.joinToString(System.lineSeparator() + "  - ", "  - ") { it.source() }
   }
 
-  fun reportPaths(resources: List<ConfigResource>, title: String, usedSecrets: Set<DotPath>): String {
+  fun reportResources(resources: List<ConfigResource>, title: String, usedSecrets: Set<DotPath>): String {
 
     val obfuscated = resources.map {
-      val value = if (secrets.isSecret(it.path, usedSecrets)) obfuscator.obfuscate(it.value) else it.value
+      val value = obfuscator.obfuscate(it.path, it.value)
       it.copy(value = value)
     }
 

@@ -24,20 +24,20 @@ class ReporterTest : FunSpec({
       .build()
       .loadNodeOrThrow()
 
-    Reporter.default().reportPaths(node.resources(), "Used", emptySet()).trim() shouldBe """
+    Reporter.default().reportResources(node.resources(), "Used", emptySet()).trim() shouldBe """
 Used keys 3
-+---------------+---------------------+-------------+
-| Key           | Source              | Value       |
-+---------------+---------------------+-------------+
-| database.port | props string source | 3306        |
-| database.host | props string source | localhost   |
-| database.name | props string source | my database |
-+---------------+---------------------+-------------+
++---------------+---------------------+----------+
+| Key           | Source              | Value    |
++---------------+---------------------+----------+
+| database.port | props string source | 330***** |
+| database.host | props string source | loc***** |
+| database.name | props string source | my ***** |
++---------------+---------------------+----------+
 """.trim()
 
   }
 
-  test("report node with obfuscation based on field name") {
+  test("report node with default obfuscations") {
 
     data class Test(
       val name: String,
@@ -48,7 +48,7 @@ Used keys 3
 
     val builder = StringBuilder()
 
-    val node = ConfigLoaderBuilder.default()
+    ConfigLoaderBuilder.default()
       .addPropertySource(
         PropertySource.string(
           """
@@ -65,54 +65,14 @@ Used keys 3
 
     builder.toString().shouldContain("""
 Used keys 4
-+----------+---------------------+-------------+
-| Key      | Source              | Value       |
-+----------+---------------------+-------------+
-| password | props string source | ss*****     |
-| port     | props string source | 3306        |
-| host     | props string source | localhost   |
-| name     | props string source | my database |
-+----------+---------------------+-------------+
-""")
-
-  }
-
-  test("report with obfuscation based on secret type") {
-
-    data class Test(
-      val name: String,
-      val host: String,
-      val port: Int,
-      val wobble: Secret,
-    )
-
-    val builder = StringBuilder()
-
-    ConfigLoaderBuilder.default()
-      .addPropertySource(
-        PropertySource.string(
-          """
-            name = my database
-            host = localhost
-            port = 3306
-            wobble = hideme
-          """.trimIndent(), "props"
-        )
-      )
-      .report(ReporterBuilder().withPrint(builder::append).build())
-      .build()
-      .loadConfigOrThrow<Test>()
-
-    builder.toString().shouldContain("""
-Used keys 4
-+--------+---------------------+-------------+
-| Key    | Source              | Value       |
-+--------+---------------------+-------------+
-| port   | props string source | 3306        |
-| host   | props string source | localhost   |
-| name   | props string source | my database |
-| wobble | props string source | hi*****     |
-+--------+---------------------+-------------+
++----------+---------------------+----------+
+| Key      | Source              | Value    |
++----------+---------------------+----------+
+| password | props string source | ssm***** |
+| port     | props string source | 330***** |
+| host     | props string source | loc***** |
+| name     | props string source | my ***** |
++----------+---------------------+----------+
 """)
 
   }
