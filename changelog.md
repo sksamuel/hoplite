@@ -1,5 +1,10 @@
 # Changelog
 
+### 2.0.2
+
+* Added `SecretsPolicy` to `Reporter` to determine which fields should be obfuscated.
+* Adedd `HashObfuscator` to use the first 8 characters of the SHA-256 for obfuscation.
+
 ### 2.0.1
 
 * Improved error messages from AWS Secrets Manager
