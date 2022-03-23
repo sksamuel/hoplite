@@ -23,6 +23,7 @@ class ConfigLoader(
   val onFailure: List<(Throwable) -> Unit> = emptyList(),
   val mode: DecodeMode = DecodeMode.Lenient,
   val reporter: Reporter? = null,
+  val allowEmptyTree: Boolean,
 ) {
 
   companion object {
@@ -127,12 +128,13 @@ class ConfigLoader(
     if (decoderRegistry.size == 0)
       return ConfigFailure.EmptyDecoderRegistry.invalid()
 
-    return NodeParser(parserRegistry).parseNode(propertySources, configSources).flatMap { (sources, node) ->
-      decode(klass, node).map { (config, used, _, secrets) ->
-        reporter?.printReport(sources, node, used, secrets)
-        config
+    return NodeParser(parserRegistry, allowEmptyTree)
+      .parseNode(propertySources, configSources).flatMap { (sources, node) ->
+        decode(klass, node).map { (config, used, _, secrets) ->
+          reporter?.printReport(sources, node, used, secrets)
+          config
+        }
       }
-    }
   }
 
   /**
@@ -165,7 +167,7 @@ class ConfigLoader(
     classpathResourceLoader: ClasspathResourceLoader = ConfigLoader::class.java.toClasspathResourceLoader(),
   ): ConfigResult<Node> = ConfigSource
     .fromResourcesOrFiles(resourceOrFiles.toList(), classpathResourceLoader)
-    .flatMap { NodeParser(parserRegistry).parseNode(propertySources, it) }
+    .flatMap { NodeParser(parserRegistry, allowEmptyTree).parseNode(propertySources, it) }
     .map { it.node }
 
   private fun <A : Any> decode(kclass: KClass<A>, node: Node): ConfigResult<DecodingResult<A>> {
