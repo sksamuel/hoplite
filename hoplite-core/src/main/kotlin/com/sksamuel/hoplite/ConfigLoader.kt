@@ -135,18 +135,6 @@ class ConfigLoader(
     }
   }
 
-  private fun <A : Any> decode(kclass: KClass<A>, node: Node): ConfigResult<DecodingResult<A>> {
-    val decoding = Decoding(decoderRegistry, paramMappers, preprocessors)
-    return decoding.decode(kclass, node, mode)
-  }
-
-  @PublishedApi
-  internal fun <A : Any> ConfigResult<A>.returnOrThrow(): A = this.getOrElse { failure ->
-    val err = "Error loading config because:\n\n" + failure.description().indent(Constants.indent)
-    onFailure.forEach { it(ConfigException(err)) }
-    throw ConfigException(err)
-  }
-
   /**
    * Attempts to load config from the specified resources either on the class path or as files on the
    * file system, and returns a [ConfigResult] with either the errors during load, or the successfully
@@ -168,12 +156,28 @@ class ConfigLoader(
   fun loadNodeOrThrow(
     resourceOrFiles: List<String>,
     classpathResourceLoader: ClasspathResourceLoader = ConfigLoader::class.java.toClasspathResourceLoader(),
-  ): Node {
-    return ConfigSource
-      .fromResourcesOrFiles(resourceOrFiles.toList(), classpathResourceLoader)
-      .flatMap { NodeParser(parserRegistry).parseNode(propertySources, it) }
-      .map { it.node }
-      .returnOrThrow()
+  ): Node = loadNode(resourceOrFiles, classpathResourceLoader).returnOrThrow()
+
+  fun loadNode(vararg resourceOrFiles: String): ConfigResult<Node> = loadNode(resourceOrFiles.toList())
+
+  fun loadNode(
+    resourceOrFiles: List<String>,
+    classpathResourceLoader: ClasspathResourceLoader = ConfigLoader::class.java.toClasspathResourceLoader(),
+  ): ConfigResult<Node> = ConfigSource
+    .fromResourcesOrFiles(resourceOrFiles.toList(), classpathResourceLoader)
+    .flatMap { NodeParser(parserRegistry).parseNode(propertySources, it) }
+    .map { it.node }
+
+  private fun <A : Any> decode(kclass: KClass<A>, node: Node): ConfigResult<DecodingResult<A>> {
+    val decoding = Decoding(decoderRegistry, paramMappers, preprocessors)
+    return decoding.decode(kclass, node, mode)
+  }
+
+  @PublishedApi
+  internal fun <A : Any> ConfigResult<A>.returnOrThrow(): A = this.getOrElse { failure ->
+    val err = "Error loading config because:\n\n" + failure.description().indent(Constants.indent)
+    onFailure.forEach { it(ConfigException(err)) }
+    throw ConfigException(err)
   }
 }
 

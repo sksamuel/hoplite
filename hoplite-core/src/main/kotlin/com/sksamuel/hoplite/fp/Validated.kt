@@ -12,6 +12,11 @@ sealed class Validated<out E, out A> {
     is Valid -> this.value
   }
 
+  fun getInvalidUnsafe(): E = when (this) {
+    is Invalid -> this.error
+    is Valid -> throw IllegalStateException("Not an invalid instance, was $this")
+  }
+
   fun <B> map(f: (A) -> B): Validated<E, B> = when (this) {
     is Valid -> f(this.value).valid()
     is Invalid -> this

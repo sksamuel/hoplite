@@ -38,6 +38,10 @@ sealed interface ConfigFailure {
     override fun description(): String = "No registered property sources or config files"
   }
 
+  object NoValues : ConfigFailure {
+    override fun description(): String = "Registered properties sources returned no config"
+  }
+
   data class NoSuchParser(
     val file: String,
     val map: Map<String, Parser>
