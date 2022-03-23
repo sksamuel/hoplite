@@ -1,5 +1,9 @@
 # Changelog
 
+### 2.0.3
+
+* Added `allowEmptyTree` on `ConfigLoaderBuilder` to _not_ error if all property sources return no values.
+
 ### 2.0.2
 
 * Added `SecretsPolicy` to `Reporter` to determine which fields should be obfuscated.
