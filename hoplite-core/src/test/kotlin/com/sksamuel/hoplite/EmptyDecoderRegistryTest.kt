@@ -14,7 +14,14 @@ class EmptyDecoderRegistryTest : FunSpec() {
       val sources = defaultPropertySources()
       val preprocessors = defaultPreprocessors()
       val mappers = defaultParamMappers()
-      val e = ConfigLoader(DecoderRegistry.zero, sources, parsers, preprocessors, mappers).loadConfig<Config>()
+      val e = ConfigLoader(
+        DecoderRegistry.zero,
+        sources,
+        parsers,
+        preprocessors,
+        mappers,
+        allowEmptyTree = false
+      ).loadConfig<Config>()
       e as Validated.Invalid<ConfigFailure>
       e.error shouldBe ConfigFailure.EmptyDecoderRegistry
     }

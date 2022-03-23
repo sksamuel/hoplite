@@ -23,6 +23,7 @@ class ConfigLoaderBuilder private constructor() {
   private var classLoader: ClassLoader = Thread.currentThread().contextClassLoader
 
   private var mode: DecodeMode = DecodeMode.Lenient
+  private var allowEmptyTree = false
 
   private val propertySources = mutableListOf<PropertySource>()
   private val preprocessors = mutableListOf<Preprocessor>()
@@ -148,6 +149,13 @@ class ConfigLoaderBuilder private constructor() {
   }
 
   /**
+   * When enabled, allows a config loader to continue even if all the property sources provide no config.
+   */
+  fun allowEmptyTree(): ConfigLoaderBuilder = apply {
+    allowEmptyTree = true
+  }
+
+  /**
    * Enables a report on all config keys, their values, and which were used or unused.
    * Note, to avoid printing passwords or other secrets, wrap those values by using `Masked` or `Secret`
    * as the target type instead of String.
@@ -176,6 +184,7 @@ class ConfigLoaderBuilder private constructor() {
       onFailure = failureCallbacks.toList(),
       mode = mode,
       reporter = reporter,
+      allowEmptyTree = allowEmptyTree,
     )
   }
 }
