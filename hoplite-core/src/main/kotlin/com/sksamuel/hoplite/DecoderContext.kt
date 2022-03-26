@@ -4,7 +4,6 @@ import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.decoder.DotPath
 import com.sksamuel.hoplite.fp.Validated
-import com.sksamuel.hoplite.preprocessor.Preprocessor
 import kotlin.reflect.KParameter
 import kotlin.reflect.KType
 
@@ -31,10 +30,10 @@ data class DecoderContext(
 
   companion object {
 
-    val zero = DecoderContext(DecoderRegistry.zero, emptyList(), emptyList(), mutableSetOf())
+    val zero = DecoderContext(DecoderRegistry.zero, emptyList(), mutableSetOf())
 
     operator fun invoke(registry: DecoderRegistry) =
-      DecoderContext(registry, emptyList(), emptyList(), mutableSetOf())
+      DecoderContext(registry, emptyList(), mutableSetOf())
   }
 }
 
