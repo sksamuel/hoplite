@@ -11,23 +11,29 @@ import com.sksamuel.hoplite.preprocessor.UnresolvedSubstitutionChecker
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
+class Preprocessing(
+  private val preprocessors: List<Preprocessor>,
+) {
+  fun preprocess(node: Node): ConfigResult<Node> {
+    return preprocessors.fold<Preprocessor, ConfigResult<Node>>(node.valid()) { acc, preprocessor ->
+      acc.flatMap { preprocessor.process(it) }
+    }
+  }
+}
+
 class Decoding(
   private val decoderRegistry: DecoderRegistry,
   private val paramMappers: List<ParameterMapper>,
-  private val preprocessors: List<Preprocessor>,
 ) {
 
   fun <A : Any> decode(kclass: KClass<A>, node: Node, mode: DecodeMode): ConfigResult<DecodingResult<A>> {
-    val context = DecoderContext(decoderRegistry, paramMappers, preprocessors, mutableSetOf())
-    return context.preprocessors.fold<Preprocessor, ConfigResult<Node>>(node.valid()) { acc, preprocessor ->
-      acc.flatMap { preprocessor.process(it) }
-    }.flatMap {
-      UnresolvedSubstitutionChecker.process(it)
-    }.flatMap { preprocessed ->
-      decoderRegistry.decoder(kclass)
-        .flatMap { it.decode(preprocessed, kclass.createType(), context) }
-        .flatMap { decodingResult(it, preprocessed, context.usedPaths, mode, context.secrets) }
-    }
+    val context = DecoderContext(decoderRegistry, paramMappers, mutableSetOf())
+    return UnresolvedSubstitutionChecker.process(node)
+      .flatMap { preprocessed ->
+        decoderRegistry.decoder(kclass)
+          .flatMap { it.decode(preprocessed, kclass.createType(), context) }
+          .flatMap { decodingResult(it, preprocessed, context.usedPaths, mode, context.secrets) }
+      }
   }
 
   private fun <A : Any> decodingResult(
