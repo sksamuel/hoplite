@@ -129,11 +129,15 @@ class ConfigLoader(
       return ConfigFailure.EmptyDecoderRegistry.invalid()
 
     return NodeParser(parserRegistry, allowEmptyTree)
-      .parseNode(propertySources, configSources).flatMap { (sources, node) ->
-        decode(klass, node).map { (config, used, _, secrets) ->
-          reporter?.printReport(sources, node, used, secrets)
-          config
-        }
+      .parseNode(propertySources, configSources)
+      .flatMap { (sources, node) ->
+        Preprocessing(preprocessors).preprocess(node)
+          .flatMap { preprocessed ->
+            decode(klass, preprocessed).map { (config, used, _, secrets) ->
+              reporter?.printReport(sources, node, used, secrets)
+              config
+            }
+          }
       }
   }
 
@@ -171,7 +175,7 @@ class ConfigLoader(
     .map { it.node }
 
   private fun <A : Any> decode(kclass: KClass<A>, node: Node): ConfigResult<DecodingResult<A>> {
-    val decoding = Decoding(decoderRegistry, paramMappers, preprocessors)
+    val decoding = Decoding(decoderRegistry, paramMappers)
     return decoding.decode(kclass, node, mode)
   }
 

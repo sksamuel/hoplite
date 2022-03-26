@@ -15,7 +15,6 @@ import kotlin.reflect.KType
 data class DecoderContext(
   val decoders: DecoderRegistry,
   val paramMappers: List<ParameterMapper>,
-  val preprocessors: List<Preprocessor>,
   val usedPaths: MutableSet<DotPath> = mutableSetOf(),
   val secrets: MutableSet<DotPath> = mutableSetOf(),
 ) {
