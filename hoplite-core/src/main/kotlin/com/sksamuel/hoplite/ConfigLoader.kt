@@ -7,8 +7,10 @@ import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.getOrElse
 import com.sksamuel.hoplite.fp.invalid
+import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.parsers.ParserRegistry
 import com.sksamuel.hoplite.preprocessor.Preprocessor
+import com.sksamuel.hoplite.preprocessor.UnresolvedSubstitutionChecker
 import com.sksamuel.hoplite.report.Reporter
 import kotlin.reflect.KClass
 
@@ -24,6 +26,7 @@ class ConfigLoader(
   val mode: DecodeMode = DecodeMode.Lenient,
   val reporter: Reporter? = null,
   val allowEmptyTree: Boolean,
+  val allowUnresolvedSubstitutions: Boolean,
 ) {
 
   companion object {
@@ -132,6 +135,7 @@ class ConfigLoader(
       .parseNode(propertySources, configSources)
       .flatMap { (sources, node) ->
         Preprocessing(preprocessors).preprocess(node)
+          .flatMap { if (allowUnresolvedSubstitutions) node.valid() else UnresolvedSubstitutionChecker.process(node) }
           .flatMap { preprocessed ->
             decode(klass, preprocessed).map { (config, used, _, secrets) ->
               reporter?.printReport(sources, node, used, secrets)

@@ -24,6 +24,7 @@ class ConfigLoaderBuilder private constructor() {
 
   private var mode: DecodeMode = DecodeMode.Lenient
   private var allowEmptyTree = false
+  private var allowUnresolvedSubstitutions = false
 
   private val propertySources = mutableListOf<PropertySource>()
   private val preprocessors = mutableListOf<Preprocessor>()
@@ -156,6 +157,13 @@ class ConfigLoaderBuilder private constructor() {
   }
 
   /**
+   * When enabled, allows placeholder substitutions like ${foo} not to cause an error if they are not resolvable.
+   */
+  fun allowUnresolvedSubstitutions() {
+    allowUnresolvedSubstitutions = true
+  }
+
+  /**
    * Enables a report on all config keys, their values, and which were used or unused.
    * Note, to avoid printing passwords or other secrets, wrap those values by using `Masked` or `Secret`
    * as the target type instead of String.
@@ -185,6 +193,7 @@ class ConfigLoaderBuilder private constructor() {
       mode = mode,
       reporter = reporter,
       allowEmptyTree = allowEmptyTree,
+      allowUnresolvedSubstitutions = allowUnresolvedSubstitutions,
     )
   }
 }

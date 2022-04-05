@@ -7,7 +7,6 @@ import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.preprocessor.Preprocessor
-import com.sksamuel.hoplite.preprocessor.UnresolvedSubstitutionChecker
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
@@ -28,12 +27,9 @@ class Decoding(
 
   fun <A : Any> decode(kclass: KClass<A>, node: Node, mode: DecodeMode): ConfigResult<DecodingResult<A>> {
     val context = DecoderContext(decoderRegistry, paramMappers, mutableSetOf())
-    return UnresolvedSubstitutionChecker.process(node)
-      .flatMap { preprocessed ->
-        decoderRegistry.decoder(kclass)
-          .flatMap { it.decode(preprocessed, kclass.createType(), context) }
-          .flatMap { decodingResult(it, preprocessed, context.usedPaths, mode, context.secrets) }
-      }
+    return decoderRegistry.decoder(kclass)
+      .flatMap { it.decode(node, kclass.createType(), context) }
+      .flatMap { decodingResult(it, node, context.usedPaths, mode, context.secrets) }
   }
 
   private fun <A : Any> decodingResult(
