@@ -31,7 +31,7 @@ class AwsSecretsManagerPreprocessor(
       ) {
         null -> node.valid()
         else -> {
-          val key = match.groupValues[1]
+          val key = match.groupValues[1].trim()
           try {
             val req = GetSecretValueRequest().withSecretId(key)
             val value = client.getSecretValue(req).secretString

@@ -19,7 +19,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import org.testcontainers.containers.localstack.LocalStackContainer
 import org.testcontainers.utility.DockerImageName
 
-class SecretsManagerPreprocessorTest : FunSpec() {
+class AwsSecretsManagerPreprocessorTest : FunSpec() {
 
   private val localstackImage = DockerImageName.parse("localstack/localstack:0.14.1")
   private val localstack = LocalStackContainer(localstackImage).withServices(LocalStackContainer.Service.SECRETSMANAGER)
