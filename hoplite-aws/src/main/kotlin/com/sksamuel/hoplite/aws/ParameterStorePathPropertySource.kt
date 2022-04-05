@@ -35,7 +35,15 @@ class ParameterStorePathPropertySource(
 
   private fun fetchParameterStoreValues(): Result<List<Parameter>> = runCatching {
     val req = GetParametersByPathRequest().withPath(prefix).apply(configure)
-    client.getParametersByPath(req).parameters
+    val params = mutableListOf<Parameter>()
+    tailrec fun go(request: GetParametersByPathRequest, parameters: MutableList<Parameter>): List<Parameter> {
+      val result = client.getParametersByPath(request)
+      return if (result.nextToken != null) {
+        request.nextToken = result.nextToken
+        go(request, (parameters + result.parameters).toMutableList())
+      } else result.parameters + parameters
+    }
+    go(req, params)
   }
 
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
