@@ -55,7 +55,7 @@ class EnvVarPreprocessorTest : FunSpec() {
           .addSource(YamlPropertySource("a: \${wibble}"))
           .build()
           .loadConfigOrThrow<Test>()
-      }.message.shouldContain("Resolved substitution \${wibble}")
+      }.message.shouldContain("Unresolved substitution \${wibble}")
     }
   }
 }

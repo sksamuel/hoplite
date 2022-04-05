@@ -96,7 +96,7 @@ sealed interface ConfigFailure {
 
   data class UnresolvedSubstitution(val value: String, val node: Node) : ConfigFailure {
     override fun description(): String {
-      return "Resolved substitution $value at ${node.pos.loc()}"
+      return "Unresolved substitution $value at ${node.pos.loc()}"
     }
   }
 
