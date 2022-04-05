@@ -22,13 +22,11 @@ class AwsSecretsManagerPreprocessor(
 
   private val client by lazy { createClient() }
   private val regex1 = "\\$\\{awssecret:(.+?)}".toRegex()
-  private val regex2 = "secretsmanager://(.+?)".toRegex()
+  private val regex2 = "^secretsmanager://(.+?)$".toRegex()
 
   override fun handle(node: PrimitiveNode): ConfigResult<Node> = when (node) {
     is StringNode -> {
-      when (val match = regex1.matchEntire(node.value)
-        ?: regex2.matchEntire(node.value)
-      ) {
+      when (val match = regex1.matchEntire(node.value) ?: regex2.matchEntire(node.value)) {
         null -> node.valid()
         else -> {
           val key = match.groupValues[1].trim()
@@ -43,7 +41,7 @@ class AwsSecretsManagerPreprocessor(
           } catch (e: LimitExceededException) {
             ConfigFailure.PreprocessorWarning("Could not load resource '$key' due to limits exceeded").invalid()
           } catch (e: InvalidParameterException) {
-            ConfigFailure.PreprocessorWarning("Could not locate resource '$key' in AWS SecretsManager").invalid()
+            ConfigFailure.PreprocessorWarning("Invalid parameter name '$key' in AWS SecretsManager").invalid()
           } catch (e: Exception) {
             ConfigFailure.PreprocessorFailure("Failed loading secret '$key' from AWS SecretsManager", e).invalid()
           }
