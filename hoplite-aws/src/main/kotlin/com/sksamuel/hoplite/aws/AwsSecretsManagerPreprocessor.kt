@@ -26,7 +26,9 @@ class AwsSecretsManagerPreprocessor(
 
   override fun handle(node: PrimitiveNode): ConfigResult<Node> = when (node) {
     is StringNode -> {
-      when (val match = regex1.matchEntire(node.value) ?: regex2.matchEntire(node.value)) {
+      when (val match = regex1.matchEntire(node.value)
+        ?: regex2.matchEntire(node.value)
+      ) {
         null -> node.valid()
         else -> {
           val key = match.groupValues[1].trim()
