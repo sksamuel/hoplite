@@ -2,7 +2,10 @@ package com.sksamuel.hoplite.aws
 
 import com.amazonaws.services.secretsmanager.AWSSecretsManager
 import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder
+import com.amazonaws.services.secretsmanager.model.DecryptionFailureException
 import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest
+import com.amazonaws.services.secretsmanager.model.InvalidParameterException
+import com.amazonaws.services.secretsmanager.model.LimitExceededException
 import com.amazonaws.services.secretsmanager.model.ResourceNotFoundException
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
@@ -34,9 +37,15 @@ class AwsSecretsManagerPreprocessor(
             val value = client.getSecretValue(req).secretString
             node.copy(value = value).valid()
           } catch (e: ResourceNotFoundException) {
-            ConfigFailure.PreprocessorWarning("Could not locate secret '$key' in AWS SecretsManager").invalid()
+            ConfigFailure.PreprocessorWarning("Could not locate resource '$key' in AWS SecretsManager").invalid()
+          } catch (e: DecryptionFailureException) {
+            ConfigFailure.PreprocessorWarning("Could not decrypt resource '$key' in AWS SecretsManager").invalid()
+          } catch (e: LimitExceededException) {
+            ConfigFailure.PreprocessorWarning("Could not load resource '$key' due to limits exceeded").invalid()
+          } catch (e: InvalidParameterException) {
+            ConfigFailure.PreprocessorWarning("Could not locate resource '$key' in AWS SecretsManager").invalid()
           } catch (e: Exception) {
-            ConfigFailure.PreprocessorFailure("Failed loading secrets from AWS SecretsManager", e).invalid()
+            ConfigFailure.PreprocessorFailure("Failed loading secret '$key' from AWS SecretsManager", e).invalid()
           }
         }
       }
