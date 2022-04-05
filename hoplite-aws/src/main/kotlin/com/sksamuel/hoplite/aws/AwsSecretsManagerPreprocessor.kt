@@ -43,7 +43,7 @@ class AwsSecretsManagerPreprocessor(
           } catch (e: LimitExceededException) {
             ConfigFailure.PreprocessorWarning("Could not load resource '$key' due to limits exceeded").invalid()
           } catch (e: InvalidParameterException) {
-            ConfigFailure.PreprocessorWarning("Could not locate resource '$key' in AWS SecretsManager").invalid()
+            ConfigFailure.PreprocessorWarning("Invalid parameter name '$key' in AWS SecretsManager").invalid()
           } catch (e: Exception) {
             ConfigFailure.PreprocessorFailure("Failed loading secret '$key' from AWS SecretsManager", e).invalid()
           }
