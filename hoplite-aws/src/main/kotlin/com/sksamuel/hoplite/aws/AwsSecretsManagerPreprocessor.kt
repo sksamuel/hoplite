@@ -22,7 +22,7 @@ class AwsSecretsManagerPreprocessor(
 
   private val client by lazy { createClient() }
   private val regex1 = "\\$\\{awssecret:(.+?)}".toRegex()
-  private val regex2 = "^secretsmanager://(.+?)$".toRegex()
+  private val regex2 = "secretsmanager://(.+?)".toRegex()
 
   override fun handle(node: PrimitiveNode): ConfigResult<Node> = when (node) {
     is StringNode -> {
