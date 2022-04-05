@@ -15,6 +15,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.testcontainers.TestContainerExtension
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotContain
 import io.kotest.matchers.types.shouldBeInstanceOf
 import org.testcontainers.containers.localstack.LocalStackContainer
 import org.testcontainers.utility.DockerImageName
@@ -47,6 +48,11 @@ class AwsSecretsManagerPreprocessorTest : FunSpec() {
     test("unknown secret should return error and include key") {
       AwsSecretsManagerPreprocessor { client }.process(StringNode("secretsmanager://unkunk", Pos.NoPos, DotPath.root))
         .shouldBeInstanceOf<Validated.Invalid<ConfigFailure>>().error.description().shouldContain("unkunk")
+    }
+
+    test("unknown secret should return error and not include prefix") {
+      AwsSecretsManagerPreprocessor { client }.process(StringNode("secretsmanager://unkunk", Pos.NoPos, DotPath.root))
+        .shouldBeInstanceOf<Validated.Invalid<ConfigFailure>>().error.description().shouldNotContain("secretsmanager://")
     }
 
     test("multiple errors should be returned at once") {
