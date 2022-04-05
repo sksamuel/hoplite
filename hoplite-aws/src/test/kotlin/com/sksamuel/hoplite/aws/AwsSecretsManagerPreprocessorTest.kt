@@ -34,7 +34,7 @@ class AwsSecretsManagerPreprocessorTest : FunSpec() {
       .withCredentials(localstack.defaultCredentialsProvider)
       .build()
 
-    test("!placeholder should be detected and used") {
+    test("placeholder should be detected and used") {
 
       client.createSecret(CreateSecretRequest().withName("foo").withSecretString("secret!"))
 
