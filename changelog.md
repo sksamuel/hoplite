@@ -6,6 +6,13 @@
 
 ### 2.1.0
 
+* Optionally make using an unresolved substitution value not an error (#300)
+* Fixed unresolved error typo (#301)
+* Trim input keys in `AwsSecretsManagerPreprocessor`
+* Better errors when key are missing in `AwsSecretsManagerPreprocessor`
+* Updated default obfuscator to not obfuscate non-strings (#299)
+* AWS ParameterStorePathPropertySource should support GetParametersByPathResult's nextToken (#295)
+
 ### 2.0.3
 
 * Added `allowEmptyTree` on `ConfigLoaderBuilder` to _not_ error if all property sources return no values.
