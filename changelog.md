@@ -1,5 +1,11 @@
 # Changelog
 
+### 2.1.1
+
+* Fixed bug in `DefaultObfuscator` to avoid obfuscating booleans/numbers in yml.
+
+### 2.1.0
+
 ### 2.0.3
 
 * Added `allowEmptyTree` on `ConfigLoaderBuilder` to _not_ error if all property sources return no values.

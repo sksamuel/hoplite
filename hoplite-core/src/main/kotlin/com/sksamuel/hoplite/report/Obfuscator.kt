@@ -34,6 +34,16 @@ object HashObfuscator : Obfuscator {
       is DoubleNode -> node.value.toString()
       is LongNode -> node.value.toString()
       is StringNode -> {
+
+        val maybeBoolean = node.value.toBooleanStrictOrNull()
+        if (maybeBoolean != null) return maybeBoolean.toString()
+
+        val maybeDouble = node.value.toDoubleOrNull()
+        if (maybeDouble != null) return maybeDouble.toString()
+
+        val maybeLong = node.value.toLongOrNull()
+        if (maybeLong != null) return maybeLong.toString()
+
         val digest = MessageDigest.getInstance("SHA-256")
         return digest
           .digest(node.value.encodeToByteArray())
@@ -56,7 +66,18 @@ object DefaultObfuscator : Obfuscator {
       is NullNode -> node.value.toString()
       is DoubleNode -> node.value.toString()
       is LongNode -> node.value.toString()
-      is StringNode -> node.value.take(3) + "*****"
+      is StringNode -> {
+        val maybeBoolean = node.value.toBooleanStrictOrNull()
+        if (maybeBoolean != null) return maybeBoolean.toString()
+
+        val maybeDouble = node.value.toDoubleOrNull()
+        if (maybeDouble != null) return maybeDouble.toString()
+
+        val maybeLong = node.value.toLongOrNull()
+        if (maybeLong != null) return maybeLong.toString()
+
+        return node.value.take(3) + "*****"
+      }
     }
   }
 }
