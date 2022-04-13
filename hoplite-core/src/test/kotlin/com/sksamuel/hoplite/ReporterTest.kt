@@ -9,7 +9,7 @@ import io.kotest.matchers.string.shouldContain
 
 class ReporterTest : FunSpec({
 
-  test("report node") {
+  test("report node with default obfuscations") {
 
     val node = ConfigLoaderBuilder.default()
       .addPropertySource(
@@ -18,6 +18,8 @@ class ReporterTest : FunSpec({
           database.name = my database
           database.host = localhost
           database.port = 3306
+          database.timeout = 100.0
+          database.tls = true
           """.trimIndent(), "props"
         )
       )
@@ -25,19 +27,21 @@ class ReporterTest : FunSpec({
       .loadNodeOrThrow()
 
     Reporter.default().reportResources(node.resources(), "Used", emptySet()).trim() shouldBe """
-Used keys 3
-+---------------+---------------------+----------+
-| Key           | Source              | Value    |
-+---------------+---------------------+----------+
-| database.port | props string source | 330***** |
-| database.host | props string source | loc***** |
-| database.name | props string source | my ***** |
-+---------------+---------------------+----------+
+Used keys 5
++------------------+---------------------+----------+
+| Key              | Source              | Value    |
++------------------+---------------------+----------+
+| database.port    | props string source | 3306     |
+| database.host    | props string source | loc***** |
+| database.name    | props string source | my ***** |
+| database.tls     | props string source | true     |
+| database.timeout | props string source | 100.0    |
++------------------+---------------------+----------+
 """.trim()
 
   }
 
-  test("report node with default obfuscations") {
+  test("report test with default obfuscations") {
 
     data class Test(
       val name: String,
@@ -69,7 +73,7 @@ Used keys 4
 | Key      | Source              | Value    |
 +----------+---------------------+----------+
 | password | props string source | ssm***** |
-| port     | props string source | 330***** |
+| port     | props string source | 3306     |
 | host     | props string source | loc***** |
 | name     | props string source | my ***** |
 +----------+---------------------+----------+

@@ -38,11 +38,12 @@ object HashObfuscator : Obfuscator {
         val maybeBoolean = node.value.toBooleanStrictOrNull()
         if (maybeBoolean != null) return maybeBoolean.toString()
 
-        val maybeDouble = node.value.toDoubleOrNull()
-        if (maybeDouble != null) return maybeDouble.toString()
-
+        // longs must be first, otherwise they will be changed to a double
         val maybeLong = node.value.toLongOrNull()
         if (maybeLong != null) return maybeLong.toString()
+
+        val maybeDouble = node.value.toDoubleOrNull()
+        if (maybeDouble != null) return maybeDouble.toString()
 
         val digest = MessageDigest.getInstance("SHA-256")
         return digest
@@ -70,11 +71,12 @@ object DefaultObfuscator : Obfuscator {
         val maybeBoolean = node.value.toBooleanStrictOrNull()
         if (maybeBoolean != null) return maybeBoolean.toString()
 
-        val maybeDouble = node.value.toDoubleOrNull()
-        if (maybeDouble != null) return maybeDouble.toString()
-
+        // longs must be first, otherwise they will be changed to a double
         val maybeLong = node.value.toLongOrNull()
         if (maybeLong != null) return maybeLong.toString()
+
+        val maybeDouble = node.value.toDoubleOrNull()
+        if (maybeDouble != null) return maybeDouble.toString()
 
         return node.value.take(3) + "*****"
       }
