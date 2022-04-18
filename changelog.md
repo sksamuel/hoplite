@@ -1,5 +1,9 @@
 # Changelog
 
+### 2.1.2
+
+* Report should print after preprocessors have run.
+
 ### 2.1.1
 
 * Fixed bug in `DefaultObfuscator` to avoid obfuscating booleans/numbers in yml.
