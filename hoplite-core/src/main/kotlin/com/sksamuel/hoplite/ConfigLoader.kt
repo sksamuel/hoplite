@@ -138,7 +138,7 @@ class ConfigLoader(
           .flatMap { if (allowUnresolvedSubstitutions) it.valid() else UnresolvedSubstitutionChecker.process(it) }
           .flatMap { preprocessed ->
             decode(klass, preprocessed).map { (config, used, _, secrets) ->
-              reporter?.printReport(sources, node, used, secrets)
+              reporter?.printReport(sources, preprocessed, used, secrets)
               config
             }
           }
