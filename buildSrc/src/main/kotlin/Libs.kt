@@ -21,6 +21,11 @@ object Libs {
     const val secrets = "com.amazonaws:aws-java-sdk-secretsmanager:$version"
   }
 
+  object Aws2 {
+    private const val version = "2.17.168"
+    const val regions = "software.amazon.awssdk:regions:$version"
+  }
+
   object CronUtils {
     const val utils = "com.cronutils:cron-utils:9.1.6"
   }
