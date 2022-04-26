@@ -1,5 +1,9 @@
 # Changelog
 
+### 2.1.3
+
+* Added aws2 module for AWS support using the AWS SDK version 2
+
 ### 2.1.2
 
 * Report should print after preprocessors have run.
