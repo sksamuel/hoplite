@@ -35,7 +35,10 @@ class AwsSecretsManagerPreprocessor(
           try {
             val req = GetSecretValueRequest().withSecretId(key)
             val value = client.getSecretValue(req).secretString
-            node.copy(value = value).valid()
+            if (value.isNullOrBlank())
+              ConfigFailure.PreprocessorWarning("Empty secret '$key' in AWS SecretsManager").invalid()
+            else
+              node.copy(value = value).valid()
           } catch (e: ResourceNotFoundException) {
             ConfigFailure.PreprocessorWarning("Could not locate resource '$key' in AWS SecretsManager").invalid()
           } catch (e: DecryptionFailureException) {
