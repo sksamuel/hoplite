@@ -50,6 +50,12 @@ class AwsSecretsManagerPreprocessorTest : FunSpec() {
         .shouldBeInstanceOf<Validated.Invalid<ConfigFailure>>().error.description().shouldContain("unkunk")
     }
 
+    test("empty secret should return error and include key") {
+      client.createSecret(CreateSecretRequest().withName("bibblebobble").withSecretString(""))
+      AwsSecretsManagerPreprocessor { client }.process(StringNode("secretsmanager://bibblebobble", Pos.NoPos, DotPath.root))
+        .shouldBeInstanceOf<Validated.Invalid<ConfigFailure>>().error.description().shouldContain("Empty secret")
+    }
+
     test("unknown secret should return error and not include prefix") {
       AwsSecretsManagerPreprocessor { client }.process(StringNode("secretsmanager://unkunk", Pos.NoPos, DotPath.root))
         .shouldBeInstanceOf<Validated.Invalid<ConfigFailure>>().error.description().shouldNotContain("secretsmanager://")
