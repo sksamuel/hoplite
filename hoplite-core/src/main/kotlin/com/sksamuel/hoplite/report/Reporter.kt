@@ -50,6 +50,29 @@ class Reporter(
   fun printReport(
     sources: List<PropertySource>,
     node: Node,
+  ) {
+
+    val r = buildString {
+      appendLine()
+      appendLine("--Start Hoplite Config Report---")
+      appendLine()
+      appendLine(report(sources))
+      appendLine()
+
+      val resources = node.resources()
+      appendLine(reportResources(resources, null, emptySet()))
+
+      appendLine()
+      appendLine("--End Hoplite Config Report--")
+      appendLine()
+    }
+
+    print(r)
+  }
+
+  fun printReport(
+    sources: List<PropertySource>,
+    node: Node,
     used: List<Pair<DotPath, Pos>>,
     usedSecrets: Set<DotPath>,
   ) {
@@ -85,10 +108,12 @@ class Reporter(
       sources.joinToString(System.lineSeparator() + "  - ", "  - ") { it.source() }
   }
 
-  fun reportResources(resources: List<ConfigResource>, title: String, usedSecrets: Set<DotPath>): String {
+  fun reportResources(resources: List<ConfigResource>, title: String?, usedSecrets: Set<DotPath>): String {
 
     val obfuscated = resources.map {
-      val value = if (secretsPolicy.isSecret(it.path, usedSecrets)) obfuscator.obfuscate(it.node) else it.node.value?.toString() ?: "<null>"
+      val value =
+        if (secretsPolicy.isSecret(it.path, usedSecrets)) obfuscator.obfuscate(it.node) else it.node.value?.toString()
+          ?: "<null>"
       it.copy(node = StringNode(value, it.node.pos, it.node.path))
     }
 
@@ -102,7 +127,7 @@ class Reporter(
         " | " + it.node.value.toString().padEnd(valuePadded, ' ') + " |"
     }
 
-    val titleRow = "$title keys ${resources.size}"
+    val titleRow = title?.let { "$it keys ${resources.size}" }
 
     val bar = listOf(
       "".padEnd(keyPadded + 2, '-'),
@@ -116,7 +141,7 @@ class Reporter(
       "Value".padEnd(valuePadded, ' ')
     ).joinToString(" | ", "| ", " |")
 
-    return (listOf(titleRow, bar, titles, bar) + rows + listOf(bar)).joinToString(System.lineSeparator())
+    return (listOfNotNull(titleRow, bar, titles, bar) + rows + listOf(bar)).joinToString(System.lineSeparator())
   }
 }
 

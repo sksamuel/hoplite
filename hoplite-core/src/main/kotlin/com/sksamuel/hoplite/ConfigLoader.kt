@@ -137,10 +137,10 @@ class ConfigLoader(
         Preprocessing(preprocessors).preprocess(node)
           .flatMap { if (allowUnresolvedSubstitutions) it.valid() else UnresolvedSubstitutionChecker.process(it) }
           .flatMap { preprocessed ->
-            decode(klass, preprocessed).map { (config, used, _, secrets) ->
-              reporter?.printReport(sources, preprocessed, used, secrets)
-              config
-            }
+            decode(klass, preprocessed)
+              .onSuccess { (_, used, _, secrets) -> reporter?.printReport(sources, preprocessed, used, secrets) }
+              .onFailure { reporter?.printReport(sources, preprocessed) }
+              .map { (config, _, _, _) -> config }
           }
       }
   }

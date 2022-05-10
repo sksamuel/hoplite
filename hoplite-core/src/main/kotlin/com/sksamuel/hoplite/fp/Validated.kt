@@ -22,6 +22,22 @@ sealed class Validated<out E, out A> {
     is Invalid -> this
   }
 
+  fun onSuccess(f: (A) -> Unit): Validated<E, A> {
+    when (this) {
+      is Valid -> f(this.value)
+      is Invalid -> Unit
+    }
+    return this
+  }
+
+  fun onFailure(f: (E) -> Unit): Validated<E, A> {
+    when (this) {
+      is Valid -> Unit
+      is Invalid -> f(this.error)
+    }
+    return this
+  }
+
   fun <F> mapInvalid(f: (E) -> F): Validated<F, A> = when (this) {
     is Invalid -> f(this.error).invalid()
     is Valid -> this

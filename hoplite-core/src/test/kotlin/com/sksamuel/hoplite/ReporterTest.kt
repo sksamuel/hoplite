@@ -4,6 +4,7 @@ import com.sksamuel.hoplite.report.Reporter
 import com.sksamuel.hoplite.report.ReporterBuilder
 import com.sksamuel.hoplite.report.resources
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.extensions.system.captureStandardOut
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 
@@ -67,7 +68,8 @@ Used keys 5
       .build()
       .loadConfigOrThrow<Test>()
 
-    builder.toString().shouldContain("""
+    builder.toString().shouldContain(
+      """
 Used keys 4
 +----------+---------------------+----------+
 | Key      | Source              | Value    |
@@ -77,7 +79,8 @@ Used keys 4
 | host     | props string source | loc***** |
 | name     | props string source | my ***** |
 +----------+---------------------+----------+
-""")
+"""
+    )
 
   }
 
@@ -96,4 +99,33 @@ Property sources (highest to lowest priority):
 
   }
 
+  test("should pring report on failed config") {
+
+    data class Config(val name: String, val host: String, val port: Int)
+
+    val out = captureStandardOut {
+      ConfigLoaderBuilder.default()
+        .addPropertySource(
+          PropertySource.string(
+            """
+          database.name = my database
+          database.port = 3306
+          """.trimIndent(), "props"
+          )
+        )
+        .report()
+        .build()
+        .loadConfig<Config>()
+    }
+
+    out shouldContain """
++---------------+---------------------+----------+
+| Key           | Source              | Value    |
++---------------+---------------------+----------+
+| database.port | props string source | 3306     |
+| database.name | props string source | my ***** |
++---------------+---------------------+----------+
+""".trim()
+
+  }
 })
