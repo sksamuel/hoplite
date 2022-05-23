@@ -25,8 +25,9 @@ class ConfigLoader(
   val onFailure: List<(Throwable) -> Unit> = emptyList(),
   val mode: DecodeMode = DecodeMode.Lenient,
   val reporter: Reporter? = null,
-  val allowEmptyTree: Boolean,
+  val allowEmptyTree: Boolean, // if true then we allow config files to be empty
   val allowUnresolvedSubstitutions: Boolean,
+  val classLoader: ClassLoader? = null, // if null, then the current context thread loader
 ) {
 
   companion object {

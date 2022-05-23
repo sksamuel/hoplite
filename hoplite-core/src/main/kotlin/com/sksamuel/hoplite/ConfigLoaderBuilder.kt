@@ -63,6 +63,10 @@ class ConfigLoaderBuilder private constructor() {
     }
   }
 
+  fun withClassLoader(classLoader: ClassLoader): ConfigLoaderBuilder = apply {
+    this.classLoader = classLoader
+  }
+
   fun addSource(propertySource: PropertySource) = addPropertySource(propertySource)
   fun addPropertySource(propertySource: PropertySource) = addPropertySources(listOf(propertySource))
   fun addPropertySources(propertySources: Iterable<PropertySource>): ConfigLoaderBuilder = apply {
