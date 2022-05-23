@@ -1,5 +1,13 @@
 # Changelog
 
+### 2.1.5
+
+* Added `withClassLoader` option to the `ConfigLoaderBuilder`. This classloader is used when loading the service registry for decoders.
+
+### 2.1.4
+
+* Print report even when config fails to parse.
+
 ### 2.1.3
 
 * Added aws2 module for AWS support using the AWS SDK version 2
