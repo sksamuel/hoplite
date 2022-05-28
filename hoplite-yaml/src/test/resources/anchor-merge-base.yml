@@ -1,0 +1,10 @@
+objects:
+  - Beachball
+
+lefthand:
+  name: Anduril, the Sword of Aragon
+  weight: 40
+
+righthand:
+  name: Anduril, the Sword of Aragon
+  weight: 40
