@@ -15,7 +15,7 @@ import kotlin.reflect.full.createType
 class RegionDecoderTest : StringSpec() {
   init {
     "decodes upper case with underscores" {
-      RegionDecoder.safeDecode(
+      RegionDecoder().safeDecode(
         StringNode("EU_CENTRAL_1", Pos.NoPos, DotPath.root),
         Region::class.createType(),
         DecoderContext.zero
@@ -23,13 +23,13 @@ class RegionDecoderTest : StringSpec() {
     }
 
     "region converter" {
-      RegionDecoder.safeDecode(
+      RegionDecoder().safeDecode(
         StringNode("us-east-1", Pos.NoPos, DotPath.root),
         Region::class.createType(),
         DecoderContext.zero
       ) shouldBe Region.US_EAST_1.valid()
 
-      RegionDecoder.safeDecode(
+      RegionDecoder().safeDecode(
         StringNode("us-qwewqe-1", Pos.NoPos, DotPath.root),
         Region::class.createType(),
         DecoderContext.zero
