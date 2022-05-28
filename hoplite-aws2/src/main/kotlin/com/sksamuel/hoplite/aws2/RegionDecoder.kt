@@ -12,7 +12,7 @@ import software.amazon.awssdk.regions.Region
 import java.util.Locale
 import kotlin.reflect.KType
 
-object RegionDecoder : NullHandlingDecoder<Region> {
+class RegionDecoder : NullHandlingDecoder<Region> {
 
   override fun supports(type: KType): Boolean = type.classifier == Region::class
 
