@@ -99,7 +99,7 @@ Property sources (highest to lowest priority):
 
   }
 
-  test("should pring report on failed config") {
+  test("should print report on failed config") {
 
     data class Config(val name: String, val host: String, val port: Int)
 
