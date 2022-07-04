@@ -8,7 +8,7 @@ import io.kotest.matchers.shouldBe
 class SealedClassLinkedHashMapTest : FunSpec() {
   init {
     test("linked map of sealed interface should preserve order from json") {
-      val config = ConfigLoaderBuilder.default()
+      ConfigLoaderBuilder.default()
         .addPropertySource(PropertySource.resource("/sealed_class_linked_hash_map.json"))
         .build()
         .loadConfigOrThrow<Configuration>()
