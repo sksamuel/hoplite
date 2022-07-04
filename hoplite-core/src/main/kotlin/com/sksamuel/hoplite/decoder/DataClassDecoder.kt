@@ -77,7 +77,12 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
         var usedName = "<<undefined>>"
 
         // use parameter mappers to retrieve alternative names, then try each one in turn
+        // until we find one that is defined
         val names = context.paramMappers.flatMap { it.map(param, constructor, kclass) }
+        // every alt name is marked as used
+        names.forEach {
+          context.usedPaths.add(node.atKey(it).path)
+        }
         val n = names.fold<String, Node>(Undefined) { n, name ->
           if (n.isDefined) n else {
             usedName = name
@@ -85,7 +90,7 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
           }
         }
 
-        context.usedPaths.add(n.path)
+
 
         when {
           // if we have no value for this parameter at all, and it is optional we can skip it, and

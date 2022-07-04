@@ -3,6 +3,7 @@ package com.sksamuel.hoplite.yaml
 import com.sksamuel.hoplite.ConfigLoaderBuilder
 import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
 
@@ -66,6 +67,18 @@ class StrictModeTest : FunSpec() {
         .shouldContain("Config value 'a.u' at (classpath:/linked_hash_map.yml:5:5) was unused")
         .shouldNotContain("Config value 'a.x' at (classpath:/linked_hash_map.yml:2:5) was unused")
         .shouldNotContain("Config value 'a.e' at (classpath:/linked_hash_map.yml:2:5) was unused")
+    }
+
+    test("strict mode should take into account param mappers") {
+      data class Foo(val bubbleBobble: String)
+      ConfigLoaderBuilder
+        .default()
+        .strict()
+        .addSource(YamlPropertySource("bubble_bobble: xyz"))
+        .addSource(YamlPropertySource("bubbleBobble: xyz"))
+        .build()
+        .loadConfigOrThrow<Foo>()
+        .bubbleBobble shouldBe "xyz"
     }
   }
 }
