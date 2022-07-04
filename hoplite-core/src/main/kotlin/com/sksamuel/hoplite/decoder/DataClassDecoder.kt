@@ -37,13 +37,13 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
 
   override fun safeDecode(node: Node, type: KType, context: DecoderContext): ConfigResult<Any> {
 
-    val klass = type.classifier as KClass<*>
-    if (klass.constructors.isEmpty()) {
-      val instance = klass.objectInstance
+    val kclass = type.classifier as KClass<*>
+    if (kclass.constructors.isEmpty()) {
+      val instance = kclass.objectInstance
       if (instance != null && node is StringNode && node.value == type.simpleName.substringAfter("$")) {
         return instance.valid()
       }
-      return ConfigFailure.DataClassWithoutConstructor(klass).invalid()
+      return ConfigFailure.DataClassWithoutConstructor(kclass).invalid()
     }
 
     data class Arg(
@@ -57,7 +57,7 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
       val args: List<Arg>,
     )
 
-    val constructors = klass.constructors.map { constructor ->
+    val constructors = kclass.constructors.map { constructor ->
 
       // try for the value type
       // we have a special case, which is a data class with a single field with the name 'value'.
@@ -67,7 +67,7 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
         return context.decoder(constructor.parameters[0])
           .flatMap { it.decode(node, constructor.parameters[0].type, context) }
           .map { constructor.parameters[0] to it }
-          .mapInvalid { ConfigFailure.ValueTypeFailure(klass, constructor.parameters[0], it) }
+          .mapInvalid { ConfigFailure.ValueTypeFailure(kclass, constructor.parameters[0], it) }
           .flatMap { construct(type, constructor, mapOf(it)) }
       }
 
@@ -77,7 +77,7 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
         var usedName = "<<undefined>>"
 
         // use parameter mappers to retrieve alternative names, then try each one in turn
-        val names = context.paramMappers.flatMap { it.map(param) }
+        val names = context.paramMappers.flatMap { it.map(param, constructor, kclass) }
         val n = names.fold<String, Node>(Undefined) { n, name ->
           if (n.isDefined) n else {
             usedName = name
