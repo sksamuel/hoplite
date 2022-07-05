@@ -5,6 +5,7 @@ sealed class Validated<out E, out A> {
   data class Invalid<E>(val error: E) : Validated<E, Nothing>()
   data class Valid<A>(val value: A) : Validated<Nothing, A>()
 
+  fun isValid() = this is Valid<*>
   fun isInvalid() = this is Invalid<*>
 
   fun getUnsafe(): A = when (this) {
