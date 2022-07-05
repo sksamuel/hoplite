@@ -7,15 +7,15 @@ object Libs {
     const val reflect = "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
     const val stdlib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
     const val datetime = "org.jetbrains.kotlinx:kotlinx-datetime:0.3.2"
-    const val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1"
+    const val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3"
   }
 
   object Arrow {
-    const val Core = "io.arrow-kt:arrow-core:1.0.1"
+    const val Core = "io.arrow-kt:arrow-core:1.1.2"
   }
 
   object Aws {
-    private const val version = "1.12.211"
+    private const val version = "1.12.253"
     const val core = "com.amazonaws:aws-java-sdk-core:$version"
     const val ssm = "com.amazonaws:aws-java-sdk-ssm:$version"
     const val secrets = "com.amazonaws:aws-java-sdk-secretsmanager:$version"
@@ -43,13 +43,13 @@ object Libs {
   }
 
   object Jackson {
-    private const val version = "2.13.2"
+    private const val version = "2.13.3"
     const val core = "com.fasterxml.jackson.core:jackson-core:$version"
     const val databind = "com.fasterxml.jackson.core:jackson-databind:2.13.2.2"
   }
 
   object Kotest {
-    private const val version = "5.3.0"
+    private const val version = "5.3.2"
     const val assertions = "io.kotest:kotest-assertions-core-jvm:$version"
     const val junit5 = "io.kotest:kotest-runner-junit5-jvm:$version"
     const val testContainers = "io.kotest.extensions:kotest-extensions-testcontainers:1.2.1"
@@ -60,7 +60,7 @@ object Libs {
   }
 
   object Postgres {
-    const val driver = "org.postgresql:postgresql:42.3.4"
+    const val driver = "org.postgresql:postgresql:42.4.0"
   }
 
   object Snake {
