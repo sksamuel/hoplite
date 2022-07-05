@@ -1,8 +1,17 @@
 # Changelog
 
+### 2.2.0
+
+* Added alphabetical key sort in reports #306
+* ***Breaking change*** Added `constructor` and `KClass` parameters to the `ParameterMapper` interface to allow inspection of
+  annotations on fields #311
+* Fixed snakecase variable throwing unused error with _strict()_ #312
+* Fixed sealed type subclass decode failure when single string field #313
+
 ### 2.1.5
 
-* Added `withClassLoader` option to the `ConfigLoaderBuilder`. This classloader is used when loading the service registry for decoders.
+* Added `withClassLoader` option to the `ConfigLoaderBuilder`. This classloader is used when loading the service
+  registry for decoders.
 
 ### 2.1.4
 
@@ -138,14 +147,17 @@
 
 ### 1.4.1
 
-* Support for [yaml aliases](https://bitbucket.org/asomov/snakeyaml-engine/wiki/Documentation#markdown-header-aliases) #208.
+* Support for [yaml aliases](https://bitbucket.org/asomov/snakeyaml-engine/wiki/Documentation#markdown-header-aliases)
+  #208.
 
 ### 1.4.0
 
 * **Kotlin version is now 1.4.30**
-* Breaking: The `PropertySource` interface has been changed to accept a `PropertySourceContext`. This only affects users who have written their own custom PropertySource.
+* Breaking: The `PropertySource` interface has been changed to accept a `PropertySourceContext`. This only affects users
+  who have written their own custom PropertySource.
 * Added `@ConfigAlias` to allow a data class field to map to multiple values. #197
-* Added strict option to `ConfigLoader.Builder` to throw an error if a config value is unused. Lenient mode is still the default. #187
+* Added strict option to `ConfigLoader.Builder` to throw an error if a config value is unused. Lenient mode is still the
+  default. #187
 * Bumped all module deps to latest versions
 
 ### 1.3.15
@@ -163,7 +175,9 @@
 
 ### 1.3.12
 
-* Allows data classes with a single field named `value` to be treated as inline classes. Eg `data class RetailerId(val value: String)` can be parsed directly from `retailerId: "SAKS"` without requiring another level of nesting #164
+* Allows data classes with a single field named `value` to be treated as inline classes.
+  Eg `data class RetailerId(val value: String)` can be parsed directly from `retailerId: "SAKS"` without requiring
+  another level of nesting #164
 
 ### 1.3.11
 
