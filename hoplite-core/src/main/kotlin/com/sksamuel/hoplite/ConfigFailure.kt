@@ -87,7 +87,17 @@ sealed interface ConfigFailure {
     override fun description(): String = failures.map { it.description() }.list.joinToString("\n\n")
   }
 
-  data class NoSealedClassSubtype(val type: KClass<*>, val node: Node) : ConfigFailure {
+  data class NoSealedClassObjectSubtype(val type: KClass<*>, val node: StringNode) : ConfigFailure {
+    override fun description(): String {
+      val subclasses = type.sealedSubclasses.joinToString(", ") { it.jvmName }
+      return "Could not find subclass of $type matching name ${node.value}: Tried $subclasses ${node.pos.loc()}"
+    }
+  }
+
+  data class SealedClassSubtypeFailure(
+    val type: KClass<*>,
+    val node: Node, val errors: NonEmptyList<ConfigFailure>
+  ) : ConfigFailure {
     override fun description(): String {
       val subclasses = type.sealedSubclasses.joinToString(", ") { it.jvmName }
       return "Could not find appropriate subclass of $type: Tried $subclasses ${node.pos.loc()}"
@@ -109,7 +119,8 @@ sealed interface ConfigFailure {
   }
 
   data class SealedClassDisambiguationError(val types: List<Any>) : ConfigFailure {
-    override fun description(): String = "Cannot disambiguate between sealed class implementations: ${types.joinToString(", ")}"
+    override fun description(): String =
+      "Cannot disambiguate between sealed class implementations: ${types.joinToString(", ")}"
   }
 
   data class MissingPrimaryConstructor(val type: KType) : ConfigFailure {
@@ -213,7 +224,8 @@ sealed interface ConfigFailure {
     val param: KParameter,
     val error: ConfigFailure
   ) : ConfigFailure {
-    override fun description(): String = "Could not create value type for $klass at '${param.name}': ${error.description()}"
+    override fun description(): String =
+      "Could not create value type for $klass at '${param.name}': ${error.description()}"
   }
 }
 
