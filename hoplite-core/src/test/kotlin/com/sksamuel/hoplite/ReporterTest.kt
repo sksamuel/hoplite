@@ -32,11 +32,11 @@ Used keys 5
 +------------------+---------------------+----------+
 | Key              | Source              | Value    |
 +------------------+---------------------+----------+
-| database.port    | props string source | 3306     |
 | database.host    | props string source | loc***** |
 | database.name    | props string source | my ***** |
-| database.tls     | props string source | true     |
+| database.port    | props string source | 3306     |
 | database.timeout | props string source | 100.0    |
+| database.tls     | props string source | true     |
 +------------------+---------------------+----------+
 """.trim()
 
@@ -74,10 +74,10 @@ Used keys 4
 +----------+---------------------+----------+
 | Key      | Source              | Value    |
 +----------+---------------------+----------+
-| password | props string source | ssm***** |
-| port     | props string source | 3306     |
 | host     | props string source | loc***** |
 | name     | props string source | my ***** |
+| password | props string source | ssm***** |
+| port     | props string source | 3306     |
 +----------+---------------------+----------+
 """
     )
@@ -122,8 +122,8 @@ Property sources (highest to lowest priority):
 +---------------+---------------------+----------+
 | Key           | Source              | Value    |
 +---------------+---------------------+----------+
-| database.port | props string source | 3306     |
 | database.name | props string source | my ***** |
+| database.port | props string source | 3306     |
 +---------------+---------------------+----------+
 """.trim()
 

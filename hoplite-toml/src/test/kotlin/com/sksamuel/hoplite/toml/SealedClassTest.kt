@@ -29,4 +29,3 @@ sealed class Version {
 
   data class ValueVersion(override val value: String) : Version()
 }
-Ø

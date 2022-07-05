@@ -110,7 +110,7 @@ class Reporter(
 
   fun reportResources(resources: List<ConfigResource>, title: String?, usedSecrets: Set<DotPath>): String {
 
-    val obfuscated = resources.map {
+    val obfuscated = resources.sortedBy { it.path.flatten().lowercase() }.map {
       val value =
         if (secretsPolicy.isSecret(it.path, usedSecrets)) obfuscator.obfuscate(it.node) else it.node.value?.toString()
           ?: "<null>"
