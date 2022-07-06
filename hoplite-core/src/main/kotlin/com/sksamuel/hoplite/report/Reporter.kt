@@ -19,7 +19,7 @@ typealias Print = (String) -> Unit
 class ReporterBuilder {
 
   private var print: Print = { println(it) }
-  private var obfuscator: Obfuscator = DefaultObfuscator
+  private var obfuscator: Obfuscator = PrefixObfuscator(3)
   private var secretsPolicy: SecretsPolicy = EveryFieldSecretsPolicy
 
   fun withPrint(print: Print) = apply {
