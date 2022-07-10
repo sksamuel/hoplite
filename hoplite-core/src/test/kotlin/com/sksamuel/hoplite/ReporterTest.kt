@@ -113,7 +113,7 @@ Property sources (highest to lowest priority):
           """.trimIndent(), "props"
           )
         )
-        .report()
+        .withReport()
         .build()
         .loadConfig<Config>()
     }
