@@ -188,6 +188,9 @@ class ConfigLoaderBuilder private constructor() {
    *
    * The report will be printed using the given function.
    */
+  fun withReport(reporter: Reporter) = apply { this.reporter = reporter }
+
+  @Deprecated("use withReport()", ReplaceWith("withReport()"))
   fun report(reporter: Reporter) = apply { this.reporter = reporter }
 
   fun build(): ConfigLoader {
