@@ -1,6 +1,7 @@
 package com.sksamuel.hoplite.yaml
 
 import com.sksamuel.hoplite.ConfigLoader
+import com.sksamuel.hoplite.decoder.Wine
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.shouldBe
 import io.kotest.core.spec.style.StringSpec

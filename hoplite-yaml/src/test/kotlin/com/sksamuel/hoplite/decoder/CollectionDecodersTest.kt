@@ -1,4 +1,4 @@
-package com.sksamuel.hoplite.yaml
+package com.sksamuel.hoplite.decoder
 
 import com.sksamuel.hoplite.ConfigLoader
 import io.kotest.core.spec.style.FunSpec

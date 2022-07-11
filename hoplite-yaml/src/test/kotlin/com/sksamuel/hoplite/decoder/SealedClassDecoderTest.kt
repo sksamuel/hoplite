@@ -1,4 +1,4 @@
-package com.sksamuel.hoplite.yaml
+package com.sksamuel.hoplite.decoder
 
 import com.sksamuel.hoplite.ConfigException
 import com.sksamuel.hoplite.ConfigLoader
@@ -50,7 +50,7 @@ class SealedClassDecoderTest : FunSpec({
       "\n" +
       "    - Could not instantiate 'com.sksamuel.hoplite.yaml.`SealedClassDecoderTest\$1\$3\$TestConfig`' because:\n" +
       "\n" +
-      "        - 'lonely': Sealed class class com.sksamuel.hoplite.yaml.Lonely does not define any subclasses"
+      "        - 'lonely': Sealed class class com.sksamuel.hoplite.decoder.Lonely does not define any subclasses"
   }
 
   test("object inside sealed class decoding") {
@@ -73,6 +73,6 @@ class SealedClassDecoderTest : FunSpec({
       "\n" +
       "    - Could not instantiate 'com.sksamuel.hoplite.yaml.`SealedClassDecoderTest\$1\$6\$Config`' because:\n" +
       "\n" +
-      "        - 'poolingStrategy': Could not find appropriate subclass of class com.sksamuel.hoplite.yaml.PoolingStrategy: Tried com.sksamuel.hoplite.yaml.PoolingStrategy\$ABI, com.sksamuel.hoplite.yaml.PoolingStrategy\$Combo, com.sksamuel.hoplite.yaml.PoolingStrategy\$Omni, com.sksamuel.hoplite.yaml.PoolingStrategy\$OsVersion (classpath:/sealed_class_with_object_invalid_value.yaml:0:17)"
+      "        - 'poolingStrategy': Could not find appropriate subclass of class com.sksamuel.hoplite.decoder.PoolingStrategy: Tried com.sksamuel.hoplite.decoder.PoolingStrategy\$ABI, com.sksamuel.hoplite.decoder.PoolingStrategy\$Combo, com.sksamuel.hoplite.decoder.PoolingStrategy\$Omni, com.sksamuel.hoplite.decoder.PoolingStrategy\$OsVersion (classpath:/sealed_class_with_object_invalid_value.yaml:0:17)"
   }
 })
