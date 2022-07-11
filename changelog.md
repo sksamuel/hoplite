@@ -1,6 +1,6 @@
 # Changelog
 
-### 2.3.0 (In progress)
+### 2.3.0
 
 * Added `Base64` type and decoder
 * Added `hoplite-micrometer-datadog` module
