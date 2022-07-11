@@ -33,6 +33,9 @@ interface PropertySource {
    */
   fun node(context: PropertySourceContext): ConfigResult<Node>
 
+  /**
+   * Return a string detailing the location of this source, eg file://myfile
+   */
   fun source(): String
 
   companion object {

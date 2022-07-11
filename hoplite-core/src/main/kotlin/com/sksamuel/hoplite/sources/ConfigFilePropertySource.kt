@@ -29,6 +29,9 @@ class ConfigFilePropertySource(
   private val optional: Boolean = false,
 ) : PropertySource {
 
+  /**
+   * Return a string detailing the location of this source, eg file://myfile
+   */
   override fun source(): String = config.describe()
 
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
@@ -41,9 +44,9 @@ class ConfigFilePropertySource(
   companion object {
 
     fun optionalPath(
-       path: Path,
+      path: Path,
     ): ConfigFilePropertySource =
-       ConfigFilePropertySource(ConfigSource.PathSource(path), true)
+      ConfigFilePropertySource(ConfigSource.PathSource(path), true)
 
     fun optionalFile(
       file: File,
@@ -52,6 +55,6 @@ class ConfigFilePropertySource(
     fun optionalResource(
       resource: String,
     ): ConfigFilePropertySource =
-       ConfigFilePropertySource(ConfigSource.ClasspathSource(resource), true)
+      ConfigFilePropertySource(ConfigSource.ClasspathSource(resource), true)
   }
 }

@@ -33,6 +33,7 @@ class ConfigLoaderBuilder private constructor() {
   private val decoders = mutableListOf<Decoder<*>>()
 
   private var reporter: Reporter? = null
+  private var preprocessingIterations: Int = 1
 
   companion object {
 
@@ -125,6 +126,10 @@ class ConfigLoaderBuilder private constructor() {
     }
   }
 
+  fun withPreprocessingIterations(iterations: Int): ConfigLoaderBuilder = apply {
+    preprocessingIterations = iterations
+  }
+
   /**
    * Registers a callback that will be invoked with any exception generated when
    * the [loadConfigOrThrow] operation is used. The callback will be invoked immediately
@@ -205,6 +210,7 @@ class ConfigLoaderBuilder private constructor() {
       reporter = reporter,
       allowEmptyTree = allowEmptyTree,
       allowUnresolvedSubstitutions = allowUnresolvedSubstitutions,
+      preprocessingIterations = preprocessingIterations,
     )
   }
 }

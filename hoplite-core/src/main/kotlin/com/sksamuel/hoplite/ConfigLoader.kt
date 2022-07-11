@@ -28,6 +28,7 @@ class ConfigLoader(
   val allowEmptyTree: Boolean, // if true then we allow config files to be empty
   val allowUnresolvedSubstitutions: Boolean,
   val classLoader: ClassLoader? = null, // if null, then the current context thread loader
+  val preprocessingIterations: Int = 1,
 ) {
 
   companion object {
@@ -135,7 +136,7 @@ class ConfigLoader(
     return NodeParser(parserRegistry, allowEmptyTree)
       .parseNode(propertySources, configSources)
       .flatMap { (sources, node) ->
-        Preprocessing(preprocessors).preprocess(node)
+        Preprocessing(preprocessors, preprocessingIterations).preprocess(node)
           .flatMap { if (allowUnresolvedSubstitutions) it.valid() else UnresolvedSubstitutionChecker.process(it) }
           .flatMap { preprocessed ->
             decode(klass, preprocessed)

@@ -1,8 +1,12 @@
 package com.sksamuel.hoplite.parsers
 
+import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.PropertySource
+import com.sksamuel.hoplite.PropertySourceContext
+import com.sksamuel.hoplite.fp.valid
 import java.io.InputStream
-import java.util.*
+import java.util.Properties
 
 class PropsParser : Parser {
 
@@ -13,4 +17,13 @@ class PropsParser : Parser {
   }
 
   override fun defaultFileExtensions(): List<String> = listOf("props", "properties")
+}
+
+class PropsPropertySource(val props: Properties) : PropertySource {
+
+  override fun node(context: PropertySourceContext): ConfigResult<Node> {
+    return props.toNode("props").valid()
+  }
+
+  override fun source(): String = "props"
 }
