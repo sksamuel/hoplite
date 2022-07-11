@@ -28,14 +28,14 @@ class StatsdConfigDecoder : Decoder<StatsdConfig> {
     config: InternalConfig,
   ): StatsdConfig {
     return object : StatsdConfig {
-      override fun buffered(): Boolean = config.buffered ?: true
-      override fun host(): String = config.host ?: "localhost"
-      override fun port(): Int = config.port ?: 8125
-      override fun enabled(): Boolean = config.enabled ?: true
-      override fun step(): Duration = config.step ?: Duration.ofMinutes(1)
-      override fun maxPacketLength(): Int = config.maxPacketLength ?: 1400
-      override fun pollingFrequency(): Duration = config.pollingFrequency ?: Duration.ofSeconds(10)
-      override fun publishUnchangedMeters(): Boolean = config.publishUnchangedMeters ?: true
+      override fun buffered(): Boolean = config.buffered ?: super.buffered()
+      override fun host(): String = config.host ?: super.host()
+      override fun port(): Int = config.port ?: super.port()
+      override fun enabled(): Boolean = config.enabled ?: super.enabled()
+      override fun step(): Duration = config.step ?: super.step()
+      override fun maxPacketLength(): Int = config.maxPacketLength ?: super.maxPacketLength()
+      override fun pollingFrequency(): Duration = config.pollingFrequency ?: super.pollingFrequency()
+      override fun publishUnchangedMeters(): Boolean = config.publishUnchangedMeters ?: super.publishUnchangedMeters()
       override fun get(key: String): String? = null
     }
   }

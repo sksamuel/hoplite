@@ -28,8 +28,8 @@ class PrometheusConfigDecoder : Decoder<PrometheusConfig> {
     config: InternalConfig,
   ): PrometheusConfig {
     return object : PrometheusConfig {
-      override fun step(): Duration = config.step ?: Duration.ofMinutes(1)
-      override fun descriptions(): Boolean = config.descriptions ?: true
+      override fun step(): Duration = config.step ?: super.step()
+      override fun descriptions(): Boolean = config.descriptions ?: super.descriptions()
       override fun get(key: String): String? = null
     }
   }
