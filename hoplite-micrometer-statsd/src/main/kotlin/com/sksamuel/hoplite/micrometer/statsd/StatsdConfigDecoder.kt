@@ -6,6 +6,8 @@ import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.fp.flatMap
 import io.micrometer.statsd.StatsdConfig
+import io.micrometer.statsd.StatsdFlavor
+import io.micrometer.statsd.StatsdProtocol
 import java.time.Duration
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
@@ -36,6 +38,8 @@ class StatsdConfigDecoder : Decoder<StatsdConfig> {
       override fun maxPacketLength(): Int = config.maxPacketLength ?: super.maxPacketLength()
       override fun pollingFrequency(): Duration = config.pollingFrequency ?: super.pollingFrequency()
       override fun publishUnchangedMeters(): Boolean = config.publishUnchangedMeters ?: super.publishUnchangedMeters()
+      override fun flavor(): StatsdFlavor = config.flavor ?: super.flavor()
+      override fun protocol(): StatsdProtocol = config.protocol ?: super.protocol()
       override fun get(key: String): String? = null
     }
   }
@@ -50,4 +54,6 @@ data class InternalConfig(
   val maxPacketLength: Int?,
   val pollingFrequency: Duration?,
   val step: Duration?,
+  val flavor: StatsdFlavor?,
+  val protocol: StatsdProtocol?,
 )
