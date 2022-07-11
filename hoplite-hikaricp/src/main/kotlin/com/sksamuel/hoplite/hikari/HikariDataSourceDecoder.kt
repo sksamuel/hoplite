@@ -11,7 +11,7 @@ import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import java.util.*
+import java.util.Properties
 import kotlin.reflect.KType
 
 class HikariDataSourceDecoder : Decoder<HikariDataSource> {

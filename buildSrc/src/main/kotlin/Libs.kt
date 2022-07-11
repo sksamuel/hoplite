@@ -38,6 +38,11 @@ object Libs {
     const val core = "com.zaxxer:HikariCP:5.0.1"
   }
 
+  object Micrometer {
+    const val datadog = "io.micrometer:micrometer-registry-datadog:1.9.1"
+    const val prometheus = "io.micrometer:micrometer-registry-prometheus:1.9.1"
+  }
+
   object Typesafe {
     const val config = "com.typesafe:config:1.4.2"
   }

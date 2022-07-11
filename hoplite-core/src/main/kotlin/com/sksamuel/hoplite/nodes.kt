@@ -147,3 +147,14 @@ object Undefined : Node {
   override fun atIndex(index: Int): Node = this
   override val size: Int = 0
 }
+
+fun Node.valueOrNull(): String? = when (this) {
+  is ArrayNode -> null
+  is MapNode -> null
+  is BooleanNode -> this.value.toString()
+  is NullNode -> null
+  is DoubleNode -> this.value.toString()
+  is LongNode -> this.value.toString()
+  is StringNode -> this.value
+  Undefined -> null
+}
