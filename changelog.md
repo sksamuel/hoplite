@@ -5,7 +5,7 @@
 * Added `Base64` type and decoder
 * Added `hoplite-micrometer-datadog` module
 * Added `hoplite-micrometer-prometheus` module
-* Added `hoplite-micrometer-statds` module
+* Added `hoplite-micrometer-statsd` module
 * Updated AWS secrets preprocessor to support `awssm://key` syntax
 * Updated Consul preprocessor to support `consul://key` syntax
 
