@@ -24,7 +24,8 @@ class ConsulConfigPreprocessor(
 ) : TraversingPrimitivePreprocessor() {
 
   private val client by lazy { createClient() }
-  private val regex = "\\$\\{consul:(.+?)}".toRegex()
+  private val regex1 = "\\$\\{consul:(.+?)}".toRegex()
+  private val regex2 = "consul://(.+?)".toRegex()
 
   private fun createClient(): Consul {
     val builder = Consul.builder().withUrl(url)
@@ -37,7 +38,7 @@ class ConsulConfigPreprocessor(
   }
 
   override fun handle(node: PrimitiveNode): ConfigResult<Node> = when (node) {
-    is StringNode -> when (val match = regex.matchEntire(node.value)) {
+    is StringNode -> when (val match = regex1.matchEntire(node.value) ?: regex2.matchEntire(node.value)) {
       null -> node.valid()
       else -> {
         val key = match.groupValues[1]
