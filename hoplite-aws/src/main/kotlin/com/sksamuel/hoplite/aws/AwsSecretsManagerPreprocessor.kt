@@ -23,11 +23,12 @@ class AwsSecretsManagerPreprocessor(
   private val client by lazy { createClient() }
   private val regex1 = "\\$\\{awssecret:(.+?)}".toRegex()
   private val regex2 = "secretsmanager://(.+?)".toRegex()
+  private val regex3 = "awssm://(.+?)".toRegex()
 
   override fun handle(node: PrimitiveNode): ConfigResult<Node> = when (node) {
     is StringNode -> {
-      when (val match = regex1.matchEntire(node.value)
-        ?: regex2.matchEntire(node.value)
+      when (
+        val match = regex1.matchEntire(node.value) ?: regex2.matchEntire(node.value) ?: regex3.matchEntire(node.value)
       ) {
         null -> node.valid()
         else -> {
