@@ -48,7 +48,7 @@ class SealedClassDecoderTest : FunSpec({
       ConfigLoader().loadConfigOrThrow<TestConfig>("/lonely.yml")
     }.message shouldBe "Error loading config because:\n" +
       "\n" +
-      "    - Could not instantiate 'com.sksamuel.hoplite.yaml.`SealedClassDecoderTest\$1\$3\$TestConfig`' because:\n" +
+      "    - Could not instantiate 'com.sksamuel.hoplite.decoder.`SealedClassDecoderTest\$1\$3\$TestConfig`' because:\n" +
       "\n" +
       "        - 'lonely': Sealed class class com.sksamuel.hoplite.decoder.Lonely does not define any subclasses"
   }
@@ -71,7 +71,7 @@ class SealedClassDecoderTest : FunSpec({
       ConfigLoader().loadConfigOrThrow<Config>("/sealed_class_with_object_invalid_value.yaml")
     }.message shouldBe "Error loading config because:\n" +
       "\n" +
-      "    - Could not instantiate 'com.sksamuel.hoplite.yaml.`SealedClassDecoderTest\$1\$6\$Config`' because:\n" +
+      "    - Could not instantiate 'com.sksamuel.hoplite.decoder.`SealedClassDecoderTest\$1\$6\$Config`' because:\n" +
       "\n" +
       "        - 'poolingStrategy': Could not find appropriate subclass of class com.sksamuel.hoplite.decoder.PoolingStrategy: Tried com.sksamuel.hoplite.decoder.PoolingStrategy\$ABI, com.sksamuel.hoplite.decoder.PoolingStrategy\$Combo, com.sksamuel.hoplite.decoder.PoolingStrategy\$Omni, com.sksamuel.hoplite.decoder.PoolingStrategy\$OsVersion (classpath:/sealed_class_with_object_invalid_value.yaml:0:17)"
   }
