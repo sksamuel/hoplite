@@ -5,6 +5,7 @@ import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.fp.flatMap
+import io.micrometer.prometheus.HistogramFlavor
 import io.micrometer.prometheus.PrometheusConfig
 import java.time.Duration
 import kotlin.reflect.KType
@@ -30,6 +31,7 @@ class PrometheusConfigDecoder : Decoder<PrometheusConfig> {
     return object : PrometheusConfig {
       override fun step(): Duration = config.step ?: super.step()
       override fun descriptions(): Boolean = config.descriptions ?: super.descriptions()
+      override fun histogramFlavor(): HistogramFlavor = config.histogramFlavor ?: super.histogramFlavor()
       override fun get(key: String): String? = null
     }
   }
@@ -38,4 +40,5 @@ class PrometheusConfigDecoder : Decoder<PrometheusConfig> {
 data class InternalConfig(
   val descriptions: Boolean?,
   val step: Duration?,
+  val histogramFlavor: HistogramFlavor?,
 )
