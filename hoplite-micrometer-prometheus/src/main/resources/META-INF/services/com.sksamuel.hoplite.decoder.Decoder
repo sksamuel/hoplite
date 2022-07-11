@@ -1,1 +1,1 @@
-com.sksamuel.hoplite.micrometer.datadog.PrometheusConfigDecoder
+com.sksamuel.hoplite.micrometer.prometheus.PrometheusConfigDecoder

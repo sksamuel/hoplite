@@ -1,4 +1,4 @@
-package com.sksamuel.hoplite.micrometer.datadog
+package com.sksamuel.hoplite.micrometer.prometheus
 
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult

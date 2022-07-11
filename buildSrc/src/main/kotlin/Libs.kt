@@ -41,6 +41,7 @@ object Libs {
   object Micrometer {
     const val datadog = "io.micrometer:micrometer-registry-datadog:1.9.1"
     const val prometheus = "io.micrometer:micrometer-registry-prometheus:1.9.1"
+    const val statsd = "io.micrometer:micrometer-registry-statsd:1.9.1"
   }
 
   object Typesafe {
