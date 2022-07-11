@@ -29,17 +29,14 @@ data class DecoderContext(
   fun decoder(type: KParameter): Validated<ConfigFailure, Decoder<*>> = decoder(type.type)
 
   companion object {
-
     val zero = DecoderContext(DecoderRegistry.zero, emptyList(), mutableSetOf())
-
-    operator fun invoke(registry: DecoderRegistry) =
-      DecoderContext(registry, emptyList(), mutableSetOf())
   }
 }
 
 enum class DecodeMode {
   // errors if a config value is provided but not used
   Strict,
+
   // allows config to be unused
   Lenient
 }

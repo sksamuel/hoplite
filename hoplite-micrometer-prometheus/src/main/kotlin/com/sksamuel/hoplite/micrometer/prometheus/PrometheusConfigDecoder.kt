@@ -5,6 +5,7 @@ import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.fp.Validated
 import com.sksamuel.hoplite.fp.invalid
@@ -35,9 +36,11 @@ class PrometheusConfigDecoder : Decoder<PrometheusConfig> {
     return object : PrometheusConfig {
       override fun get(key: String): String? {
         val k = key.removePrefix(prefix() + ".")
-        val value = node[k].valueOrNull()
-        context.usedPaths.add(node.atKey(k).path)
-        return value
+        val n = node.atKey(k)
+        if (n != Undefined) {
+          context.usedPaths.add(n.path)
+        }
+        return n.valueOrNull()
       }
     }.valid()
   }

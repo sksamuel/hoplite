@@ -27,7 +27,7 @@ interface Decoder<T> {
    * If multiple decoders can support the same type, then the one with the highest priority value will win.
    * In the case of ties, the decoder will be picked arbitrarily.
    *
-   * By default all Hoplite decoders have the minimum priority so user decoders always take precedence.
+   * By default, all Hoplite decoders have the minimum priority so user decoders always take precedence.
    */
   fun priority(): Int = if (this.javaClass.`package`.name.startsWith("com.sksamuel.hoplite")) -100 else 0
 

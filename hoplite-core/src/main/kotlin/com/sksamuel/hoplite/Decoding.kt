@@ -26,7 +26,12 @@ class Decoding(
 ) {
 
   fun <A : Any> decode(kclass: KClass<A>, node: Node, mode: DecodeMode): ConfigResult<DecodingResult<A>> {
-    val context = DecoderContext(decoderRegistry, paramMappers, mutableSetOf())
+    val context = DecoderContext(
+      decoders = decoderRegistry,
+      paramMappers = paramMappers,
+      usedPaths = mutableSetOf(),
+      secrets = mutableSetOf()
+    )
     return decoderRegistry.decoder(kclass)
       .flatMap { it.decode(node, kclass.createType(), context) }
       .flatMap { decodingResult(it, node, context.usedPaths, mode, context.secrets) }
