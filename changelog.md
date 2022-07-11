@@ -8,6 +8,8 @@
 * Added `hoplite-micrometer-statsd` module
 * Updated AWS secrets preprocessor to support `awssm://key` syntax
 * Updated Consul preprocessor to support `consul://key` syntax
+* Added `withPreprocessingIterations` to support repeated applications of preprocessors
+* Added `PropsPropertySource` to programmatically provide a `Properties` based source.
 
 ### 2.2.0
 
