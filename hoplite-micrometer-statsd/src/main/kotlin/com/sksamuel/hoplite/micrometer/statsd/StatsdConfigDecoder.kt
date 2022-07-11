@@ -9,7 +9,6 @@ import io.micrometer.statsd.StatsdConfig
 import java.time.Duration
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
-import kotlin.time.toJavaDuration
 
 class StatsdConfigDecoder : Decoder<StatsdConfig> {
 
@@ -33,9 +32,9 @@ class StatsdConfigDecoder : Decoder<StatsdConfig> {
       override fun host(): String = config.host ?: "localhost"
       override fun port(): Int = config.port ?: 8125
       override fun enabled(): Boolean = config.enabled ?: true
-      override fun step(): Duration = config.step?.toJavaDuration() ?: Duration.ofMinutes(1)
+      override fun step(): Duration = config.step ?: Duration.ofMinutes(1)
       override fun maxPacketLength(): Int = config.maxPacketLength ?: 1400
-      override fun pollingFrequency(): Duration = config.pollingFrequency?.toJavaDuration() ?: Duration.ofSeconds(10)
+      override fun pollingFrequency(): Duration = config.pollingFrequency ?: Duration.ofSeconds(10)
       override fun publishUnchangedMeters(): Boolean = config.publishUnchangedMeters ?: true
       override fun get(key: String): String? = null
     }
@@ -49,6 +48,6 @@ data class InternalConfig(
   val publishUnchangedMeters: Boolean?,
   val buffered: Boolean?,
   val maxPacketLength: Int?,
-  val pollingFrequency: kotlin.time.Duration?,
-  val step: kotlin.time.Duration?,
+  val pollingFrequency: Duration?,
+  val step: Duration?,
 )

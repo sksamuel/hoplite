@@ -9,7 +9,6 @@ import io.micrometer.prometheus.PrometheusConfig
 import java.time.Duration
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
-import kotlin.time.toJavaDuration
 
 class PrometheusConfigDecoder : Decoder<PrometheusConfig> {
 
@@ -29,7 +28,7 @@ class PrometheusConfigDecoder : Decoder<PrometheusConfig> {
     config: InternalConfig,
   ): PrometheusConfig {
     return object : PrometheusConfig {
-      override fun step(): Duration = config.step?.toJavaDuration() ?: Duration.ofMinutes(1)
+      override fun step(): Duration = config.step ?: Duration.ofMinutes(1)
       override fun descriptions(): Boolean = config.descriptions ?: true
       override fun get(key: String): String? = null
     }
@@ -38,5 +37,5 @@ class PrometheusConfigDecoder : Decoder<PrometheusConfig> {
 
 data class InternalConfig(
   val descriptions: Boolean?,
-  val step: kotlin.time.Duration?,
+  val step: Duration?,
 )

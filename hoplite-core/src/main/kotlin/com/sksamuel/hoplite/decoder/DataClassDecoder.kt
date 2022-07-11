@@ -90,8 +90,6 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
           }
         }
 
-
-
         when {
           // if we have no value for this parameter at all, and it is optional we can skip it, and
           // kotlin will use the default
@@ -114,7 +112,6 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
       // if invalid, we wrap in an error containing each individual error
       { ConfigFailure.DataClassFieldErrors(it, type, node.pos).invalid() },
       { constructor ->
-
         construct(
           type = type,
           constructor = constructor.constructor,

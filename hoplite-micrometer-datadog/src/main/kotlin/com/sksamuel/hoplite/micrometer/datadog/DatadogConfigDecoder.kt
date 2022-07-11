@@ -9,7 +9,6 @@ import io.micrometer.datadog.DatadogConfig
 import java.time.Duration
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
-import kotlin.time.toJavaDuration
 
 class DatadogConfigDecoder : Decoder<DatadogConfig> {
 
@@ -35,7 +34,7 @@ class DatadogConfigDecoder : Decoder<DatadogConfig> {
       override fun applicationKey(): String? = config.applicationKey
       override fun uri(): String = config.uri ?: "https://api.datadoghq.com"
       override fun descriptions(): Boolean = config.descriptions ?: true
-      override fun step(): Duration = config.step?.toJavaDuration() ?: Duration.ofMinutes(1)
+      override fun step(): Duration = config.step ?: Duration.ofMinutes(1)
       override fun batchSize(): Int = config.batchSize ?: 10000
       override fun get(key: String): String? = null
     }
@@ -50,5 +49,5 @@ data class InternalConfig(
   val descriptions: Boolean?,
   val uri: String?,
   val batchSize: Int?,
-  val step: kotlin.time.Duration?,
+  val step: Duration?,
 )
