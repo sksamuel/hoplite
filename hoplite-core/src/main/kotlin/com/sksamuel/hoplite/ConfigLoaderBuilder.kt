@@ -149,9 +149,10 @@ class ConfigLoaderBuilder private constructor() {
    * When [DecodeMode.Strict] is enabled, if any config values from property sources are unused,
    * the config loader will error. This enables you to easily find stale config and fix it.
    */
-  fun strict(): ConfigLoaderBuilder = apply {
-    this.mode = DecodeMode.Strict
-  }
+  fun strict(): ConfigLoaderBuilder = withDecodeMode(DecodeMode.Strict)
+  fun lenient(): ConfigLoaderBuilder = withDecodeMode(DecodeMode.Lenient)
+
+  fun withDecodeMode(mode: DecodeMode) = apply { this.mode = mode }
 
   /**
    * When enabled, allows a config loader to continue even if all the property sources provide no config.

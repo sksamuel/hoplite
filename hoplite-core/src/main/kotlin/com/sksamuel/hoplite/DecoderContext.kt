@@ -38,5 +38,8 @@ data class DecoderContext(
 }
 
 enum class DecodeMode {
-  Strict, Lenient
+  // errors if a config value is provided but not used
+  Strict,
+  // allows config to be unused
+  Lenient
 }
