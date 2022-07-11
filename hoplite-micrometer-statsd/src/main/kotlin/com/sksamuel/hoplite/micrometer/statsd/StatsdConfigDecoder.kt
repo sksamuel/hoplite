@@ -1,18 +1,15 @@
 package com.sksamuel.hoplite.micrometer.statsd
 
-import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
-import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
-import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.decoder.Decoder
-import com.sksamuel.hoplite.fp.Validated
-import com.sksamuel.hoplite.fp.invalid
-import com.sksamuel.hoplite.fp.valid
-import com.sksamuel.hoplite.valueOrNull
+import com.sksamuel.hoplite.fp.flatMap
 import io.micrometer.statsd.StatsdConfig
+import java.time.Duration
 import kotlin.reflect.KType
+import kotlin.reflect.typeOf
+import kotlin.time.toJavaDuration
 
 class StatsdConfigDecoder : Decoder<StatsdConfig> {
 
@@ -23,25 +20,35 @@ class StatsdConfigDecoder : Decoder<StatsdConfig> {
     type: KType,
     context: DecoderContext,
   ): ConfigResult<StatsdConfig> {
-    return when (node) {
-      is MapNode -> createConfig(node, context)
-      else -> ConfigFailure.DecodeError(node, type).invalid()
-    }
+    return context.decoder(typeOf<InternalConfig>())
+      .flatMap { it.decode(node, typeOf<InternalConfig>(), context) }
+      .map { createConfig(it as InternalConfig) }
   }
 
   private fun createConfig(
-    node: MapNode,
-    context: DecoderContext
-  ): Validated<ConfigFailure, StatsdConfig> {
+    config: InternalConfig,
+  ): StatsdConfig {
     return object : StatsdConfig {
-      override fun get(key: String): String? {
-        val k = key.removePrefix(prefix() + ".")
-        val n = node.atKey(k)
-        if (n != Undefined) {
-          context.usedPaths.add(n.path)
-        }
-        return n.valueOrNull()
-      }
-    }.valid()
+      override fun buffered(): Boolean = config.buffered ?: true
+      override fun host(): String = config.host ?: "localhost"
+      override fun port(): Int = config.port ?: 8125
+      override fun enabled(): Boolean = config.enabled ?: true
+      override fun step(): Duration = config.step?.toJavaDuration() ?: Duration.ofMinutes(1)
+      override fun maxPacketLength(): Int = config.maxPacketLength ?: 1400
+      override fun pollingFrequency(): Duration = config.pollingFrequency?.toJavaDuration() ?: Duration.ofSeconds(10)
+      override fun publishUnchangedMeters(): Boolean = config.publishUnchangedMeters ?: true
+      override fun get(key: String): String? = null
+    }
   }
 }
+
+private data class InternalConfig(
+  val host: String?,
+  val port: Int?,
+  val enabled: Boolean?,
+  val publishUnchangedMeters: Boolean?,
+  val buffered: Boolean?,
+  val maxPacketLength: Int?,
+  val pollingFrequency: kotlin.time.Duration?,
+  val step: kotlin.time.Duration?,
+)

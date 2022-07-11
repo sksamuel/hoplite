@@ -1,18 +1,15 @@
 package com.sksamuel.hoplite.micrometer.prometheus
 
-import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
-import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
-import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.decoder.Decoder
-import com.sksamuel.hoplite.fp.Validated
-import com.sksamuel.hoplite.fp.invalid
-import com.sksamuel.hoplite.fp.valid
-import com.sksamuel.hoplite.valueOrNull
+import com.sksamuel.hoplite.fp.flatMap
 import io.micrometer.prometheus.PrometheusConfig
+import java.time.Duration
 import kotlin.reflect.KType
+import kotlin.reflect.typeOf
+import kotlin.time.toJavaDuration
 
 class PrometheusConfigDecoder : Decoder<PrometheusConfig> {
 
@@ -23,25 +20,23 @@ class PrometheusConfigDecoder : Decoder<PrometheusConfig> {
     type: KType,
     context: DecoderContext,
   ): ConfigResult<PrometheusConfig> {
-    return when (node) {
-      is MapNode -> createConfig(node, context)
-      else -> ConfigFailure.DecodeError(node, type).invalid()
-    }
+    return context.decoder(typeOf<InternalConfig>())
+      .flatMap { it.decode(node, typeOf<InternalConfig>(), context) }
+      .map { createConfig(it as InternalConfig) }
   }
 
   private fun createConfig(
-    node: MapNode,
-    context: DecoderContext
-  ): Validated<ConfigFailure, PrometheusConfig> {
+    config: InternalConfig,
+  ): PrometheusConfig {
     return object : PrometheusConfig {
-      override fun get(key: String): String? {
-        val k = key.removePrefix(prefix() + ".")
-        val n = node.atKey(k)
-        if (n != Undefined) {
-          context.usedPaths.add(n.path)
-        }
-        return n.valueOrNull()
-      }
-    }.valid()
+      override fun step(): Duration = config.step?.toJavaDuration() ?: Duration.ofMinutes(1)
+      override fun descriptions(): Boolean = config.descriptions ?: true
+      override fun get(key: String): String? = null
+    }
   }
 }
+
+private data class InternalConfig(
+  val descriptions: Boolean?,
+  val step: kotlin.time.Duration?,
+)
