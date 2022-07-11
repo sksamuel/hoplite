@@ -787,7 +787,8 @@ Hoplite makes available several other modules that add functionality outside of 
 | Module           | Function                                                                                                    |
 |:-----------------|:------------------------------------------------------------------------------------------------------------|
 | hoplite-arrow    | Provides decoders for common arrow types                                                                    |
-| hoplite-aws      | Provides decoder for aws `Region` and a preprocessor for Amazon's parameter store                           |
+| hoplite-aws      | Provides decoders for aws `Region` type and a preprocessor for AWS secrets manager and parameter store.     |
+| hoplite-aws2     | Provides decoders for aws `Region` type using the AWS v2 SDK.                                               |
 | hoplite-consul   | Provides a preprocessor for retreiving values from a Consul server                                          |
 | hoplite-datetime | Provides decoders for [kotlinx datetime](https://github.com/Kotlin/kotlinx-datetime). Requires Kotlin 1.4.x |
 | hoplite-hdfs     | Provides decoder for hadoop `Path`                                                                          |
