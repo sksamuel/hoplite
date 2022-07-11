@@ -34,6 +34,10 @@ sealed interface ConfigFailure {
     }
   }
 
+  data class MissingConfigValue(private val key: String) : ConfigFailure {
+    override fun description(): String = "Missing config value $key"
+  }
+
   object NoSources : ConfigFailure {
     override fun description(): String = "No registered property sources or config files"
   }
