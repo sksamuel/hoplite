@@ -1,5 +1,14 @@
 # Changelog
 
+### 2.3.0 (In progress)
+
+* Added `Base64` type and decoder
+* Added `hoplite-micrometer-datadog` module
+* Added `hoplite-micrometer-prometheus` module
+* Added `hoplite-micrometer-statds` module
+* Updated AWS secrets preprocessor to support `awssm://key` syntax
+* Updated Consul preprocessor to support `consul://key` syntax
+
 ### 2.2.0
 
 * Added alphabetical key sort in reports #306
