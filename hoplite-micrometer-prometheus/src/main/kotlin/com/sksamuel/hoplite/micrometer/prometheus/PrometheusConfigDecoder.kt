@@ -23,14 +23,22 @@ class PrometheusConfigDecoder : Decoder<PrometheusConfig> {
     context: DecoderContext,
   ): ConfigResult<PrometheusConfig> {
     return when (node) {
-      is MapNode -> createPrometheusConfig(node)
+      is MapNode -> createConfig(node, context)
       else -> ConfigFailure.DecodeError(node, type).invalid()
     }
   }
 
-  private fun createPrometheusConfig(node: MapNode): Validated<ConfigFailure, PrometheusConfig> {
+  private fun createConfig(
+    node: MapNode,
+    context: DecoderContext
+  ): Validated<ConfigFailure, PrometheusConfig> {
     return object : PrometheusConfig {
-      override fun get(key: String): String? = node[key.removePrefix(prefix() + ".")].valueOrNull()
+      override fun get(key: String): String? {
+        val k = key.removePrefix(prefix() + ".")
+        val value = node[k].valueOrNull()
+        context.usedPaths.add(node.atKey(k).path)
+        return value
+      }
     }.valid()
   }
 }

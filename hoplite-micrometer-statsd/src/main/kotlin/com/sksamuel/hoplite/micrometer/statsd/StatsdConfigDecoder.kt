@@ -23,14 +23,22 @@ class StatsdConfigDecoder : Decoder<StatsdConfig> {
     context: DecoderContext,
   ): ConfigResult<StatsdConfig> {
     return when (node) {
-      is MapNode -> createStatsdConfig(node)
+      is MapNode -> createConfig(node, context)
       else -> ConfigFailure.DecodeError(node, type).invalid()
     }
   }
 
-  private fun createStatsdConfig(node: MapNode): Validated<ConfigFailure, StatsdConfig> {
+  private fun createConfig(
+    node: MapNode,
+    context: DecoderContext
+  ): Validated<ConfigFailure, StatsdConfig> {
     return object : StatsdConfig {
-      override fun get(key: String): String? = node[key.removePrefix(prefix() + ".")].valueOrNull()
+      override fun get(key: String): String? {
+        val k = key.removePrefix(prefix() + ".")
+        val value = node[k].valueOrNull()
+        context.usedPaths.add(node.atKey(k).path)
+        return value
+      }
     }.valid()
   }
 }
