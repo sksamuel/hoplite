@@ -36,7 +36,7 @@ class PrometheusConfigDecoder : Decoder<PrometheusConfig> {
   }
 }
 
-private data class InternalConfig(
+data class InternalConfig(
   val descriptions: Boolean?,
   val step: kotlin.time.Duration?,
 )

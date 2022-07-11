@@ -42,7 +42,7 @@ class DatadogConfigDecoder : Decoder<DatadogConfig> {
   }
 }
 
-private data class InternalConfig(
+data class InternalConfig(
   val apiKey: String,
   val hostTag: String?,
   val applicationKey: String?,

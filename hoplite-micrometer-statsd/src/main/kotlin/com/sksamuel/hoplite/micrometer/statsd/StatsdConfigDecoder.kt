@@ -42,7 +42,7 @@ class StatsdConfigDecoder : Decoder<StatsdConfig> {
   }
 }
 
-private data class InternalConfig(
+data class InternalConfig(
   val host: String?,
   val port: Int?,
   val enabled: Boolean?,
