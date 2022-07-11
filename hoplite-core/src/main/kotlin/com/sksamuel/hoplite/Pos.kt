@@ -34,6 +34,7 @@ sealed class Pos {
 
   companion object {
     val env = SourcePos("env")
+    val sysprops = SourcePos("sysprops")
   }
 }
 

@@ -19,3 +19,7 @@ class NonEmptyList<out A>(val list: List<A>) {
     }
   }
 }
+
+operator fun <A> NonEmptyList<A>.plus(other: List<A>): NonEmptyList<A> {
+  return NonEmptyList(list + other)
+}

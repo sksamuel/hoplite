@@ -1,9 +1,11 @@
 package com.sksamuel.hoplite.preprocessor
 
 import com.sksamuel.hoplite.ConfigException
+import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.fp.valid
 import java.io.InputStream
 import java.nio.file.Path
 import java.util.Properties
@@ -18,15 +20,15 @@ import java.util.Properties
  */
 class PropsPreprocessor(private val input: InputStream) : TraversingPrimitivePreprocessor() {
 
-  override fun handle(node: PrimitiveNode): Node = when (node) {
+  override fun handle(node: PrimitiveNode): ConfigResult<Node> = when (node) {
     is StringNode -> {
       val value = regex.replace(node.value) {
         val key = it.groupValues[1]
         props[key]?.toString() ?: it.value
       }
-      node.copy(value = value)
+      node.copy(value = value).valid()
     }
-    else -> node
+    else -> node.valid()
   }
 
   // Redundant escaping required for Android support.

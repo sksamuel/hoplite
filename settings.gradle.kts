@@ -13,6 +13,7 @@ pluginManagement {
 
 include("hoplite-core")
 include("hoplite-aws")
+include("hoplite-aws2")
 include("hoplite-arrow")
 include("hoplite-consul")
 include("hoplite-cronutils")

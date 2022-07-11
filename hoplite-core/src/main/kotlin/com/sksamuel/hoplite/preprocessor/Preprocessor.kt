@@ -4,10 +4,16 @@ package com.sksamuel.hoplite.preprocessor
 
 import com.sksamuel.hoplite.ArrayNode
 import com.sksamuel.hoplite.ConfigFailure
+import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.fp.NonEmptyList
+import com.sksamuel.hoplite.fp.flatMap
+import com.sksamuel.hoplite.fp.invalid
+import com.sksamuel.hoplite.fp.sequence
+import com.sksamuel.hoplite.fp.valid
 
 /**
  * A [Preprocessor] applies a function to a root [Node] before that root node is
@@ -21,22 +27,27 @@ import com.sksamuel.hoplite.StringNode
  * is encountered.
  */
 interface Preprocessor {
-  fun process(node: Node): Node
+  fun process(node: Node): ConfigResult<Node>
 }
 
 object UnresolvedSubstitutionChecker {
 
   private val regex = "\\$\\{(.*?)\\}".toRegex()
 
-  fun process(node: Node): List<ConfigFailure> = when (node) {
+  fun process(node: Node): ConfigResult<Node> {
+    val errors = traverse(node)
+    return if (errors.isEmpty()) node.valid() else ConfigFailure.MultipleFailures(NonEmptyList.unsafe(errors)).invalid()
+  }
+
+  private fun traverse(node: Node): List<ConfigFailure> = when (node) {
     is MapNode -> {
       val a = when (node.value) {
         is StringNode -> check(node.value)
         else -> null
       }
-      listOfNotNull(a) + node.map.flatMap { (_, v) -> process(v) }
+      listOfNotNull(a) + node.map.flatMap { (_, v) -> traverse(v) }
     }
-    is ArrayNode -> node.elements.flatMap { process(it) }
+    is ArrayNode -> node.elements.flatMap { traverse(it) }
     is StringNode -> listOfNotNull(check(node))
     else -> emptyList()
   }
@@ -55,34 +66,25 @@ object UnresolvedSubstitutionChecker {
  */
 abstract class TraversingPrimitivePreprocessor : Preprocessor {
 
-  abstract fun handle(node: PrimitiveNode): Node
+  abstract fun handle(node: PrimitiveNode): ConfigResult<Node>
 
-  override fun process(node: Node): Node = when (node) {
+  override fun process(node: Node): ConfigResult<Node> = when (node) {
     is MapNode -> {
-      val value = if (node.value is PrimitiveNode) handle(node.value) else node.value
-      MapNode(node.map.map { (k, v) -> k to process(v) }.toMap(), node.pos, node.path, value)
+      node.map.map { (k, v) -> process(v).map { k to it } }.sequence()
+        .mapInvalid { ConfigFailure.MultipleFailures(it) }
+        .map { it.toMap() }.flatMap { map ->
+          val value = if (node.value is PrimitiveNode) handle(node.value) else node.value.valid()
+          value.map { v ->
+            MapNode(map, node.pos, node.path, v)
+          }
+        }
     }
-    is ArrayNode -> ArrayNode(node.elements.map { process(it) }, node.pos, node.path)
+    is ArrayNode -> {
+      node.elements.map { process(it) }.sequence()
+        .mapInvalid { ConfigFailure.MultipleFailures(it) }
+        .map { ArrayNode(it, node.pos, node.path) }
+    }
     is PrimitiveNode -> handle(node)
-    else -> node
+    else -> node.valid()
   }
 }
-
-/**
- * Process property strings that start with a given prefix. When specifying the prefix, include any punctuation
- * separating it from the actual value. The entire prefix, including any punctuation, will be stripped off before
- * the value is sent to the [processString] method.
- */
-abstract class PrefixProcessor(private val prefix: String) : TraversingPrimitivePreprocessor() {
-
-  abstract fun processString(valueWithoutPrefix: String): String
-
-  override fun handle(node: PrimitiveNode): Node {
-    return if (node is StringNode && node.value.startsWith(prefix)) {
-      node.copy(value = processString(node.value.substring(prefix.length)))
-    } else {
-      node
-    }
-  }
-}
-

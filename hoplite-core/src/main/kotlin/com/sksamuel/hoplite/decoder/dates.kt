@@ -22,13 +22,12 @@ import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.fp.Validated
 import com.sksamuel.hoplite.fp.flatRecover
-import com.sksamuel.hoplite.parseDuration
-import com.sksamuel.hoplite.parsePeriod
+import com.sksamuel.hoplite.time.parseDuration
+import com.sksamuel.hoplite.time.parsePeriod
 import java.time.LocalTime
 import java.time.MonthDay
 import java.time.Period
-import kotlin.time.ExperimentalTime
-import kotlin.time.milliseconds
+import kotlin.time.Duration.Companion.milliseconds
 
 class LocalDateTimeDecoder : NonNullableLeafDecoder<LocalDateTime> {
   override fun supports(type: KType): Boolean = type.classifier == LocalDateTime::class
@@ -83,7 +82,6 @@ class DurationDecoder : NonNullableLeafDecoder<Duration> {
   }
 }
 
-@OptIn(ExperimentalTime::class)
 class KotlinDurationDecoder : NonNullableLeafDecoder<kotlin.time.Duration> {
   override fun supports(type: KType): Boolean = type.classifier == kotlin.time.Duration::class
   override fun safeLeafDecode(node: Node,

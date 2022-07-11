@@ -3,9 +3,11 @@
 
 package com.sksamuel.hoplite.preprocessor
 
+import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.fp.valid
 import java.util.UUID
 import kotlin.math.abs
 import kotlin.random.Random
@@ -81,11 +83,11 @@ object RandomPreprocessor : TraversingPrimitivePreprocessor() {
     uuidRule
   )
 
-  override fun handle(node: PrimitiveNode): Node = when (node) {
+  override fun handle(node: PrimitiveNode): ConfigResult<Node> = when (node) {
     is StringNode -> {
       val value = rules.fold(node.value) { str, rule -> rule(str) }
-      node.copy(value = value)
+      node.copy(value = value).valid()
     }
-    else -> node
+    else -> node.valid()
   }
 }

@@ -1,5 +1,12 @@
-package com.sksamuel.hoplite
+package com.sksamuel.hoplite.sources
 
+import com.sksamuel.hoplite.ConfigFailure
+import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.ConfigSource
+import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.PropertySource
+import com.sksamuel.hoplite.PropertySourceContext
+import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.fp.Validated
 import com.sksamuel.hoplite.fp.flatRecover
 import com.sksamuel.hoplite.fp.invalid

@@ -4,12 +4,13 @@ import com.sksamuel.hoplite.report.Reporter
 import com.sksamuel.hoplite.report.ReporterBuilder
 import com.sksamuel.hoplite.report.resources
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.extensions.system.captureStandardOut
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 
 class ReporterTest : FunSpec({
 
-  test("report node") {
+  test("report node with default obfuscations") {
 
     val node = ConfigLoaderBuilder.default()
       .addPropertySource(
@@ -18,6 +19,8 @@ class ReporterTest : FunSpec({
           database.name = my database
           database.host = localhost
           database.port = 3306
+          database.timeout = 100.0
+          database.tls = true
           """.trimIndent(), "props"
         )
       )
@@ -25,19 +28,21 @@ class ReporterTest : FunSpec({
       .loadNodeOrThrow()
 
     Reporter.default().reportResources(node.resources(), "Used", emptySet()).trim() shouldBe """
-Used keys 3
-+---------------+---------------------+----------+
-| Key           | Source              | Value    |
-+---------------+---------------------+----------+
-| database.port | props string source | 330***** |
-| database.host | props string source | loc***** |
-| database.name | props string source | my ***** |
-+---------------+---------------------+----------+
+Used keys 5
++------------------+---------------------+----------+
+| Key              | Source              | Value    |
++------------------+---------------------+----------+
+| database.host    | props string source | loc***** |
+| database.name    | props string source | my ***** |
+| database.port    | props string source | 3306     |
+| database.timeout | props string source | 100.0    |
+| database.tls     | props string source | true     |
++------------------+---------------------+----------+
 """.trim()
 
   }
 
-  test("report node with default obfuscations") {
+  test("report test with default obfuscations") {
 
     data class Test(
       val name: String,
@@ -63,17 +68,19 @@ Used keys 3
       .build()
       .loadConfigOrThrow<Test>()
 
-    builder.toString().shouldContain("""
+    builder.toString().shouldContain(
+      """
 Used keys 4
 +----------+---------------------+----------+
 | Key      | Source              | Value    |
 +----------+---------------------+----------+
-| password | props string source | ssm***** |
-| port     | props string source | 330***** |
 | host     | props string source | loc***** |
 | name     | props string source | my ***** |
+| password | props string source | ssm***** |
+| port     | props string source | 3306     |
 +----------+---------------------+----------+
-""")
+"""
+    )
 
   }
 
@@ -92,4 +99,33 @@ Property sources (highest to lowest priority):
 
   }
 
+  test("should print report on failed config") {
+
+    data class Config(val name: String, val host: String, val port: Int)
+
+    val out = captureStandardOut {
+      ConfigLoaderBuilder.default()
+        .addPropertySource(
+          PropertySource.string(
+            """
+          database.name = my database
+          database.port = 3306
+          """.trimIndent(), "props"
+          )
+        )
+        .withReport()
+        .build()
+        .loadConfig<Config>()
+    }
+
+    out shouldContain """
++---------------+---------------------+----------+
+| Key           | Source              | Value    |
++---------------+---------------------+----------+
+| database.name | props string source | my ***** |
+| database.port | props string source | 3306     |
++---------------+---------------------+----------+
+""".trim()
+
+  }
 })

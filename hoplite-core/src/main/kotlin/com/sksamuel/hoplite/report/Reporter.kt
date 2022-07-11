@@ -8,6 +8,7 @@ import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.Pos
+import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.PropertySource
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Undefined
@@ -18,7 +19,8 @@ typealias Print = (String) -> Unit
 class ReporterBuilder {
 
   private var print: Print = { println(it) }
-  private var obfuscator: Obfuscator = DefaultObfuscator
+  private var obfuscator: Obfuscator = PrefixObfuscator(3)
+  private var secretsPolicy: SecretsPolicy = EveryFieldSecretsPolicy
 
   fun withPrint(print: Print) = apply {
     this.print = print
@@ -28,16 +30,44 @@ class ReporterBuilder {
     this.obfuscator = obfuscator
   }
 
-  fun build(): Reporter = Reporter(print, obfuscator)
+  fun withSecretsPolicy(secretsPolicy: SecretsPolicy) = apply {
+    this.secretsPolicy = secretsPolicy
+  }
+
+  fun build(): Reporter = Reporter(print, obfuscator, secretsPolicy)
 }
 
 class Reporter(
   private val print: Print,
   private val obfuscator: Obfuscator,
+  private val secretsPolicy: SecretsPolicy,
 ) {
 
   companion object {
     fun default(): Reporter = ReporterBuilder().build()
+  }
+
+  fun printReport(
+    sources: List<PropertySource>,
+    node: Node,
+  ) {
+
+    val r = buildString {
+      appendLine()
+      appendLine("--Start Hoplite Config Report---")
+      appendLine()
+      appendLine(report(sources))
+      appendLine()
+
+      val resources = node.resources()
+      appendLine(reportResources(resources, null, emptySet()))
+
+      appendLine()
+      appendLine("--End Hoplite Config Report--")
+      appendLine()
+    }
+
+    print(r)
   }
 
   fun printReport(
@@ -78,24 +108,26 @@ class Reporter(
       sources.joinToString(System.lineSeparator() + "  - ", "  - ") { it.source() }
   }
 
-  fun reportResources(resources: List<ConfigResource>, title: String, usedSecrets: Set<DotPath>): String {
+  fun reportResources(resources: List<ConfigResource>, title: String?, usedSecrets: Set<DotPath>): String {
 
-    val obfuscated = resources.map {
-      val value = obfuscator.obfuscate(it.path, it.value)
-      it.copy(value = value)
+    val obfuscated = resources.sortedBy { it.path.flatten().lowercase() }.map {
+      val value =
+        if (secretsPolicy.isSecret(it.path, usedSecrets)) obfuscator.obfuscate(it.node) else it.node.value?.toString()
+          ?: "<null>"
+      it.copy(node = StringNode(value, it.node.pos, it.node.path))
     }
 
     val keyPadded = obfuscated.maxOf { it.path.flatten().length }
     val sourcePadded = obfuscated.maxOf { it.source.length }
-    val valuePadded = obfuscated.maxOf { it.value.length }
+    val valuePadded = obfuscated.maxOf { it.node.value.toString().length }
 
     val rows = obfuscated.map {
       "| " + it.path.flatten().padEnd(keyPadded, ' ') +
         " | " + it.source.padEnd(sourcePadded, ' ') +
-        " | " + it.value.padEnd(valuePadded, ' ') + " |"
+        " | " + it.node.value.toString().padEnd(valuePadded, ' ') + " |"
     }
 
-    val titleRow = "$title keys ${resources.size}"
+    val titleRow = title?.let { "$it keys ${resources.size}" }
 
     val bar = listOf(
       "".padEnd(keyPadded + 2, '-'),
@@ -109,7 +141,7 @@ class Reporter(
       "Value".padEnd(valuePadded, ' ')
     ).joinToString(" | ", "| ", " |")
 
-    return (listOf(titleRow, bar, titles, bar) + rows + listOf(bar)).joinToString(System.lineSeparator())
+    return (listOfNotNull(titleRow, bar, titles, bar) + rows + listOf(bar)).joinToString(System.lineSeparator())
   }
 }
 
@@ -117,11 +149,11 @@ fun Node.resources(): List<ConfigResource> {
   return when (this) {
     is ArrayNode -> emptyList()
     is MapNode -> map.entries.map { (_, value) -> value.resources() }.flatten()
-    is BooleanNode -> listOf(ConfigResource(path, pos.source() ?: "n/a", value.toString()))
-    is NullNode -> listOf(ConfigResource(path, pos.source() ?: "n/a", "<null>"))
-    is DoubleNode -> listOf(ConfigResource(path, pos.source() ?: "n/a", value.toString()))
-    is LongNode -> listOf(ConfigResource(path, pos.source() ?: "n/a", value.toString()))
-    is StringNode -> listOf(ConfigResource(path, pos.source() ?: "n/a", value))
+    is BooleanNode -> listOf(ConfigResource(path, pos.source() ?: "n/a", this))
+    is NullNode -> listOf(ConfigResource(path, pos.source() ?: "n/a", this))
+    is DoubleNode -> listOf(ConfigResource(path, pos.source() ?: "n/a", this))
+    is LongNode -> listOf(ConfigResource(path, pos.source() ?: "n/a", this))
+    is StringNode -> listOf(ConfigResource(path, pos.source() ?: "n/a", this))
     Undefined -> emptyList()
   }
 }
@@ -129,5 +161,5 @@ fun Node.resources(): List<ConfigResource> {
 data class ConfigResource(
   val path: DotPath,
   val source: String,
-  val value: String,
+  val node: PrimitiveNode,
 )

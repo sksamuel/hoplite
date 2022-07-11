@@ -10,6 +10,8 @@ import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.preprocessor.RandomPreprocessor
 import com.sksamuel.hoplite.report.Reporter
 import com.sksamuel.hoplite.report.ReporterBuilder
+import com.sksamuel.hoplite.sources.SystemPropertiesPropertySource
+import com.sksamuel.hoplite.sources.UserSettingsPropertySource
 import java.util.ServiceLoader
 
 class ConfigLoaderBuilder private constructor() {
@@ -21,6 +23,8 @@ class ConfigLoaderBuilder private constructor() {
   private var classLoader: ClassLoader = Thread.currentThread().contextClassLoader
 
   private var mode: DecodeMode = DecodeMode.Lenient
+  private var allowEmptyTree = false
+  private var allowUnresolvedSubstitutions = false
 
   private val propertySources = mutableListOf<PropertySource>()
   private val preprocessors = mutableListOf<Preprocessor>()
@@ -57,6 +61,10 @@ class ConfigLoaderBuilder private constructor() {
       builder.block()
       return builder
     }
+  }
+
+  fun withClassLoader(classLoader: ClassLoader): ConfigLoaderBuilder = apply {
+    this.classLoader = classLoader
   }
 
   fun addSource(propertySource: PropertySource) = addPropertySource(propertySource)
@@ -141,8 +149,23 @@ class ConfigLoaderBuilder private constructor() {
    * When [DecodeMode.Strict] is enabled, if any config values from property sources are unused,
    * the config loader will error. This enables you to easily find stale config and fix it.
    */
-  fun strict(): ConfigLoaderBuilder = apply {
-    this.mode = DecodeMode.Strict
+  fun strict(): ConfigLoaderBuilder = withDecodeMode(DecodeMode.Strict)
+  fun lenient(): ConfigLoaderBuilder = withDecodeMode(DecodeMode.Lenient)
+
+  fun withDecodeMode(mode: DecodeMode) = apply { this.mode = mode }
+
+  /**
+   * When enabled, allows a config loader to continue even if all the property sources provide no config.
+   */
+  fun allowEmptyTree(): ConfigLoaderBuilder = apply {
+    allowEmptyTree = true
+  }
+
+  /**
+   * When enabled, allows placeholder substitutions like ${foo} not to cause an error if they are not resolvable.
+   */
+  fun allowUnresolvedSubstitutions(): ConfigLoaderBuilder = apply {
+    allowUnresolvedSubstitutions = true
   }
 
   /**
@@ -153,7 +176,10 @@ class ConfigLoaderBuilder private constructor() {
    * The report will be printed to standard out. If you wish to provide a logger, or customize how
    * obfuscation occurs, provider a reporter using a [ReporterBuilder].
    */
-  fun report() = apply { reporter = Reporter.default() }
+  fun withReport() = apply { reporter = Reporter.default() }
+
+  @Deprecated("use withReport()", ReplaceWith("withReport()"))
+  fun report() = withReport()
 
   /**
    * Enables a report on all config keys, their values, and which were used or unused.
@@ -174,6 +200,8 @@ class ConfigLoaderBuilder private constructor() {
       onFailure = failureCallbacks.toList(),
       mode = mode,
       reporter = reporter,
+      allowEmptyTree = allowEmptyTree,
+      allowUnresolvedSubstitutions = allowUnresolvedSubstitutions,
     )
   }
 }

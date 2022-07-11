@@ -1,6 +1,7 @@
 package com.sksamuel.hoplite
 
 import com.sksamuel.hoplite.decoder.DotPath
+import com.sksamuel.hoplite.sources.EnvironmentVariablesPropertySource
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 

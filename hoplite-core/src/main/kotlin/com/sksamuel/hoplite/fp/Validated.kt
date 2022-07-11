@@ -5,6 +5,7 @@ sealed class Validated<out E, out A> {
   data class Invalid<E>(val error: E) : Validated<E, Nothing>()
   data class Valid<A>(val value: A) : Validated<Nothing, A>()
 
+  fun isValid() = this is Valid<*>
   fun isInvalid() = this is Invalid<*>
 
   fun getUnsafe(): A = when (this) {
@@ -12,9 +13,30 @@ sealed class Validated<out E, out A> {
     is Valid -> this.value
   }
 
+  fun getInvalidUnsafe(): E = when (this) {
+    is Invalid -> this.error
+    is Valid -> throw IllegalStateException("Not an invalid instance, was $this")
+  }
+
   fun <B> map(f: (A) -> B): Validated<E, B> = when (this) {
     is Valid -> f(this.value).valid()
     is Invalid -> this
+  }
+
+  fun onSuccess(f: (A) -> Unit): Validated<E, A> {
+    when (this) {
+      is Valid -> f(this.value)
+      is Invalid -> Unit
+    }
+    return this
+  }
+
+  fun onFailure(f: (E) -> Unit): Validated<E, A> {
+    when (this) {
+      is Valid -> Unit
+      is Invalid -> f(this.error)
+    }
+    return this
   }
 
   fun <F> mapInvalid(f: (E) -> F): Validated<F, A> = when (this) {

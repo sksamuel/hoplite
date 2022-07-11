@@ -2,9 +2,11 @@
 
 package com.sksamuel.hoplite.preprocessor
 
+import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.fp.valid
 
 /**
  * Replaces strings of the form ${var} with the value of the env variable or system property 'var'.
@@ -18,7 +20,7 @@ object EnvOrSystemPropertyPreprocessor : TraversingPrimitivePreprocessor() {
   private val regex = "\\$\\{(.*?)\\}".toRegex()
   private val valueWithDefaultRegex = "(.*?):-(.*?)".toRegex()
 
-  override fun handle(node: PrimitiveNode): Node = when (node) {
+  override fun handle(node: PrimitiveNode): ConfigResult<Node> = when (node) {
     is StringNode -> {
       val value = regex.replace(node.value) { match ->
         val key = match.groupValues[1]
@@ -32,8 +34,8 @@ object EnvOrSystemPropertyPreprocessor : TraversingPrimitivePreprocessor() {
           }
         }
       }
-      node.copy(value = value)
+      node.copy(value = value).valid()
     }
-    else -> node
+    else -> node.valid()
   }
 }

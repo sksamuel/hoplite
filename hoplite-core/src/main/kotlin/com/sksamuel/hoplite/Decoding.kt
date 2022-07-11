@@ -7,27 +7,29 @@ import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.preprocessor.Preprocessor
-import com.sksamuel.hoplite.preprocessor.UnresolvedSubstitutionChecker
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
+
+class Preprocessing(
+  private val preprocessors: List<Preprocessor>,
+) {
+  fun preprocess(node: Node): ConfigResult<Node> {
+    return preprocessors.fold<Preprocessor, ConfigResult<Node>>(node.valid()) { acc, preprocessor ->
+      acc.flatMap { preprocessor.process(it) }
+    }
+  }
+}
 
 class Decoding(
   private val decoderRegistry: DecoderRegistry,
   private val paramMappers: List<ParameterMapper>,
-  private val preprocessors: List<Preprocessor>,
 ) {
 
   fun <A : Any> decode(kclass: KClass<A>, node: Node, mode: DecodeMode): ConfigResult<DecodingResult<A>> {
-    val context = DecoderContext(decoderRegistry, paramMappers, preprocessors, mutableSetOf())
-    val preprocessed = context.preprocessors.fold(node) { acc, preprocessor -> preprocessor.process(acc) }
-    val errors = UnresolvedSubstitutionChecker.process(preprocessed)
-    return if (errors.isNotEmpty())
-      ConfigFailure.MultipleFailures(NonEmptyList(errors)).invalid()
-    else {
-      decoderRegistry.decoder(kclass)
-        .flatMap { it.decode(preprocessed, kclass.createType(), context) }
-        .flatMap { decodingResult(it, node, context.usedPaths, mode, context.secrets) }
-    }
+    val context = DecoderContext(decoderRegistry, paramMappers, mutableSetOf())
+    return decoderRegistry.decoder(kclass)
+      .flatMap { it.decode(node, kclass.createType(), context) }
+      .flatMap { decodingResult(it, node, context.usedPaths, mode, context.secrets) }
   }
 
   private fun <A : Any> decodingResult(
@@ -47,7 +49,7 @@ class Decoding(
 
   private fun <A : Any> ensureAllUsed(result: DecodingResult<A>): ConfigResult<DecodingResult<A>> {
     return if (result.unused.isEmpty()) result.valid() else {
-      val errors = NonEmptyList.unsafe(result.unused.map { ConfigFailure.UnusedPaths(it.first, it.second) })
+      val errors = NonEmptyList.unsafe(result.unused.map { ConfigFailure.UnusedPath(it.first, it.second) })
       ConfigFailure.MultipleFailures(errors).invalid()
     }
   }

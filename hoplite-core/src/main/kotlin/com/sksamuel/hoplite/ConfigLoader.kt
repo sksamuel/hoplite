@@ -7,8 +7,10 @@ import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.getOrElse
 import com.sksamuel.hoplite.fp.invalid
+import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.parsers.ParserRegistry
 import com.sksamuel.hoplite.preprocessor.Preprocessor
+import com.sksamuel.hoplite.preprocessor.UnresolvedSubstitutionChecker
 import com.sksamuel.hoplite.report.Reporter
 import kotlin.reflect.KClass
 
@@ -23,6 +25,9 @@ class ConfigLoader(
   val onFailure: List<(Throwable) -> Unit> = emptyList(),
   val mode: DecodeMode = DecodeMode.Lenient,
   val reporter: Reporter? = null,
+  val allowEmptyTree: Boolean, // if true then we allow config files to be empty
+  val allowUnresolvedSubstitutions: Boolean,
+  val classLoader: ClassLoader? = null, // if null, then the current context thread loader
 ) {
 
   companion object {
@@ -127,24 +132,18 @@ class ConfigLoader(
     if (decoderRegistry.size == 0)
       return ConfigFailure.EmptyDecoderRegistry.invalid()
 
-    return NodeParser(parserRegistry).parseNode(propertySources, configSources).flatMap { (sources, node) ->
-      decode(klass, node).map { (config, used, _, secrets) ->
-        reporter?.printReport(sources, node, used, secrets)
-        config
+    return NodeParser(parserRegistry, allowEmptyTree)
+      .parseNode(propertySources, configSources)
+      .flatMap { (sources, node) ->
+        Preprocessing(preprocessors).preprocess(node)
+          .flatMap { if (allowUnresolvedSubstitutions) it.valid() else UnresolvedSubstitutionChecker.process(it) }
+          .flatMap { preprocessed ->
+            decode(klass, preprocessed)
+              .onSuccess { (_, used, _, secrets) -> reporter?.printReport(sources, preprocessed, used, secrets) }
+              .onFailure { reporter?.printReport(sources, preprocessed) }
+              .map { (config, _, _, _) -> config }
+          }
       }
-    }
-  }
-
-  private fun <A : Any> decode(kclass: KClass<A>, node: Node): ConfigResult<DecodingResult<A>> {
-    val decoding = Decoding(decoderRegistry, paramMappers, preprocessors)
-    return decoding.decode(kclass, node, mode)
-  }
-
-  @PublishedApi
-  internal fun <A : Any> ConfigResult<A>.returnOrThrow(): A = this.getOrElse { failure ->
-    val err = "Error loading config because:\n\n" + failure.description().indent(Constants.indent)
-    onFailure.forEach { it(ConfigException(err)) }
-    throw ConfigException(err)
   }
 
   /**
@@ -168,12 +167,28 @@ class ConfigLoader(
   fun loadNodeOrThrow(
     resourceOrFiles: List<String>,
     classpathResourceLoader: ClasspathResourceLoader = ConfigLoader::class.java.toClasspathResourceLoader(),
-  ): Node {
-    return ConfigSource
-      .fromResourcesOrFiles(resourceOrFiles.toList(), classpathResourceLoader)
-      .flatMap { NodeParser(parserRegistry).parseNode(propertySources, it) }
-      .map { it.node }
-      .returnOrThrow()
+  ): Node = loadNode(resourceOrFiles, classpathResourceLoader).returnOrThrow()
+
+  fun loadNode(vararg resourceOrFiles: String): ConfigResult<Node> = loadNode(resourceOrFiles.toList())
+
+  fun loadNode(
+    resourceOrFiles: List<String>,
+    classpathResourceLoader: ClasspathResourceLoader = ConfigLoader::class.java.toClasspathResourceLoader(),
+  ): ConfigResult<Node> = ConfigSource
+    .fromResourcesOrFiles(resourceOrFiles.toList(), classpathResourceLoader)
+    .flatMap { NodeParser(parserRegistry, allowEmptyTree).parseNode(propertySources, it) }
+    .map { it.node }
+
+  private fun <A : Any> decode(kclass: KClass<A>, node: Node): ConfigResult<DecodingResult<A>> {
+    val decoding = Decoding(decoderRegistry, paramMappers)
+    return decoding.decode(kclass, node, mode)
+  }
+
+  @PublishedApi
+  internal fun <A : Any> ConfigResult<A>.returnOrThrow(): A = this.getOrElse { failure ->
+    val err = "Error loading config because:\n\n" + failure.description().indent(Constants.indent)
+    onFailure.forEach { it(ConfigException(err)) }
+    throw ConfigException(err)
   }
 }
 

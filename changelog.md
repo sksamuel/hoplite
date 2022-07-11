@@ -1,6 +1,59 @@
 # Changelog
 
-### 2.0.0 (In progress)
+### 2.2.0
+
+* Added alphabetical key sort in reports #306
+* ***Breaking change*** Added `constructor` and `KClass` parameters to the `ParameterMapper` interface to allow inspection of
+  annotations on fields #311
+* Fixed snakecase variable throwing unused error with _strict()_ #312
+* Fixed sealed type subclass decode failure when single string field #313
+
+### 2.1.5
+
+* Added `withClassLoader` option to the `ConfigLoaderBuilder`. This classloader is used when loading the service
+  registry for decoders.
+
+### 2.1.4
+
+* Print report even when config fails to parse.
+
+### 2.1.3
+
+* Added aws2 module for AWS support using the AWS SDK version 2
+
+### 2.1.2
+
+* Report should print after preprocessors have run.
+
+### 2.1.1
+
+* Fixed bug in `DefaultObfuscator` to avoid obfuscating booleans/numbers in yml.
+
+### 2.1.0
+
+* Optionally make using an unresolved substitution value not an error (#300)
+* Fixed unresolved error typo (#301)
+* Trim input keys in `AwsSecretsManagerPreprocessor`
+* Better errors when key are missing in `AwsSecretsManagerPreprocessor`
+* Updated default obfuscator to not obfuscate non-strings (#299)
+* AWS ParameterStorePathPropertySource should support GetParametersByPathResult's nextToken (#295)
+
+### 2.0.3
+
+* Added `allowEmptyTree` on `ConfigLoaderBuilder` to _not_ error if all property sources return no values.
+
+### 2.0.2
+
+* Added `SecretsPolicy` to `Reporter` to determine which fields should be obfuscated.
+* Adedd `HashObfuscator` to use the first 8 characters of the SHA-256 for obfuscation.
+
+### 2.0.1
+
+* Improved error messages from AWS Secrets Manager
+* Adjusted default obfuscator to obfuscate all fields
+* Fixed arg names used in constructor error message
+
+### 2.0.0
 
 #### Breaking Changes
 
@@ -14,15 +67,18 @@
 * The `ConfigLoader.loadConfig` functions that accept a File or Path have been removed to simply the config loader
   class. Instead, use the equivalent methods on `ConfigLoaderBuilder`
 * `ParameterMapper`s now return `Set<String>` rather than `String` to allow each parameter mapper to return more than
-  one alternative name.
+  one alternative name. This is only of relevance if you have written custom parameter mappers.
+* `Preprocessor` now returns errors as types, rather than throwing exceptions. This is only of relevance if you have
+  written custom preprocessors.
 
 #### New Features
 
-* `ConfigLoaderBuilder.report` has been added to output a report of the property sources, the resolved config values,
-  and which config values were unused.
+* `ConfigLoaderBuilder.report` has been added to output a report of the property sources, the resolved config values (
+  obfuscated), and which config values were unused.
 * `ConfigLoaderBuilder.strict` mode reports unused config values at any level. If a property source provides a value
   that is not used, the config loader will error when strict mode is on.
 * Multiple `@ConfigAlias` annotations are now supported per field
+* Better error handling on preprocessors.
 
 ### 1.4.16
 
@@ -91,14 +147,17 @@
 
 ### 1.4.1
 
-* Support for [yaml aliases](https://bitbucket.org/asomov/snakeyaml-engine/wiki/Documentation#markdown-header-aliases) #208.
+* Support for [yaml aliases](https://bitbucket.org/asomov/snakeyaml-engine/wiki/Documentation#markdown-header-aliases)
+  #208.
 
 ### 1.4.0
 
 * **Kotlin version is now 1.4.30**
-* Breaking: The `PropertySource` interface has been changed to accept a `PropertySourceContext`. This only affects users who have written their own custom PropertySource.
+* Breaking: The `PropertySource` interface has been changed to accept a `PropertySourceContext`. This only affects users
+  who have written their own custom PropertySource.
 * Added `@ConfigAlias` to allow a data class field to map to multiple values. #197
-* Added strict option to `ConfigLoader.Builder` to throw an error if a config value is unused. Lenient mode is still the default. #187
+* Added strict option to `ConfigLoader.Builder` to throw an error if a config value is unused. Lenient mode is still the
+  default. #187
 * Bumped all module deps to latest versions
 
 ### 1.3.15
@@ -116,7 +175,9 @@
 
 ### 1.3.12
 
-* Allows data classes with a single field named `value` to be treated as inline classes. Eg `data class RetailerId(val value: String)` can be parsed directly from `retailerId: "SAKS"` without requiring another level of nesting #164
+* Allows data classes with a single field named `value` to be treated as inline classes.
+  Eg `data class RetailerId(val value: String)` can be parsed directly from `retailerId: "SAKS"` without requiring
+  another level of nesting #164
 
 ### 1.3.11
 

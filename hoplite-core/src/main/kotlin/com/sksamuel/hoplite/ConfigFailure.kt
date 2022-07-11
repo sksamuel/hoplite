@@ -28,14 +28,18 @@ sealed interface ConfigFailure {
    */
   fun description(): String
 
-  data class UnusedPaths(val path: DotPath, val pos: Pos) : ConfigFailure {
+  data class UnusedPath(val path: DotPath, val pos: Pos) : ConfigFailure {
     override fun description(): String {
-      return "${path.flatten()} at ${pos.loc()} was unused"
+      return "Config value '${path.flatten()}' at ${pos.loc()} was unused"
     }
   }
 
   object NoSources : ConfigFailure {
     override fun description(): String = "No registered property sources or config files"
+  }
+
+  object NoValues : ConfigFailure {
+    override fun description(): String = "Registered properties sources returned no config"
   }
 
   data class NoSuchParser(
@@ -44,6 +48,15 @@ sealed interface ConfigFailure {
   ) : ConfigFailure {
     override fun description(): String =
       "Could not detect parser for file extension '.$file' - available parsers are $map"
+  }
+
+  data class PreprocessorWarning(val message: String) : ConfigFailure {
+    override fun description(): String = message
+  }
+
+  data class PreprocessorFailure(val message: String, val t: Throwable) : ConfigFailure {
+    override fun description(): String =
+      message + System.lineSeparator() + t.message + System.lineSeparator() + t.stackTraceToString()
   }
 
   data class InvalidConstructorParameters(
@@ -66,10 +79,6 @@ sealed interface ConfigFailure {
     override fun description(): String = "Data class ${kclass.qualifiedName} has no constructors"
   }
 
-  data class UnusedConfigValues(val values: List<String>) : ConfigFailure {
-    override fun description(): String = "Config values were not used: ${values.joinToString(", ")}"
-  }
-
   data class UnknownSource(val source: String) : ConfigFailure {
     override fun description(): String = "Could not find config file $source"
   }
@@ -78,7 +87,17 @@ sealed interface ConfigFailure {
     override fun description(): String = failures.map { it.description() }.list.joinToString("\n\n")
   }
 
-  data class NoSealedClassSubtype(val type: KClass<*>, val node: Node) : ConfigFailure {
+  data class NoSealedClassObjectSubtype(val type: KClass<*>, val node: StringNode) : ConfigFailure {
+    override fun description(): String {
+      val subclasses = type.sealedSubclasses.joinToString(", ") { it.jvmName }
+      return "Could not find subclass of $type matching name ${node.value}: Tried $subclasses ${node.pos.loc()}"
+    }
+  }
+
+  data class SealedClassSubtypeFailure(
+    val type: KClass<*>,
+    val node: Node, val errors: NonEmptyList<ConfigFailure>
+  ) : ConfigFailure {
     override fun description(): String {
       val subclasses = type.sealedSubclasses.joinToString(", ") { it.jvmName }
       return "Could not find appropriate subclass of $type: Tried $subclasses ${node.pos.loc()}"
@@ -87,7 +106,7 @@ sealed interface ConfigFailure {
 
   data class UnresolvedSubstitution(val value: String, val node: Node) : ConfigFailure {
     override fun description(): String {
-      return "Resolved substitution $value at ${node.pos.loc()}"
+      return "Unresolved substitution $value at ${node.pos.loc()}"
     }
   }
 
@@ -100,7 +119,8 @@ sealed interface ConfigFailure {
   }
 
   data class SealedClassDisambiguationError(val types: List<Any>) : ConfigFailure {
-    override fun description(): String = "Cannot disambiguate between sealed class implementations: ${types.joinToString(", ")}"
+    override fun description(): String =
+      "Cannot disambiguate between sealed class implementations: ${types.joinToString(", ")}"
   }
 
   data class MissingPrimaryConstructor(val type: KType) : ConfigFailure {
@@ -208,7 +228,8 @@ sealed interface ConfigFailure {
     val param: KParameter,
     val error: ConfigFailure
   ) : ConfigFailure {
-    override fun description(): String = "Could not create value type for $klass at '${param.name}': ${error.description()}"
+    override fun description(): String =
+      "Could not create value type for $klass at '${param.name}': ${error.description()}"
   }
 }
 

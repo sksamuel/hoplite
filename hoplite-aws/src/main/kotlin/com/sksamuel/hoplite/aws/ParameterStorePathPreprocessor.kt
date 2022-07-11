@@ -3,10 +3,13 @@ package com.sksamuel.hoplite.aws
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClientBuilder
 import com.amazonaws.services.simplesystemsmanagement.model.GetParametersByPathRequest
 import com.amazonaws.services.simplesystemsmanagement.model.Parameter
-import com.sksamuel.hoplite.ConfigException
+import com.sksamuel.hoplite.ConfigFailure
+import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.fp.invalid
+import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.preprocessor.TraversingPrimitivePreprocessor
 
 /**
@@ -31,20 +34,25 @@ class ParameterStorePathPreprocessor(
     client.getParametersByPath(req).parameters
   }
 
-  override fun handle(node: PrimitiveNode): Node = when (node) {
+  override fun handle(node: PrimitiveNode): ConfigResult<Node> = when (node) {
     is StringNode -> {
       when (val match = regex.matchEntire(node.value)) {
-        null -> node
+        null -> node.valid()
         else -> {
           val key = match.groupValues[1]
-          val values = fetchParameterStoreValues().getOrElse { throw ConfigException("Failed to load parameters", it) }
-          val value = values
-            .firstOrNull { it.name == key }
-            ?: throw ConfigException("Could not find path: $path in paths: ${values.map { it.name }}")
-          node.copy(value = value.value)
+          fetchParameterStoreValues().fold(
+            { values ->
+              when (val value = values.firstOrNull { it.name == key }) {
+                null -> ConfigFailure.PreprocessorWarning("Could not find key: $key in paths: ${values.map { it.name }}")
+                  .invalid()
+                else -> node.copy(value = value.value).valid()
+              }
+            },
+            { ConfigFailure.PreprocessorFailure("Failed to load parameters", it).invalid() }
+          )
         }
       }
     }
-    else -> node
+    else -> node.valid()
   }
 }
