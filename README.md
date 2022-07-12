@@ -269,6 +269,17 @@ ConfigLoaderBuilder.default()
   .loadConfigOrThrow<MyConfig>()
 ```
 
+### PropsPropertySource
+
+To use a java.util.Properties object as property source, we can use the `PropsPropertySource` implementation.
+
+```kotlin
+ConfigLoaderBuilder.default()
+  .addSource(PropsPropertySource(myProps))
+  .build()
+  .loadConfigOrThrow<MyConfig>()
+```
+
 ## Cascading Config
 
 Hoplite has the concept of cascading or layered or fallback config.
@@ -780,9 +791,61 @@ The second method is only for Json by specifying an empty object:
 When using the second option, there must be only a single object instance in the hierarchy, otherwise a disambiguation error is thrown.
 If you want to support multiple object instances, then refer to the type by name.
 
+
+
+
+
+
+## Reloadable Config
+
+Hoplite embraces immutable config, but if you require that config is dynamic, then Hoplite provides a `ReloadableConfig` wrapper.
+This functionality is available by adding the module `hoplite-watch` to your build. The reloader requires a `ConfigLoader`
+and then accepts one or more `Watchable`s which cause the config to be reloaded when whatever they are watching is triggered.
+
+To be clear, once Hoplite has parsed a config object, it won't mutate that object. This reloadable wrapper will, in the background,
+reload the config once a watcher is triggered. Then you can obtain the latest parsed config whenever you wish by using the method `getLatest`.
+
+If you wish to be notified whenever the config is reloaded, you can call `subscribe` on the reloader.
+
+A simple example would be to referesh config every 10 seconds:
+
+```kotlin
+// create a watchable that will trigger every 10 seconds
+val watcher = FixedIntervalWatchable(10.seconds)
+
+// create our config loader which will parse config when invoked
+val loader = ConfigLoaderBuilder.default()
+  .addSource(PropertySource.resource("/application.yml"))
+  .build()
+
+// create the reloader, adding the watcher, the config loader, and specifying the target config class
+val reloader = ReloadableConfig(configLoader, TestConfig::class)
+  .addWatcher(watcher)
+
+// obtain the latest config whenever we want
+reloader.getLatest()
+
+// or subscribe for notifications: (TestConfig) -> Unit
+reloader.subscribe { println("New config!: $it") }
+```
+
+You can implement the `Watchable` interface directly, with whatever triggering logic you wish, or use one of the
+predefined implementations:
+
+| Watchable              | Function                                                                                                                 |
+|:-----------------------|:-------------------------------------------------------------------------------------------------------------------------|
+| FixedIntervalWatchable | Triggers a reload at a fixed interval specified in millis.                                                               |
+| FileWatcher            | Triggers a reload whenever a file inside a given directory is modified.                                                  |
+| ConsulWatcher          | Triggers whenever a key is added, removed or updated in a `Consul` instance. Requires the `hoplite-watch-consul` module. |
+
+
+
+
+
 ## Add on Modules
 
-Hoplite makes available several other modules that add functionality outside of the main core module. They are in seperate modules because they bring in dependencies from those projects and so the modules are optional.
+Hoplite makes available several other modules that add functionality outside of the main core module. They are in
+seperate modules because they bring in dependencies from those projects and so the modules are optional.
 
 | Module           | Function                                                                                                    |
 |:-----------------|:------------------------------------------------------------------------------------------------------------|
