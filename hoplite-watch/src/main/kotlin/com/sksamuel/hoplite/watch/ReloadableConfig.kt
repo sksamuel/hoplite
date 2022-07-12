@@ -3,6 +3,8 @@ package com.sksamuel.hoplite.watch
 import com.sksamuel.hoplite.ConfigLoader
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.reflect.KClass
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * A [ReloadableConfig] accepts a [ConfigLoader] and a target config [KClass].
@@ -11,6 +13,9 @@ import kotlin.reflect.KClass
  * the config is reloaded.
  *
  * You can retrieve the latest config at any time with [getLatest].
+ *
+ * Errors thrown during the config loading process are handled by an [errorHandler] which
+ * can be set via [withErrorHandler].
  */
 class ReloadableConfig<A : Any>(
   private val configLoader: ConfigLoader,
@@ -29,17 +34,25 @@ class ReloadableConfig<A : Any>(
   }
 
   /**
-   * Add a watcher that refresh this config on a fixed interval.
+   * Add a watcher that refreshes this config at a fixed duration.
    */
-  fun addInterval(millis: Long): ReloadableConfig<A> {
-    FixedIntervalWatchable(millis).watch(
+  fun addInterval(interval: Duration): ReloadableConfig<A> {
+    FixedIntervalWatchable(interval.inWholeMilliseconds).watch(
       { reloadConfig() },
       { errorHandler?.invoke(it) }
     )
     return this
   }
 
-  fun addErrorHandler(handler: (Throwable) -> Unit): ReloadableConfig<A> {
+  /**
+   * Add a watcher that refreshes this config on a fixed interval.
+   */
+  fun addInterval(millis: Long): ReloadableConfig<A> = addInterval(millis.milliseconds)
+
+  @Deprecated("Use withErrorHandler", ReplaceWith("withErrorHandler(handler)"))
+  fun addErrorHandler(handler: (Throwable) -> Unit): ReloadableConfig<A> = withErrorHandler(handler)
+
+  fun withErrorHandler(handler: (Throwable) -> Unit): ReloadableConfig<A> {
     errorHandler = handler
     return this
   }

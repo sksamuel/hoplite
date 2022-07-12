@@ -70,7 +70,7 @@ class WatcherTest : FunSpec({
     var error: Throwable? = null
     ReloadableConfig(configLoader.build(), TestConfig::class)
       .addWatcher(watcher)
-      .addErrorHandler { error = it }
+      .withErrorHandler { error = it }
 
     watcher.update()
 
