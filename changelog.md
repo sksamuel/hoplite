@@ -1,5 +1,10 @@
 # Changelog
 
+### 2.3.1
+
+* Fixed anchors in yaml when using multiple files #307
+* Added `subscribe` to `ReloadableConfig`
+
 ### 2.3.0
 
 * Added `Base64` type and decoder
