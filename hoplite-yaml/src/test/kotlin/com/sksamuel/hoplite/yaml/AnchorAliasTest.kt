@@ -11,7 +11,11 @@ class AnchorAliasTest : FunSpec() {
       data class Hand(val name: String, val weight: Int)
       data class Test(val objects: List<String>, val lefthand: Hand, val righthand: Hand)
 
-      val config = ConfigLoader().loadConfigOrThrow<Test>("/anchor.yml")
+      val config = ConfigLoader().loadConfigOrThrow<Test>(
+        "/anchor.yml",
+        "/anchor-merge-base.yml",
+      )
+
       config shouldBe Test(
         listOf("Apple", "Beachball", "Cartoon", "Duckface", "Apple"),
         Hand("The Bastard Sword of Eowyn", 30),

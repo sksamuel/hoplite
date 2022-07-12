@@ -9,6 +9,7 @@ import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.decoder.DotPath
 import com.sksamuel.hoplite.parsers.Parser
+import com.sksamuel.hoplite.withPath
 import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.SafeConstructor
@@ -99,8 +100,10 @@ object TokenProduction {
         if (event.anchor == null) Pair(node, anchors) else Pair(node, anchors.plus(event.anchor to node))
       }
       is AliasEvent -> {
-        val node = anchors[event.anchor]
-        if (node == null) error("Could not find alias ${event.anchor}") else Pair(node, anchors)
+        val node = anchors[event.anchor] ?: error("Could not find alias ${event.anchor}")
+        // we need to copy the anchored node to have the right dot path
+        val copy = node.withPath(path)
+        Pair(copy, anchors)
       }
       else -> throw java.lang.UnsupportedOperationException(
         "Invalid YAML event ${stream.current().id()} at ${stream.current().startMark}"

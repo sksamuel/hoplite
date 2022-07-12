@@ -53,8 +53,25 @@ sealed interface Node {
   val size: Int
 }
 
+/**
+ * Returnes true if this node is not [Undefined]
+ */
 val Node.isDefined: Boolean
   get() = this !is Undefined
+
+/**
+ * Copies this node with the updated [path].
+ */
+fun Node.withPath(path: DotPath): Node = when (this) {
+  is ArrayNode -> copy(path = path, elements = this.elements.map { it.withPath(path) })
+  is MapNode -> copy(path = path, map = this.map.mapValues { it.value.withPath(path.with(it.key)) })
+  is BooleanNode -> copy(path = path)
+  is NullNode -> copy(path = path)
+  is DoubleNode -> copy(path = path)
+  is LongNode -> copy(path = path)
+  is StringNode -> copy(path = path)
+  Undefined -> Undefined
+}
 
 /**
  * Return all paths in this tree.

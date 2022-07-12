@@ -9,7 +9,9 @@ internal fun Node.merge(other: Node): Node {
   if (other is Undefined) return this
   if (this is Undefined) return other
 
-  require(this.path == other.path) { "Trying to merge node with path $path with node with path ${other.path}" }
+  require(this.path == other.path) {
+    "Trying to merge node with path ${path.flatten()} with node with path ${other.path.flatten()}"
+  }
 
   return when (this) {
     // if I am null, and the other is defined, then that takes precedence
