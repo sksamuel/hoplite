@@ -466,78 +466,83 @@ database:
 Hoplite converts the raw value in config files to JDK types using instances of the `Decoder` interface.
 There are built in decoders for all the standard day to day types, such as primitives, dates, lists, sets, maps, enums, arrow types and so on. The full list is below:
 
-| Basic JDK Types                  | Conversion Notes                                                                                                                                                                                            |
-|----------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `String`                         |
-| `Long`                           |
-| `Int`                            |
-| `Short`                          |
-| `Byte`                           |
-| `Boolean`                        | Creates a Boolean from the following values: `"true"`, `"t"`, `"1"`, `"yes"` map to `true` and `"false"`, `"f"`, `"0"`, `"no"` map to `false`                                                               |
-| `Double`                         |
-| `Float`                          |
-| `Enums`                          | Java and Kotlin enums are both supported. An instance of the defined Enum class will be created with the constant value given in config.                                                                    |
-| `BigDecimal`                     | Converts from a String, Long, Int, Double, or Float into a BigDecimal                                                                                                                                       |
-| `BigInteger`                     | Converts from a String, Long or Int into a BigInteger.                                                                                                                                                      |
-| `UUID`                           | Creates a `java.util.UUID` from a String                                                                                                                                                                    |
-| **java.time types**              |                                                                                                                                                                                                             |
-| `LocalDateTime`                  |
-| `LocalDate`                      |
-| `LocalTime`                      |
-| `Duration`                       | Creates a Java `Duration` from a string in a [duration format](#duration-formats) or from a long in milliseconds.                                                                                           |
-| `Instant`                        | Creates an instance of `Instant` from an offset from the unix epoc in milliseconds.                                                                                                                         |
-| `Year`                           | Creates an instance of `Year` from a String in the format `2007`                                                                                                                                            |
-| `YearMonth`                      | Creates an instance of `YearMonth` from a String in the format `2007-12`                                                                                                                                    |
-| `MonthDay`                       | Creates an instance of `MonthDay` from a String in the format `08-18`                                                                                                                                       |
-| `java.util.Date`                 |                                                                                                                                                                                                             |
-| **Kotlin types**                 |                                                                                                                                                                                                             |
-| `Duration`                       | Creates a kotlin `Duration` from a string in a [duration format](#duration-formats) or from a long in milliseconds.                                                                                         |
-| **java.net types**               |                                                                                                                                                                                                             |
-| `URI`                            |                                                                                                                                                                                                             |
-| `URL`                            |                                                                                                                                                                                                             |
-| `InetAddress`                    |                                                                                                                                                                                                             |
-| **JDK IO types**                 |                                                                                                                                                                                                             |
-| `File`                           | Creates a java.io.File from a String path                                                                                                                                                                   |
-| `Path`                           | Creates a java.nio.Path from a String path                                                                                                                                                                  |
-| **Kotlin stdlib types**          |                                                                                                                                                                                                             |
-| `Pair<A,B>`                      | Converts from an array of three two into an instance of `Pair<A,B>`. Will fail if the array does not have exactly two elements.                                                                             |
-| `Triple<A,B,C>`                  | Converts from an array of three elements into an instance of `Triple<A,B,C>`. Will fail if the array does not have exactly three elements.                                                                  |
-| `kotlin.text.Regex`              | Creates a `kotlin.text.Regex` from a regex compatible string                                                                                                                                                |
-| **Collections**                  |                                                                                                                                                                                                             |
-| `List<A>`                        | Creates a List from either an array or a string delimited by commas.                                                                                                                                        |
-| `Set<A>`                         | Creates a Set from either an array or a string delimited by commas.                                                                                                                                         |
-| `SortedSet<A>`                   | Creates a SortedSet from either an array or a string delimited by commas.                                                                                                                                   |
-| `Map<K,V>`                       |                                                                                                                                                                                                             |
-| `LinkedHashMap<K,V>`             | A Map that mains the order defined in config                                                                                                                                                                |
-| **hoplite types**                |                                                                                                                                                                                                             |
-| `Masked`                         | Wraps a String in a Masked object that redacts toString()                                                                                                                                                   |
-| `SizeInBytes`                    | Returns a SizeInBytes object which parses values like 12Mib or 9KB                                                                                                                                          |
-| `Seconds`                        | Wraps an integer in a `Seconds` object which can be converted to a duration using the `.duration()` extension method.                                                                                       |
-| `Minutes`                        | Wraps an integer in a `Minutes` object which can be converted to a duration using the `.duration()` extension method.                                                                                       |
-| **javax.security.auth**          |                                                                                                                                                                                                             |
-| `X500Principal`                  | Creates an instance of `X500Principal` for String values                                                                                                                                                    |
-| `KerberosPrincipal`              | Creates an instance of `KerberosPrincipal` for String values                                                                                                                                                |
-| `JMXPrincipal`                   | Creates an instance of `JMXPrincipal` for String values                                                                                                                                                     |
-| `Principal`                      | Creates an instance of `BasicPrincipal` for String values                                                                                                                                                   |
-| **Arrow**                        | Requires `hoplite-arrow` module                                                                                                                                                                             |
-| `arrow.data.NonEmptyList<A>`     | Converts arrays into a `NonEmptyList<A>` if the array is non empty. If the array is empty then an error is raised.                                                                                          |
-| `arrow.core.Option<A>`           | A `None` is used for null or undefined values, and present values are converted to a `Some<A>`.                                                                                                             |
-| `arrow.core.Tuple2<A,B>`         | Converts an array of two elements into an instance of `Tuple2<A,B>`.  Will fail if the array does not have exactly two elements.                                                                            |
-| `arrow.core.Tuple3<A,B,C>`       | Converts an array of three elements into an instance of `Tuple3<A,B,C>`. Will fail if the array does not have exactly three elements.                                                                       |
-| `arrow.core.Tuple4<A,B,C,D>`     | Converts an array of four elements into an instance of `Tuple4<A,B,C,D>`. Will fail if the array does not have exactly four elements.                                                                       |
-| `arrow.core.Tuple5<A,B,C,D,E>`   | Converts an array of five elements into an instance of `Tuple5<A,B,C,D,E>`. Will fail if the array does not have exactly five elements.                                                                     |
-| **Hikari Connection Pool**       | Requires `hoplite-hikaricp` module                                                                                                                                                                          |
-| `HikariDataSource`               | Converts nested config into a `HikariDataSource`. Any keys nested under the field name will be passed through to the `HikariConfig` object as the datasource is created. Requires `hoplite-hikaricp` module |
-| **Hadoop Types**                 | Requires `hoplite-hdfs` module                                                                                                                                                                              |
-| `org.apache.hadoop.fs.Path`      | Returns instances of HDFS Path objects                                                                                                                                                                      |
-| **CronUtils types**              | Requires `hoplite-cronutils` module                                                                                                                                                                         |
-| `com.cronutils.model.Cron`       | Returns parsed instance of a cron expression                                                                                                                                                                |
-| **kotlinx datetime Types**       | Requires `hoplite-datetime` module                                                                                                                                                                          |
-| `kotlinx.datetime.LocalDateTime` |                                                                                                                                                                                                             |
-| `kotlinx.datetime.LocalDate`     |                                                                                                                                                                                                             |
-| `kotlinx.datetime.Instant`       |                                                                                                                                                                                                             |
-| **AWS SDK types**                | Requires `hoplite-aws` module                                                                                                                                                                               |
-| `com.amazonaws.regions.Region`   |
+| Basic JDK Types                         | Conversion Notes                                                                                                                                                                                            |
+|-----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `String`                                |
+| `Long`                                  |
+| `Int`                                   |
+| `Short`                                 |
+| `Byte`                                  |
+| `Boolean`                               | Creates a Boolean from the following values: `"true"`, `"t"`, `"1"`, `"yes"` map to `true` and `"false"`, `"f"`, `"0"`, `"no"` map to `false`                                                               |
+| `Double`                                |
+| `Float`                                 |
+| `Enums`                                 | Java and Kotlin enums are both supported. An instance of the defined Enum class will be created with the constant value given in config.                                                                    |
+| `BigDecimal`                            | Converts from a String, Long, Int, Double, or Float into a BigDecimal                                                                                                                                       |
+| `BigInteger`                            | Converts from a String, Long or Int into a BigInteger.                                                                                                                                                      |
+| `UUID`                                  | Creates a `java.util.UUID` from a String                                                                                                                                                                    |
+| **java.time types**                     |                                                                                                                                                                                                             |
+| `LocalDateTime`                         |
+| `LocalDate`                             |
+| `LocalTime`                             |
+| `Duration`                              | Creates a Java `Duration` from a string in a [duration format](#duration-formats) or from a long in milliseconds.                                                                                           |
+| `Instant`                               | Creates an instance of `Instant` from an offset from the unix epoc in milliseconds.                                                                                                                         |
+| `Year`                                  | Creates an instance of `Year` from a String in the format `2007`                                                                                                                                            |
+| `YearMonth`                             | Creates an instance of `YearMonth` from a String in the format `2007-12`                                                                                                                                    |
+| `MonthDay`                              | Creates an instance of `MonthDay` from a String in the format `08-18`                                                                                                                                       |
+| `java.util.Date`                        |                                                                                                                                                                                                             |
+| **Kotlin types**                        |                                                                                                                                                                                                             |
+| `Duration`                              | Creates a kotlin `Duration` from a string in a [duration format](#duration-formats) or from a long in milliseconds.                                                                                         |
+| **java.net types**                      |                                                                                                                                                                                                             |
+| `URI`                                   |                                                                                                                                                                                                             |
+| `URL`                                   |                                                                                                                                                                                                             |
+| `InetAddress`                           |                                                                                                                                                                                                             |
+| **JDK IO types**                        |                                                                                                                                                                                                             |
+| `File`                                  | Creates a java.io.File from a String path                                                                                                                                                                   |
+| `Path`                                  | Creates a java.nio.Path from a String path                                                                                                                                                                  |
+| **Kotlin stdlib types**                 |                                                                                                                                                                                                             |
+| `Pair<A,B>`                             | Converts from an array of three two into an instance of `Pair<A,B>`. Will fail if the array does not have exactly two elements.                                                                             |
+| `Triple<A,B,C>`                         | Converts from an array of three elements into an instance of `Triple<A,B,C>`. Will fail if the array does not have exactly three elements.                                                                  |
+| `kotlin.text.Regex`                     | Creates a `kotlin.text.Regex` from a regex compatible string                                                                                                                                                |
+| **Collections**                         |                                                                                                                                                                                                             |
+| `List<A>`                               | Creates a List from either an array or a string delimited by commas.                                                                                                                                        |
+| `Set<A>`                                | Creates a Set from either an array or a string delimited by commas.                                                                                                                                         |
+| `SortedSet<A>`                          | Creates a SortedSet from either an array or a string delimited by commas.                                                                                                                                   |
+| `Map<K,V>`                              |                                                                                                                                                                                                             |
+| `LinkedHashMap<K,V>`                    | A Map that mains the order defined in config                                                                                                                                                                |
+| **hoplite types**                       |                                                                                                                                                                                                             |
+| `Masked`                                | Wraps a String in a Masked object that redacts toString()                                                                                                                                                   |
+| `SizeInBytes`                           | Returns a SizeInBytes object which parses values like 12Mib or 9KB                                                                                                                                          |
+| `Seconds`                               | Wraps an integer in a `Seconds` object which can be converted to a duration using the `.duration()` extension method.                                                                                       |
+| `Minutes`                               | Wraps an integer in a `Minutes` object which can be converted to a duration using the `.duration()` extension method.                                                                                       |
+| **javax.security.auth**                 |                                                                                                                                                                                                             |
+| `X500Principal`                         | Creates an instance of `X500Principal` for String values                                                                                                                                                    |
+| `KerberosPrincipal`                     | Creates an instance of `KerberosPrincipal` for String values                                                                                                                                                |
+| `JMXPrincipal`                          | Creates an instance of `JMXPrincipal` for String values                                                                                                                                                     |
+| `Principal`                             | Creates an instance of `BasicPrincipal` for String values                                                                                                                                                   |
+| **Arrow**                               | Requires `hoplite-arrow` module                                                                                                                                                                             |
+| `arrow.data.NonEmptyList<A>`            | Converts arrays into a `NonEmptyList<A>` if the array is non empty. If the array is empty then an error is raised.                                                                                          |
+| `arrow.core.Option<A>`                  | A `None` is used for null or undefined values, and present values are converted to a `Some<A>`.                                                                                                             |
+| `arrow.core.Tuple2<A,B>`                | Converts an array of two elements into an instance of `Tuple2<A,B>`.  Will fail if the array does not have exactly two elements.                                                                            |
+| `arrow.core.Tuple3<A,B,C>`              | Converts an array of three elements into an instance of `Tuple3<A,B,C>`. Will fail if the array does not have exactly three elements.                                                                       |
+| `arrow.core.Tuple4<A,B,C,D>`            | Converts an array of four elements into an instance of `Tuple4<A,B,C,D>`. Will fail if the array does not have exactly four elements.                                                                       |
+| `arrow.core.Tuple5<A,B,C,D,E>`          | Converts an array of five elements into an instance of `Tuple5<A,B,C,D,E>`. Will fail if the array does not have exactly five elements.                                                                     |
+| **Hikari Connection Pool**              | Requires `hoplite-hikaricp` module                                                                                                                                                                          |
+| `HikariDataSource`                      | Converts nested config into a `HikariDataSource`. Any keys nested under the field name will be passed through to the `HikariConfig` object as the datasource is created. Requires `hoplite-hikaricp` module |
+| **Hadoop Types**                        | Requires `hoplite-hdfs` module                                                                                                                                                                              |
+| `org.apache.hadoop.fs.Path`             | Returns instances of HDFS Path objects                                                                                                                                                                      |
+| **CronUtils types**                     | Requires `hoplite-cronutils` module                                                                                                                                                                         |
+| `com.cronutils.model.Cron`              | Returns parsed instance of a cron expression                                                                                                                                                                |
+| **kotlinx datetime Types**              | Requires `hoplite-datetime` module                                                                                                                                                                          |
+| `kotlinx.datetime.LocalDateTime`        |                                                                                                                                                                                                             |
+| `kotlinx.datetime.LocalDate`            |                                                                                                                                                                                                             |
+| `kotlinx.datetime.Instant`              |                                                                                                                                                                                                             |
+| **AWS SDK types**                       | Requires `hoplite-aws` module                                                                                                                                                                               |
+| `com.amazonaws.regions.Region`          |                                                                                                                                                                                                             |
+| **Micrometer types**                    | Requires `hoplite-micrometer-xxx` modules                                                                                                                                                                   |
+| `io.micrometer.statsd.DatadogConfig`    | Converts a nested object to an instance of DatadogConfig                                                                                                                                                    |
+| `io.micrometer.statsd.PrometheusConfig` | Converts a nested object to an instance of PrometheusConfig                                                                                                                                                 |
+| `io.micrometer.statsd.StatsdConfig`     | Converts a nested object to an instance of StatsdConfig                                                                                                                                                     |
+
 
 ## Duration formats
 
@@ -848,17 +853,20 @@ predefined implementations:
 Hoplite makes available several other modules that add functionality outside of the main core module. They are in
 seperate modules because they bring in dependencies from those projects and so the modules are optional.
 
-| Module           | Function                                                                                                    |
-|:-----------------|:------------------------------------------------------------------------------------------------------------|
-| hoplite-arrow    | Provides decoders for common arrow types                                                                    |
-| hoplite-aws      | Provides decoders for aws `Region` type and a preprocessor for AWS secrets manager and parameter store.     |
-| hoplite-aws2     | Provides decoders for aws `Region` type using the AWS v2 SDK.                                               |
-| hoplite-consul   | Provides a preprocessor for retreiving values from a Consul server                                          |
-| hoplite-datetime | Provides decoders for [kotlinx datetime](https://github.com/Kotlin/kotlinx-datetime). Requires Kotlin 1.4.x |
-| hoplite-hdfs     | Provides decoder for hadoop `Path`                                                                          |
-| hoplite-hikaricp | Provides decoder for `HikariDataSource`                                                                     |
-| hoplite-javax    | Provides decoders for Principals                                                                            |
-| hoplite-vavr     | Provides decoders for [vavr](https://github.com/vavr-io/vavr)                                               |
+| Module                        | Function                                                                                                    |
+|:------------------------------|:------------------------------------------------------------------------------------------------------------|
+| hoplite-arrow                 | Provides decoders for common arrow types                                                                    |
+| hoplite-aws                   | Provides decoders for aws `Region` type and a preprocessor for AWS secrets manager and parameter store.     |
+| hoplite-aws2                  | Provides decoders for aws `Region` type using the AWS v2 SDK.                                               |
+| hoplite-consul                | Provides a preprocessor for retreiving values from a Consul server                                          |
+| hoplite-datetime              | Provides decoders for [kotlinx datetime](https://github.com/Kotlin/kotlinx-datetime). Requires Kotlin 1.4.x |
+| hoplite-hdfs                  | Provides decoder for hadoop `Path`                                                                          |
+| hoplite-hikaricp              | Provides decoder for `HikariDataSource`                                                                     |
+| hoplite-micrometer-datadog    | Provides a decoder for Micrometer's `DatadogConfig` registry                                                |
+| hoplite-micrometer-prometheus | Provides a decoder for Micrometer's `PrometheusConfig` registry                                             |
+| hoplite-micrometer-statsd     | Provides a decoder for Micrometer's `StatsdConfig` registry                                                 |
+| hoplite-javax                 | Provides decoders for `java.security.Principal` types.                                                      |
+| hoplite-vavr                  | Provides decoders for [vavr](https://github.com/vavr-io/vavr)                                               |
 
 ## GraalVM native image
 
