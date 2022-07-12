@@ -579,6 +579,9 @@ database:
   password: vault:/my/key/path
 ```
 
+Note: You can repeatedly apply preprocessors by setting the property `withPreprocessingIterations` on the `ConfigLoaderBuilder` to a value greater than 1.
+This causes looped application of all preprocessors. This can be useful if you wish to have one preprocessor resolve a value that then needs to be resolved by another preprocessor.
+
 ### Built-in Preprocessors
 
 These built-in preprocessors are registered automatically.
