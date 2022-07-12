@@ -1,6 +1,7 @@
 package com.sksamuel.hoplite.watch
 
 import com.sksamuel.hoplite.ConfigLoader
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.reflect.KClass
 import kotlin.time.Duration
@@ -24,6 +25,7 @@ class ReloadableConfig<A : Any>(
 
   private val config = AtomicReference(configLoader.loadConfigOrThrow(clazz, emptyList()))
   private var errorHandler: ((Throwable) -> Unit)? = null
+  private val subscribers = ConcurrentHashMap.newKeySet<(A) -> Unit>()
 
   fun addWatcher(watchable: Watchable): ReloadableConfig<A> {
     watchable.watch(
@@ -59,12 +61,21 @@ class ReloadableConfig<A : Any>(
 
   private fun reloadConfig() {
     runCatching { configLoader.loadConfigOrThrow(clazz, emptyList()) }.fold(
-      { config.set(it) },
+      { update(it) },
       { errorHandler?.invoke(it) }
     )
   }
 
+  private fun update(a: A) {
+    config.set(a)
+    subscribers.forEach { it.invoke(a) }
+  }
+
   fun getLatest(): A {
     return config.get()
+  }
+
+  fun subscribe(subscriber: (A) -> Unit) {
+    subscribers.add(subscriber)
   }
 }
