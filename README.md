@@ -23,8 +23,9 @@ into the required type will cause the config to fail with detailed error message
 - **Cascading:** Config files can be [stacked](#cascading-config). Start with a default file and then layer new
   configurations on top. When resolving config, lookup of values falls through to the first file that contains a
   definition. Can be used to have a default config file and then an environment specific file.
-- **Beautiful errors:** Fail fast when the config objects are built, with detailed
+- **Beautiful errors:** Fail fast at parse time, with detailed
   and [beautiful errors](#beautiful-errors) showing exactly what went wrong and where.
+- **Reloadable config:** Trigger config [reloads](#reloadable-config) on a fixed interval or in response to external events.
 
 ## Changelog
 
