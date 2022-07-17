@@ -80,5 +80,20 @@ class StrictModeTest : FunSpec() {
         .loadConfigOrThrow<Foo>()
         .bubbleBobble shouldBe "xyz"
     }
+
+    test("strict mode should not error when using maps") {
+      data class NumberDescription(
+        val number: Int
+      )
+      data class NumberMapContainer(
+        val counting: Map<String, NumberDescription>
+      )
+
+      ConfigLoaderBuilder
+        .default()
+        .strict()
+        .build()
+        .loadConfigOrThrow<NumberMapContainer>("/numbers_map.yml")
+    }
   }
 }

@@ -37,6 +37,7 @@ class MapDecoder : NullHandlingDecoder<Map<*, *>> {
       return node.map.entries.map { (k, v) ->
         kdecoder.decode(StringNode(k, node.pos, node.path), kType, context).flatMap { kk ->
           vdecoder.decode(v, vType, context).map { vv ->
+            context.usedPaths.add(v.path)
             kk to vv
           }
         }
