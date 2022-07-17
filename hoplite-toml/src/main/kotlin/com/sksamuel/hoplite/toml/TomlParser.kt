@@ -46,14 +46,20 @@ object TableProduction {
     val obj = mutableMapOf<String, Node>()
     for (key in table.keySet()) {
       val fieldPos = table.toPos(key, source)
+      // TomlJ will split the dots if we pass the key as-is, but at this point we know that our key is a *single
+      // segment*. The wrapping is done to prevent TomlJ from parsing the key as a path. See #322 for more details.
+      // For example, if key is hello.world, it means that our TOML contained a quoted "hello.world" key. But if we give
+      // the key as-is to isXxx() functions, TomlJ will parse it as a "hello" -> "world" path. Wrapping it in a list
+      // ensures that we always treat it as a single segment.
+      val keyPath = listOf(key)
       val value = when {
-        table.isBoolean(key) -> BooleanNode(table.getBoolean(key)!!, fieldPos, path.with(key))
-        table.isDouble(key) -> DoubleNode(table.getDouble(key)!!, fieldPos, path.with(key))
-        table.isLong(key) -> LongNode(table.getLong(key)!!, fieldPos, path.with(key))
-        table.isString(key) -> StringNode(table.getString(key)!!, fieldPos, path.with(key))
-        table.isArray(key) -> ListProduction(table.getArray(key)!!, fieldPos, source, path.with(key))
-        table.isTable(key) -> TableProduction(table.getTable(key)!!, fieldPos, source, path.with(key))
-        else -> StringNode(table.get(key).toString(), fieldPos, path.with(key))
+        table.isBoolean(keyPath) -> BooleanNode(table.getBoolean(keyPath)!!, fieldPos, path.with(key))
+        table.isDouble(keyPath) -> DoubleNode(table.getDouble(keyPath)!!, fieldPos, path.with(key))
+        table.isLong(keyPath) -> LongNode(table.getLong(keyPath)!!, fieldPos, path.with(key))
+        table.isString(keyPath) -> StringNode(table.getString(keyPath)!!, fieldPos, path.with(key))
+        table.isArray(keyPath) -> ListProduction(table.getArray(keyPath)!!, fieldPos, source, path.with(key))
+        table.isTable(keyPath) -> TableProduction(table.getTable(keyPath)!!, fieldPos, source, path.with(key))
+        else -> StringNode(table.get(keyPath).toString(), fieldPos, path.with(key))
       }
       obj[key] = value
     }
