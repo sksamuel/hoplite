@@ -1,5 +1,13 @@
 # Changelog
 
+### 2.3.3
+
+* Fix for TOML keys containing dots are not decoded properly in maps #322
+
+### 2.3.2
+
+* Fix for unused config false-positive when using strict mode and maps #320
+
 ### 2.3.1
 
 * Fixed anchors in yaml when using multiple files #307
