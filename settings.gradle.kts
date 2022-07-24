@@ -11,6 +11,13 @@ pluginManagement {
    }
 }
 
+plugins {
+   id("de.fayard.refreshVersions") version "0.40.2"
+}
+
+refreshVersions {
+}
+
 include("hoplite-core")
 include("hoplite-aws")
 include("hoplite-aws2")
