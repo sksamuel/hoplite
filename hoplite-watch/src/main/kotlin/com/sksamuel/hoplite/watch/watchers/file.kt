@@ -10,7 +10,7 @@ class FileWatcher(private val dir: String) : Watchable {
   private var cb = {}
   private var errorCallback: ((Throwable) -> Unit) = { }
 
-  override fun watch(callback: () -> Unit, errorHandler: (Throwable) -> Unit) {
+  override suspend fun watch(callback: () -> Unit, errorHandler: (Throwable) -> Unit) {
     cb = callback
     errorCallback = errorHandler
     start()

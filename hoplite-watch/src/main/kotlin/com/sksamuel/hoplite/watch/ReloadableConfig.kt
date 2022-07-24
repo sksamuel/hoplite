@@ -1,6 +1,9 @@
 package com.sksamuel.hoplite.watch
 
 import com.sksamuel.hoplite.ConfigLoader
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.reflect.KClass
@@ -24,14 +27,17 @@ class ReloadableConfig<A : Any>(
 ) {
 
   private val config = AtomicReference(configLoader.loadConfigOrThrow(clazz, emptyList()))
+  private val scope = CoroutineScope(Dispatchers.Default)
   private var errorHandler: ((Throwable) -> Unit)? = null
   private val subscribers = ConcurrentHashMap.newKeySet<(A) -> Unit>()
 
   fun addWatcher(watchable: Watchable): ReloadableConfig<A> {
-    watchable.watch(
-      { reloadConfig() },
-      { errorHandler?.invoke(it) }
-    )
+    scope.launch {
+      watchable.watch(
+        { reloadConfig() },
+        { errorHandler?.invoke(it) }
+      )
+    }
     return this
   }
 

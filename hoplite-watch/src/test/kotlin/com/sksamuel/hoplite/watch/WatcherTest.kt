@@ -20,7 +20,7 @@ import kotlinx.coroutines.delay
 
 class TestWatcher: Watchable {
   private var cb: (() -> Unit)? = null
-  override fun watch(callback: () -> Unit, errorHandler: (Throwable) -> Unit) {
+  override suspend fun watch(callback: () -> Unit, errorHandler: (Throwable) -> Unit) {
     cb = callback
   }
 
