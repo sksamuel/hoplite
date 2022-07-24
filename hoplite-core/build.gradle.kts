@@ -1,9 +1,9 @@
 plugins {
-  kotlin("jvm")
+   kotlin("jvm")
 }
 
 dependencies {
-  api(Libs.Kotlin.reflect)
+   api(Libs.Kotlin.reflect)
 }
 
 apply("../publish.gradle.kts")
