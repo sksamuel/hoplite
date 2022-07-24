@@ -19,6 +19,7 @@ refreshVersions {
 }
 
 include("hoplite-core")
+include("hoplite-azure")
 include("hoplite-aws")
 include("hoplite-aws2")
 include("hoplite-arrow")

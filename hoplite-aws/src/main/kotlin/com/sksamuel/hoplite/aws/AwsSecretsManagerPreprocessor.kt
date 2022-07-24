@@ -31,29 +31,30 @@ class AwsSecretsManagerPreprocessor(
         val match = regex1.matchEntire(node.value) ?: regex2.matchEntire(node.value) ?: regex3.matchEntire(node.value)
       ) {
         null -> node.valid()
-        else -> {
-          val key = match.groupValues[1].trim()
-          try {
-            val req = GetSecretValueRequest().withSecretId(key)
-            val value = client.getSecretValue(req).secretString
-            if (value.isNullOrBlank())
-              ConfigFailure.PreprocessorWarning("Empty secret '$key' in AWS SecretsManager").invalid()
-            else
-              node.copy(value = value).valid()
-          } catch (e: ResourceNotFoundException) {
-            ConfigFailure.PreprocessorWarning("Could not locate resource '$key' in AWS SecretsManager").invalid()
-          } catch (e: DecryptionFailureException) {
-            ConfigFailure.PreprocessorWarning("Could not decrypt resource '$key' in AWS SecretsManager").invalid()
-          } catch (e: LimitExceededException) {
-            ConfigFailure.PreprocessorWarning("Could not load resource '$key' due to limits exceeded").invalid()
-          } catch (e: InvalidParameterException) {
-            ConfigFailure.PreprocessorWarning("Invalid parameter name '$key' in AWS SecretsManager").invalid()
-          } catch (e: Exception) {
-            ConfigFailure.PreprocessorFailure("Failed loading secret '$key' from AWS SecretsManager", e).invalid()
-          }
-        }
+        else -> fetchSecret(match.groupValues[1].trim(), node)
       }
     }
     else -> node.valid()
+  }
+
+  private fun fetchSecret(key: String, node: StringNode): ConfigResult<Node> {
+    return try {
+      val req = GetSecretValueRequest().withSecretId(key)
+      val value = client.getSecretValue(req).secretString
+      if (value.isNullOrBlank())
+        ConfigFailure.PreprocessorWarning("Empty secret '$key' in AWS SecretsManager").invalid()
+      else
+        node.copy(value = value).valid()
+    } catch (e: ResourceNotFoundException) {
+      ConfigFailure.PreprocessorWarning("Could not locate resource '$key' in AWS SecretsManager").invalid()
+    } catch (e: DecryptionFailureException) {
+      ConfigFailure.PreprocessorWarning("Could not decrypt resource '$key' in AWS SecretsManager").invalid()
+    } catch (e: LimitExceededException) {
+      ConfigFailure.PreprocessorWarning("Could not load resource '$key' due to limits exceeded").invalid()
+    } catch (e: InvalidParameterException) {
+      ConfigFailure.PreprocessorWarning("Invalid parameter name '$key' in AWS SecretsManager").invalid()
+    } catch (e: Exception) {
+      ConfigFailure.PreprocessorFailure("Failed loading secret '$key' from AWS SecretsManager", e).invalid()
+    }
   }
 }

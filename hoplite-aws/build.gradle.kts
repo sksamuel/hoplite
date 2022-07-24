@@ -1,7 +1,3 @@
-plugins {
-   kotlin("jvm")
-}
-
 dependencies {
    api(project(":hoplite-core"))
    api(Libs.Aws.core)

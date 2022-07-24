@@ -10,6 +10,11 @@ object Libs {
     const val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:_"
   }
 
+  object Azure {
+    const val keyvault = "com.azure:azure-security-keyvault-secrets:4.4.4"
+    const val identity = "com.azure:azure-identity:1.5.3"
+  }
+
   object Arrow {
     const val Core = "io.arrow-kt:arrow-core:_"
   }
