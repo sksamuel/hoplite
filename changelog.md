@@ -2,7 +2,10 @@
 
 ### 2.4.0
 
-* Added `AzureKeyVault
+* Added a `AzureKeyVaultPreprocessor` to support `azurekeyvault://key` syntax for fetching secrets from Azure Key Vault.
+  Requires the `hoplite-azure` module.
+* Added a `VaultSecretPreprocessor` to support `vault://key` syntax for fetching secrets from a Hashicorp Valut
+  instance. Requires the `hoplite-vault` module.
 
 ### 2.3.3
 
