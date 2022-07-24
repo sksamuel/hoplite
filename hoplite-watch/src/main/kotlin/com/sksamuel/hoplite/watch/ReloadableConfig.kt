@@ -60,7 +60,7 @@ class ReloadableConfig<A : Any>(
     return this
   }
 
-  private fun reloadConfig() {
+  fun reloadConfig() {
     runCatching { configLoader.loadConfigOrThrow(clazz, emptyList()) }.fold(
       { update(it) },
       { errorHandler?.invoke(it) }
