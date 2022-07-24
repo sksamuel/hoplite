@@ -1,5 +1,9 @@
 # Changelog
 
+### 2.4.0
+
+* Added `AzureKeyVault
+
 ### 2.3.3
 
 * Fix for TOML keys containing dots are not decoded properly in maps #322

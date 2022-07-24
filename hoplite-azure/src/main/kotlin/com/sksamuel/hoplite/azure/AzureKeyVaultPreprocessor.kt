@@ -13,7 +13,7 @@ import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.preprocessor.TraversingPrimitivePreprocessor
 
-class AzureKeyValuePreprocessor(private val createClient: () -> SecretClient) : TraversingPrimitivePreprocessor() {
+class AzureKeyVaultPreprocessor(private val createClient: () -> SecretClient) : TraversingPrimitivePreprocessor() {
 
   constructor(url: String) : this({
     SecretClientBuilder()
