@@ -461,6 +461,9 @@ database:
   instance_host_name: server1.prd
 ```
 
+
+
+
 ## Decoders
 
 Hoplite converts the raw value in config files to JDK types using instances of the `Decoder` interface.
@@ -545,6 +548,10 @@ There are built in decoders for all the standard day to day types, such as primi
 | `io.micrometer.statsd.StatsdConfig`     | Converts a nested object to an instance of StatsdConfig                                                                                                                                                     |
 
 
+
+
+
+
 ## Duration formats
 
 Duration types support unit strings in the following format (lower case only), with an optional space between the unit value and the unit type.
@@ -558,6 +565,14 @@ Duration types support unit strings in the following format (lower case only), w
 * `d`, `day`, `days`
 
 For example, `10s`, `3 days`, or `12 hours`.
+
+
+
+
+
+
+
+
 
 ## Preprocessors
 
@@ -583,17 +598,23 @@ database:
 Note: You can repeatedly apply preprocessors by setting the property `withPreprocessingIterations` on the `ConfigLoaderBuilder` to a value greater than 1.
 This causes looped application of all preprocessors. This can be useful if you wish to have one preprocessor resolve a value that then needs to be resolved by another preprocessor.
 
+
+
+
 ### Built-in Preprocessors
 
 These built-in preprocessors are registered automatically.
 
-| Preprocessor                 | Function                                                                                                                                                                                                                                                                                                                                                                                                                                |
-|:-----------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| EnvVar Preprocessor          | Replaces any strings of the form ${VAR} with the environment variable $VAR if defined. These replacement strings can occur between other strings.<br/><br/>For example `foo: hello ${USERNAME}` would result in foo being assigned the value `hello Sam` assuming the env var `USERNAME` was set to `SAM`. Also the expressions can have default values using the usual bash expression style syntax `foo: hello ${USERNAME:-fallback}` |
-| System Property Preprocessor | Replaces any strings of the form ${VAR} with the system property $VAR if defined. These replacement strings can occur between other strings.<br/><br/>For example `debug: ${DEBUG}` would result in debug being assigned the value `true` assuming the application had been started with `-Ddebug=true`                                                                                                                                 |
-| Random Preprocessor          | Inserts random strings into the config. See the section on Random Preprocessor for syntax.                                                                                                                                                                                                                                                                                                                                              |
-| Props File Preprocessor      | Replaces any strings of the form ${key} with the value of the key in a provided `java.util.Properties` file. The file can be specified by a `Path` or a resource on the classpath.                                                                                                                                                                                                                                                      |
-| Lookup Preprocessor          | Replaces any strings of the form {{key}} with the value of that node in the already parsed config. In other words, this allow substitution from config in one place to another place (even across files).                                                                                                                                                                                                                               |
+| Preprocessor                   | Function                                                                                                                                                                                                                                                                                                                                                                                                                                |
+|:-------------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `EnvVarPreprocessor`           | Replaces any strings of the form ${VAR} with the environment variable $VAR if defined. These replacement strings can occur between other strings.<br/><br/>For example `foo: hello ${USERNAME}` would result in foo being assigned the value `hello Sam` assuming the env var `USERNAME` was set to `SAM`. Also the expressions can have default values using the usual bash expression style syntax `foo: hello ${USERNAME:-fallback}` |
+| `SystemPropertyPreprocessor`   | Replaces any strings of the form ${VAR} with the system property $VAR if defined. These replacement strings can occur between other strings.<br/><br/>For example `debug: ${DEBUG}` would result in debug being assigned the value `true` assuming the application had been started with `-Ddebug=true`                                                                                                                                 |
+| `RandomPreprocessor`           | Inserts random strings into the config. See the section on Random Preprocessor for syntax.                                                                                                                                                                                                                                                                                                                                              |
+| `PropsFilePreprocessor`        | Replaces any strings of the form ${key} with the value of the key in a provided `java.util.Properties` file. The file can be specified by a `Path` or a resource on the classpath.                                                                                                                                                                                                                                                      |
+| `LookupPreprocessor`           | Replaces any strings of the form {{key}} with the value of that node in the already parsed config. In other words, this allow substitution from config in one place to another place (even across files).                                                                                                                                                                                                                               |
+
+
+
 
 ### Optional Preprocessors
 
@@ -605,6 +626,9 @@ These preprocessors must be added to the `ConfigBuilder` before they take effect
 | `ParameterStorePreprocessor`    | Replaces strings of the form ${ssm:key} by looking up the value of 'key' from the [AWS Systems Manager Parameter Store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html).<br/><br/>This preprocessor requires the `hoplite-aws` module to be added to the classpath. |
 | `ConsulConfigPreprocessor`      | Replaces strings of the form consul://key by looking up the value of 'key' from a [Consul](https://www.consul.io/) server.<br/><br/>This preprocessor requires the `hoplite-consul` module to be added to the classpath.                                                                                               |
 | `VaultSecretPreprocessor`       | Replaces strings of the form vault://key by looking up the value of 'key' from a [Vault](https://www.vaultproject.io/) instance.<br/><br/>This preprocessor requires the `hoplite-vault` module to be added to the classpath.                                                                                          |
+
+
+
 
 ### Random Preprocessor
 
@@ -659,6 +683,11 @@ If you marshall your config to a String using a reflection based tool like Jacks
 In these cases, you would need to register a custom serializer.
 For the Jackson project, a `HopliteModule` object is available in the `hoplite-json` module.
 Register this with your Jackson mapper, like `mapper.registerModule(HopliteModule)` and then `Masked` values will be ouputted into Json as "****"
+
+
+
+
+
 
 ## Inline Classes
 
