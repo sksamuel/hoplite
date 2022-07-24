@@ -81,6 +81,10 @@ object Libs {
     const val kotlin = "io.vavr:vavr-kotlin:_"
   }
 
+  object Vault {
+    const val core = "org.springframework.vault:spring-vault-core:2.3.2"
+  }
+
   object EmbeddedConsul {
     const val consul = "com.pszymczyk.consul:embedded-consul:_"
   }
