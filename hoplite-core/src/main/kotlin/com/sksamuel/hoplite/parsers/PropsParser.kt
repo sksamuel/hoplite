@@ -19,11 +19,11 @@ class PropsParser : Parser {
   override fun defaultFileExtensions(): List<String> = listOf("props", "properties")
 }
 
-class PropsPropertySource(val props: Properties) : PropertySource {
+class PropsPropertySource(val props: Properties, val name: String = "props") : PropertySource {
 
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
-    return props.toNode("props").valid()
+    return props.toNode(name).valid()
   }
 
-  override fun source(): String = "props"
+  override fun source(): String = name
 }
