@@ -1,13 +1,13 @@
 plugins {
-  kotlin("jvm")
+   kotlin("jvm")
 }
 
 dependencies {
-  api(project(":hoplite-core"))
-  api(Libs.Hikari.core)
+   api(project(":hoplite-core"))
+   api(Libs.Hikari.core)
 
-  testImplementation(project(":hoplite-yaml"))
-  testImplementation(Libs.Postgres.driver)
+   testImplementation(project(":hoplite-yaml"))
+   testImplementation(Libs.Postgres.driver)
 }
 
 apply("../publish.gradle.kts")

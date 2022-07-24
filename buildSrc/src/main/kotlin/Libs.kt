@@ -73,16 +73,32 @@ object Libs {
     const val snakeyaml = "org.yaml:snakeyaml:_"
   }
 
+  object CharlesKorn {
+    val kaml = "com.charleskorn.kaml:kaml:_"
+  }
+
   object Toml {
     const val toml = "org.tomlj:tomlj:_"
+  }
+
+  object TestContainers {
+    val localstack = "org.testcontainers:localstack:_"
   }
 
   object Vavr {
     const val kotlin = "io.vavr:vavr-kotlin:_"
   }
 
+  object Logback {
+    val classic = "ch.qos.logback:logback-classic:_"
+  }
+
+  object Slf4j {
+    val api = "org.slf4j:slf4j-api:_"
+  }
+
   object Vault {
-    const val core = "org.springframework.vault:spring-vault-core:2.3.2"
+    const val core = "org.springframework.vault:spring-vault-core:_"
   }
 
   object EmbeddedConsul {

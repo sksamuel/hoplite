@@ -8,10 +8,10 @@ dependencies {
    api(Libs.Aws.ssm)
    api(Libs.Aws.secrets)
    testApi(Libs.Kotest.testContainers)
-   testApi("org.testcontainers:localstack:_")
+   testApi(Libs.TestContainers.localstack)
 
-   testApi("ch.qos.logback:logback-classic:_")
-   testApi("org.slf4j:slf4j-api:_")
+   testApi(Libs.Logback.classic)
+   testApi(Libs.Slf4j.api)
 }
 
 apply("../publish.gradle.kts")

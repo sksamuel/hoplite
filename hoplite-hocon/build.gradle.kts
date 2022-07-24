@@ -1,10 +1,10 @@
 plugins {
-  kotlin("jvm")
+   kotlin("jvm")
 }
 
 dependencies {
-  api(project(":hoplite-core"))
-  implementation(Libs.Typesafe.config)
+   api(project(":hoplite-core"))
+   implementation(Libs.Typesafe.config)
 }
 
 apply("../publish.gradle.kts")
