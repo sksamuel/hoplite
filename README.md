@@ -622,7 +622,8 @@ These preprocessors must be added to the `ConfigBuilder` before they take effect
 
 | Preprocessor                    | Function                                                                                                                                                                                                                                                                                                               |
 |:--------------------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `AwsSecretsManagerPreprocessor` | Replaces strings of the form awssm://key by looking up the value of 'key' from the [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/).<br/><br/>This preprocessor requires the `hoplite-aws` module to be added to the classpath.                                                                          |
+| `AwsSecretsManagerPreprocessor` | Replaces strings of the form awssm://key by looking up the value of 'key' from [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/).<br/><br/>This preprocessor requires the `hoplite-aws` module to be added to the classpath.                                                                              |
+| `AzureKeyValuePreprocessor`     | Replaces strings of the form azurekeyvault://key by looking up the value of 'key' from [Azure Key Vault](https://docs.microsoft.com/en-us/azure/key-vault/).<br/><br/>This preprocessor requires the `hoplite-azure` module to be added to the classpath.                                                              |
 | `ParameterStorePreprocessor`    | Replaces strings of the form ${ssm:key} by looking up the value of 'key' from the [AWS Systems Manager Parameter Store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html).<br/><br/>This preprocessor requires the `hoplite-aws` module to be added to the classpath. |
 | `ConsulConfigPreprocessor`      | Replaces strings of the form consul://key by looking up the value of 'key' from a [Consul](https://www.consul.io/) server.<br/><br/>This preprocessor requires the `hoplite-consul` module to be added to the classpath.                                                                                               |
 | `VaultSecretPreprocessor`       | Replaces strings of the form vault://key by looking up the value of 'key' from a [Vault](https://www.vaultproject.io/) instance.<br/><br/>This preprocessor requires the `hoplite-vault` module to be added to the classpath.                                                                                          |
@@ -887,21 +888,22 @@ predefined implementations:
 Hoplite makes available several other modules that add functionality outside of the main core module. They are in
 seperate modules because they bring in dependencies from those projects and so the modules are optional.
 
-| Module                        | Function                                                                                                    |
-|:------------------------------|:------------------------------------------------------------------------------------------------------------|
-| hoplite-arrow                 | Provides decoders for common arrow types                                                                    |
-| hoplite-aws                   | Provides decoders for aws `Region` type and a preprocessor for AWS secrets manager and parameter store.     |
-| hoplite-aws2                  | Provides decoders for aws `Region` type using the AWS v2 SDK.                                               |
-| hoplite-consul                | Provides a preprocessor for retreiving values from a Consul server                                          |
-| hoplite-datetime              | Provides decoders for [kotlinx datetime](https://github.com/Kotlin/kotlinx-datetime). Requires Kotlin 1.4.x |
-| hoplite-hdfs                  | Provides decoder for hadoop `Path`                                                                          |
-| hoplite-hikaricp              | Provides decoder for `HikariDataSource`                                                                     |
-| hoplite-micrometer-datadog    | Provides a decoder for Micrometer's `DatadogConfig` registry                                                |
-| hoplite-micrometer-prometheus | Provides a decoder for Micrometer's `PrometheusConfig` registry                                             |
-| hoplite-micrometer-statsd     | Provides a decoder for Micrometer's `StatsdConfig` registry                                                 |
-| hoplite-javax                 | Provides decoders for `java.security.Principal` types.                                                      |
-| hoplite-vault                 | Provides a preprocessor for retrieving values from Hashicorp Vault                                          |
-| hoplite-vavr                  | Provides decoders for [vavr](https://github.com/vavr-io/vavr)                                               |
+| Module                        | Function                                                                                                |
+|:------------------------------|:--------------------------------------------------------------------------------------------------------|
+| hoplite-arrow                 | Provides decoders for common arrow types                                                                |
+| hoplite-aws                   | Provides decoders for aws `Region` type and a preprocessor for AWS Secrets Manager and Parameter Store. |
+| hoplite-aws2                  | Provides decoders for aws `Region` type using the AWS v2 SDK.                                           |
+| hoplite-azure                 | Provides a preprocessor for retreiving values from Azure Key Vault.                                     |
+| hoplite-consul                | Provides a preprocessor for retreiving values from a Consul instance.                                   |
+| hoplite-datetime              | Provides decoders for [kotlinx datetime](https://github.com/Kotlin/kotlinx-datetime).                   |
+| hoplite-hdfs                  | Provides decoder for hadoop `Path`                                                                      |
+| hoplite-hikaricp              | Provides decoder for `HikariDataSource`                                                                 |
+| hoplite-micrometer-datadog    | Provides a decoder for Micrometer's `DatadogConfig` registry                                            |
+| hoplite-micrometer-prometheus | Provides a decoder for Micrometer's `PrometheusConfig` registry                                         |
+| hoplite-micrometer-statsd     | Provides a decoder for Micrometer's `StatsdConfig` registry                                             |
+| hoplite-javax                 | Provides decoders for `java.security.Principal` types.                                                  |
+| hoplite-vault                 | Provides a preprocessor for retrieving values from Hashicorp Vault                                      |
+| hoplite-vavr                  | Provides decoders for [vavr](https://github.com/vavr-io/vavr)                                           |
 
 ## GraalVM native image
 
