@@ -38,13 +38,8 @@ class ReloadableConfig<A : Any>(
   /**
    * Add a watcher that refreshes this config at a fixed duration.
    */
-  fun addInterval(interval: Duration): ReloadableConfig<A> {
-    FixedIntervalWatchable(interval.inWholeMilliseconds).watch(
-      { reloadConfig() },
-      { errorHandler?.invoke(it) }
-    )
-    return this
-  }
+  fun addInterval(interval: Duration): ReloadableConfig<A> =
+    addWatcher(FixedIntervalWatchable(interval.inWholeMilliseconds))
 
   /**
    * Add a watcher that refreshes this config on a fixed interval.
