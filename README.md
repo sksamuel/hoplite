@@ -870,6 +870,7 @@ seperate modules because they bring in dependencies from those projects and so t
 | hoplite-micrometer-prometheus | Provides a decoder for Micrometer's `PrometheusConfig` registry                                             |
 | hoplite-micrometer-statsd     | Provides a decoder for Micrometer's `StatsdConfig` registry                                                 |
 | hoplite-javax                 | Provides decoders for `java.security.Principal` types.                                                      |
+| hoplite-vault                 | Provides a preprocessor for retrieving values from Hashicorp Vault                                          |
 | hoplite-vavr                  | Provides decoders for [vavr](https://github.com/vavr-io/vavr)                                               |
 
 ## GraalVM native image
