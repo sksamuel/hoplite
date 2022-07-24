@@ -14,7 +14,8 @@ import com.sksamuel.hoplite.preprocessor.TraversingPrimitivePreprocessor
 object ParameterStorePreprocessor : TraversingPrimitivePreprocessor() {
 
   private val client by lazy { AWSSimpleSystemsManagementClientBuilder.defaultClient() }
-  private val regex = "\\$\\{ssm:(.+?)}".toRegex()
+  private val regex1 = "\\$\\{ssm:(.+?)}".toRegex()
+  private val regex2 = "paramstore://(.+?)".toRegex()
 
   private fun fetchParameterStoreValue(key: String): Result<String> = runCatching {
     val req = GetParameterRequest().withName(key).withWithDecryption(true)
@@ -23,7 +24,7 @@ object ParameterStorePreprocessor : TraversingPrimitivePreprocessor() {
 
   override fun handle(node: PrimitiveNode): ConfigResult<Node> = when (node) {
     is StringNode -> {
-      when (val match = regex.matchEntire(node.value)) {
+      when (val match = regex1.matchEntire(node.value) ?: regex2.matchEntire(node.value)) {
         null -> node.valid()
         else -> {
           val key = match.groupValues[1]
