@@ -62,7 +62,7 @@ class VaultSecretPreprocessorTest : FunSpec({
 
     shouldThrow<ConfigException> {
       ConfigLoaderBuilder.default()
-        .addPreprocessor(VaultSecretPreprocessor({ template }))
+        .addPreprocessor(VaultSecretPreprocessor(template))
         .addPropertySource(PropsPropertySource(props))
         .build()
         .loadConfigOrThrow<ConfigHolder>()
