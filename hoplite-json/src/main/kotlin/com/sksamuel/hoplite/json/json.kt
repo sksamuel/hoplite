@@ -17,9 +17,9 @@ import com.sksamuel.hoplite.decoder.DotPath
 import com.sksamuel.hoplite.parsers.Parser
 import java.io.InputStream
 
-class JsonParser : Parser {
+class JsonParser(private val jsonFactory: JsonFactory) : Parser {
 
-  private val jsonFactory = JsonFactory()
+  constructor() : this(JsonFactory())
 
   override fun load(input: InputStream, source: String): Node {
     val parser = jsonFactory.createParser(input).configure(JsonParser.Feature.ALLOW_COMMENTS, true)

@@ -16,6 +16,7 @@ plugins {
 }
 
 refreshVersions {
+   enableBuildSrcLibs()
 }
 
 include("hoplite-core")

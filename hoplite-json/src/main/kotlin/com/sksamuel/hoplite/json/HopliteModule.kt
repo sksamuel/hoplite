@@ -8,7 +8,7 @@ import com.sksamuel.hoplite.Secret
 
 object HopliteModule : SimpleModule() {
   init {
-    this.addSerializer(Secret::class.javaObjectType, object : JsonSerializer<Secret>() {
+    addSerializer(Secret::class.javaObjectType, object : JsonSerializer<Secret>() {
       override fun serialize(value: Secret, gen: JsonGenerator, serializers: SerializerProvider?) {
         gen.writeString("****")
       }
