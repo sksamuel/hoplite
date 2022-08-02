@@ -92,6 +92,7 @@ Used keys 4
         .propertySources
     ).trim() shouldBe """
 Property sources (highest to lowest priority):
+  - Env Var Overrides
   - System Properties
   - ${System.getProperty("user.home")}/.userconfig.<ext>
   - Env Var

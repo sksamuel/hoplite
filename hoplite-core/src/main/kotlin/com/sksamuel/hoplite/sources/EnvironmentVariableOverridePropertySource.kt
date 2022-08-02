@@ -4,6 +4,7 @@ import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PropertySource
 import com.sksamuel.hoplite.PropertySourceContext
+import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.parsers.toNode
 import java.util.Properties
@@ -25,10 +26,12 @@ class EnvironmentVariableOverridePropertySource(
 
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
     val props = Properties()
-    environmentVariableMap()
+    val vars = environmentVariableMap()
       .mapKeys { if (useUnderscoresAsSeparator) it.key.replace("__", ".") else it.key }
       .filter { it.key.startsWith(Prefix) }
-      .forEach { props[it.key.removePrefix(Prefix)] = it.value }
-    return props.toNode("Env Var Overrides").valid()
+    return if (vars.isEmpty()) Undefined.valid() else {
+      vars.forEach { props[it.key.removePrefix(Prefix)] = it.value }
+      props.toNode("Env Var Overrides").valid()
+    }
   }
 }
