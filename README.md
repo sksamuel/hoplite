@@ -168,8 +168,8 @@ The `PropertySource` interface is how Hoplite reads configuration values.
 
 Hoplite supports several built in property source implementations, and you can write your own if required.
 
-The `SystemPropertiesPropertySource` and `UserSettingsPropertySource` sources are automatically registered, with
-precedence in that order. Other property sources can be passed to the config loader builder.
+The `EnvironmentVariableOverridePropertySource`, `SystemPropertiesPropertySource` and `UserSettingsPropertySource` sources are automatically registered,
+with precedence in that order. Other property sources can be passed to the config loader builder as required.
 
 ### EnvironmentVariablesPropertySource
 
@@ -179,6 +179,16 @@ For nested config, use a period to separate keys, for example `topic.name` would
 Alternatively, in some environments a `.` is not supported in ENV names, so you can also use double underscore `__`. Eg `topic__name` would override name in a Topic object.
 
 Optionally you can also create a `EnvironmentVariablesPropertySource` with `allowUppercaseNames` set to `true` to allow for uppercase-only names.
+
+### EnvironmentVariableOverridePropertySource
+
+The `EnvironmentVariableOverridePropertySource` reads config from environment variables like the `EnvironmentVariablesPropertySource`.
+However, unlike that latter source, it is registered by default _and_ only looks for env vars
+with a special `config.override.` prefix. This prefix is stripped from the variable before being applied. This can be useful to apply changes
+at runtime without requiring a build.
+
+For example, given a config key of `database.host`, if an env variable exists with the key `config.override.database.host`, then the
+value in the env var would override.
 
 ### SystemPropertiesPropertySource
 
