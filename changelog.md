@@ -1,5 +1,9 @@
 # Changelog
 
+### 2.5.0
+
+* Added `EnvironmentVariablesOverridePropertySourceTest` which allows for environment variables of the form `config.override.foo` to be automatically applied as `foo`.
+
 ### 2.4.0
 
 * Added a `AzureKeyVaultPreprocessor` to support `azurekeyvault://key` syntax for fetching secrets from Azure Key Vault.

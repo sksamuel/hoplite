@@ -1,5 +1,7 @@
 package com.sksamuel.hoplite.aws
 
+import com.amazonaws.AmazonClientException
+import com.amazonaws.AmazonServiceException
 import com.amazonaws.services.secretsmanager.AWSSecretsManager
 import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder
 import com.amazonaws.services.secretsmanager.model.DecryptionFailureException
@@ -53,6 +55,10 @@ class AwsSecretsManagerPreprocessor(
       ConfigFailure.PreprocessorWarning("Could not load resource '$key' due to limits exceeded").invalid()
     } catch (e: InvalidParameterException) {
       ConfigFailure.PreprocessorWarning("Invalid parameter name '$key' in AWS SecretsManager").invalid()
+    } catch (e: AmazonServiceException) {
+      ConfigFailure.PreprocessorFailure("Failed loading secret '$key' from AWS SecretsManager", e).invalid()
+    } catch (e: AmazonClientException) {
+      ConfigFailure.PreprocessorFailure("Failed loading secret '$key' from AWS SecretsManager", e).invalid()
     } catch (e: Exception) {
       ConfigFailure.PreprocessorFailure("Failed loading secret '$key' from AWS SecretsManager", e).invalid()
     }
