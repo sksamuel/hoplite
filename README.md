@@ -162,6 +162,8 @@ like this:
 
 `ConfigLoaderBuilder.default().addParser("data", YamlParser).build()`
 
+
+
 ## Property Sources
 
 The `PropertySource` interface is how Hoplite reads configuration values.
@@ -171,14 +173,18 @@ Hoplite supports several built in property source implementations, and you can w
 The `EnvironmentVariableOverridePropertySource`, `SystemPropertiesPropertySource` and `UserSettingsPropertySource` sources are automatically registered,
 with precedence in that order. Other property sources can be passed to the config loader builder as required.
 
+
+
 ### EnvironmentVariablesPropertySource
 
 The `EnvironmentVariablesPropertySource` reads config from environment variables. It does not map cases. So, `HOSTNAME` does *not* provide a value for a field with the name `hostname`.
 
 For nested config, use a period to separate keys, for example `topic.name` would override `name` located in a `topic` parent.
-Alternatively, in some environments a `.` is not supported in ENV names, so you can also use double underscore `__`. Eg `topic__name` would override name in a Topic object.
+Alternatively, in some environments a `.` is not supported in ENV names, so you can also use double underscore `__`. Eg `topic__name` would be translated to `topic.name`.
 
 Optionally you can also create a `EnvironmentVariablesPropertySource` with `allowUppercaseNames` set to `true` to allow for uppercase-only names.
+
+
 
 ### EnvironmentVariableOverridePropertySource
 
@@ -189,6 +195,9 @@ at runtime without requiring a build.
 
 For example, given a config key of `database.host`, if an env variable exists with the key `config.override.database.host`, then the
 value in the env var would override.
+
+In some environments a . is not supported in ENV names, so you can also use double underscore __. Eg `topic__name` would be translated to `topic.name`.
+
 
 ### SystemPropertiesPropertySource
 
