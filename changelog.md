@@ -2,7 +2,7 @@
 
 ### 2.5.0
 
-* Added an automatically registered `EnvironmentVariablesOverridePropertySource` which allows for environment variables of the form `config.override.foo` to be automatically applied as `foo`.
+* Added an automatically registered `EnvironmentVariablesOverridePropertySource` which allows for environment variables of the form `config.override.foo` to be automatically resolved as `foo`.
 
 ### 2.4.0
 
