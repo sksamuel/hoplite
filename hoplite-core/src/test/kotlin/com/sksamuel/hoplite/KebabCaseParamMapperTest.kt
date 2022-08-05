@@ -30,7 +30,7 @@ class KebabCaseParamMapperTest : StringSpec() {
         KebabCaseParamMapper.map(kparam("foo_snake_case"), constructor, Config::class) shouldBe setOf("foo_snake_case")
         KebabCaseParamMapper.map(kparam("_underScore"), constructor, Config::class) shouldBe setOf("_under-score")
         KebabCaseParamMapper.map(kparam("TitleCase"), constructor, Config::class) shouldBe setOf("title-case")
-        KebabCaseParamMapper.map(kparam("foo123"), constructor, Config::class) shouldBe setOf("foo123")
+        KebabCaseParamMapper.map(kparam("foo123"), constructor, Config::class) shouldBe setOf("foo-123", "foo123")
         KebabCaseParamMapper.map(kparam("foo123BarFaz"), constructor, Config::class) shouldBe setOf("foo123-bar-faz")
         KebabCaseParamMapper.map(kparam("myDSLClass"), constructor, Config::class) shouldBe setOf("my-d-s-l-class")
       }

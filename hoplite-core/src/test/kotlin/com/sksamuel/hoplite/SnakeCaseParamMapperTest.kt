@@ -7,6 +7,7 @@ import kotlin.reflect.KParameter
 
 class SnakeCaseParamMapperTest : StringSpec() {
   init {
+
     "mapping param to snake case" {
       data class Config(
         val foo: String,
@@ -28,7 +29,7 @@ class SnakeCaseParamMapperTest : StringSpec() {
         SnakeCaseParamMapper.map(kparam("foo_snake_case"), constructor, Config::class) shouldBe setOf("foo_snake_case")
         SnakeCaseParamMapper.map(kparam("_underScore"), constructor, Config::class) shouldBe setOf("_under_score")
         SnakeCaseParamMapper.map(kparam("TitleCase"), constructor, Config::class) shouldBe setOf("title_case")
-        SnakeCaseParamMapper.map(kparam("foo123"), constructor, Config::class) shouldBe setOf("foo123")
+        SnakeCaseParamMapper.map(kparam("foo123"), constructor, Config::class) shouldBe setOf("foo123", "foo_123")
         SnakeCaseParamMapper.map(kparam("foo123BarFaz"), constructor, Config::class) shouldBe setOf("foo123_bar_faz")
         SnakeCaseParamMapper.map(kparam("myDSLClass"), constructor, Config::class) shouldBe setOf("my_d_s_l_class")
       }
