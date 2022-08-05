@@ -69,7 +69,10 @@ object SnakeCaseParamMapper : ParameterMapper {
         else -> acc + char
       }
     }
-    return setOf(snake)
+    val trailingDigits = snake.trailingDigits()
+    val lastNumberVariant =
+      if (trailingDigits.isEmpty()) null else snake.removeSuffix(trailingDigits) + "_" + trailingDigits
+    return setOfNotNull(snake, lastNumberVariant)
   }
 }
 
@@ -90,7 +93,15 @@ object KebabCaseParamMapper : ParameterMapper {
         else -> acc + char
       }
     }
-    return setOf(kebab)
+    val trailingDigits = kebab.trailingDigits()
+    val lastNumberVariant =
+      if (trailingDigits.isEmpty()) null else kebab.removeSuffix(trailingDigits) + "-" + trailingDigits
+    return setOfNotNull(kebab, lastNumberVariant)
   }
+}
 
+private fun String.trailingDigits(): String {
+  if (this.isEmpty()) return ""
+  if (!this.last().isDigit()) return ""
+  return dropLast(1).trailingDigits() + this.last()
 }
