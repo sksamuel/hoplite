@@ -1,5 +1,9 @@
 # Changelog
 
+### 2.5.1
+
+* Fixed snake/kebab case keys that end with a number [#238](https://github.com/sksamuel/hoplite/issues/328)
+
 ### 2.5.0
 
 * Added an automatically registered `EnvironmentVariablesOverridePropertySource` which allows for environment variables of the form `config.override.foo` to be automatically resolved as `foo`.
