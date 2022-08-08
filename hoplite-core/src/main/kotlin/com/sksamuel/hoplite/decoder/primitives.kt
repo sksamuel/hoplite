@@ -37,6 +37,7 @@ class DoubleDecoder : NonNullableLeafDecoder<Double> {
         else -> ThrowableFailure(it)
       }
     }
+    is LongNode -> node.value.toDouble().valid()
     is DoubleNode -> node.value.valid()
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
@@ -53,6 +54,7 @@ class FloatDecoder : NonNullableLeafDecoder<Float> {
         else -> ThrowableFailure(it)
       }
     }
+    is LongNode -> node.value.toFloat().valid()
     is DoubleNode -> node.value.toFloat().valid()
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
