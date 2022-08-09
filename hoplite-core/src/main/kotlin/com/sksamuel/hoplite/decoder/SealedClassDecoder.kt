@@ -61,7 +61,7 @@ class SealedClassDecoder : NullHandlingDecoder<Any> {
         } else null
 
         val results = kclass.sealedSubclasses
-          .sortedByDescending { subclass -> subclass.constructors.maxOf { it.parameters.size } }
+          .sortedByDescending { subclass -> subclass.constructors.maxOfOrNull { it.parameters.size } ?: 0 }
           .map { DataClassDecoder().decode(node, it.createType(), context) }
 
         val success = results.firstOrNull { it.isValid() }
