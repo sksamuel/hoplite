@@ -1,5 +1,10 @@
 # Changelog
 
+### 2.5.2
+
+* Fixed sealed class ordering in Kotlin 1.7.x #331
+* Unable to decode Double and Float from a whole number #330
+
 ### 2.5.1
 
 * Fixed snake/kebab case keys that end with a number [#238](https://github.com/sksamuel/hoplite/issues/328)
