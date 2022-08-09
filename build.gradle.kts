@@ -31,7 +31,6 @@ allprojects {
    dependencies {
       testImplementation(Libs.Kotest.assertions)
       testImplementation(Libs.Kotest.junit5)
-      implementation(Libs.Kotlin.stdlib)
    }
 
    tasks.named<Test>("test") {

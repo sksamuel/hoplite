@@ -60,9 +60,9 @@ class SealedClassDecoder : NullHandlingDecoder<Any> {
           if (obj != null) return obj.valid() else ConfigFailure.NoSealedClassObjectSubtype(kclass, node)
         } else null
 
-        val results = kclass.sealedSubclasses.map { subclass ->
-          DataClassDecoder().decode(node, subclass.createType(), context)
-        }
+        val results = kclass.sealedSubclasses
+          .sortedByDescending { subclass -> subclass.constructors.maxOf { it.parameters.size } }
+          .map { DataClassDecoder().decode(node, it.createType(), context) }
 
         val success = results.firstOrNull { it.isValid() }
         if (success != null) return success
