@@ -4,6 +4,7 @@ plugins {
 }
 
 dependencies {
+   implementation(project(":hoplite-fp"))
    api(project(":hoplite-core"))
    implementation(Libs.Snake.snakeyaml)
    testImplementation(Libs.CharlesKorn.kaml)
