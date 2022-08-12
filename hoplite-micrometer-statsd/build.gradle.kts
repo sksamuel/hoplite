@@ -3,6 +3,7 @@ plugins {
 }
 
 dependencies {
+   implementation(project(":hoplite-fp"))
    api(project(":hoplite-core"))
    implementation(Libs.Micrometer.statsd)
 }

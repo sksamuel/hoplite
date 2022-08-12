@@ -6,6 +6,7 @@ import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.fp.result.toValidated
 import java.util.*
 import kotlin.reflect.KType
 

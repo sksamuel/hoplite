@@ -1,0 +1,1 @@
+apply("../publish.gradle.kts")

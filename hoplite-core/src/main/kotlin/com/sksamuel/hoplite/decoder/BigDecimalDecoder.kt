@@ -10,6 +10,7 @@ import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.ThrowableFailure
+import com.sksamuel.hoplite.fp.result.toValidated
 import java.math.BigDecimal
 import kotlin.reflect.KType
 

@@ -4,8 +4,8 @@ import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.invalid
+import com.sksamuel.hoplite.fp.result.toValidated
 import com.sksamuel.hoplite.fp.valid
-import com.sksamuel.hoplite.toValidated
 import java.time.Period
 
 enum class PeriodUnit {

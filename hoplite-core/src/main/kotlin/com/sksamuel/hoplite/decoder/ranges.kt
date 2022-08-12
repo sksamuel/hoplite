@@ -5,9 +5,9 @@ import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
-import com.sksamuel.hoplite.flatMap
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
+import com.sksamuel.hoplite.fp.result.flatMap
 import kotlin.reflect.KType
 
 class IntRangeDecoder : NullHandlingDecoder<IntRange> {

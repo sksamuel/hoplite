@@ -2,6 +2,7 @@ package com.sksamuel.hoplite
 
 import com.sksamuel.hoplite.ClasspathResourceLoader.Companion.toClasspathResourceLoader
 import com.sksamuel.hoplite.fp.invalid
+import com.sksamuel.hoplite.fp.result.toValidated
 import com.sksamuel.hoplite.fp.sequence
 import com.sksamuel.hoplite.fp.valid
 import java.io.File

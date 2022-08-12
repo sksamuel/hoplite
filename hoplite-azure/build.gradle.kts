@@ -1,4 +1,5 @@
 dependencies {
+   implementation(project(":hoplite-fp"))
    api(project(":hoplite-core"))
    api(Libs.Azure.keyvault)
    api(Libs.Azure.identity)

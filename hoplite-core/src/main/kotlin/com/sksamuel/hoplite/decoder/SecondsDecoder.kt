@@ -8,6 +8,7 @@ import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.ThrowableFailure
 import com.sksamuel.hoplite.fp.invalid
+import com.sksamuel.hoplite.fp.result.toValidated
 import com.sksamuel.hoplite.fp.valid
 import kotlin.reflect.KType
 import kotlin.time.Duration.Companion.seconds

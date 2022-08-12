@@ -3,6 +3,7 @@ package com.sksamuel.hoplite
 import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.decoder.DotPath
 import com.sksamuel.hoplite.fp.NonEmptyList
+import com.sksamuel.hoplite.fp.Validated
 import com.sksamuel.hoplite.parsers.Parser
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -20,6 +21,8 @@ val KType.simpleName: String
     Boolean::class -> "Boolean"
     else -> this.classifier.toString()
   }
+
+typealias ConfigResult<A> = Validated<ConfigFailure, A>
 
 sealed interface ConfigFailure {
 

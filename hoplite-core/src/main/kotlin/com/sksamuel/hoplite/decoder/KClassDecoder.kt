@@ -7,6 +7,7 @@ import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.ThrowableFailure
+import com.sksamuel.hoplite.fp.result.toValidated
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 

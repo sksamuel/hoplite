@@ -3,6 +3,7 @@ plugins {
 }
 
 dependencies {
+   implementation(project(":hoplite-fp"))
    api(project(":hoplite-core"))
    testImplementation(project(":hoplite-toml"))
    testImplementation(project(":hoplite-yaml"))

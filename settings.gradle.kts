@@ -19,6 +19,7 @@ refreshVersions {
    enableBuildSrcLibs()
 }
 
+include("hoplite-fp")
 include("hoplite-core")
 include("hoplite-azure")
 include("hoplite-aws")
