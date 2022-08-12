@@ -1,10 +1,11 @@
 plugins {
-    kotlin("jvm")
+   kotlin("jvm")
 }
 
 dependencies {
-    api(project(":hoplite-core"))
-    api(Libs.Hadoop.common)
+   implementation(project(":hoplite-fp"))
+   api(project(":hoplite-core"))
+   api(Libs.Hadoop.common)
 }
 
 apply("../publish.gradle.kts")
