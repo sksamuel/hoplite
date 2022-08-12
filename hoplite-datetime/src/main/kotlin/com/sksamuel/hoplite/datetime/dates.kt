@@ -7,8 +7,8 @@ import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.decoder.NonNullableLeafDecoder
-import com.sksamuel.hoplite.decoder.toValidated
 import com.sksamuel.hoplite.fp.invalid
+import com.sksamuel.hoplite.fp.result.toValidated
 import com.sksamuel.hoplite.fp.valid
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate

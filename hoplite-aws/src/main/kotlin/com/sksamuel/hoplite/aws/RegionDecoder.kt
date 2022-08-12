@@ -8,8 +8,8 @@ import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.decoder.NullHandlingDecoder
-import com.sksamuel.hoplite.decoder.toValidated
 import com.sksamuel.hoplite.fp.invalid
+import com.sksamuel.hoplite.fp.result.toValidated
 import kotlin.reflect.KType
 
 class RegionDecoder : NullHandlingDecoder<Region> {
