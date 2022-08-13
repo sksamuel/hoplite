@@ -29,6 +29,7 @@ object Libs {
   object Aws2 {
     private const val version = "_"
     const val regions = "software.amazon.awssdk:regions:_"
+    const val secretsmanager = "software.amazon.awssdk:secretsmanager:_"
   }
 
   object CronUtils {
