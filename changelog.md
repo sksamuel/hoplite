@@ -1,5 +1,10 @@
 # Changelog
 
+### 2.6.0
+
+* Added support for AWS Secrets Manager using Amazon's SDK version 2. The syntax is the same, but import `hoplite-aws2` instead of `hoplite-aws`.
+* Added CascadeMode to control how config should cascade through files.
+
 ### 2.5.2
 
 * Fixed sealed class ordering in Kotlin 1.7.x #331

@@ -34,6 +34,12 @@ sealed interface ConfigFailure {
     }
   }
 
+  data class OverrideConfigError(
+    val path: DotPath,
+    val pos1: Pos,
+    val pos2: Pos,
+  )
+
   data class MissingConfigValue(private val key: String) : ConfigFailure {
     override fun description(): String = "Missing config value $key"
   }

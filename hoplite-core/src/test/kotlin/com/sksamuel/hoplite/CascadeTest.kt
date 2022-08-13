@@ -125,4 +125,44 @@ class CascadeTest : FunSpec({
     )
     merged["c"] shouldBe StringNode("baz", Pos.NoPos, DotPath("c"))
   }
+
+  test("cascade function should return all overrides") {
+
+    val node1 = MapNode(
+      mapOf(
+        "a" to StringNode("foo", Pos.NoPos, DotPath("a")),
+        "b" to MapNode(
+          mapOf(
+            "j" to StringNode("jen", Pos.NoPos, DotPath("b", "j")),
+            "k" to StringNode("ken", Pos.SourcePos("y"), DotPath("b", "k"))
+          ), Pos.NoPos,
+          DotPath("b")
+        ),
+        "c" to StringNode("baz", Pos.NoPos, DotPath("c")),
+      ),
+      Pos.NoPos,
+      DotPath.root,
+    )
+
+    val node2 = MapNode(
+      mapOf(
+        "b" to MapNode(
+          mapOf(
+            "k" to StringNode("kez", Pos.SourcePos("x"), DotPath("b", "k")),
+            "m" to StringNode("moz", Pos.NoPos, DotPath("b", "m")),
+          ),
+          Pos.NoPos,
+          DotPath("b")
+        ),
+        "c" to StringNode("maz", Pos.NoPos, DotPath("c")),
+      ),
+      Pos.NoPos,
+      DotPath.root,
+    )
+
+    node1.cascade(node2, CascadeMode.Merge).overrides shouldBe listOf(
+      OverridePath(DotPath("b", "k"), Pos.SourcePos("y"), Pos.SourcePos("x")),
+      OverridePath(DotPath("c"), Pos.NoPos, Pos.NoPos),
+    )
+  }
 })

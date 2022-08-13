@@ -20,8 +20,8 @@ internal fun Node.cascade(other: Node, cascadeMode: CascadeMode): CascadeResult 
   }
 
   return when (this) {
-    // if I am null, and the other is defined, then that takes precedence
-    is NullNode -> CascadeResult(other, listOf(this.path))
+    // if I am null, then we should use the other one, but that is not an override
+    is NullNode -> CascadeResult(other)
     is MapNode -> when {
       // in override mode, this entire map takes precendence.
       // note override only happens after root, otherwise one entire file would override another
@@ -30,32 +30,38 @@ internal fun Node.cascade(other: Node, cascadeMode: CascadeMode): CascadeResult 
         when (other) {
           // if both are maps we merge
           is MapNode -> {
-            // overrides are any keys in the other that I also have.
-            val overrides = other.map.filter { this.map.containsKey(it.key) }.map { it.value.path }
             val keys = this.map.keys + other.map.keys
-            val map = keys.associateWith { this.atKey(it).cascade(other.atKey(it), cascadeMode).node }
+            val merges: Map<String, CascadeResult> = keys.associateWith { this.atKey(it).cascade(other.atKey(it), cascadeMode) }
+            val overrides = merges.values.toList().flatMap { it.overrides }
+            val elements = merges.mapValues { it.value.node }
             CascadeResult(
-              MapNode(map, this.pos, this.path, this.value.cascade(other.value, cascadeMode).node),
+              MapNode(elements, this.pos, this.path, this.value.cascade(other.value, cascadeMode).node),
               overrides
             )
           }
-          else -> CascadeResult(this)
+          // since the other once is not a map, we override completely with this
+          else -> CascadeResult(this, listOf(OverridePath(this.path, this.pos, other.pos)))
         }
       }
     }
-    // if I am a non-null map then I take precedence
-    else -> CascadeResult(this)
+    // since neither are maps, we just use this
+    else -> CascadeResult(this, listOf(OverridePath(this.path, this.pos, other.pos)))
   }
 }
 
 enum class CascadeMode {
   Merge,
   Error,
-  Warn,
   Override,
 }
 
 data class CascadeResult(
   val node: Node,
-  val overrides: List<DotPath> = emptyList(),
+  val overrides: List<OverridePath> = emptyList(),
+)
+
+data class OverridePath(
+  val path: DotPath,
+  val overridePos: Pos,
+  val overridenPos: Pos,
 )
