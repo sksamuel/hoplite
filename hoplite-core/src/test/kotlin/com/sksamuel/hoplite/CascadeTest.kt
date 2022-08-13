@@ -81,7 +81,48 @@ class CascadeTest : FunSpec({
     g["c"] shouldBe StringNode("baz", Pos.NoPos, DotPath.root)
   }
 
-  test("") {
+  test("CascadeMode.Override should take an entire map if present") {
 
+    val node1 = MapNode(
+      mapOf(
+        "a" to StringNode("foo", Pos.NoPos, DotPath("a")),
+        "b" to MapNode(
+          mapOf(
+            "j" to StringNode("jen", Pos.NoPos, DotPath("b", "j")),
+            "k" to StringNode("ken", Pos.NoPos, DotPath("b", "k"))
+          ), Pos.NoPos,
+          DotPath("b")
+        )
+      ),
+      Pos.NoPos,
+      DotPath.root,
+    )
+
+    val node2 = MapNode(
+      mapOf(
+        "b" to MapNode(
+          mapOf(
+            "k" to StringNode("kez", Pos.NoPos, DotPath("b", "k")),
+            "m" to StringNode("moz", Pos.NoPos, DotPath("b", "m")),
+          ),
+          Pos.NoPos,
+          DotPath("b")
+        ),
+        "c" to StringNode("baz", Pos.NoPos, DotPath("c"))
+      ),
+      Pos.NoPos,
+      DotPath.root,
+    )
+
+    val merged = node1.cascade(node2, CascadeMode.Override).node
+    merged["a"] shouldBe StringNode("foo", Pos.NoPos, DotPath("a"))
+    merged["b"] shouldBe MapNode(
+      mapOf(
+        "j" to StringNode("jen", Pos.NoPos, DotPath("b", "j")),
+        "k" to StringNode("ken", Pos.NoPos, DotPath("b", "k"))
+      ), Pos.NoPos,
+      DotPath("b")
+    )
+    merged["c"] shouldBe StringNode("baz", Pos.NoPos, DotPath("c"))
   }
 })

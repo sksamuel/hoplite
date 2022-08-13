@@ -22,9 +22,10 @@ internal fun Node.cascade(other: Node, cascadeMode: CascadeMode): CascadeResult 
   return when (this) {
     // if I am null, and the other is defined, then that takes precedence
     is NullNode -> CascadeResult(other, listOf(this.path))
-    is MapNode -> when (cascadeMode) {
+    is MapNode -> when {
       // in override mode, this entire map takes precendence.
-      CascadeMode.Override -> CascadeResult(this)
+      // note override only happens after root, otherwise one entire file would override another
+      cascadeMode == CascadeMode.Override && this.path != DotPath.root -> CascadeResult(this)
       else -> {
         when (other) {
           // if both are maps we merge
