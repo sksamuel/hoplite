@@ -25,12 +25,12 @@ class FallbackTest : FunSpec({
       DotPath.root
     )
 
-    val f = node1.merge(node2)
+    val f = node1.cascade(node2)
     f["a"] shouldBe StringNode("foo", Pos.NoPos, DotPath.root)
     f["b"] shouldBe StringNode("bar", Pos.NoPos, DotPath.root)
     f["c"] shouldBe StringNode("baz", Pos.NoPos, DotPath.root)
 
-    val g = node2.merge(node1)
+    val g = node2.cascade(node1)
     g["a"] shouldBe StringNode("faz", Pos.NoPos, DotPath.root)
     g["b"] shouldBe StringNode("bar", Pos.NoPos, DotPath.root)
     g["c"] shouldBe StringNode("baz", Pos.NoPos, DotPath.root)
@@ -68,13 +68,13 @@ class FallbackTest : FunSpec({
       DotPath.root,
     )
 
-    val f = node1.merge(node2)
+    val f = node1.cascade(node2)
     f["a"] shouldBe StringNode("foo", Pos.NoPos, DotPath.root)
     f["b"]["j"] shouldBe StringNode("jen", Pos.NoPos, DotPath.root)
     f["b"]["k"] shouldBe StringNode("ken", Pos.NoPos, DotPath.root)
     f["c"] shouldBe StringNode("baz", Pos.NoPos, DotPath.root)
 
-    val g = node2.merge(node1)
+    val g = node2.cascade(node1)
     g["a"] shouldBe StringNode("foo", Pos.NoPos, DotPath.root)
     g["b"]["j"] shouldBe StringNode("jen", Pos.NoPos, DotPath.root)
     g["b"]["k"] shouldBe StringNode("kez", Pos.NoPos, DotPath.root)

@@ -29,6 +29,7 @@ class ConfigLoader(
   val allowUnresolvedSubstitutions: Boolean,
   val classLoader: ClassLoader? = null, // if null, then the current context thread loader
   val preprocessingIterations: Int = 1,
+  val cascadeMode: CascadeMode = CascadeMode.Merge,
 ) {
 
   companion object {
@@ -133,7 +134,7 @@ class ConfigLoader(
     if (decoderRegistry.size == 0)
       return ConfigFailure.EmptyDecoderRegistry.invalid()
 
-    return NodeParser(parserRegistry, allowEmptyTree)
+    return NodeParser(parserRegistry, allowEmptyTree, cascadeMode)
       .parseNode(propertySources, configSources)
       .flatMap { (sources, node) ->
         Preprocessing(preprocessors, preprocessingIterations).preprocess(node)
@@ -177,7 +178,7 @@ class ConfigLoader(
     classpathResourceLoader: ClasspathResourceLoader = ConfigLoader::class.java.toClasspathResourceLoader(),
   ): ConfigResult<Node> = ConfigSource
     .fromResourcesOrFiles(resourceOrFiles.toList(), classpathResourceLoader)
-    .flatMap { NodeParser(parserRegistry, allowEmptyTree).parseNode(propertySources, it) }
+    .flatMap { NodeParser(parserRegistry, allowEmptyTree, cascadeMode).parseNode(propertySources, it) }
     .map { it.node }
 
   private fun <A : Any> decode(kclass: KClass<A>, node: Node): ConfigResult<DecodingResult<A>> {
