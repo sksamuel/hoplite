@@ -1,6 +1,7 @@
 package com.sksamuel.hoplite
 
 import com.sksamuel.hoplite.decoder.DotPath
+import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
@@ -164,5 +165,37 @@ class CascadeTest : FunSpec({
       OverridePath(DotPath("b", "k"), Pos.SourcePos("y"), Pos.SourcePos("x")),
       OverridePath(DotPath("c"), Pos.NoPos, Pos.NoPos),
     )
+  }
+
+  test("CascadeMode.error should error if overrides present") {
+    shouldThrowAny {
+      ConfigLoaderBuilder.default()
+        .addPropertySource(
+          PropertySource.string(
+            """
+          database.name = my database
+          database.host = localhost
+          database.port = 3306
+          database.timeout = 100.0
+          database.tls = true
+          """.trimIndent(), "props"
+          )
+        )
+        .addPropertySource(
+          PropertySource.string(
+            """
+          database.port = 1234
+          database.tls = false
+          """.trimIndent(), "props"
+          )
+        )
+        .withCascadeMode(CascadeMode.Error)
+        .build()
+        .loadNodeOrThrow()
+    }.message shouldBe "Error loading config because:\n" +
+      "\n" +
+      "    Overridden configs are configured as errors\n" +
+      "     - database.port at (props string source) overriden by (props string source)\n" +
+      "     - database.tls at (props string source) overriden by (props string source)"
   }
 })

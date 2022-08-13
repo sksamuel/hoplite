@@ -23,7 +23,8 @@ class ConfigLoaderBuilder private constructor() {
   // gets before delegating to ServiceLoader::load(Class<T>, ClassLoader)
   private var classLoader: ClassLoader = Thread.currentThread().contextClassLoader
 
-  private var mode: DecodeMode = DecodeMode.Lenient
+  private var decodeMode: DecodeMode = DecodeMode.Lenient
+  private var cascadeMode: CascadeMode = CascadeMode.Merge
   private var allowEmptyTree = false
   private var allowUnresolvedSubstitutions = false
 
@@ -158,7 +159,9 @@ class ConfigLoaderBuilder private constructor() {
   fun strict(): ConfigLoaderBuilder = withDecodeMode(DecodeMode.Strict)
   fun lenient(): ConfigLoaderBuilder = withDecodeMode(DecodeMode.Lenient)
 
-  fun withDecodeMode(mode: DecodeMode) = apply { this.mode = mode }
+  fun withDecodeMode(mode: DecodeMode) = apply { this.decodeMode = mode }
+
+  fun withCascadeMode(cascadeMode: CascadeMode) = apply { this.cascadeMode = cascadeMode }
 
   /**
    * When enabled, allows a config loader to continue even if all the property sources provide no config.
@@ -207,11 +210,12 @@ class ConfigLoaderBuilder private constructor() {
       preprocessors = preprocessors.toList(),
       paramMappers = paramMappers.toList(),
       onFailure = failureCallbacks.toList(),
-      mode = mode,
+      mode = decodeMode,
       reporter = reporter,
       allowEmptyTree = allowEmptyTree,
       allowUnresolvedSubstitutions = allowUnresolvedSubstitutions,
       preprocessingIterations = preprocessingIterations,
+      cascadeMode = cascadeMode,
     )
   }
 }
