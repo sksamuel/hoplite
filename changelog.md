@@ -8,8 +8,7 @@
 * Added `Remote Lookup` column to reports to show the key used when resolving secrets remotely.
 * Added `Strength` column to show secret show when configured with a `SecretStrengthAnalyzer`.
 
-
-* **Breaking Changes**
+**Breaking Changes**
 
 These breaking changes are to advanced customization features. Most users will need to change no code.
 
