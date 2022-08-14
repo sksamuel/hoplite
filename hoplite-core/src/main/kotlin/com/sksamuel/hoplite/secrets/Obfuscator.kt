@@ -1,4 +1,4 @@
-package com.sksamuel.hoplite.report
+package com.sksamuel.hoplite.secrets
 
 import com.sksamuel.hoplite.BooleanNode
 import com.sksamuel.hoplite.DoubleNode
@@ -9,7 +9,7 @@ import com.sksamuel.hoplite.StringNode
 import java.security.MessageDigest
 
 /**
- * Implementations can choose how to obfuscate values.
+ * Implementations can choose how to obfuscate [PrimitiveNode]s.
  */
 interface Obfuscator {
   fun obfuscate(node: PrimitiveNode): String
@@ -18,15 +18,29 @@ interface Obfuscator {
 /**
  * An [Obfuscator] that returns a fixed mask for every node.
  */
-object StrictObfuscator : Obfuscator {
-  override fun obfuscate(node: PrimitiveNode): String = "*****"
+class StrictObfuscator(private val mask: String = "*****") : Obfuscator {
+  override fun obfuscate(node: PrimitiveNode): String = mask
+}
+
+private fun isNumericOrBoolean(value: String): Boolean {
+
+  val maybeBoolean = value.toBooleanStrictOrNull()
+  if (maybeBoolean != null) return true
+
+  val maybeLong = value.toLongOrNull()
+  if (maybeLong != null) return true
+
+  val maybeDouble = value.toDoubleOrNull()
+  if (maybeDouble != null) return true
+
+  return false
 }
 
 /**
- * An [Obfuscator] that takes the first 8 characters of the SHA-256 hash of the input value for strings,
+ * An [Obfuscator] that takes the first n characters of the SHA-256 hash of the input value for strings,
  * and reports the values as is otherwise.
  */
-object HashObfuscator : Obfuscator {
+class HashObfuscator(private val hashCharsToShow: Int = 8) : Obfuscator {
   override fun obfuscate(node: PrimitiveNode): String {
     return when (node) {
       is BooleanNode -> node.value.toString()
@@ -34,21 +48,11 @@ object HashObfuscator : Obfuscator {
       is DoubleNode -> node.value.toString()
       is LongNode -> node.value.toString()
       is StringNode -> {
-
-        val maybeBoolean = node.value.toBooleanStrictOrNull()
-        if (maybeBoolean != null) return maybeBoolean.toString()
-
-        // longs must be first, otherwise they will be changed to a double
-        val maybeLong = node.value.toLongOrNull()
-        if (maybeLong != null) return maybeLong.toString()
-
-        val maybeDouble = node.value.toDoubleOrNull()
-        if (maybeDouble != null) return maybeDouble.toString()
-
+        if (isNumericOrBoolean(node.value)) return node.value
         val digest = MessageDigest.getInstance("SHA-256")
         return digest
           .digest(node.value.encodeToByteArray())
-          .take(8)
+          .take(hashCharsToShow)
           .joinToString("", "hash(", "...)") { "%02x".format(it) }
       }
     }
@@ -70,16 +74,7 @@ class PrefixObfuscator(
       is DoubleNode -> node.value.toString()
       is LongNode -> node.value.toString()
       is StringNode -> {
-        val maybeBoolean = node.value.toBooleanStrictOrNull()
-        if (maybeBoolean != null) return maybeBoolean.toString()
-
-        // longs must be first, otherwise they will be changed to a double
-        val maybeLong = node.value.toLongOrNull()
-        if (maybeLong != null) return maybeLong.toString()
-
-        val maybeDouble = node.value.toDoubleOrNull()
-        if (maybeDouble != null) return maybeDouble.toString()
-
+        if (isNumericOrBoolean(node.value)) return node.value
         return node.value.take(prefixLength) + suffixMask
       }
     }
@@ -99,16 +94,7 @@ object DefaultObfuscator : Obfuscator {
       is DoubleNode -> node.value.toString()
       is LongNode -> node.value.toString()
       is StringNode -> {
-        val maybeBoolean = node.value.toBooleanStrictOrNull()
-        if (maybeBoolean != null) return maybeBoolean.toString()
-
-        // longs must be first, otherwise they will be changed to a double
-        val maybeLong = node.value.toLongOrNull()
-        if (maybeLong != null) return maybeLong.toString()
-
-        val maybeDouble = node.value.toDoubleOrNull()
-        if (maybeDouble != null) return maybeDouble.toString()
-
+        if (isNumericOrBoolean(node.value)) return node.value
         return node.value.take(3) + "*****"
       }
     }

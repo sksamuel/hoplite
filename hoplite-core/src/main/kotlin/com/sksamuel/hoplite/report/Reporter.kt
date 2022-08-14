@@ -1,48 +1,50 @@
 package com.sksamuel.hoplite.report
 
-import com.sksamuel.hoplite.ArrayNode
-import com.sksamuel.hoplite.BooleanNode
-import com.sksamuel.hoplite.DoubleNode
-import com.sksamuel.hoplite.LongNode
-import com.sksamuel.hoplite.MapNode
-import com.sksamuel.hoplite.Node
-import com.sksamuel.hoplite.NullNode
-import com.sksamuel.hoplite.Pos
+import com.sksamuel.hoplite.CommonMetadata
+import com.sksamuel.hoplite.DecodingState
+import com.sksamuel.hoplite.NodeState
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.PropertySource
 import com.sksamuel.hoplite.StringNode
-import com.sksamuel.hoplite.Undefined
-import com.sksamuel.hoplite.decoder.DotPath
+import com.sksamuel.hoplite.secrets.Obfuscator
+import com.sksamuel.hoplite.secrets.PrefixObfuscator
+import com.sksamuel.hoplite.secrets.SecretStrength
+import com.sksamuel.hoplite.secrets.SecretsPolicy
+import com.sksamuel.hoplite.valueOrNull
 import kotlin.math.max
 
-typealias Print = (String) -> Unit
-
+@Deprecated("Specify options through ConfigBuilderLoader")
 class ReporterBuilder {
 
   private var print: Print = { println(it) }
   private var obfuscator: Obfuscator = PrefixObfuscator(3)
-  private var secretsPolicy: SecretsPolicy = EveryFieldSecretsPolicy
 
   fun withPrint(print: Print) = apply {
     this.print = print
   }
 
+  @Deprecated("Specify obfuscator through ConfigBuilderLoader")
   fun withObfuscator(obfuscator: Obfuscator) = apply {
     this.obfuscator = obfuscator
   }
 
-  fun withSecretsPolicy(secretsPolicy: SecretsPolicy) = apply {
-    this.secretsPolicy = secretsPolicy
-  }
+  @Deprecated("Specify secretsPolicy through ConfigBuilderLoader", level = DeprecationLevel.ERROR)
+  fun withSecretsPolicy(secretsPolicy: SecretsPolicy): ReporterBuilder = TODO("Unsupported")
 
-  fun build(): Reporter = Reporter(print, obfuscator, secretsPolicy)
+  fun build(): Reporter = Reporter(print, obfuscator)
 }
+
+typealias Print = (String) -> Unit
 
 class Reporter(
   private val print: Print,
   private val obfuscator: Obfuscator,
-  private val secretsPolicy: SecretsPolicy,
 ) {
+
+  object Titles {
+    const val Remote = "Remote Lookup"
+    const val Strength = "Strength"
+  }
 
   companion object {
     fun default(): Reporter = ReporterBuilder().build()
@@ -50,7 +52,7 @@ class Reporter(
 
   fun printReport(
     sources: List<PropertySource>,
-    node: Node,
+    state: DecodingState,
   ) {
 
     val r = buildString {
@@ -59,42 +61,13 @@ class Reporter(
       appendLine()
       appendLine(report(sources))
       appendLine()
-
-      val resources = node.resources()
-      appendLine(reportResources(resources, null, emptySet()))
-
-      appendLine()
-      appendLine("--End Hoplite Config Report--")
-      appendLine()
-    }
-
-    print(r)
-  }
-
-  fun printReport(
-    sources: List<PropertySource>,
-    node: Node,
-    used: List<Pair<DotPath, Pos>>,
-    usedSecrets: Set<DotPath>,
-  ) {
-
-    val r = buildString {
-      appendLine()
-      appendLine("--Start Hoplite Config Report---")
-      appendLine()
-      appendLine(report(sources))
-      appendLine()
-
-      val usedPaths = used.map { it.first }
-      val (usedResources, unusedResources) = node.resources().partition { usedPaths.contains(it.path) }
-
-      if (used.isEmpty()) appendLine("Used keys: none")
-      if (used.isNotEmpty()) appendLine(reportResources(usedResources, "Used", usedSecrets))
+      if (state.used.isEmpty()) appendLine("Used keys: none")
+      if (state.used.isNotEmpty()) appendLine(reportNodes(state.states.filter { it.used }, "Used keys"))
 
       appendLine()
 
-      if (unusedResources.isEmpty()) appendLine("Unused keys: none")
-      if (unusedResources.isNotEmpty()) appendLine(reportResources(unusedResources, "Unused", usedSecrets))
+      if (state.unused.isEmpty()) appendLine("Unused keys: none")
+      if (state.unused.isNotEmpty()) appendLine(reportNodes(state.states.filterNot { it.used }, "Unused keys"))
 
       appendLine()
       appendLine("--End Hoplite Config Report--")
@@ -109,58 +82,68 @@ class Reporter(
       sources.joinToString(System.lineSeparator() + "  - ", "  - ") { it.source() }
   }
 
-  fun reportResources(resources: List<ConfigResource>, title: String?, usedSecrets: Set<DotPath>): String {
+  private fun reportNodes(nodes: List<NodeState>, title: String?): String {
 
-    val obfuscated = resources.sortedBy { it.path.flatten().lowercase() }.map {
-      val value =
-        if (secretsPolicy.isSecret(it.path, usedSecrets)) obfuscator.obfuscate(it.node) else it.node.value?.toString()
-          ?: "<null>"
-      it.copy(node = StringNode(value, it.node.pos, it.node.path))
+    // copy the notes, obfuscating if a secret, and turning all nodes into string nodes for reporting ease
+    val obfuscated: List<NodeState> = nodes.sortedBy { it.node.path.flatten() }.map { state ->
+
+      val value = if (state.secret && state.node is PrimitiveNode)
+        obfuscator.obfuscate(state.node)
+      else
+        state.node.valueOrNull()
+
+      state.copy(
+        node = StringNode(
+          value = value ?: "<null>",
+          pos = state.node.pos,
+          path = state.node.path,
+          meta = state.node.meta
+        )
+      )
     }
 
-    val keyPadded = obfuscated.maxOf { it.path.flatten().length }
-    val sourcePadded = obfuscated.maxOf { max(it.source.length, "source".length) }
-    val valuePadded = obfuscated.maxOf { it.node.value.toString().length }
+    val keyPadded = nodes.maxOf { it.node.path.flatten().length }
+    val sourcePadded = nodes.maxOf { max(it.node.pos.source()?.length ?: 0, "source".length) }
+    val valuePadded = max("Value".length, obfuscated.maxOf { (it.node as StringNode).value.length })
+    val strengthPadded = max(Titles.Strength.length, nodes.maxOf { it.secretStrength?.asString()?.length ?: 0 })
+    val remotePadded = max(Titles.Remote.length, nodes.maxOf {
+      it.node.meta[CommonMetadata.RemoteLookup]?.toString()?.length ?: 0
+    })
 
     val rows = obfuscated.map {
-      "| " + it.path.flatten().padEnd(keyPadded, ' ') +
-        " | " + it.source.padEnd(sourcePadded, ' ') +
-        " | " + it.node.value.toString().padEnd(valuePadded, ' ') + " |"
+      listOf(
+        it.node.path.flatten().padEnd(keyPadded, ' '),
+        (it.node.pos.source() ?: "").padEnd(sourcePadded, ' '),
+        (it.node as StringNode).value.padEnd(valuePadded, ' '),
+        it.secretStrength.asString().padEnd(strengthPadded, ' '),
+        (it.node.meta[CommonMetadata.RemoteLookup]?.toString() ?: "").padEnd(remotePadded, ' '),
+      ).joinToString(" | ", "| ", " |")
     }
 
-    val titleRow = title?.let { "$it keys ${resources.size}" }
+    val titleRow = title?.let { "$it: ${nodes.size}" }
 
     val bar = listOf(
       "".padEnd(keyPadded + 2, '-'),
       "".padEnd(sourcePadded + 2, '-'),
-      "".padEnd(valuePadded + 2, '-')
+      "".padEnd(valuePadded + 2, '-'),
+      "".padEnd(strengthPadded + 2, '-'),
+      "".padEnd(remotePadded + 2, '-'),
     ).joinToString("+", "+", "+")
 
     val titles = listOf(
       "Key".padEnd(keyPadded, ' '),
       "Source".padEnd(sourcePadded, ' '),
-      "Value".padEnd(valuePadded, ' ')
+      "Value".padEnd(valuePadded, ' '),
+      Titles.Strength.padEnd(strengthPadded, ' '),
+      Titles.Remote.padEnd(remotePadded, ' '),
     ).joinToString(" | ", "| ", " |")
 
     return (listOfNotNull(titleRow, bar, titles, bar) + rows + listOf(bar)).joinToString(System.lineSeparator())
   }
 }
 
-fun Node.resources(): List<ConfigResource> {
-  return when (this) {
-    is ArrayNode -> emptyList()
-    is MapNode -> map.entries.map { (_, value) -> value.resources() }.flatten()
-    is BooleanNode -> listOf(ConfigResource(path, pos.source() ?: "n/a", this))
-    is NullNode -> listOf(ConfigResource(path, pos.source() ?: "n/a", this))
-    is DoubleNode -> listOf(ConfigResource(path, pos.source() ?: "n/a", this))
-    is LongNode -> listOf(ConfigResource(path, pos.source() ?: "n/a", this))
-    is StringNode -> listOf(ConfigResource(path, pos.source() ?: "n/a", this))
-    Undefined -> emptyList()
-  }
+fun SecretStrength?.asString() = when (this) {
+  null -> ""
+  SecretStrength.Strong -> "Strong"
+  is SecretStrength.Weak -> "WEAK - " + this.reason
 }
-
-data class ConfigResource(
-  val path: DotPath,
-  val source: String,
-  val node: PrimitiveNode,
-)

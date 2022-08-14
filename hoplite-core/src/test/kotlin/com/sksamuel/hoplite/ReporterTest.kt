@@ -1,46 +1,16 @@
 package com.sksamuel.hoplite
 
+import com.sksamuel.hoplite.fp.valid
+import com.sksamuel.hoplite.preprocessor.TraversingPrimitivePreprocessor
 import com.sksamuel.hoplite.report.Reporter
-import com.sksamuel.hoplite.report.ReporterBuilder
-import com.sksamuel.hoplite.report.resources
+import com.sksamuel.hoplite.secrets.DefaultSecretStrengthAnalyzer
+import com.sksamuel.hoplite.secrets.StandardSecretsPolicy
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.system.captureStandardOut
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 
 class ReporterTest : FunSpec({
-
-  test("report node with default obfuscations") {
-
-    val node = ConfigLoaderBuilder.default()
-      .addPropertySource(
-        PropertySource.string(
-          """
-          database.name = my database
-          database.host = localhost
-          database.port = 3306
-          database.timeout = 100.0
-          database.tls = true
-          """.trimIndent(), "props"
-        )
-      )
-      .build()
-      .loadNodeOrThrow()
-
-    Reporter.default().reportResources(node.resources(), "Used", emptySet()).trim() shouldBe """
-Used keys 5
-+------------------+---------------------+----------+
-| Key              | Source              | Value    |
-+------------------+---------------------+----------+
-| database.host    | props string source | loc***** |
-| database.name    | props string source | my ***** |
-| database.port    | props string source | 3306     |
-| database.timeout | props string source | 100.0    |
-| database.tls     | props string source | true     |
-+------------------+---------------------+----------+
-""".trim()
-
-  }
 
   test("report test with default obfuscations") {
 
@@ -51,34 +21,32 @@ Used keys 5
       val password: Secret,
     )
 
-    val builder = StringBuilder()
-
-    ConfigLoaderBuilder.default()
-      .addPropertySource(
-        PropertySource.string(
-          """
+    captureStandardOut {
+      ConfigLoaderBuilder.default()
+        .addPropertySource(
+          PropertySource.string(
+            """
           name = my database
           host = localhost
           port = 3306
           password = ssm://mysecretkey
           """.trimIndent(), "props"
+          )
         )
-      )
-      .report(ReporterBuilder().withPrint(builder::append).build())
-      .build()
-      .loadConfigOrThrow<Test>()
-
-    builder.toString().shouldContain(
+        .withReport()
+        .build()
+        .loadConfigOrThrow<Test>()
+    }.shouldContain(
       """
-Used keys 4
-+----------+---------------------+----------+
-| Key      | Source              | Value    |
-+----------+---------------------+----------+
-| host     | props string source | loc***** |
-| name     | props string source | my ***** |
-| password | props string source | ssm***** |
-| port     | props string source | 3306     |
-+----------+---------------------+----------+
+Used keys: 4
++----------+---------------------+----------+----------+---------------+
+| Key      | Source              | Value    | Strength | Remote Lookup |
++----------+---------------------+----------+----------+---------------+
+| host     | props string source | loc***** |          |               |
+| name     | props string source | my ***** |          |               |
+| password | props string source | ssm***** |          |               |
+| port     | props string source | 3306     |          |               |
++----------+---------------------+----------+----------+---------------+
 """
     )
 
@@ -120,13 +88,106 @@ Property sources (highest to lowest priority):
     }
 
     out shouldContain """
-+---------------+---------------------+----------+
-| Key           | Source              | Value    |
-+---------------+---------------------+----------+
-| database.name | props string source | my ***** |
-| database.port | props string source | 3306     |
-+---------------+---------------------+----------+
++---------------+---------------------+----------+----------+---------------+
+| Key           | Source              | Value    | Strength | Remote Lookup |
++---------------+---------------------+----------+----------+---------------+
+| database.name | props string source | my ***** |          |               |
+| database.port | props string source | 3306     |          |               |
++---------------+---------------------+----------+----------+---------------+
 """.trim()
 
+  }
+
+  test("withReport should include secret strengths") {
+
+    data class Test(
+      val name: String,
+      val host: String,
+      val port: Int,
+      val password1: String,
+      val password2: String,
+    )
+
+    captureStandardOut {
+      ConfigLoaderBuilder.default()
+        .addPropertySource(
+          PropertySource.string(
+            """
+          name = my database
+          host = localhost
+          port = 3306
+          password1 = ssm://mysecretkey
+          password2 = ssm://mysecretkey2
+          """.trimIndent(), "props"
+          )
+        )
+        .withReport()
+        .withSecretsPolicy(StandardSecretsPolicy)
+        .withSecretStrengthAnalyzer(DefaultSecretStrengthAnalyzer)
+        .build()
+        .loadConfigOrThrow<Test>()
+    }.shouldContain(
+      """
+Used keys: 5
++-----------+---------------------+-------------+---------------------------------+---------------+
+| Key       | Source              | Value       | Strength                        | Remote Lookup |
++-----------+---------------------+-------------+---------------------------------+---------------+
+| host      | props string source | localhost   |                                 |               |
+| name      | props string source | my database |                                 |               |
+| password1 | props string source | ssm*****    | WEAK - Does not contain a digit |               |
+| password2 | props string source | ssm*****    | Strong                          |               |
+| port      | props string source | 3306        |                                 |               |
++-----------+---------------------+-------------+---------------------------------+---------------+
+"""
+    )
+  }
+
+  test("withReport should include remote lookups") {
+
+    data class Test(
+      val name: String,
+      val host: String,
+      val port: Int,
+      val password: String,
+    )
+
+    captureStandardOut {
+      ConfigLoaderBuilder.default()
+        .addPropertySource(
+          PropertySource.string(
+            """
+          name = my database
+          host = localhost
+          port = 3306
+          password = gcpsm://mysecretkey2
+          """.trimIndent(), "props"
+          )
+        )
+        .withReport()
+        .addPreprocessor(object : TraversingPrimitivePreprocessor() {
+          override fun handle(node: PrimitiveNode): ConfigResult<Node> {
+            return if (node is StringNode && node.value.startsWith("gcpsm://"))
+              node.withMeta(CommonMetadata.RemoteLookup, "GCP Secret Manager 'mykey'").valid()
+            else
+              node.valid()
+          }
+        })
+        .withSecretsPolicy(StandardSecretsPolicy)
+        .withSecretStrengthAnalyzer(DefaultSecretStrengthAnalyzer)
+        .build()
+        .loadConfigOrThrow<Test>()
+    }.shouldContain(
+      """
+Used keys: 4
++----------+---------------------+-------------+----------+----------------------------+
+| Key      | Source              | Value       | Strength | Remote Lookup              |
++----------+---------------------+-------------+----------+----------------------------+
+| host     | props string source | localhost   |          |                            |
+| name     | props string source | my database |          |                            |
+| password | props string source | gcp*****    | Strong   | GCP Secret Manager 'mykey' |
+| port     | props string source | 3306        |          |                            |
++----------+---------------------+-------------+----------+----------------------------+
+"""
+    )
   }
 })

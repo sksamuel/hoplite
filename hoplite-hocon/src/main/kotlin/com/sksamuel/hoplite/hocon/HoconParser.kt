@@ -54,20 +54,20 @@ object ValueProduction {
     return when (value.valueType()) {
       ConfigValueType.OBJECT -> MapProduction(value as ConfigObject, value.origin(), source, path)
       ConfigValueType.NUMBER -> when (val v = value.unwrapped()) {
-        is Double -> DoubleNode(v, value.origin().toPos(source), path)
-        is Float -> DoubleNode(v.toDouble(), value.origin().toPos(source), path)
-        is Long -> LongNode(v, value.origin().toPos(source), path)
-        is Int -> LongNode(v.toLong(), value.origin().toPos(source), path)
+        is Double -> DoubleNode(v, value.origin().toPos(source), path, emptyMap())
+        is Float -> DoubleNode(v.toDouble(), value.origin().toPos(source), path, emptyMap())
+        is Long -> LongNode(v, value.origin().toPos(source), path, emptyMap())
+        is Int -> LongNode(v.toLong(), value.origin().toPos(source), path, emptyMap())
         else -> throw RuntimeException("Unexpected element type for ConfigValueType.NUMBER: $v")
       }
       ConfigValueType.LIST -> ListProduction(value as ConfigList, value.origin(), source, path)
       ConfigValueType.BOOLEAN ->
         when (val v = value.unwrapped()) {
-          is Boolean -> BooleanNode(v, value.origin().toPos(source), path)
+          is Boolean -> BooleanNode(v, value.origin().toPos(source), path, emptyMap())
           else -> throw RuntimeException("Unexpected element type for ConfigValueType.BOOLEAN: $v")
         }
-      ConfigValueType.STRING -> StringNode(value.unwrapped().toString(), value.origin().toPos(source), path)
-      ConfigValueType.NULL -> NullNode(value.origin().toPos(source), path)
+      ConfigValueType.STRING -> StringNode(value.unwrapped().toString(), value.origin().toPos(source), path, emptyMap())
+      ConfigValueType.NULL -> NullNode(value.origin().toPos(source), path, emptyMap())
     }
   }
 }

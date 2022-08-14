@@ -3,11 +3,13 @@
 package com.sksamuel.hoplite.preprocessor
 
 import com.sksamuel.hoplite.ArrayNode
+import com.sksamuel.hoplite.CommonMetadata
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.valid
+import com.sksamuel.hoplite.withMeta
 
 /**
  * Replaces strings of the form ${path} by looking up path in the parsed config.
@@ -39,7 +41,7 @@ object LookupPreprocessor : Preprocessor {
           else -> matchWithDefault.let { m -> lookup(m.groups[1]!!.value) ?: m.groups[2]!!.value }
         }
       }
-      return node.copy(value = value)
+      return node.copy(value = value).withMeta(CommonMetadata.UnprocessedValue, node.value) as StringNode
     }
 
     fun handle(n: Node): Node = when (n) {

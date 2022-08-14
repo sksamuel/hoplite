@@ -37,12 +37,12 @@ object TokenProduction {
       JsonToken.NOT_AVAILABLE -> throw UnsupportedOperationException("Invalid json at ${parser.currentLocation}")
       JsonToken.START_OBJECT -> ObjectProduction(parser, source, path)
       JsonToken.START_ARRAY -> ArrayProduction(parser, source, path)
-      JsonToken.VALUE_STRING -> StringNode(parser.valueAsString, parser.currentLocation.toPos(source), path)
-      JsonToken.VALUE_NUMBER_INT -> LongNode(parser.valueAsLong, parser.currentLocation.toPos(source), path)
-      JsonToken.VALUE_NUMBER_FLOAT -> DoubleNode(parser.valueAsDouble, parser.currentLocation.toPos(source), path)
-      JsonToken.VALUE_TRUE -> BooleanNode(true, parser.currentLocation.toPos(source), path)
-      JsonToken.VALUE_FALSE -> BooleanNode(false, parser.currentLocation.toPos(source), path)
-      JsonToken.VALUE_NULL -> NullNode(parser.currentLocation.toPos(source), path)
+      JsonToken.VALUE_STRING -> StringNode(parser.valueAsString, parser.currentLocation.toPos(source), path, emptyMap())
+      JsonToken.VALUE_NUMBER_INT -> LongNode(parser.valueAsLong, parser.currentLocation.toPos(source), path, emptyMap())
+      JsonToken.VALUE_NUMBER_FLOAT -> DoubleNode(parser.valueAsDouble, parser.currentLocation.toPos(source), path, emptyMap())
+      JsonToken.VALUE_TRUE -> BooleanNode(true, parser.currentLocation.toPos(source), path, emptyMap())
+      JsonToken.VALUE_FALSE -> BooleanNode(false, parser.currentLocation.toPos(source), path, emptyMap())
+      JsonToken.VALUE_NULL -> NullNode(parser.currentLocation.toPos(source), path, emptyMap())
       else -> throw UnsupportedOperationException("Invalid json at ${parser.currentLocation}; encountered unexpected token ${parser.currentToken}")
     }
   }

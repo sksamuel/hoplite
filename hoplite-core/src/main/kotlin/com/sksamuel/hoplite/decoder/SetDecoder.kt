@@ -34,7 +34,7 @@ class SetDecoder : NullHandlingDecoder<Set<*>> {
 
     fun <T> decode(node: StringNode, decoder: Decoder<T>): ConfigResult<Set<T>> {
       val tokens = node.value.split(",").map {
-        StringNode(it.trim(), node.pos, node.path)
+        StringNode(it.trim(), node.pos, node.path, emptyMap())
       }
       return tokens.map { decoder.decode(it, t, context) }.sequence()
         .mapInvalid { ConfigFailure.CollectionElementErrors(node, it) }

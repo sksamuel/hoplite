@@ -48,8 +48,9 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
 
     data class Arg(
       val parameter: KParameter,
-      val configName: String, // the config value name that was used
+      val configName: String, // the config value name that was used, as determined by param mappers
       val value: Any?,
+      val node: Node, // the resolved node that provided the value
     )
 
     data class Constructor(
@@ -79,7 +80,7 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
         // use parameter mappers to retrieve alternative names, then try each one in turn
         // until we find one that is defined
         val names = context.paramMappers.flatMap { it.map(param, constructor, kclass) }
-        // every alt name is marked as used
+        // every alternative name is marked as used so strict can detect that overrides were 'used' too.
         names.forEach {
           context.usedPaths.add(node.atKey(it).path)
         }
@@ -96,11 +97,12 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
           param.isOptional && n is Undefined -> null
           else -> context.decoder(param)
             .flatMap { it.decode(n, param.type, context) }
-            .map { Arg(param, usedName, it) }
+            .map { Arg(param, usedName, it, n) }
             .mapInvalid { ConfigFailure.ParamFailure(param, it) }
         }
       }.sequence()
 
+      args.onSuccess { argList -> argList.forEach { context.used(it.node, it.parameter.type, it.value) } }
       args.map { Constructor(constructor, it) }
     }
 

@@ -2,12 +2,12 @@ package com.sksamuel.hoplite
 
 import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.decoder.DotPath
-import com.sksamuel.hoplite.fp.NonEmptyList
 import com.sksamuel.hoplite.fp.Validated
 import com.sksamuel.hoplite.fp.flatMap
-import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.preprocessor.Preprocessor
+import com.sksamuel.hoplite.secrets.SecretStrengthAnalyzer
+import com.sksamuel.hoplite.secrets.SecretsPolicy
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
@@ -31,47 +31,63 @@ class Preprocessing(
 
 class Decoding(
   private val decoderRegistry: DecoderRegistry,
-  private val paramMappers: List<ParameterMapper>,
+  private val secretsPolicy: SecretsPolicy?,
+  private val secretStrengthAnalyzer: SecretStrengthAnalyzer?,
 ) {
-
-  fun <A : Any> decode(kclass: KClass<A>, node: Node, mode: DecodeMode): ConfigResult<DecodingResult<A>> {
-    val context = DecoderContext(
-      decoders = decoderRegistry,
-      paramMappers = paramMappers,
-      usedPaths = mutableSetOf(),
-      secrets = mutableSetOf()
-    )
+  fun <A : Any> decode(kclass: KClass<A>, node: Node, mode: DecodeMode, context: DecoderContext): ConfigResult<A> {
     return decoderRegistry.decoder(kclass)
       .flatMap { it.decode(node, kclass.createType(), context) }
-      .flatMap { decodingResult(it, node, context.usedPaths, mode, context.secrets) }
-  }
-
-  private fun <A : Any> decodingResult(
-    a: A,
-    node: Node,
-    usedPaths: MutableSet<DotPath>,
-    mode: DecodeMode,
-    secrets: MutableSet<DotPath>,
-  ): ConfigResult<DecodingResult<A>> {
-    val (used, unused) = node.paths().filterNot { it.first == DotPath.root }.partition { usedPaths.contains(it.first) }
-    val result = DecodingResult(a, used, unused, secrets.toSet())
-    return when (mode) {
-      DecodeMode.Strict -> ensureAllUsed(result)
-      DecodeMode.Lenient -> result.valid()
-    }
-  }
-
-  private fun <A : Any> ensureAllUsed(result: DecodingResult<A>): ConfigResult<DecodingResult<A>> {
-    return if (result.unused.isEmpty()) result.valid() else {
-      val errors = NonEmptyList.unsafe(result.unused.map { ConfigFailure.UnusedPath(it.first, it.second) })
-      ConfigFailure.MultipleFailures(errors).invalid()
-    }
+      .flatMap {
+        DecodeModeValidator(mode).validate(
+          it,
+          createDecodingState(node, context, secretsPolicy, secretStrengthAnalyzer)
+        )
+      }
   }
 }
 
-data class DecodingResult<A>(
-  val a: A,
+fun createDecodingState(
+  root: Node,
+  context: DecoderContext,
+  secretsPolicy: SecretsPolicy?,
+  secretStrengthAnalyzer: SecretStrengthAnalyzer?,
+): DecodingState {
+  val (used, unused) = root.paths()
+    .filterNot { it.first == DotPath.root }
+    .partition { context.usedPaths.contains(it.first) }
+  return DecodingState(root, used, unused, createNodeStates(root, context, secretsPolicy, secretStrengthAnalyzer))
+}
+
+private fun createNodeStates(
+  root: Node,
+  context: DecoderContext,
+  secretsPolicy: SecretsPolicy?,
+  secretStrengthAnalyzer: SecretStrengthAnalyzer?,
+): List<NodeState> {
+  return root.traverse().map { node ->
+
+    val state = context.used.find { it.node.path == node.path }
+
+    val secret = secretsPolicy?.isSecret(node, state?.type) ?: false
+
+    val strength = if (secret && node is StringNode)
+      secretStrengthAnalyzer?.strength(node.value)
+    else null
+
+    NodeState(
+      node = node,
+      used = state?.used ?: false,
+      value = state?.value,
+      type = state?.type,
+      secret = secret,
+      secretStrength = strength,
+    )
+  }
+}
+
+data class DecodingState(
+  val root: Node,
   val used: List<Pair<DotPath, Pos>>,
   val unused: List<Pair<DotPath, Pos>>,
-  val secrets: Set<DotPath>,
+  val states: List<NodeState>,
 )

@@ -6,6 +6,7 @@ import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.decoder.DotPath
+import com.sksamuel.hoplite.secrets.DefaultObfuscator
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 

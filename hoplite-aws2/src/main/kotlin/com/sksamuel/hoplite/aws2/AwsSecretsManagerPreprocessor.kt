@@ -1,5 +1,6 @@
 package com.sksamuel.hoplite.aws2
 
+import com.sksamuel.hoplite.CommonMetadata
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Node
@@ -8,6 +9,7 @@ import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.preprocessor.TraversingPrimitivePreprocessor
+import com.sksamuel.hoplite.withMeta
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient
 import software.amazon.awssdk.services.secretsmanager.model.DecryptionFailureException
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest
@@ -45,7 +47,11 @@ class AwsSecretsManagerPreprocessor(
       if (value.isNullOrBlank())
         ConfigFailure.PreprocessorWarning("Empty secret '$key' in AWS SecretsManager").invalid()
       else
-        node.copy(value = value).valid()
+        node.copy(value = value)
+          .withMeta(CommonMetadata.IsSecretLookup, true)
+          .withMeta(CommonMetadata.UnprocessedValue, node.value)
+          .withMeta(CommonMetadata.RemoteLookup, "AWS Secrets Manager '$key'")
+          .valid()
     } catch (e: ResourceNotFoundException) {
       ConfigFailure.PreprocessorWarning("Could not locate resource '$key' in AWS SecretsManager").invalid()
     } catch (e: DecryptionFailureException) {
