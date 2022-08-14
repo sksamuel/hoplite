@@ -59,9 +59,9 @@ class TripleDecoder : NullHandlingDecoder<Triple<*, *, *>> {
     fun decode(node: StringNode): ConfigResult<Triple<Any?, Any?, Any?>> {
       val parts = node.value.split(',')
       return if (parts.size == 3) {
-        val a = StringNode(parts[0], node.pos, node.path)
-        val b = StringNode(parts[1], node.pos, node.path)
-        val c = StringNode(parts[2], node.pos, node.path)
+        val a = StringNode(parts[0], node.pos, node.path, emptyMap())
+        val b = StringNode(parts[1], node.pos, node.path, emptyMap())
+        val c = StringNode(parts[2], node.pos, node.path, emptyMap())
         decode(a, b, c)
       } else ConfigFailure.Generic("Triple requires a list of three elements but list had size ${parts.size}").invalid()
     }

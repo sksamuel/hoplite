@@ -1,5 +1,6 @@
 package com.sksamuel.hoplite
 
+import com.sksamuel.hoplite.secrets.SecretStrengthAnalyzer
 import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.decoder.DefaultDecoderRegistry
 import com.sksamuel.hoplite.parsers.DefaultParserRegistry
@@ -8,8 +9,11 @@ import com.sksamuel.hoplite.preprocessor.EnvOrSystemPropertyPreprocessor
 import com.sksamuel.hoplite.preprocessor.LookupPreprocessor
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.preprocessor.RandomPreprocessor
+import com.sksamuel.hoplite.secrets.AllStringNodesSecretsPolicy
+import com.sksamuel.hoplite.secrets.Obfuscator
+import com.sksamuel.hoplite.secrets.PrefixObfuscator
 import com.sksamuel.hoplite.report.Reporter
-import com.sksamuel.hoplite.report.ReporterBuilder
+import com.sksamuel.hoplite.secrets.SecretsPolicy
 import com.sksamuel.hoplite.sources.EnvironmentVariableOverridePropertySource
 import com.sksamuel.hoplite.sources.SystemPropertiesPropertySource
 import com.sksamuel.hoplite.sources.UserSettingsPropertySource
@@ -35,7 +39,10 @@ class ConfigLoaderBuilder private constructor() {
   private val decoders = mutableListOf<Decoder<*>>()
 
   private var reporter: Reporter? = null
+  private var secretsPolicy: SecretsPolicy = AllStringNodesSecretsPolicy
+  private var obfuscator: Obfuscator = PrefixObfuscator(3)
   private var preprocessingIterations: Int = 1
+  private var secretStrengthAnalyzer: SecretStrengthAnalyzer? = null
 
   companion object {
 
@@ -180,15 +187,24 @@ class ConfigLoaderBuilder private constructor() {
   /**
    * Enables a report on all config keys, their values, and which were used or unused.
    * Note, to avoid printing passwords or other secrets, wrap those values by using `Masked` or `Secret`
-   * as the target type instead of String.
+   * as the target type instead of String. Values coming from a secrets manager preprocessor will automatically
+   * be marked to secrets.
    *
-   * The report will be printed to standard out. If you wish to provide a logger, or customize how
-   * obfuscation occurs, provider a reporter using a [ReporterBuilder].
+   * The report will be printed to standard out.
    */
-  fun withReport() = apply { reporter = Reporter.default() }
+  fun withReport() = apply { reporter = Reporter({ print(it) }, obfuscator) }
 
   @Deprecated("use withReport()", ReplaceWith("withReport()"))
   fun report() = withReport()
+
+  @Deprecated("Use correct spelling", ReplaceWith("withObfusctator(obfuscator)"))
+  fun withObfusctator(obfuscator: Obfuscator): ConfigLoaderBuilder = withObfuscator(obfuscator)
+  fun withObfuscator(obfuscator: Obfuscator): ConfigLoaderBuilder = apply { this.obfuscator = obfuscator }
+
+  fun withSecretsPolicy(secretsPolicy: SecretsPolicy) = apply { this.secretsPolicy = secretsPolicy }
+  fun withSecretStrengthAnalyzer(secretStrengthAnalyzer: SecretStrengthAnalyzer) = apply {
+    this.secretStrengthAnalyzer = secretStrengthAnalyzer
+  }
 
   /**
    * Enables a report on all config keys, their values, and which were used or unused.
@@ -197,9 +213,16 @@ class ConfigLoaderBuilder private constructor() {
    *
    * The report will be printed using the given function.
    */
+  @Deprecated(
+    "use withReport(). Passing in a reporter no longer has any effect. Specify secrets policy and obfuscator directly on this builder.",
+    ReplaceWith("withReport()")
+  )
   fun withReport(reporter: Reporter) = apply { this.reporter = reporter }
 
-  @Deprecated("use withReport()", ReplaceWith("withReport()"))
+  @Deprecated(
+    "use withReport(). Passing in a reporter no longer has any effect. Specify secrets policy and obfuscator directly on this builder.",
+    ReplaceWith("withReport()")
+  )
   fun report(reporter: Reporter) = apply { this.reporter = reporter }
 
   fun build(): ConfigLoader {
@@ -216,6 +239,8 @@ class ConfigLoaderBuilder private constructor() {
       allowUnresolvedSubstitutions = allowUnresolvedSubstitutions,
       preprocessingIterations = preprocessingIterations,
       cascadeMode = cascadeMode,
+      secretStrengthAnalyzer = secretStrengthAnalyzer,
+      secretsPolicy = secretsPolicy,
     )
   }
 }

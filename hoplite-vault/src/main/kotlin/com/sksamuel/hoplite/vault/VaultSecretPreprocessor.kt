@@ -1,5 +1,6 @@
 package com.sksamuel.hoplite.vault
 
+import com.sksamuel.hoplite.CommonMetadata
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Node
@@ -8,6 +9,7 @@ import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.preprocessor.TraversingPrimitivePreprocessor
+import com.sksamuel.hoplite.withMeta
 import org.springframework.vault.core.VaultKeyValueOperationsSupport
 import org.springframework.vault.core.VaultTemplate
 
@@ -62,7 +64,11 @@ class VaultSecretPreprocessor(
       if (value == null) {
         ConfigFailure.PreprocessorWarning("Vault key '$key' not found in path '$path'").invalid()
       } else {
-        node.copy(value = value.toString()).valid()
+        node.copy(value = value.toString())
+          .withMeta(CommonMetadata.IsSecretLookup, true)
+          .withMeta(CommonMetadata.UnprocessedValue, node.value)
+          .withMeta(CommonMetadata.RemoteLookup, "Vault '$path' '$key'")
+          .valid()
       }
     }
   }.getOrElse {

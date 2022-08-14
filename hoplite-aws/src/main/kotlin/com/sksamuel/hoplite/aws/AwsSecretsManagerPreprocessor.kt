@@ -9,6 +9,7 @@ import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest
 import com.amazonaws.services.secretsmanager.model.InvalidParameterException
 import com.amazonaws.services.secretsmanager.model.LimitExceededException
 import com.amazonaws.services.secretsmanager.model.ResourceNotFoundException
+import com.sksamuel.hoplite.CommonMetadata
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Node
@@ -17,6 +18,7 @@ import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.preprocessor.TraversingPrimitivePreprocessor
+import com.sksamuel.hoplite.withMeta
 
 class AwsSecretsManagerPreprocessor(
   private val createClient: () -> AWSSecretsManager = { AWSSecretsManagerClientBuilder.standard().build() }
@@ -45,8 +47,13 @@ class AwsSecretsManagerPreprocessor(
       val value = client.getSecretValue(req).secretString
       if (value.isNullOrBlank())
         ConfigFailure.PreprocessorWarning("Empty secret '$key' in AWS SecretsManager").invalid()
-      else
-        node.copy(value = value).valid()
+      else {
+        val copied = node.copy(value = value)
+          .withMeta(CommonMetadata.IsSecretLookup, true)
+          .withMeta(CommonMetadata.UnprocessedValue, node.value)
+          .withMeta(CommonMetadata.RemoteLookup, "AWS '$key'")
+        copied.valid()
+      }
     } catch (e: ResourceNotFoundException) {
       ConfigFailure.PreprocessorWarning("Could not locate resource '$key' in AWS SecretsManager").invalid()
     } catch (e: DecryptionFailureException) {

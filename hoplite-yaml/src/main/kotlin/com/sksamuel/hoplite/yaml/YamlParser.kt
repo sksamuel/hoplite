@@ -94,9 +94,9 @@ object TokenProduction {
       //    { n, FALSE, No, off }    : Boolean false
       is ScalarEvent -> {
         val node = if (event.value == "null" && event.scalarStyle == DumperOptions.ScalarStyle.PLAIN)
-          NullNode(event.startMark.toPos(source), path)
+          NullNode(event.startMark.toPos(source), path, emptyMap())
         else
-          StringNode(event.value, event.startMark.toPos(source), path)
+          StringNode(event.value, event.startMark.toPos(source), path, emptyMap())
         if (event.anchor == null) Pair(node, anchors) else Pair(node, anchors.plus(event.anchor to node))
       }
       is AliasEvent -> {

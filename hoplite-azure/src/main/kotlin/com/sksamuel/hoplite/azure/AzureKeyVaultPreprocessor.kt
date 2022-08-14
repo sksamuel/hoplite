@@ -4,6 +4,7 @@ import com.azure.core.exception.ResourceNotFoundException
 import com.azure.identity.DefaultAzureCredentialBuilder
 import com.azure.security.keyvault.secrets.SecretClient
 import com.azure.security.keyvault.secrets.SecretClientBuilder
+import com.sksamuel.hoplite.CommonMetadata
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Node
@@ -12,6 +13,7 @@ import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.preprocessor.TraversingPrimitivePreprocessor
+import com.sksamuel.hoplite.withMeta
 
 class AzureKeyVaultPreprocessor(private val createClient: () -> SecretClient) : TraversingPrimitivePreprocessor() {
 
@@ -42,7 +44,11 @@ class AzureKeyVaultPreprocessor(private val createClient: () -> SecretClient) : 
       if (value.isNullOrBlank())
         ConfigFailure.PreprocessorWarning("Empty value for '$key' in Azure Key Vault").invalid()
       else
-        node.copy(value = value).valid()
+        node.copy(value = value)
+          .withMeta(CommonMetadata.IsSecretLookup, true)
+          .withMeta(CommonMetadata.UnprocessedValue, node.value)
+          .withMeta(CommonMetadata.RemoteLookup, "Azure '$key'")
+          .valid()
     } catch (e: ResourceNotFoundException) {
       ConfigFailure.PreprocessorWarning("Could not locate resource '$key' in Azure Key Vault").invalid()
     } catch (e: Exception) {

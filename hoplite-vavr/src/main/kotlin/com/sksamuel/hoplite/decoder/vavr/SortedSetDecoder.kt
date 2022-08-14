@@ -34,7 +34,7 @@ class SortedSetDecoder<T : Comparable<T>> : NullHandlingDecoder<SortedSet<T>> {
 
     fun decode(node: StringNode, decoder: Decoder<T>): ConfigResult<SortedSet<T>> {
       val tokens = node.value.split(",").map {
-        StringNode(it.trim(), node.pos, node.path)
+        StringNode(it.trim(), node.pos, node.path, emptyMap())
       }
 
       return tokens.map { decoder.decode(it, type, context) }.sequence()

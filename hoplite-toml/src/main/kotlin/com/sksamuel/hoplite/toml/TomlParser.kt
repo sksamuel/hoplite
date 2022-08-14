@@ -53,13 +53,13 @@ object TableProduction {
       // ensures that we always treat it as a single segment.
       val keyPath = listOf(key)
       val value = when {
-        table.isBoolean(keyPath) -> BooleanNode(table.getBoolean(keyPath)!!, fieldPos, path.with(key))
-        table.isDouble(keyPath) -> DoubleNode(table.getDouble(keyPath)!!, fieldPos, path.with(key))
-        table.isLong(keyPath) -> LongNode(table.getLong(keyPath)!!, fieldPos, path.with(key))
-        table.isString(keyPath) -> StringNode(table.getString(keyPath)!!, fieldPos, path.with(key))
+        table.isBoolean(keyPath) -> BooleanNode(table.getBoolean(keyPath)!!, fieldPos, path.with(key), emptyMap())
+        table.isDouble(keyPath) -> DoubleNode(table.getDouble(keyPath)!!, fieldPos, path.with(key), emptyMap())
+        table.isLong(keyPath) -> LongNode(table.getLong(keyPath)!!, fieldPos, path.with(key), emptyMap())
+        table.isString(keyPath) -> StringNode(table.getString(keyPath)!!, fieldPos, path.with(key), emptyMap())
         table.isArray(keyPath) -> ListProduction(table.getArray(keyPath)!!, fieldPos, source, path.with(key))
         table.isTable(keyPath) -> TableProduction(table.getTable(keyPath)!!, fieldPos, source, path.with(key))
-        else -> StringNode(table.get(keyPath).toString(), fieldPos, path.with(key))
+        else -> StringNode(table.get(keyPath).toString(), fieldPos, path.with(key), emptyMap())
       }
       obj[key] = value
     }
@@ -72,13 +72,13 @@ object ListProduction {
   operator fun invoke(array: TomlArray, pos: Pos, source: String, path: DotPath): ArrayNode {
     val elements = (0 until array.size()).map { k ->
       when {
-        array.containsBooleans() -> BooleanNode(array.getBoolean(k), pos, path)
-        array.containsDoubles() -> DoubleNode(array.getDouble(k), pos, path)
-        array.containsLongs() -> LongNode(array.getLong(k), pos, path)
-        array.containsStrings() -> StringNode(array.getString(k), pos, path)
+        array.containsBooleans() -> BooleanNode(array.getBoolean(k), pos, path, emptyMap())
+        array.containsDoubles() -> DoubleNode(array.getDouble(k), pos, path, emptyMap())
+        array.containsLongs() -> LongNode(array.getLong(k), pos, path, emptyMap())
+        array.containsStrings() -> StringNode(array.getString(k), pos, path, emptyMap())
         array.containsArrays() -> ListProduction(array.getArray(k), pos, source, path)
         array.containsTables() -> TableProduction(array.getTable(k), pos, source, path)
-        else -> StringNode(array[k].toString(), pos, path)
+        else -> StringNode(array[k].toString(), pos, path, emptyMap())
       }
     }
     return ArrayNode(elements, pos, path)

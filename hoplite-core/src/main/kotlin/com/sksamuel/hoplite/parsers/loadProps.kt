@@ -80,7 +80,7 @@ private fun <T> Iterable<T>.toNode(
       pos = pos,
       path = path,
     )
-    else -> StringNode(this.toString(), pos, path = path)
+    else -> StringNode(this.toString(), pos, path = path, emptyMap())
   }
 
   return map.transform(DotPath.root)

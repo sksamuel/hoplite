@@ -34,7 +34,7 @@ class LinkedHashMapDecoder : NullHandlingDecoder<LinkedHashMap<*, *>> {
                       context: DecoderContext): ConfigResult<LinkedHashMap<K, V>> {
 
       return node.map.entries.map { (k, v) ->
-        kdecoder.decode(StringNode(k, node.pos, node.path), kType, context).flatMap { kk ->
+        kdecoder.decode(StringNode(k, node.pos, node.path, emptyMap()), kType, context).flatMap { kk ->
           vdecoder.decode(v, vType, context).map { vv ->
             kk to vv
           }

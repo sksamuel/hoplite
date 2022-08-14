@@ -2,6 +2,7 @@ package com.sksamuel.hoplite.aws
 
 import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder
 import com.amazonaws.services.secretsmanager.model.CreateSecretRequest
+import com.sksamuel.hoplite.CommonMetadata
 import com.sksamuel.hoplite.ConfigException
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigLoaderBuilder
@@ -9,10 +10,12 @@ import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.decoder.DotPath
 import com.sksamuel.hoplite.fp.Validated
+import com.sksamuel.hoplite.traverse
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.extensions.install
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.testcontainers.TestContainerExtension
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
@@ -34,10 +37,9 @@ class AwsSecretsManagerPreprocessorTest : FunSpec() {
       .withCredentials(localstack.defaultCredentialsProvider)
       .build()
 
+    client.createSecret(CreateSecretRequest().withName("foo").withSecretString("secret!"))
+
     test("placeholder should be detected and used") {
-
-      client.createSecret(CreateSecretRequest().withName("foo").withSecretString("secret!"))
-
       ConfigLoaderBuilder.default()
         .addPreprocessor(AwsSecretsManagerPreprocessor { client })
         .build()
@@ -45,20 +47,58 @@ class AwsSecretsManagerPreprocessorTest : FunSpec() {
         .a.shouldBe("secret!")
     }
 
+    test("node should be annotated with IsDecodedSecret attribute") {
+      ConfigLoaderBuilder.default()
+        .addPreprocessor(AwsSecretsManagerPreprocessor { client })
+        .build()
+        .loadNodeOrThrow("/secrets.props")
+        .traverse()
+        .find { it.path == DotPath("a") }
+        .shouldNotBeNull().meta[CommonMetadata.IsSecretLookup] shouldBe true
+    }
+
+    test("node should be annotated with UnprocessedValue attribute") {
+      ConfigLoaderBuilder.default()
+        .addPreprocessor(AwsSecretsManagerPreprocessor { client })
+        .build()
+        .loadNodeOrThrow("/secrets.props")
+        .traverse()
+        .find { it.path == DotPath("a") }
+        .shouldNotBeNull().meta[CommonMetadata.UnprocessedValue] shouldBe "awssm://foo"
+    }
+
     test("unknown secret should return error and include key") {
-      AwsSecretsManagerPreprocessor { client }.process(StringNode("secretsmanager://unkunk", Pos.NoPos, DotPath.root))
-        .shouldBeInstanceOf<Validated.Invalid<ConfigFailure>>().error.description().shouldContain("unkunk")
+      AwsSecretsManagerPreprocessor { client }.process(
+        StringNode(
+          "secretsmanager://unkunk",
+          Pos.NoPos,
+          DotPath.root,
+          emptyMap()
+        )
+      ).shouldBeInstanceOf<Validated.Invalid<ConfigFailure>>().error.description().shouldContain("unkunk")
     }
 
     test("empty secret should return error and include key") {
       client.createSecret(CreateSecretRequest().withName("bibblebobble").withSecretString(""))
-      AwsSecretsManagerPreprocessor { client }.process(StringNode("secretsmanager://bibblebobble", Pos.NoPos, DotPath.root))
-        .shouldBeInstanceOf<Validated.Invalid<ConfigFailure>>().error.description().shouldContain("Empty secret")
+      AwsSecretsManagerPreprocessor { client }.process(
+        StringNode(
+          "secretsmanager://bibblebobble",
+          Pos.NoPos,
+          DotPath.root,
+          emptyMap(),
+        )
+      ).shouldBeInstanceOf<Validated.Invalid<ConfigFailure>>().error.description().shouldContain("Empty secret")
     }
 
     test("unknown secret should return error and not include prefix") {
-      AwsSecretsManagerPreprocessor { client }.process(StringNode("secretsmanager://unkunk", Pos.NoPos, DotPath.root))
-        .shouldBeInstanceOf<Validated.Invalid<ConfigFailure>>().error.description().shouldNotContain("secretsmanager://")
+      AwsSecretsManagerPreprocessor { client }.process(
+        StringNode(
+          "secretsmanager://unkunk", Pos.NoPos, DotPath.root,
+          emptyMap()
+        )
+      )
+        .shouldBeInstanceOf<Validated.Invalid<ConfigFailure>>().error.description()
+        .shouldNotContain("secretsmanager://")
     }
 
     test("multiple errors should be returned at once") {

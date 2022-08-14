@@ -1,5 +1,6 @@
 package com.sksamuel.hoplite
 
+import com.sksamuel.hoplite.secrets.SecretStrength
 import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.decoder.DotPath
@@ -14,8 +15,10 @@ import kotlin.reflect.KType
 data class DecoderContext(
   val decoders: DecoderRegistry,
   val paramMappers: List<ParameterMapper>,
+  // these are the dot paths for every config value - overrided or not, that was used
   val usedPaths: MutableSet<DotPath> = mutableSetOf(),
-  val secrets: MutableSet<DotPath> = mutableSetOf(),
+  // this tracks the types that a node was marshalled into
+  val used: MutableSet<NodeState> = mutableSetOf(),
 ) {
 
   /**
@@ -28,15 +31,20 @@ data class DecoderContext(
    */
   fun decoder(type: KParameter): Validated<ConfigFailure, Decoder<*>> = decoder(type.type)
 
+  fun used(node: Node, type: KType, value: Any?) {
+    this.used.add(NodeState(node, true, value, type, false, null))
+  }
+
   companion object {
     val zero = DecoderContext(DecoderRegistry.zero, emptyList(), mutableSetOf())
   }
 }
 
-enum class DecodeMode {
-  // errors if a config value is provided but not used
-  Strict,
-
-  // allows config to be unused
-  Lenient
-}
+data class NodeState(
+  val node: Node,
+  val used: Boolean,
+  val value: Any?, // the value assigned when this node was used
+  val type: KType?,
+  val secret: Boolean = false, // if this node is a secret
+  val secretStrength: SecretStrength? = null, // if this node is a secret, then the strength
+)

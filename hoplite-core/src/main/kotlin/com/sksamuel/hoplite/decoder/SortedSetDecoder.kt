@@ -42,7 +42,7 @@ class SortedSetDecoder : NullHandlingDecoder<SortedSet<*>> {
 
     fun decode(node: StringNode, decoder: Decoder<*>): ConfigResult<SortedSet<*>> {
       val tokens = node.value.split(",").map {
-        StringNode(it.trim(), node.pos, node.path)
+        StringNode(it.trim(), node.pos, node.path, emptyMap())
       }
       return tokens.map { decoder.decode(it, type, context) }.sequence()
         .mapInvalid { ConfigFailure.CollectionElementErrors(node, it) }

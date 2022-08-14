@@ -12,6 +12,8 @@ import com.sksamuel.hoplite.parsers.ParserRegistry
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.preprocessor.UnresolvedSubstitutionChecker
 import com.sksamuel.hoplite.report.Reporter
+import com.sksamuel.hoplite.secrets.SecretStrengthAnalyzer
+import com.sksamuel.hoplite.secrets.SecretsPolicy
 import kotlin.reflect.KClass
 
 class ConfigException(msg: String, val t: Throwable? = null) : java.lang.RuntimeException(msg, t)
@@ -30,6 +32,8 @@ class ConfigLoader(
   val classLoader: ClassLoader? = null, // if null, then the current context thread loader
   val preprocessingIterations: Int = 1,
   val cascadeMode: CascadeMode = CascadeMode.Merge,
+  val secretsPolicy: SecretsPolicy? = null,
+  val secretStrengthAnalyzer: SecretStrengthAnalyzer? = null,
 ) {
 
   companion object {
@@ -140,10 +144,17 @@ class ConfigLoader(
         Preprocessing(preprocessors, preprocessingIterations).preprocess(node)
           .flatMap { if (allowUnresolvedSubstitutions) it.valid() else UnresolvedSubstitutionChecker.process(it) }
           .flatMap { preprocessed ->
-            decode(klass, preprocessed)
-              .onSuccess { (_, used, _, secrets) -> reporter?.printReport(sources, preprocessed, used, secrets) }
-              .onFailure { reporter?.printReport(sources, preprocessed) }
-              .map { (config, _, _, _) -> config }
+            val context = DecoderContext(
+              decoders = decoderRegistry,
+              paramMappers = paramMappers,
+            )
+            val decoded = decode(klass, preprocessed, context)
+            // always do report regardless of decoder
+            reporter?.printReport(
+              sources,
+              createDecodingState(preprocessed, context, secretsPolicy, secretStrengthAnalyzer)
+            )
+            decoded
           }
       }
   }
@@ -179,11 +190,11 @@ class ConfigLoader(
   ): ConfigResult<Node> = ConfigSource
     .fromResourcesOrFiles(resourceOrFiles.toList(), classpathResourceLoader)
     .flatMap { NodeParser(parserRegistry, allowEmptyTree, cascadeMode).parseNode(propertySources, it) }
-    .map { it.node }
+    .flatMap { Preprocessing(preprocessors, preprocessingIterations).preprocess(it.node) }
 
-  private fun <A : Any> decode(kclass: KClass<A>, node: Node): ConfigResult<DecodingResult<A>> {
-    val decoding = Decoding(decoderRegistry, paramMappers)
-    return decoding.decode(kclass, node, mode)
+  private fun <A : Any> decode(kclass: KClass<A>, node: Node, context: DecoderContext): ConfigResult<A> {
+    val decoding = Decoding(decoderRegistry, secretsPolicy, secretStrengthAnalyzer)
+    return decoding.decode(kclass, node, mode, context)
   }
 
   @PublishedApi

@@ -21,7 +21,6 @@ class SecretDecoder : NullHandlingDecoder<Secret> {
     type: KType,
     context: DecoderContext
   ): ConfigResult<Secret> {
-    context.secrets.add(node.path)
     return when (node) {
       is StringNode -> Secret(node.value).valid()
       is LongNode -> Secret(node.value.toString()).valid()

@@ -1,6 +1,7 @@
 package com.sksamuel.hoplite.consul
 
 import com.orbitz.consul.Consul
+import com.sksamuel.hoplite.CommonMetadata
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Node
@@ -9,6 +10,7 @@ import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.preprocessor.TraversingPrimitivePreprocessor
+import com.sksamuel.hoplite.withMeta
 import java.util.Optional
 
 /**
@@ -46,7 +48,7 @@ class ConsulConfigPreprocessor(
           {
             when (val v = it.orElseGet { null }) {
               null -> ConfigFailure.PreprocessorWarning("Unable to locate consul key '$key'").invalid()
-              else -> node.copy(value = v).valid()
+              else -> node.copy(value = v).withMeta(CommonMetadata.UnprocessedValue, node.value).valid()
             }
           },
           { ConfigFailure.PreprocessorFailure("Failed loading from consul", it).invalid() }

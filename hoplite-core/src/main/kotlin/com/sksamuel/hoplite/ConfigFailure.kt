@@ -34,6 +34,13 @@ sealed interface ConfigFailure {
     }
   }
 
+  data class WeakSecrets(val weak: Set<Node>) : ConfigFailure {
+    override fun description(): String {
+      val keys = weak.map { it.path.flatten() }.sorted().joinToString("\n") { " - $it" }
+      return "Weak secrets are configured as errors\n$keys"
+    }
+  }
+
   data class OverrideConfigError(val overrides: List<OverridePath>) : ConfigFailure {
     override fun description(): String {
       val keys = overrides.joinToString("\n") {
