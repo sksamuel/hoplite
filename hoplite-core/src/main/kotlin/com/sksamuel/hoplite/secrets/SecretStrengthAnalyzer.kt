@@ -3,7 +3,7 @@ package com.sksamuel.hoplite.secrets
 interface SecretStrengthAnalyzer {
 
   /**
-   * Returns null if this secret value is strong.
+   * Returns [SecretStrength] to indicate if this secret is strong or weak.
    */
   fun strength(value: String): SecretStrength
 }

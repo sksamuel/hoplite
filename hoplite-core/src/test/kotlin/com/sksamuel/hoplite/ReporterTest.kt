@@ -39,14 +39,14 @@ class ReporterTest : FunSpec({
     }.shouldContain(
       """
 Used keys: 4
-+----------+---------------------+----------+----------+---------------+
-| Key      | Source              | Value    | Strength | Remote Lookup |
-+----------+---------------------+----------+----------+---------------+
-| host     | props string source | loc***** |          |               |
-| name     | props string source | my ***** |          |               |
-| password | props string source | ssm***** |          |               |
-| port     | props string source | 3306     |          |               |
-+----------+---------------------+----------+----------+---------------+
++----------+---------------------+----------+
+| Key      | Source              | Value    |
++----------+---------------------+----------+
+| host     | props string source | loc***** |
+| name     | props string source | my ***** |
+| password | props string source | ssm***** |
+| port     | props string source | 3306     |
++----------+---------------------+----------+
 """
     )
 
@@ -88,12 +88,12 @@ Property sources (highest to lowest priority):
     }
 
     out shouldContain """
-+---------------+---------------------+----------+----------+---------------+
-| Key           | Source              | Value    | Strength | Remote Lookup |
-+---------------+---------------------+----------+----------+---------------+
-| database.name | props string source | my ***** |          |               |
-| database.port | props string source | 3306     |          |               |
-+---------------+---------------------+----------+----------+---------------+
++---------------+---------------------+----------+
+| Key           | Source              | Value    |
++---------------+---------------------+----------+
+| database.name | props string source | my ***** |
+| database.port | props string source | 3306     |
++---------------+---------------------+----------+
 """.trim()
 
   }
@@ -129,15 +129,15 @@ Property sources (highest to lowest priority):
     }.shouldContain(
       """
 Used keys: 5
-+-----------+---------------------+-------------+---------------------------------+---------------+
-| Key       | Source              | Value       | Strength                        | Remote Lookup |
-+-----------+---------------------+-------------+---------------------------------+---------------+
-| host      | props string source | localhost   |                                 |               |
-| name      | props string source | my database |                                 |               |
-| password1 | props string source | ssm*****    | WEAK - Does not contain a digit |               |
-| password2 | props string source | ssm*****    | Strong                          |               |
-| port      | props string source | 3306        |                                 |               |
-+-----------+---------------------+-------------+---------------------------------+---------------+
++-----------+---------------------+-------------+---------------------------------+
+| Key       | Source              | Value       | Strength                        |
++-----------+---------------------+-------------+---------------------------------+
+| host      | props string source | localhost   |                                 |
+| name      | props string source | my database |                                 |
+| password1 | props string source | ssm*****    | WEAK - Does not contain a digit |
+| password2 | props string source | ssm*****    | Strong                          |
+| port      | props string source | 3306        |                                 |
++-----------+---------------------+-------------+---------------------------------+
 """
     )
   }

@@ -1,11 +1,11 @@
 package com.sksamuel.hoplite.report
 
-import com.sksamuel.hoplite.CommonMetadata
 import com.sksamuel.hoplite.DecodingState
 import com.sksamuel.hoplite.NodeState
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.PropertySource
 import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.remoteLookup
 import com.sksamuel.hoplite.secrets.Obfuscator
 import com.sksamuel.hoplite.secrets.PrefixObfuscator
 import com.sksamuel.hoplite.secrets.SecretStrength
@@ -102,40 +102,43 @@ class Reporter(
       )
     }
 
+    val hasStrengths = obfuscated.any { it.secretStrength != null }
+    val hasRemotes = obfuscated.any { it.node.remoteLookup() != null }
+
     val keyPadded = nodes.maxOf { it.node.path.flatten().length }
     val sourcePadded = nodes.maxOf { max(it.node.pos.source()?.length ?: 0, "source".length) }
     val valuePadded = max("Value".length, obfuscated.maxOf { (it.node as StringNode).value.length })
     val strengthPadded = max(Titles.Strength.length, nodes.maxOf { it.secretStrength?.asString()?.length ?: 0 })
     val remotePadded = max(Titles.Remote.length, nodes.maxOf {
-      it.node.meta[CommonMetadata.RemoteLookup]?.toString()?.length ?: 0
+      it.node.remoteLookup()?.length ?: 0
     })
 
     val rows = obfuscated.map {
-      listOf(
+      listOfNotNull(
         it.node.path.flatten().padEnd(keyPadded, ' '),
         (it.node.pos.source() ?: "").padEnd(sourcePadded, ' '),
         (it.node as StringNode).value.padEnd(valuePadded, ' '),
-        it.secretStrength.asString().padEnd(strengthPadded, ' '),
-        (it.node.meta[CommonMetadata.RemoteLookup]?.toString() ?: "").padEnd(remotePadded, ' '),
+        if (hasStrengths) it.secretStrength.asString().padEnd(strengthPadded, ' ') else null,
+        if (hasRemotes) (it.node.remoteLookup() ?: "").padEnd(remotePadded, ' ') else null,
       ).joinToString(" | ", "| ", " |")
     }
 
     val titleRow = title?.let { "$it: ${nodes.size}" }
 
-    val bar = listOf(
+    val bar = listOfNotNull(
       "".padEnd(keyPadded + 2, '-'),
       "".padEnd(sourcePadded + 2, '-'),
       "".padEnd(valuePadded + 2, '-'),
-      "".padEnd(strengthPadded + 2, '-'),
-      "".padEnd(remotePadded + 2, '-'),
+      if (hasStrengths) "".padEnd(strengthPadded + 2, '-') else null,
+      if (hasRemotes) "".padEnd(remotePadded + 2, '-') else null,
     ).joinToString("+", "+", "+")
 
-    val titles = listOf(
+    val titles = listOfNotNull(
       "Key".padEnd(keyPadded, ' '),
       "Source".padEnd(sourcePadded, ' '),
       "Value".padEnd(valuePadded, ' '),
-      Titles.Strength.padEnd(strengthPadded, ' '),
-      Titles.Remote.padEnd(remotePadded, ' '),
+      if (hasStrengths) Titles.Strength.padEnd(strengthPadded, ' ') else null,
+      if (hasRemotes) Titles.Remote.padEnd(remotePadded, ' ') else null,
     ).joinToString(" | ", "| ", " |")
 
     return (listOfNotNull(titleRow, bar, titles, bar) + rows + listOf(bar)).joinToString(System.lineSeparator())

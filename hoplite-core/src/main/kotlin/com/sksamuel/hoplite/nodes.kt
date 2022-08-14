@@ -64,6 +64,8 @@ object CommonMetadata {
   const val RemoteLookup = "RemoteLookup"
 }
 
+fun Node.remoteLookup(): String? = meta[CommonMetadata.RemoteLookup]?.toString()
+
 /**
  * Returnes true if this node is not [Undefined]
  */
