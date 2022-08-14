@@ -67,6 +67,7 @@ class VaultSecretPreprocessor(
         node.copy(value = value.toString())
           .withMeta(CommonMetadata.IsSecretLookup, true)
           .withMeta(CommonMetadata.UnprocessedValue, node.value)
+          .withMeta(CommonMetadata.RemoteLookup, "Vault '$path' '$key'")
           .valid()
       }
     }

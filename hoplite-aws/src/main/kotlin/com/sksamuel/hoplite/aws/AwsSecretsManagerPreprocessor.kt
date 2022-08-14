@@ -51,7 +51,7 @@ class AwsSecretsManagerPreprocessor(
         val copied = node.copy(value = value)
           .withMeta(CommonMetadata.IsSecretLookup, true)
           .withMeta(CommonMetadata.UnprocessedValue, node.value)
-          .withMeta(CommonMetadata.RemoteLookup, "AWS Secrets Manager '$key'")
+          .withMeta(CommonMetadata.RemoteLookup, "AWS '$key'")
         copied.valid()
       }
     } catch (e: ResourceNotFoundException) {

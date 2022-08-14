@@ -50,7 +50,7 @@ class AwsSecretsManagerPreprocessor(
         node.copy(value = value)
           .withMeta(CommonMetadata.IsSecretLookup, true)
           .withMeta(CommonMetadata.UnprocessedValue, node.value)
-          .withMeta(CommonMetadata.RemoteLookup, "AWS Secrets Manager '$key'")
+          .withMeta(CommonMetadata.RemoteLookup, "AWS '$key'")
           .valid()
     } catch (e: ResourceNotFoundException) {
       ConfigFailure.PreprocessorWarning("Could not locate resource '$key' in AWS SecretsManager").invalid()

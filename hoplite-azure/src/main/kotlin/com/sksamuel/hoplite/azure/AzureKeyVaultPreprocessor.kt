@@ -47,6 +47,7 @@ class AzureKeyVaultPreprocessor(private val createClient: () -> SecretClient) : 
         node.copy(value = value)
           .withMeta(CommonMetadata.IsSecretLookup, true)
           .withMeta(CommonMetadata.UnprocessedValue, node.value)
+          .withMeta(CommonMetadata.RemoteLookup, "Azure '$key'")
           .valid()
     } catch (e: ResourceNotFoundException) {
       ConfigFailure.PreprocessorWarning("Could not locate resource '$key' in Azure Key Vault").invalid()

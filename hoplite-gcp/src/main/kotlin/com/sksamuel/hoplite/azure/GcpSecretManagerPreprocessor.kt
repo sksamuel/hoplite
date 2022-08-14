@@ -38,7 +38,11 @@ class GcpSecretManagerPreprocessor(private val createClient: () -> SecretManager
       if (value.isNullOrBlank())
         ConfigFailure.PreprocessorWarning("Empty value for '$key' in GCP Secret Manager").invalid()
       else
-        node.copy(value = value).withMeta(CommonMetadata.IsSecretLookup, true).valid()
+        node.copy(value = value)
+          .withMeta(CommonMetadata.IsSecretLookup, true)
+          .withMeta(CommonMetadata.UnprocessedValue, node.value)
+          .withMeta(CommonMetadata.RemoteLookup, "GCP '$key'")
+          .valid()
     } catch (e: ApiException) {
       ConfigFailure.PreprocessorWarning("Could not locate secret '$key' in GCP Secret Manager").invalid()
     } catch (e: Exception) {
