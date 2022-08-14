@@ -56,10 +56,13 @@ object HashObfuscator : Obfuscator {
 }
 
 /**
- * An [Obfuscator] that returns the first three characters with a fixed mask for strings,
- * and the value otherwise.
+ * An [Obfuscator] that returns the first [prefixLength] characters along with
+ * a [suffixMask] for Strings, for other values returns the full value.
  */
-class PrefixObfuscator(private val prefixLength: Int) : Obfuscator {
+class PrefixObfuscator(
+  private val prefixLength: Int,
+  private val suffixMask: String = "*****",
+) : Obfuscator {
   override fun obfuscate(node: PrimitiveNode): String {
     return when (node) {
       is BooleanNode -> node.value.toString()
@@ -77,7 +80,7 @@ class PrefixObfuscator(private val prefixLength: Int) : Obfuscator {
         val maybeDouble = node.value.toDoubleOrNull()
         if (maybeDouble != null) return maybeDouble.toString()
 
-        return node.value.take(prefixLength) + "*****"
+        return node.value.take(prefixLength) + suffixMask
       }
     }
   }
