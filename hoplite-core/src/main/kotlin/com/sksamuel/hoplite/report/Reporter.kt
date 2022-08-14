@@ -13,6 +13,7 @@ import com.sksamuel.hoplite.PropertySource
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.decoder.DotPath
+import kotlin.math.max
 
 typealias Print = (String) -> Unit
 
@@ -118,7 +119,7 @@ class Reporter(
     }
 
     val keyPadded = obfuscated.maxOf { it.path.flatten().length }
-    val sourcePadded = obfuscated.maxOf { it.source.length }
+    val sourcePadded = obfuscated.maxOf { max(it.source.length, "source".length) }
     val valuePadded = obfuscated.maxOf { it.node.value.toString().length }
 
     val rows = obfuscated.map {
