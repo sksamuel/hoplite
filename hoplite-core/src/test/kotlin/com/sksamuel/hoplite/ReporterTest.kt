@@ -123,7 +123,7 @@ Property sources (highest to lowest priority):
         )
         .withReport()
         .withSecretsPolicy(StandardSecretsPolicy)
-        .withSecretStrengthAnalyzer(DefaultSecretStrengthAnalyzer)
+        .withSecretStrengthAnalyzer(DefaultSecretStrengthAnalyzer())
         .build()
         .loadConfigOrThrow<Test>()
     }.shouldContain(
@@ -173,7 +173,7 @@ Used keys: 5
           }
         })
         .withSecretsPolicy(StandardSecretsPolicy)
-        .withSecretStrengthAnalyzer(DefaultSecretStrengthAnalyzer)
+        .withSecretStrengthAnalyzer(DefaultSecretStrengthAnalyzer())
         .build()
         .loadConfigOrThrow<Test>()
     }.shouldContain(

@@ -22,7 +22,7 @@ class AnalysisTest : FunSpec() {
         .addSource(YamlPropertySource("unused: foo"))
         .withReport()
         .withSecretsPolicy(StandardSecretsPolicy)
-        .withSecretStrengthAnalyzer(DefaultSecretStrengthAnalyzer)
+        .withSecretStrengthAnalyzer(DefaultSecretStrengthAnalyzer())
         .build()
         .loadConfigOrThrow<Foo>()
     }
