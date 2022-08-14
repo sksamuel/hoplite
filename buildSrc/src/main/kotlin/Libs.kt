@@ -36,6 +36,10 @@ object Libs {
     const val utils = "com.cronutils:cron-utils:_"
   }
 
+  object Google {
+    const val secretsmanager = "com.google.cloud:google-cloud-secretmanager:2.3.1"
+  }
+
   object Hadoop {
     const val common = "org.apache.hadoop:hadoop-common:_"
   }
