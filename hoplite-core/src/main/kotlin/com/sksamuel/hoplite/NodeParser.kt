@@ -11,6 +11,7 @@ import com.sksamuel.hoplite.sources.ConfigFilePropertySource
 class NodeParser(
   private val parserRegistry: ParserRegistry,
   private val allowEmptyTree: Boolean,
+  private val cascadeMode: CascadeMode,
 ) {
 
   /**
@@ -33,12 +34,18 @@ class NodeParser(
         multipleFailures
       }.flatMap { nodes ->
         // nodes cannot be empty, as srcs is not empty, and if any of them errored, we would not be in this map block
-        val reduced = nodes.reduce { a, b -> a.merge(b) }
+        val reduced = nodes.fold(CascadeResult(Undefined)) { a, b ->
+          val result = a.node.cascade(b, cascadeMode)
+          CascadeResult(result.node, a.overrides + result.overrides)
+        }
+        if (cascadeMode == CascadeMode.Error && reduced.overrides.isNotEmpty()) {
+          return ConfigFailure.OverrideConfigError(reduced.overrides).invalid()
+        }
         when {
-          reduced == Undefined && allowEmptyTree ->
+          reduced.node == Undefined && allowEmptyTree ->
             NodeResult(combinedPropertySources, MapNode(emptyMap(), Pos.NoPos, DotPath.root)).valid()
-          reduced == Undefined -> ConfigFailure.NoValues.invalid()
-          else -> NodeResult(combinedPropertySources, reduced).valid()
+          reduced.node == Undefined -> ConfigFailure.NoValues.invalid()
+          else -> NodeResult(combinedPropertySources, reduced.node).valid()
         }
       }
   }
