@@ -64,7 +64,7 @@ class Reporter(
       appendLine()
       appendLine("--Start Hoplite Config Report---")
       appendLine()
-      appendLine("Environment: " + (environment?.name ?: "Unspecified"))
+      environment?.let { appendLine("Environment: $it") }
       appendLine()
       appendLine(report(sources))
       appendLine()

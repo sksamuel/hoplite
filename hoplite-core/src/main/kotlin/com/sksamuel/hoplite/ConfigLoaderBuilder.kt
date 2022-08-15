@@ -81,6 +81,9 @@ class ConfigLoaderBuilder private constructor() {
     this.classLoader = classLoader
   }
 
+  /**
+   * Sets the current environment, eg prod or dev.
+   */
   fun withEnvironment(environment: Environment) = apply { this.environment = environment }
 
   fun addSource(propertySource: PropertySource) = addPropertySource(propertySource)
