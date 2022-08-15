@@ -41,7 +41,8 @@ object LookupPreprocessor : Preprocessor {
           else -> matchWithDefault.let { m -> lookup(m.groups[1]!!.value) ?: m.groups[2]!!.value }
         }
       }
-      return node.copy(value = value).withMeta(CommonMetadata.UnprocessedValue, node.value) as StringNode
+      return if (value == node.value) node else
+        node.copy(value = value).withMeta(CommonMetadata.UnprocessedValue, node.value) as StringNode
     }
 
     fun handle(n: Node): Node = when (n) {

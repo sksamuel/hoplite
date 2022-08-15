@@ -45,7 +45,7 @@ class AzureKeyVaultPreprocessor(private val createClient: () -> SecretClient) : 
         ConfigFailure.PreprocessorWarning("Empty value for '$key' in Azure Key Vault").invalid()
       else
         node.copy(value = value)
-          .withMeta(CommonMetadata.IsSecretLookup, true)
+          .withMeta(CommonMetadata.Secret, true)
           .withMeta(CommonMetadata.UnprocessedValue, node.value)
           .withMeta(CommonMetadata.RemoteLookup, "Azure '$key'")
           .valid()

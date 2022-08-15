@@ -59,12 +59,13 @@ sealed interface Node {
 }
 
 object CommonMetadata {
-  const val IsSecretLookup = "IsSecretLookup"
+  const val Secret = "Secret"
   const val UnprocessedValue = "UnprocessedValue"
   const val RemoteLookup = "RemoteLookup"
 }
 
 fun Node.remoteLookup(): String? = meta[CommonMetadata.RemoteLookup]?.toString()
+fun Node.unprocessedValue(): String? = meta[CommonMetadata.UnprocessedValue]?.toString()
 
 /**
  * Returnes true if this node is not [Undefined]

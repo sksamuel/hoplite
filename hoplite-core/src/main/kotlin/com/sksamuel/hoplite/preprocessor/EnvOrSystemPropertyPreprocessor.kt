@@ -37,7 +37,8 @@ object EnvOrSystemPropertyPreprocessor : TraversingPrimitivePreprocessor() {
           }
         }
       }
-      node.copy(value = value).withMeta(CommonMetadata.UnprocessedValue, rawValue).valid()
+      if (value == node.value) node.valid() else
+        node.copy(value = value).withMeta(CommonMetadata.UnprocessedValue, rawValue).valid()
     }
     else -> node.valid()
   }

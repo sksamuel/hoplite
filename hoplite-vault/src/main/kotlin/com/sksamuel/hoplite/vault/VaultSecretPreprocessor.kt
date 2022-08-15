@@ -65,7 +65,7 @@ class VaultSecretPreprocessor(
         ConfigFailure.PreprocessorWarning("Vault key '$key' not found in path '$path'").invalid()
       } else {
         node.copy(value = value.toString())
-          .withMeta(CommonMetadata.IsSecretLookup, true)
+          .withMeta(CommonMetadata.Secret, true)
           .withMeta(CommonMetadata.UnprocessedValue, node.value)
           .withMeta(CommonMetadata.RemoteLookup, "Vault '$path' '$key'")
           .valid()

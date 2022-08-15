@@ -50,12 +50,12 @@ class ByNameSecretsPolicy(private val names: Set<String> = defaultSecretNames) :
 }
 
 /**
- * An [SecretsPolicy] that uses [CommonMetadata.IsSecretLookup] to determine if a value was
+ * An [SecretsPolicy] that uses [CommonMetadata.Secret] to determine if a value was
  * a remote secret.
  */
 object MetadataSecretPolicy : SecretsPolicy {
   override fun isSecret(node: Node, type: KType?): Boolean {
-    return node.meta[CommonMetadata.IsSecretLookup] == true
+    return node.meta[CommonMetadata.Secret] == true
   }
 }
 

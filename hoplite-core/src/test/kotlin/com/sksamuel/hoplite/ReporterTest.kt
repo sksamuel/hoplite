@@ -130,7 +130,7 @@ Property sources (highest to lowest priority):
       """
 Used keys: 5
 +-----------+---------------------+-------------+---------------------------------+
-| Key       | Source              | Value       | Strength                        |
+| Key       | Source              | Value       | Secret Strength                 |
 +-----------+---------------------+-------------+---------------------------------+
 | host      | props string source | localhost   |                                 |
 | name      | props string source | my database |                                 |
@@ -167,7 +167,7 @@ Used keys: 5
         .addPreprocessor(object : TraversingPrimitivePreprocessor() {
           override fun handle(node: PrimitiveNode): ConfigResult<Node> {
             return if (node is StringNode && node.value.startsWith("gcpsm://"))
-              node.withMeta(CommonMetadata.RemoteLookup, "GCP Secret Manager 'mykey'").valid()
+              node.withMeta(CommonMetadata.UnprocessedValue, "gcpsm://mysecretkey2").valid()
             else
               node.valid()
           }
@@ -179,14 +179,15 @@ Used keys: 5
     }.shouldContain(
       """
 Used keys: 4
-+----------+---------------------+-------------+----------+----------------------------+
-| Key      | Source              | Value       | Strength | Remote Lookup              |
-+----------+---------------------+-------------+----------+----------------------------+
-| host     | props string source | localhost   |          |                            |
-| name     | props string source | my database |          |                            |
-| password | props string source | gcp*****    | Strong   | GCP Secret Manager 'mykey' |
-| port     | props string source | 3306        |          |                            |
-+----------+---------------------+-------------+----------+----------------------------+
++----------+---------------------+-------------+-----------------+----------------------+
+| Key      | Source              | Value       | Secret Strength | Unprocessed Value    |
++----------+---------------------+-------------+-----------------+----------------------+
+| host     | props string source | localhost   |                 |                      |
+| name     | props string source | my database |                 |                      |
+| password | props string source | gcp*****    | Strong          | gcpsm://mysecretkey2 |
+| port     | props string source | 3306        |                 |                      |
++----------+---------------------+-------------+-----------------+----------------------+
+
 """
     )
   }

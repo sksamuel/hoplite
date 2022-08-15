@@ -5,6 +5,7 @@
 * Added support for AWS Secrets Manager using Amazon's SDK version 2. The syntax is the same, but import `hoplite-aws2` instead of `hoplite-aws`.
 * Added CascadeMode to control how config should cascade through files.
 * Added support for GCP Secrets Manager. To use import `hoplite-gcp` and set your keys to be `gcpsm://mykey`.
+* Added decoder for `java.util.Locale`
 * Added `Remote Lookup` column to reports to show the key used when resolving secrets remotely.
 * Added `Strength` column to show secret show when configured with a `SecretStrengthAnalyzer`.
 

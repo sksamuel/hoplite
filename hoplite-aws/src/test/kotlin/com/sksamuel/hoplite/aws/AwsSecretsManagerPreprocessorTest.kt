@@ -54,7 +54,7 @@ class AwsSecretsManagerPreprocessorTest : FunSpec() {
         .loadNodeOrThrow("/secrets.props")
         .traverse()
         .find { it.path == DotPath("a") }
-        .shouldNotBeNull().meta[CommonMetadata.IsSecretLookup] shouldBe true
+        .shouldNotBeNull().meta[CommonMetadata.Secret] shouldBe true
     }
 
     test("node should be annotated with UnprocessedValue attribute") {

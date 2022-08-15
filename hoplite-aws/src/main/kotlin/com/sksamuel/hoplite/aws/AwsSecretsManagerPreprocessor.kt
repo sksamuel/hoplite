@@ -49,7 +49,7 @@ class AwsSecretsManagerPreprocessor(
         ConfigFailure.PreprocessorWarning("Empty secret '$key' in AWS SecretsManager").invalid()
       else {
         val copied = node.copy(value = value)
-          .withMeta(CommonMetadata.IsSecretLookup, true)
+          .withMeta(CommonMetadata.Secret, true)
           .withMeta(CommonMetadata.UnprocessedValue, node.value)
           .withMeta(CommonMetadata.RemoteLookup, "AWS '$key'")
         copied.valid()

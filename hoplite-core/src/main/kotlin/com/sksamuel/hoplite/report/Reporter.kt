@@ -10,6 +10,7 @@ import com.sksamuel.hoplite.secrets.Obfuscator
 import com.sksamuel.hoplite.secrets.PrefixObfuscator
 import com.sksamuel.hoplite.secrets.SecretStrength
 import com.sksamuel.hoplite.secrets.SecretsPolicy
+import com.sksamuel.hoplite.unprocessedValue
 import com.sksamuel.hoplite.valueOrNull
 import kotlin.math.max
 
@@ -42,8 +43,11 @@ class Reporter(
 ) {
 
   object Titles {
-    const val Remote = "Remote Lookup"
-    const val Strength = "Strength"
+    const val Key = "Key"
+    const val Source = "Source"
+    const val Value = "Value"
+    const val Remote = "Unprocessed Value"
+    const val Strength = "Secret Strength"
   }
 
   companion object {
@@ -103,14 +107,14 @@ class Reporter(
     }
 
     val hasStrengths = obfuscated.any { it.secretStrength != null }
-    val hasRemotes = obfuscated.any { it.node.remoteLookup() != null }
+    val hasProcessed = obfuscated.any { it.node.unprocessedValue() != null }
 
     val keyPadded = nodes.maxOf { it.node.path.flatten().length }
-    val sourcePadded = nodes.maxOf { max(it.node.pos.source()?.length ?: 0, "source".length) }
-    val valuePadded = max("Value".length, obfuscated.maxOf { (it.node as StringNode).value.length })
+    val sourcePadded = nodes.maxOf { max(it.node.pos.source()?.length ?: 0, Titles.Source.length) }
+    val valuePadded = max(Titles.Value.length, obfuscated.maxOf { (it.node as StringNode).value.length })
     val strengthPadded = max(Titles.Strength.length, nodes.maxOf { it.secretStrength?.asString()?.length ?: 0 })
-    val remotePadded = max(Titles.Remote.length, nodes.maxOf {
-      it.node.remoteLookup()?.length ?: 0
+    val unprocessedPadded = max(Titles.Remote.length, nodes.maxOf {
+      it.node.unprocessedValue()?.length ?: 0
     })
 
     val rows = obfuscated.map {
@@ -119,7 +123,7 @@ class Reporter(
         (it.node.pos.source() ?: "").padEnd(sourcePadded, ' '),
         (it.node as StringNode).value.padEnd(valuePadded, ' '),
         if (hasStrengths) it.secretStrength.asString().padEnd(strengthPadded, ' ') else null,
-        if (hasRemotes) (it.node.remoteLookup() ?: "").padEnd(remotePadded, ' ') else null,
+        if (hasProcessed) (it.node.unprocessedValue() ?: "").padEnd(unprocessedPadded, ' ') else null,
       ).joinToString(" | ", "| ", " |")
     }
 
@@ -130,15 +134,15 @@ class Reporter(
       "".padEnd(sourcePadded + 2, '-'),
       "".padEnd(valuePadded + 2, '-'),
       if (hasStrengths) "".padEnd(strengthPadded + 2, '-') else null,
-      if (hasRemotes) "".padEnd(remotePadded + 2, '-') else null,
+      if (hasProcessed) "".padEnd(unprocessedPadded + 2, '-') else null,
     ).joinToString("+", "+", "+")
 
     val titles = listOfNotNull(
-      "Key".padEnd(keyPadded, ' '),
-      "Source".padEnd(sourcePadded, ' '),
-      "Value".padEnd(valuePadded, ' '),
+      Titles.Key.padEnd(keyPadded, ' '),
+      Titles.Source.padEnd(sourcePadded, ' '),
+      Titles.Value.padEnd(valuePadded, ' '),
       if (hasStrengths) Titles.Strength.padEnd(strengthPadded, ' ') else null,
-      if (hasRemotes) Titles.Remote.padEnd(remotePadded, ' ') else null,
+      if (hasProcessed) Titles.Remote.padEnd(unprocessedPadded, ' ') else null,
     ).joinToString(" | ", "| ", " |")
 
     return (listOfNotNull(titleRow, bar, titles, bar) + rows + listOf(bar)).joinToString(System.lineSeparator())
