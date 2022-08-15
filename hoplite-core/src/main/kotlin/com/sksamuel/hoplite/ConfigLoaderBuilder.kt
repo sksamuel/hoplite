@@ -44,7 +44,8 @@ class ConfigLoaderBuilder private constructor() {
   private var secretsPolicy: SecretsPolicy = AllStringNodesSecretsPolicy
   private var obfuscator: Obfuscator = PrefixObfuscator(3)
   private var preprocessingIterations: Int = 1
-  private var secretStrengthAnalyzer: SecretStrengthAnalyzer? = null
+
+  private var secretStrengthAnalyzers: MutableMap<Environment?, SecretStrengthAnalyzer> = mutableMapOf()
   private var failOnWeakSecrets: MutableSet<Environment?> = mutableSetOf()
 
   private var environment: Environment? = null
@@ -219,8 +220,17 @@ class ConfigLoaderBuilder private constructor() {
   }
 
   fun withSecretsPolicy(secretsPolicy: SecretsPolicy) = apply { this.secretsPolicy = secretsPolicy }
+
   fun withSecretStrengthAnalyzer(secretStrengthAnalyzer: SecretStrengthAnalyzer) = apply {
-    this.secretStrengthAnalyzer = secretStrengthAnalyzer
+    this.secretStrengthAnalyzers[null] = secretStrengthAnalyzer
+  }
+
+  fun withSecretStrengthAnalyzer(
+    secretStrengthAnalyzer: SecretStrengthAnalyzer,
+    vararg environments: Environment
+  ): ConfigLoaderBuilder {
+    environments.forEach { this.secretStrengthAnalyzers[it] = secretStrengthAnalyzer }
+    return this
   }
 
   /**
@@ -246,8 +256,14 @@ class ConfigLoaderBuilder private constructor() {
 
   fun build(): ConfigLoader {
 
-    if (failOnWeakSecrets.isNotEmpty() && secretStrengthAnalyzer == null)
-      error("failOnWeakSecrets is enabled but no secret-strength-analyzer is specified")
+    failOnWeakSecrets.forEach { env ->
+      if (secretStrengthAnalyzers[env] == null) {
+        if (env == null)
+          error("failOnWeakSecrets is enabled but no secret-strength-analyzer is specified")
+        else
+          error("failOnWeakSecrets is enabled for ${env.name} but no secret-strength-analyzer is specified")
+      }
+    }
 
     return ConfigLoader(
       decoderRegistry = DefaultDecoderRegistry(decoders),
@@ -262,7 +278,7 @@ class ConfigLoaderBuilder private constructor() {
       allowUnresolvedSubstitutions = allowUnresolvedSubstitutions,
       preprocessingIterations = preprocessingIterations,
       cascadeMode = cascadeMode,
-      secretStrengthAnalyzer = secretStrengthAnalyzer,
+      secretStrengthAnalyzer = secretStrengthAnalyzers,
       secretsPolicy = secretsPolicy,
       environment = environment,
       obfuscator = obfuscator,

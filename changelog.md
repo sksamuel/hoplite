@@ -11,6 +11,7 @@
 * `PrefixObfuscator` can now be configured by prefix length and mask.
 * Added `Remote Lookup` column to reports to show the key used when resolving secrets remotely.
 * Added `Strength` column to show secret show when configured with a `SecretStrengthAnalyzer`.
+* Added `failOnWeakSecrets` option to fail if a remote secret is deemed too weak. This can be scoped per environment.
 
 **Breaking Changes**
 

@@ -38,7 +38,7 @@ class ConfigLoader(
   val preprocessingIterations: Int = 1,
   val cascadeMode: CascadeMode = CascadeMode.Merge,
   val secretsPolicy: SecretsPolicy? = null,
-  val secretStrengthAnalyzer: SecretStrengthAnalyzer? = null,
+  val secretStrengthAnalyzer: MutableMap<Environment?, SecretStrengthAnalyzer> = mutableMapOf(),
   val environment: Environment? = null,
   val obfuscator: Obfuscator? = null,
   val failOnWeakSecrets: Set<Environment?> = emptySet(),
@@ -159,7 +159,7 @@ class ConfigLoader(
             )
 
             val decoded = decode(klass, preprocessed, context)
-            val state = createDecodingState(preprocessed, context, secretsPolicy, secretStrengthAnalyzer)
+            val state = createDecodingState(preprocessed, context, secretsPolicy, secretStrengthAnalyzer[environment])
 
             // always do report regardless of decoder result
             if (useReport) {
@@ -215,7 +215,7 @@ class ConfigLoader(
     .flatMap { Preprocessing(preprocessors, preprocessingIterations).preprocess(it.node) }
 
   private fun <A : Any> decode(kclass: KClass<A>, node: Node, context: DecoderContext): ConfigResult<A> {
-    val decoding = Decoding(decoderRegistry, secretsPolicy, secretStrengthAnalyzer)
+    val decoding = Decoding(decoderRegistry, secretsPolicy, secretStrengthAnalyzer[environment])
     return decoding.decode(kclass, node, mode, context)
   }
 
