@@ -65,7 +65,13 @@ class SealedClassDecoder : NullHandlingDecoder<Any> {
           .filter { subclass ->
             subclass hasConstructorsWithArgumentsNumberLessOrEqualTo node.expectedNumberOfConstructorArguments
           }
-          .sortedByDescending { subclass -> subclass.constructors.maxOfOrNull { it.numberOfMandatoryArguments } ?: 0 }
+          .sortedWith { subclass1, subclass2 ->
+            (
+              subclass1.numberOfMandatoryConstructorArguments.compareTo(subclass2.numberOfMandatoryConstructorArguments)
+                .takeUnless { it == 0 }
+                ?: subclass1.numberOfTotalConstructorArguments.compareTo(subclass2.numberOfTotalConstructorArguments)
+              ) * -1
+          }
           .map { DataClassDecoder().decode(node, it.createType(), context) }
 
         val success = results.firstOrNull { it.isValid() }
@@ -77,10 +83,17 @@ class SealedClassDecoder : NullHandlingDecoder<Any> {
     }
   }
 
+  private val KClass<*>.numberOfTotalConstructorArguments
+    get() = constructors.maxOfOrNull { it.numberOfTotalArguments } ?: 0
+
+  private val KClass<*>.numberOfMandatoryConstructorArguments
+    get() = constructors.maxOfOrNull { it.numberOfMandatoryArguments } ?: 0
+
   private infix fun KClass<*>.hasConstructorsWithArgumentsNumberLessOrEqualTo(number: Int) =
     constructors.map { it.numberOfMandatoryArguments }.any { it <= number }
 
   private val KFunction<*>.numberOfMandatoryArguments get() = parameters.filterNot { it.isOptional }.size
+  private val KFunction<*>.numberOfTotalArguments get() = parameters.size
 
   private val Node.expectedNumberOfConstructorArguments get() = size.takeIf { it > 0 } ?: 1
 }
