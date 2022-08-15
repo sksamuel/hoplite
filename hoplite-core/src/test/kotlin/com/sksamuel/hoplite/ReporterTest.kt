@@ -1,5 +1,6 @@
 package com.sksamuel.hoplite
 
+import com.sksamuel.hoplite.env.Environment
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.preprocessor.TraversingPrimitivePreprocessor
 import com.sksamuel.hoplite.report.Reporter
@@ -53,6 +54,7 @@ Used keys: 4
   }
 
   test("report sources") {
+    val xdg = "\$XDG_CONFIG_HOME"
     Reporter.default().report(
       ConfigLoaderBuilder.default()
         .addEnvironmentSource()
@@ -63,6 +65,7 @@ Property sources (highest to lowest priority):
   - Env Var Overrides
   - System Properties
   - ${System.getProperty("user.home")}/.userconfig.<ext>
+  - $xdg/hoplite.<ext>
   - Env Var
 """.trimIndent().trim()
 
@@ -190,5 +193,25 @@ Used keys: 4
 
 """
     )
+  }
+
+  test("withReport should output env") {
+
+    data class Test(
+      val a: String,
+    )
+
+    captureStandardOut {
+      ConfigLoaderBuilder.default()
+        .addPropertySource(PropertySource.map(mapOf("a" to "foo")))
+        .withEnvironment(Environment.staging)
+        .withReport()
+        .build()
+        .loadConfigOrThrow<Test>()
+    }.shouldContain("""--Start Hoplite Config Report---
+
+Environment: staging
+
+Property sources (highest to lowest priority):""")
   }
 })

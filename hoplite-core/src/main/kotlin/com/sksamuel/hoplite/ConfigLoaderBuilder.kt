@@ -1,18 +1,19 @@
 package com.sksamuel.hoplite
 
-import com.sksamuel.hoplite.secrets.SecretStrengthAnalyzer
 import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.decoder.DefaultDecoderRegistry
+import com.sksamuel.hoplite.env.Environment
 import com.sksamuel.hoplite.parsers.DefaultParserRegistry
 import com.sksamuel.hoplite.parsers.Parser
 import com.sksamuel.hoplite.preprocessor.EnvOrSystemPropertyPreprocessor
 import com.sksamuel.hoplite.preprocessor.LookupPreprocessor
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.preprocessor.RandomPreprocessor
+import com.sksamuel.hoplite.report.Reporter
 import com.sksamuel.hoplite.secrets.AllStringNodesSecretsPolicy
 import com.sksamuel.hoplite.secrets.Obfuscator
 import com.sksamuel.hoplite.secrets.PrefixObfuscator
-import com.sksamuel.hoplite.report.Reporter
+import com.sksamuel.hoplite.secrets.SecretStrengthAnalyzer
 import com.sksamuel.hoplite.secrets.SecretsPolicy
 import com.sksamuel.hoplite.sources.EnvironmentVariableOverridePropertySource
 import com.sksamuel.hoplite.sources.SystemPropertiesPropertySource
@@ -39,11 +40,13 @@ class ConfigLoaderBuilder private constructor() {
   private val parsers = mutableMapOf<String, Parser>()
   private val decoders = mutableListOf<Decoder<*>>()
 
-  private var reporter: Reporter? = null
+  private var useReport: Boolean = false
   private var secretsPolicy: SecretsPolicy = AllStringNodesSecretsPolicy
   private var obfuscator: Obfuscator = PrefixObfuscator(3)
   private var preprocessingIterations: Int = 1
   private var secretStrengthAnalyzer: SecretStrengthAnalyzer? = null
+
+  private var environment: Environment? = null
 
   companion object {
 
@@ -77,6 +80,8 @@ class ConfigLoaderBuilder private constructor() {
   fun withClassLoader(classLoader: ClassLoader): ConfigLoaderBuilder = apply {
     this.classLoader = classLoader
   }
+
+  fun withEnvironment(environment: Environment) = apply { this.environment = environment }
 
   fun addSource(propertySource: PropertySource) = addPropertySource(propertySource)
   fun addPropertySource(propertySource: PropertySource) = addPropertySources(listOf(propertySource))
@@ -193,7 +198,7 @@ class ConfigLoaderBuilder private constructor() {
    *
    * The report will be printed to standard out.
    */
-  fun withReport() = apply { reporter = Reporter({ print(it) }, obfuscator) }
+  fun withReport() = apply { this.useReport = true }
 
   @Deprecated("use withReport()", ReplaceWith("withReport()"))
   fun report() = withReport()
@@ -216,15 +221,17 @@ class ConfigLoaderBuilder private constructor() {
    */
   @Deprecated(
     "use withReport(). Passing in a reporter no longer has any effect. Specify secrets policy and obfuscator directly on this builder.",
-    ReplaceWith("withReport()")
+    ReplaceWith("withReport()"),
+    level = DeprecationLevel.ERROR,
   )
-  fun withReport(reporter: Reporter) = apply { this.reporter = reporter }
+  fun withReport(reporter: Reporter) = apply { useReport = true }
 
   @Deprecated(
     "use withReport(). Passing in a reporter no longer has any effect. Specify secrets policy and obfuscator directly on this builder.",
-    ReplaceWith("withReport()")
+    ReplaceWith("withReport()"),
+    level = DeprecationLevel.ERROR,
   )
-  fun report(reporter: Reporter) = apply { this.reporter = reporter }
+  fun report(reporter: Reporter) = apply { useReport = true }
 
   fun build(): ConfigLoader {
     return ConfigLoader(
@@ -235,18 +242,20 @@ class ConfigLoaderBuilder private constructor() {
       paramMappers = paramMappers.toList(),
       onFailure = failureCallbacks.toList(),
       mode = decodeMode,
-      reporter = reporter,
+      useReport = useReport,
       allowEmptyTree = allowEmptyTree,
       allowUnresolvedSubstitutions = allowUnresolvedSubstitutions,
       preprocessingIterations = preprocessingIterations,
       cascadeMode = cascadeMode,
       secretStrengthAnalyzer = secretStrengthAnalyzer,
       secretsPolicy = secretsPolicy,
+      environment = environment,
+      obfuscator = obfuscator,
     )
   }
 }
 
-fun defaultPropertySources(): List<PropertySource> = listOf(
+fun defaultPropertySources(): List<PropertySource> = listOfNotNull(
   EnvironmentVariableOverridePropertySource(true),
   SystemPropertiesPropertySource,
   UserSettingsPropertySource,

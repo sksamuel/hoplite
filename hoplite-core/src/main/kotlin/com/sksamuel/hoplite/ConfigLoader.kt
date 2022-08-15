@@ -4,6 +4,7 @@ package com.sksamuel.hoplite
 
 import com.sksamuel.hoplite.ClasspathResourceLoader.Companion.toClasspathResourceLoader
 import com.sksamuel.hoplite.decoder.DecoderRegistry
+import com.sksamuel.hoplite.env.Environment
 import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.getOrElse
 import com.sksamuel.hoplite.fp.invalid
@@ -12,6 +13,8 @@ import com.sksamuel.hoplite.parsers.ParserRegistry
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.preprocessor.UnresolvedSubstitutionChecker
 import com.sksamuel.hoplite.report.Reporter
+import com.sksamuel.hoplite.secrets.Obfuscator
+import com.sksamuel.hoplite.secrets.PrefixObfuscator
 import com.sksamuel.hoplite.secrets.SecretStrengthAnalyzer
 import com.sksamuel.hoplite.secrets.SecretsPolicy
 import kotlin.reflect.KClass
@@ -26,7 +29,7 @@ class ConfigLoader(
   val paramMappers: List<ParameterMapper>,
   val onFailure: List<(Throwable) -> Unit> = emptyList(),
   val mode: DecodeMode = DecodeMode.Lenient,
-  val reporter: Reporter? = null,
+  val useReport: Boolean = false,
   val allowEmptyTree: Boolean, // if true then we allow config files to be empty
   val allowUnresolvedSubstitutions: Boolean,
   val classLoader: ClassLoader? = null, // if null, then the current context thread loader
@@ -34,6 +37,8 @@ class ConfigLoader(
   val cascadeMode: CascadeMode = CascadeMode.Merge,
   val secretsPolicy: SecretsPolicy? = null,
   val secretStrengthAnalyzer: SecretStrengthAnalyzer? = null,
+  val environment: Environment? = null,
+  val obfuscator: Obfuscator? = null,
 ) {
 
   companion object {
@@ -150,10 +155,12 @@ class ConfigLoader(
             )
             val decoded = decode(klass, preprocessed, context)
             // always do report regardless of decoder
-            reporter?.printReport(
-              sources,
-              createDecodingState(preprocessed, context, secretsPolicy, secretStrengthAnalyzer)
-            )
+            if (useReport) {
+              Reporter({ println(it) }, obfuscator ?: PrefixObfuscator(3), environment).printReport(
+                sources,
+                createDecodingState(preprocessed, context, secretsPolicy, secretStrengthAnalyzer)
+              )
+            }
             decoded
           }
       }

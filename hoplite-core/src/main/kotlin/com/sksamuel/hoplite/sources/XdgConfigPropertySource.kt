@@ -9,6 +9,7 @@ import com.sksamuel.hoplite.fp.valid
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.exists
+import kotlin.io.path.extension
 import kotlin.io.path.inputStream
 
 /**
@@ -23,18 +24,20 @@ import kotlin.io.path.inputStream
  */
 object XdgConfigPropertySource : PropertySource {
 
-  override fun source(): String = System.getenv("XDG_CONFIG_HOME") + "/hoplite.<ext>"
+  override fun source(): String = "\$XDG_CONFIG_HOME/hoplite.<ext>"
 
-  private fun path(ext: String): Path = Paths.get(System.getProperty("XDG_CONFIG_HOME")).resolve("hoplite.$ext")
+  private fun path(ext: String): Path? {
+    val xdg = System.getenv("XDG_CONFIG_HOME")
+    return if (xdg.isNullOrBlank()) null else Paths.get(xdg).resolve("hoplite.$ext")
+  }
 
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
-    val ext = context.parsers.registeredExtensions().firstOrNull {
-      path(it).exists()
+    val path = context.parsers.registeredExtensions().firstNotNullOfOrNull { ext ->
+      path(ext).takeIf { it?.exists() ?: false }
     }
-    return if (ext == null) Undefined.valid() else {
-      val path = path(ext)
+    return if (path == null) Undefined.valid() else {
       val input = path.inputStream()
-      context.parsers.locate(ext).map {
+      context.parsers.locate(path.extension).map {
         it.load(input, path.toString())
       }
     }

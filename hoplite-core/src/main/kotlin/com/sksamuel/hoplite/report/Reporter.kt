@@ -5,7 +5,7 @@ import com.sksamuel.hoplite.NodeState
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.PropertySource
 import com.sksamuel.hoplite.StringNode
-import com.sksamuel.hoplite.remoteLookup
+import com.sksamuel.hoplite.env.Environment
 import com.sksamuel.hoplite.secrets.Obfuscator
 import com.sksamuel.hoplite.secrets.PrefixObfuscator
 import com.sksamuel.hoplite.secrets.SecretStrength
@@ -32,7 +32,7 @@ class ReporterBuilder {
   @Deprecated("Specify secretsPolicy through ConfigBuilderLoader", level = DeprecationLevel.ERROR)
   fun withSecretsPolicy(secretsPolicy: SecretsPolicy): ReporterBuilder = TODO("Unsupported")
 
-  fun build(): Reporter = Reporter(print, obfuscator)
+  fun build(): Reporter = Reporter(print, obfuscator, null)
 }
 
 typealias Print = (String) -> Unit
@@ -40,6 +40,7 @@ typealias Print = (String) -> Unit
 class Reporter(
   private val print: Print,
   private val obfuscator: Obfuscator,
+  private val environment: Environment?,
 ) {
 
   object Titles {
@@ -62,6 +63,8 @@ class Reporter(
     val r = buildString {
       appendLine()
       appendLine("--Start Hoplite Config Report---")
+      appendLine()
+      appendLine("Environment: " + (environment?.name ?: "Unspecified"))
       appendLine()
       appendLine(report(sources))
       appendLine()

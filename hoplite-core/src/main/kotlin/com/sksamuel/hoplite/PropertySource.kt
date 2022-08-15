@@ -77,8 +77,7 @@ interface PropertySource {
      *
      * @param map map
      */
-    fun map(map: Map<String, Any>) =
-      MapPropertySource(map)
+    fun map(map: Map<String, Any>) = MapPropertySource(map)
 
     /**
      * Returns a [PropertySource] that will read the specified command line arguments.
