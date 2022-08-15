@@ -2,20 +2,21 @@ package com.sksamuel.hoplite.hocon
 
 import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.Masked
-import com.sksamuel.hoplite.hocon.ClientAuthConfig.UrlWithWithDefaultValue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
 sealed class ClientAuthConfig {
   data class UrlUserPass(val url: String, val user: String, val password: Masked) : ClientAuthConfig()
 
-  data class UrlWithWithDefaultValue(val url: String = "", val otherStuff: String = "") : ClientAuthConfig()
+  data class UrlWithWithDefaultValue(val otherStuff: String = "", val anotherStuff: String = "") : ClientAuthConfig()
   data class Url(val url: String) : ClientAuthConfig()
 }
 
 data class DbConfig(
   val clientAuth: ClientAuthConfig,
-  val clientNoAuth: ClientAuthConfig = UrlWithWithDefaultValue(),
+  val clientNoAuth: ClientAuthConfig = ClientAuthConfig.UrlWithWithDefaultValue(),
+  val clientWithSpecifiedValues: ClientAuthConfig,
+  val clientWithDefaultValues: ClientAuthConfig = ClientAuthConfig.UrlWithWithDefaultValue(),
 )
 
 class SealedClassTest : FunSpec() {
@@ -28,6 +29,11 @@ class SealedClassTest : FunSpec() {
         password = Masked("3pass"),
       )
       config.clientNoAuth shouldBe ClientAuthConfig.Url(url = "1url")
+      config.clientWithSpecifiedValues shouldBe ClientAuthConfig.UrlWithWithDefaultValue(
+        otherStuff = "1url",
+        anotherStuff = "test"
+      )
+      config.clientWithDefaultValues shouldBe ClientAuthConfig.UrlWithWithDefaultValue()
     }
   }
 }

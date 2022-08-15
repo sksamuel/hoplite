@@ -11,6 +11,7 @@ import com.sksamuel.hoplite.fp.plus
 import com.sksamuel.hoplite.fp.sequence
 import com.sksamuel.hoplite.fp.valid
 import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
 import kotlin.reflect.KType
 import kotlin.reflect.full.createType
 
@@ -64,9 +65,8 @@ class SealedClassDecoder : NullHandlingDecoder<Any> {
           .filter { subclass ->
             subclass hasConstructorsWithArgumentsNumberLessOrEqualTo node.expectedNumberOfConstructorArguments
           }
-          .map { subclass ->
-            DataClassDecoder().decode(node, subclass.createType(), context)
-          }
+          .sortedByDescending { subclass -> subclass.constructors.maxOfOrNull { it.numberOfMandatoryArguments } ?: 0 }
+          .map { DataClassDecoder().decode(node, it.createType(), context) }
 
         val success = results.firstOrNull { it.isValid() }
         if (success != null) return success
@@ -78,7 +78,9 @@ class SealedClassDecoder : NullHandlingDecoder<Any> {
   }
 
   private infix fun KClass<*>.hasConstructorsWithArgumentsNumberLessOrEqualTo(number: Int) =
-    constructors.any { it.parameters.size <= number }
+    constructors.map { it.numberOfMandatoryArguments }.any { it <= number }
+
+  private val KFunction<*>.numberOfMandatoryArguments get() = parameters.filterNot { it.isOptional }.size
 
   private val Node.expectedNumberOfConstructorArguments get() = size.takeIf { it > 0 } ?: 1
 }
