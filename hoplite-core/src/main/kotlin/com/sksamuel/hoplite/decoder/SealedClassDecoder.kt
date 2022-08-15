@@ -61,8 +61,12 @@ class SealedClassDecoder : NullHandlingDecoder<Any> {
         } else null
 
         val results = kclass.sealedSubclasses
-          .sortedByDescending { subclass -> subclass.constructors.maxOfOrNull { it.parameters.size } ?: 0 }
-          .map { DataClassDecoder().decode(node, it.createType(), context) }
+          .filter { subclass ->
+            subclass hasConstructorsWithArgumentsNumberLessOrEqualTo node.expectedNumberOfConstructorArguments
+          }
+          .map { subclass ->
+            DataClassDecoder().decode(node, subclass.createType(), context)
+          }
 
         val success = results.firstOrNull { it.isValid() }
         if (success != null) return success
@@ -72,4 +76,9 @@ class SealedClassDecoder : NullHandlingDecoder<Any> {
       }
     }
   }
+
+  private infix fun KClass<*>.hasConstructorsWithArgumentsNumberLessOrEqualTo(number: Int) =
+    constructors.any { it.parameters.size <= number }
+
+  private val Node.expectedNumberOfConstructorArguments get() = size.takeIf { it > 0 } ?: 1
 }
