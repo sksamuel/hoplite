@@ -17,6 +17,7 @@ import com.sksamuel.hoplite.secrets.SecretsPolicy
 import com.sksamuel.hoplite.sources.EnvironmentVariableOverridePropertySource
 import com.sksamuel.hoplite.sources.SystemPropertiesPropertySource
 import com.sksamuel.hoplite.sources.UserSettingsPropertySource
+import com.sksamuel.hoplite.sources.XdgConfigPropertySource
 import java.util.ServiceLoader
 
 class ConfigLoaderBuilder private constructor() {
@@ -248,7 +249,8 @@ class ConfigLoaderBuilder private constructor() {
 fun defaultPropertySources(): List<PropertySource> = listOf(
   EnvironmentVariableOverridePropertySource(true),
   SystemPropertiesPropertySource,
-  UserSettingsPropertySource
+  UserSettingsPropertySource,
+  XdgConfigPropertySource,
 )
 
 fun defaultPreprocessors() = listOf(
