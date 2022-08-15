@@ -2,6 +2,10 @@ package com.sksamuel.hoplite.secrets
 
 interface SecretStrengthAnalyzer {
 
+  companion object {
+    val default = DefaultSecretStrengthAnalyzer()
+  }
+
   /**
    * Returns [SecretStrength] to indicate if this secret is strong or weak.
    */

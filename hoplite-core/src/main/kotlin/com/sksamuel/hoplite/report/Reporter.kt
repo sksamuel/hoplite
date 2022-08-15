@@ -64,7 +64,7 @@ class Reporter(
       appendLine()
       appendLine("--Start Hoplite Config Report---")
       appendLine()
-      environment?.let { appendLine("Environment: $it") }
+      environment?.let { appendLine("Environment: ${it.name}") }
       appendLine()
       appendLine(report(sources))
       appendLine()
@@ -112,7 +112,7 @@ class Reporter(
     val hasStrengths = obfuscated.any { it.secretStrength != null }
     val hasProcessed = obfuscated.any { it.node.unprocessedValue() != null }
 
-    val keyPadded = nodes.maxOf { it.node.path.flatten().length }
+    val keyPadded = max(Titles.Key.length, nodes.maxOf { it.node.path.flatten().length })
     val sourcePadded = nodes.maxOf { max(it.node.pos.source()?.length ?: 0, Titles.Source.length) }
     val valuePadded = max(Titles.Value.length, obfuscated.maxOf { (it.node as StringNode).value.length })
     val strengthPadded = max(Titles.Strength.length, nodes.maxOf { it.secretStrength?.asString()?.length ?: 0 })

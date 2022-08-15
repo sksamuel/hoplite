@@ -5,6 +5,7 @@ package com.sksamuel.hoplite
 import com.sksamuel.hoplite.ClasspathResourceLoader.Companion.toClasspathResourceLoader
 import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.env.Environment
+import com.sksamuel.hoplite.fp.NonEmptyList
 import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.getOrElse
 import com.sksamuel.hoplite.fp.invalid
@@ -15,6 +16,7 @@ import com.sksamuel.hoplite.preprocessor.UnresolvedSubstitutionChecker
 import com.sksamuel.hoplite.report.Reporter
 import com.sksamuel.hoplite.secrets.Obfuscator
 import com.sksamuel.hoplite.secrets.PrefixObfuscator
+import com.sksamuel.hoplite.secrets.SecretStrength
 import com.sksamuel.hoplite.secrets.SecretStrengthAnalyzer
 import com.sksamuel.hoplite.secrets.SecretsPolicy
 import kotlin.reflect.KClass
@@ -39,6 +41,7 @@ class ConfigLoader(
   val secretStrengthAnalyzer: SecretStrengthAnalyzer? = null,
   val environment: Environment? = null,
   val obfuscator: Obfuscator? = null,
+  val failOnWeakSecrets: Set<Environment?> = emptySet(),
 ) {
 
   companion object {
@@ -149,19 +152,31 @@ class ConfigLoader(
         Preprocessing(preprocessors, preprocessingIterations).preprocess(node)
           .flatMap { if (allowUnresolvedSubstitutions) it.valid() else UnresolvedSubstitutionChecker.process(it) }
           .flatMap { preprocessed ->
+
             val context = DecoderContext(
               decoders = decoderRegistry,
               paramMappers = paramMappers,
             )
+
             val decoded = decode(klass, preprocessed, context)
-            // always do report regardless of decoder
+            val state = createDecodingState(preprocessed, context, secretsPolicy, secretStrengthAnalyzer)
+
+            // always do report regardless of decoder result
             if (useReport) {
-              Reporter({ println(it) }, obfuscator ?: PrefixObfuscator(3), environment).printReport(
-                sources,
-                createDecodingState(preprocessed, context, secretsPolicy, secretStrengthAnalyzer)
-              )
+              Reporter({ println(it) }, obfuscator ?: PrefixObfuscator(3), environment).printReport(sources, state)
             }
-            decoded
+
+            val weak = state.states.mapNotNull {
+              when (it.secretStrength) {
+                is SecretStrength.Weak -> ConfigFailure.WeakSecret(it.node.path, it.secretStrength)
+                else -> null
+              }
+            }
+
+            // if we have a weak secret, then die
+            if (failOnWeakSecrets.contains(environment) && weak.isNotEmpty()) {
+              ConfigFailure.MultipleFailures(NonEmptyList.unsafe(weak)).invalid()
+            } else decoded
           }
       }
   }

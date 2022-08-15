@@ -4,6 +4,7 @@ import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.decoder.DotPath
 import com.sksamuel.hoplite.fp.NonEmptyList
 import com.sksamuel.hoplite.parsers.Parser
+import com.sksamuel.hoplite.secrets.SecretStrength
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
@@ -34,11 +35,8 @@ sealed interface ConfigFailure {
     }
   }
 
-  data class WeakSecrets(val weak: Set<Node>) : ConfigFailure {
-    override fun description(): String {
-      val keys = weak.map { it.path.flatten() }.sorted().joinToString("\n") { " - $it" }
-      return "Weak secrets are configured as errors\n$keys"
-    }
+  data class WeakSecret(val path: DotPath, val strength: SecretStrength.Weak) : ConfigFailure {
+    override fun description(): String = "Weak secret '${path.flatten()}' - ${strength.reason}"
   }
 
   data class OverrideConfigError(val overrides: List<OverridePath>) : ConfigFailure {

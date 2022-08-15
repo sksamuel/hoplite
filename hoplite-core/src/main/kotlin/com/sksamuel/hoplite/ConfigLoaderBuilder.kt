@@ -45,6 +45,7 @@ class ConfigLoaderBuilder private constructor() {
   private var obfuscator: Obfuscator = PrefixObfuscator(3)
   private var preprocessingIterations: Int = 1
   private var secretStrengthAnalyzer: SecretStrengthAnalyzer? = null
+  private var failOnWeakSecrets: MutableSet<Environment?> = mutableSetOf()
 
   private var environment: Environment? = null
 
@@ -210,6 +211,13 @@ class ConfigLoaderBuilder private constructor() {
   fun withObfusctator(obfuscator: Obfuscator): ConfigLoaderBuilder = withObfuscator(obfuscator)
   fun withObfuscator(obfuscator: Obfuscator): ConfigLoaderBuilder = apply { this.obfuscator = obfuscator }
 
+  fun failOnWeakSecrets() = apply { failOnWeakSecrets.add(null) }
+
+  fun failOnWeakSecrets(vararg environments: Environment): ConfigLoaderBuilder {
+    environments.forEach { failOnWeakSecrets(it) }
+    return this
+  }
+
   fun withSecretsPolicy(secretsPolicy: SecretsPolicy) = apply { this.secretsPolicy = secretsPolicy }
   fun withSecretStrengthAnalyzer(secretStrengthAnalyzer: SecretStrengthAnalyzer) = apply {
     this.secretStrengthAnalyzer = secretStrengthAnalyzer
@@ -237,6 +245,10 @@ class ConfigLoaderBuilder private constructor() {
   fun report(reporter: Reporter) = apply { useReport = true }
 
   fun build(): ConfigLoader {
+
+    if (failOnWeakSecrets.isNotEmpty() && secretStrengthAnalyzer == null)
+      error("failOnWeakSecrets is enabled but no secret-strength-analyzer is specified")
+
     return ConfigLoader(
       decoderRegistry = DefaultDecoderRegistry(decoders),
       propertySources = propertySources.toList(),
@@ -254,6 +266,7 @@ class ConfigLoaderBuilder private constructor() {
       secretsPolicy = secretsPolicy,
       environment = environment,
       obfuscator = obfuscator,
+      failOnWeakSecrets = failOnWeakSecrets.toSet(),
     )
   }
 }
