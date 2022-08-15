@@ -8,15 +8,15 @@ import io.kotest.matchers.shouldBe
 sealed class ClientAuthConfig {
   data class UrlUserPass(val url: String, val user: String, val password: Masked) : ClientAuthConfig()
 
-  data class UrlWithWithDefaultValue(val otherStuff: String = "", val anotherStuff: String = "") : ClientAuthConfig()
+  data class ConfigWithDefaultValues(val otherStuff: String = "", val anotherStuff: String = "") : ClientAuthConfig()
   data class Url(val url: String) : ClientAuthConfig()
 }
 
 data class DbConfig(
   val clientAuth: ClientAuthConfig,
-  val clientNoAuth: ClientAuthConfig = ClientAuthConfig.UrlWithWithDefaultValue(),
+  val clientNoAuth: ClientAuthConfig = ClientAuthConfig.ConfigWithDefaultValues(),
   val clientWithSpecifiedValues: ClientAuthConfig,
-  val clientWithDefaultValues: ClientAuthConfig = ClientAuthConfig.UrlWithWithDefaultValue(),
+  val clientWithDefaultValues: ClientAuthConfig = ClientAuthConfig.ConfigWithDefaultValues(),
 )
 
 class SealedClassTest : FunSpec() {
@@ -29,11 +29,11 @@ class SealedClassTest : FunSpec() {
         password = Masked("3pass"),
       )
       config.clientNoAuth shouldBe ClientAuthConfig.Url(url = "1url")
-      config.clientWithSpecifiedValues shouldBe ClientAuthConfig.UrlWithWithDefaultValue(
+      config.clientWithSpecifiedValues shouldBe ClientAuthConfig.ConfigWithDefaultValues(
         otherStuff = "1url",
         anotherStuff = "test"
       )
-      config.clientWithDefaultValues shouldBe ClientAuthConfig.UrlWithWithDefaultValue()
+      config.clientWithDefaultValues shouldBe ClientAuthConfig.ConfigWithDefaultValues()
     }
   }
 }
