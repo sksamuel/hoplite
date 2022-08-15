@@ -11,8 +11,13 @@ data class Environment(val name: String) {
     val qa = Environment("qa")
     val staging = Environment("staging")
     val local = Environment("local")
+    val live = Environment("live")
     val test = Environment("test")
 
+    /**
+     * Returns an [Environment] created by looking up the env-var with the given [name].
+     * If the env-var does not exist, an error is thrown.
+     */
     fun fromEnvVar(envVarName: String): Environment {
       val env = System.getenv(envVarName)
       if (env.isNullOrBlank()) error("Environment variable $envVarName must be specified")
