@@ -5,6 +5,7 @@ import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
+@OptIn(ExperimentalHoplite::class)
 class CascadeTest : FunSpec({
 
   test("CascadeMode.Merge should work with two maps at immediate depth") {

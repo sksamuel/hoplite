@@ -11,6 +11,7 @@ import io.kotest.extensions.system.captureStandardOut
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 
+@OptIn(ExperimentalHoplite::class)
 class ReporterTest : FunSpec({
 
   test("report test with default obfuscations") {
