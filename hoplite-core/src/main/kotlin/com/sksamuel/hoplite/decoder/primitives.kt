@@ -1,5 +1,6 @@
 package com.sksamuel.hoplite.decoder
 
+import com.sksamuel.hoplite.ArrayNode
 import com.sksamuel.hoplite.BooleanNode
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
@@ -7,6 +8,7 @@ import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.DoubleNode
 import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.ThrowableFailure
 import com.sksamuel.hoplite.fp.invalid
@@ -15,22 +17,33 @@ import kotlin.reflect.KType
 
 class StringDecoder : NonNullableLeafDecoder<String> {
   override fun supports(type: KType): Boolean = type.classifier == String::class
-  override fun safeLeafDecode(node: Node,
-                              type: KType,
-                              context: DecoderContext): ConfigResult<String> = when (node) {
+  override fun safeLeafDecode(
+    node: Node,
+    type: KType,
+    context: DecoderContext
+  ): ConfigResult<String> = when (node) {
     is StringNode -> node.value.valid()
     is BooleanNode -> node.value.toString().valid()
     is LongNode -> node.value.toString().valid()
     is DoubleNode -> node.value.toString().valid()
+    is ArrayNode -> if (context.flattenArraysToString) {
+      val allPrimitives = node.elements.all { it is PrimitiveNode }
+      if (allPrimitives)
+        node.elements.map { it as PrimitiveNode }.joinToString(",") { it.value.toString() }.valid()
+      else
+        ConfigFailure.StringFlattenFailure(node).invalid()
+    } else ConfigFailure.DecodeError(node, type).invalid()
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }
 
 class DoubleDecoder : NonNullableLeafDecoder<Double> {
   override fun supports(type: KType): Boolean = type.classifier == Double::class
-  override fun safeLeafDecode(node: Node,
-                              type: KType,
-                              context: DecoderContext): ConfigResult<Double> = when (node) {
+  override fun safeLeafDecode(
+    node: Node,
+    type: KType,
+    context: DecoderContext
+  ): ConfigResult<Double> = when (node) {
     is StringNode -> runCatching { node.value.toDouble() }.toValidated {
       when (it) {
         is NumberFormatException -> ConfigFailure.NumberConversionError(node, type)
@@ -45,9 +58,11 @@ class DoubleDecoder : NonNullableLeafDecoder<Double> {
 
 class FloatDecoder : NonNullableLeafDecoder<Float> {
   override fun supports(type: KType): Boolean = type.classifier == Float::class
-  override fun safeLeafDecode(node: Node,
-                              type: KType,
-                              context: DecoderContext): ConfigResult<Float> = when (node) {
+  override fun safeLeafDecode(
+    node: Node,
+    type: KType,
+    context: DecoderContext
+  ): ConfigResult<Float> = when (node) {
     is StringNode -> runCatching { node.value.toFloat() }.toValidated {
       when (it) {
         is NumberFormatException -> ConfigFailure.NumberConversionError(node, type)
@@ -62,9 +77,11 @@ class FloatDecoder : NonNullableLeafDecoder<Float> {
 
 class LongDecoder : NonNullableLeafDecoder<Long> {
   override fun supports(type: KType): Boolean = type.classifier == Long::class
-  override fun safeLeafDecode(node: Node,
-                              type: KType,
-                              context: DecoderContext): ConfigResult<Long> = when (node) {
+  override fun safeLeafDecode(
+    node: Node,
+    type: KType,
+    context: DecoderContext
+  ): ConfigResult<Long> = when (node) {
     is StringNode -> runCatching { node.value.toLong() }.toValidated {
       when (it) {
         is NumberFormatException -> ConfigFailure.NumberConversionError(node, type)
@@ -78,9 +95,11 @@ class LongDecoder : NonNullableLeafDecoder<Long> {
 
 class IntDecoder : NonNullableLeafDecoder<Int> {
   override fun supports(type: KType): Boolean = type.classifier == Int::class
-  override fun safeLeafDecode(node: Node,
-                              type: KType,
-                              context: DecoderContext): ConfigResult<Int> = when (node) {
+  override fun safeLeafDecode(
+    node: Node,
+    type: KType,
+    context: DecoderContext
+  ): ConfigResult<Int> = when (node) {
     is StringNode -> runCatching { node.value.toInt() }.toValidated {
       when (it) {
         is NumberFormatException -> ConfigFailure.NumberConversionError(node, type)
@@ -95,9 +114,11 @@ class IntDecoder : NonNullableLeafDecoder<Int> {
 
 class ByteDecoder : NonNullableLeafDecoder<Byte> {
   override fun supports(type: KType): Boolean = type.classifier == Byte::class
-  override fun safeLeafDecode(node: Node,
-                              type: KType,
-                              context: DecoderContext): ConfigResult<Byte> = when (node) {
+  override fun safeLeafDecode(
+    node: Node,
+    type: KType,
+    context: DecoderContext
+  ): ConfigResult<Byte> = when (node) {
     is StringNode -> runCatching { node.value.toByte() }.toValidated {
       when (it) {
         is NumberFormatException -> ConfigFailure.NumberConversionError(node, type)
@@ -112,9 +133,11 @@ class ByteDecoder : NonNullableLeafDecoder<Byte> {
 
 class ShortDecoder : NonNullableLeafDecoder<Short> {
   override fun supports(type: KType): Boolean = type.classifier == Short::class
-  override fun safeLeafDecode(node: Node,
-                              type: KType,
-                              context: DecoderContext): ConfigResult<Short> = when (node) {
+  override fun safeLeafDecode(
+    node: Node,
+    type: KType,
+    context: DecoderContext
+  ): ConfigResult<Short> = when (node) {
     is StringNode -> runCatching { node.value.toShort() }.toValidated { ThrowableFailure(it) }
     is LongNode -> node.value.toShort().valid()
     else -> ConfigFailure.DecodeError(node, type).invalid()
@@ -123,9 +146,11 @@ class ShortDecoder : NonNullableLeafDecoder<Short> {
 
 class BooleanDecoder : NonNullableLeafDecoder<Boolean> {
   override fun supports(type: KType): Boolean = type.classifier == Boolean::class
-  override fun safeLeafDecode(node: Node,
-                              type: KType,
-                              context: DecoderContext): ConfigResult<Boolean> = when (node) {
+  override fun safeLeafDecode(
+    node: Node,
+    type: KType,
+    context: DecoderContext
+  ): ConfigResult<Boolean> = when (node) {
     is StringNode -> when (node.value.lowercase()) {
       "true", "t", "1", "yes" -> true.valid()
       "false", "f", "0", "no" -> false.valid()

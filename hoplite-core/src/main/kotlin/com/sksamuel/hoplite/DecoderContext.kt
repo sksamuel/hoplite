@@ -19,6 +19,7 @@ data class DecoderContext(
   val usedPaths: MutableSet<DotPath> = mutableSetOf(),
   // this tracks the types that a node was marshalled into
   val used: MutableSet<NodeState> = mutableSetOf(),
+  val flattenArraysToString: Boolean = false,
 ) {
 
   /**

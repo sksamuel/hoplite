@@ -42,6 +42,7 @@ class ConfigLoader(
   val environment: Environment? = null,
   val obfuscator: Obfuscator? = null,
   val failOnWeakSecrets: Set<Environment?> = emptySet(),
+  val flattenArraysToString: Boolean = false,
 ) {
 
   companion object {
@@ -156,6 +157,7 @@ class ConfigLoader(
             val context = DecoderContext(
               decoders = decoderRegistry,
               paramMappers = paramMappers,
+              flattenArraysToString = flattenArraysToString,
             )
 
             val decoded = decode(klass, preprocessed, context)

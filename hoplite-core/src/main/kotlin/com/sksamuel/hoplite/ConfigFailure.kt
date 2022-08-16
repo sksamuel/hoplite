@@ -173,6 +173,10 @@ sealed interface ConfigFailure {
     }
   }
 
+  data class StringFlattenFailure(val node: ArrayNode) : ConfigFailure {
+    override fun description(): String = "Cannot flatten array that contains complex types"
+  }
+
   data class UnsupportedCollectionType(val node: Node, val type: String) : ConfigFailure {
     override fun description(): String =
       "Required a $type but a ${node.simpleName} cannot be converted to a collection ${node.pos.loc()}"

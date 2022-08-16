@@ -5,6 +5,7 @@ import com.sksamuel.hoplite.secrets.StandardSecretsPolicy
 import com.sksamuel.hoplite.yaml.YamlPropertySource
 import io.kotest.core.spec.style.FunSpec
 
+@OptIn(ExperimentalHoplite::class)
 class AnalysisTest : FunSpec() {
   init {
     test("analysis should detect weak passwords") {

@@ -49,6 +49,7 @@ class ConfigLoaderBuilder private constructor() {
   private var failOnWeakSecrets: MutableSet<Environment?> = mutableSetOf()
 
   private var environment: Environment? = null
+  private var flattenArraysToString: Boolean = false
 
   companion object {
 
@@ -86,6 +87,7 @@ class ConfigLoaderBuilder private constructor() {
   /**
    * Sets the current environment, eg prod or dev.
    */
+  @ExperimentalHoplite
   fun withEnvironment(environment: Environment) = apply { this.environment = environment }
 
   fun addSource(propertySource: PropertySource) = addPropertySource(propertySource)
@@ -162,6 +164,9 @@ class ConfigLoaderBuilder private constructor() {
     this.failureCallbacks.add(f)
   }
 
+  @ExperimentalHoplite
+  fun flattenArraysToString(): ConfigLoaderBuilder = apply { this.flattenArraysToString = true }
+
   fun addDefaults(): ConfigLoaderBuilder {
     return addDefaultDecoders()
       .addDefaultParsers()
@@ -179,6 +184,7 @@ class ConfigLoaderBuilder private constructor() {
 
   fun withDecodeMode(mode: DecodeMode) = apply { this.decodeMode = mode }
 
+  @ExperimentalHoplite
   fun withCascadeMode(cascadeMode: CascadeMode) = apply { this.cascadeMode = cascadeMode }
 
   /**
@@ -212,19 +218,24 @@ class ConfigLoaderBuilder private constructor() {
   fun withObfusctator(obfuscator: Obfuscator): ConfigLoaderBuilder = withObfuscator(obfuscator)
   fun withObfuscator(obfuscator: Obfuscator): ConfigLoaderBuilder = apply { this.obfuscator = obfuscator }
 
+  @ExperimentalHoplite
   fun failOnWeakSecrets() = apply { failOnWeakSecrets.add(null) }
 
+  @ExperimentalHoplite
   fun failOnWeakSecrets(vararg environments: Environment): ConfigLoaderBuilder {
     environments.forEach { failOnWeakSecrets(it) }
     return this
   }
 
+  @ExperimentalHoplite
   fun withSecretsPolicy(secretsPolicy: SecretsPolicy) = apply { this.secretsPolicy = secretsPolicy }
 
+  @ExperimentalHoplite
   fun withSecretStrengthAnalyzer(secretStrengthAnalyzer: SecretStrengthAnalyzer) = apply {
     this.secretStrengthAnalyzers[null] = secretStrengthAnalyzer
   }
 
+  @ExperimentalHoplite
   fun withSecretStrengthAnalyzer(
     secretStrengthAnalyzer: SecretStrengthAnalyzer,
     vararg environments: Environment
@@ -283,6 +294,7 @@ class ConfigLoaderBuilder private constructor() {
       environment = environment,
       obfuscator = obfuscator,
       failOnWeakSecrets = failOnWeakSecrets.toSet(),
+      flattenArraysToString = flattenArraysToString,
     )
   }
 }
