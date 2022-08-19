@@ -116,13 +116,12 @@ class AwsSecretsManagerPreprocessorTest : FunSpec() {
     test("should support index keys") {
       val props = Properties()
       props["a"] = "awssm://bubble[foo]"
-      shouldThrow<ConfigException> {
-        ConfigLoaderBuilder.default()
-          .addPreprocessor(AwsSecretsManagerPreprocessor { client })
-          .addPropertySource(PropsPropertySource(props))
-          .build()
-          .loadConfigOrThrow<ConfigHolder>()
-      }.message.shouldContain("a").shouldContain("1")
+      ConfigLoaderBuilder.default()
+        .addPreprocessor(AwsSecretsManagerPreprocessor { client })
+        .addPropertySource(PropsPropertySource(props))
+        .build()
+        .loadConfigOrThrow<ConfigHolder>()
+        .a shouldBe "1"
     }
   }
 
