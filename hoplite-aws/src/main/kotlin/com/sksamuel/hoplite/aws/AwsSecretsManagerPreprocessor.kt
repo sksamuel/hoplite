@@ -28,6 +28,7 @@ class AwsSecretsManagerPreprocessor(
   private val regex1 = "\\$\\{awssecret:(.+?)}".toRegex()
   private val regex2 = "secretsmanager://(.+?)".toRegex()
   private val regex3 = "awssm://(.+?)".toRegex()
+  private val keyRegex = "(.+)\\[(.+)]".toRegex()
 
   override fun handle(node: PrimitiveNode): ConfigResult<Node> = when (node) {
     is StringNode -> {
@@ -35,13 +36,19 @@ class AwsSecretsManagerPreprocessor(
         val match = regex1.matchEntire(node.value) ?: regex2.matchEntire(node.value) ?: regex3.matchEntire(node.value)
       ) {
         null -> node.valid()
-        else -> fetchSecret(match.groupValues[1].trim(), node)
+        else -> {
+          val value = match.groupValues[1].trim()
+          val keyMatch = keyRegex.matchEntire(value)
+          val (key, index) = if (keyMatch == null) Pair(value, null) else
+            Pair(keyMatch.groupValues[1], keyMatch.groupValues[2])
+          fetchSecret(key, index, node)
+        }
       }
     }
     else -> node.valid()
   }
 
-  private fun fetchSecret(key: String, node: StringNode): ConfigResult<Node> {
+  private fun fetchSecret(key: String, index: String?, node: StringNode): ConfigResult<Node> {
     return try {
       val req = GetSecretValueRequest().withSecretId(key)
       val value = client.getSecretValue(req).secretString
