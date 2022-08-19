@@ -12,8 +12,8 @@ import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.withMeta
 
 /**
- * Replaces strings of the form ${path} by looking up path in the parsed config.
- * Defaults can also be applied in case the path does not exist: ${var:-some.path}
+ * Replaces strings of the form {{path}} by looking up path in the parsed config.
+ * Defaults can also be applied in case the path does not exist: {{var:-some.path}}
  */
 object LookupPreprocessor : Preprocessor {
 
