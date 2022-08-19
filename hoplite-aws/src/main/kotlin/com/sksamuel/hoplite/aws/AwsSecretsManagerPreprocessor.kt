@@ -19,6 +19,8 @@ import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.preprocessor.TraversingPrimitivePreprocessor
 import com.sksamuel.hoplite.withMeta
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 
 class AwsSecretsManagerPreprocessor(
   private val createClient: () -> AWSSecretsManager = { AWSSecretsManagerClientBuilder.standard().build() }
@@ -28,6 +30,7 @@ class AwsSecretsManagerPreprocessor(
   private val regex1 = "\\$\\{awssecret:(.+?)}".toRegex()
   private val regex2 = "secretsmanager://(.+?)".toRegex()
   private val regex3 = "awssm://(.+?)".toRegex()
+  private val keyRegex = "(.+)\\[(.+)]".toRegex()
 
   override fun handle(node: PrimitiveNode): ConfigResult<Node> = when (node) {
     is StringNode -> {
@@ -35,24 +38,43 @@ class AwsSecretsManagerPreprocessor(
         val match = regex1.matchEntire(node.value) ?: regex2.matchEntire(node.value) ?: regex3.matchEntire(node.value)
       ) {
         null -> node.valid()
-        else -> fetchSecret(match.groupValues[1].trim(), node)
+        else -> {
+          val value = match.groupValues[1].trim()
+          val keyMatch = keyRegex.matchEntire(value)
+          val (key, index) = if (keyMatch == null) Pair(value, null) else
+            Pair(keyMatch.groupValues[1], keyMatch.groupValues[2])
+          fetchSecret(key, index, node)
+        }
       }
     }
     else -> node.valid()
   }
 
-  private fun fetchSecret(key: String, node: StringNode): ConfigResult<Node> {
+  private fun fetchSecret(key: String, index: String?, node: StringNode): ConfigResult<Node> {
     return try {
       val req = GetSecretValueRequest().withSecretId(key)
-      val value = client.getSecretValue(req).secretString
-      if (value.isNullOrBlank())
+      val secret = client.getSecretValue(req).secretString
+      if (secret.isNullOrBlank())
         ConfigFailure.PreprocessorWarning("Empty secret '$key' in AWS SecretsManager").invalid()
       else {
-        val copied = node.copy(value = value)
-          .withMeta(CommonMetadata.Secret, true)
-          .withMeta(CommonMetadata.UnprocessedValue, node.value)
-          .withMeta(CommonMetadata.RemoteLookup, "AWS '$key'")
-        copied.valid()
+        if (index == null) {
+          node.copy(value = secret)
+            .withMeta(CommonMetadata.Secret, true)
+            .withMeta(CommonMetadata.UnprocessedValue, node.value)
+            .withMeta(CommonMetadata.RemoteLookup, "AWS '$key'")
+            .valid()
+        } else {
+          val map = runCatching { Json.Default.decodeFromString<Map<String, String>>(secret) }.getOrElse { emptyMap() }
+          val indexedValue = map[index]
+          if (indexedValue == null)
+            ConfigFailure.PreprocessorWarning("Index '$index' not present in secret '$key'. Available keys are ${map.keys.joinToString(",")}").invalid()
+          else
+            node.copy(value = indexedValue)
+              .withMeta(CommonMetadata.Secret, true)
+              .withMeta(CommonMetadata.UnprocessedValue, node.value)
+              .withMeta(CommonMetadata.RemoteLookup, "AWS '$key[$index]'")
+              .valid()
+        }
       }
     } catch (e: ResourceNotFoundException) {
       ConfigFailure.PreprocessorWarning("Could not locate resource '$key' in AWS SecretsManager").invalid()

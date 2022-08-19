@@ -10,6 +10,7 @@ import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.decoder.DotPath
 import com.sksamuel.hoplite.fp.Validated
+import com.sksamuel.hoplite.parsers.PropsPropertySource
 import com.sksamuel.hoplite.traverse
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.extensions.install
@@ -22,6 +23,7 @@ import io.kotest.matchers.string.shouldNotContain
 import io.kotest.matchers.types.shouldBeInstanceOf
 import org.testcontainers.containers.localstack.LocalStackContainer
 import org.testcontainers.utility.DockerImageName
+import java.util.Properties
 
 class AwsSecretsManagerPreprocessorTest : FunSpec() {
 
@@ -38,6 +40,7 @@ class AwsSecretsManagerPreprocessorTest : FunSpec() {
       .build()
 
     client.createSecret(CreateSecretRequest().withName("foo").withSecretString("secret!"))
+    client.createSecret(CreateSecretRequest().withName("bubble").withSecretString("""{"f": "1", "g": "2"}"""))
 
     test("placeholder should be detected and used") {
       ConfigLoaderBuilder.default()
@@ -108,6 +111,17 @@ class AwsSecretsManagerPreprocessorTest : FunSpec() {
           .build()
           .loadConfigOrThrow<ConfigHolder>("/multiple_secrets.props")
       }.message.shouldContain("foo.bar").shouldContain("bar.baz")
+    }
+
+    test("should support index keys") {
+      val props = Properties()
+      props["a"] = "awssm://bubble[f]"
+      ConfigLoaderBuilder.default()
+        .addPreprocessor(AwsSecretsManagerPreprocessor { client })
+        .addPropertySource(PropsPropertySource(props))
+        .build()
+        .loadConfigOrThrow<ConfigHolder>()
+        .a shouldBe "1"
     }
   }
 
