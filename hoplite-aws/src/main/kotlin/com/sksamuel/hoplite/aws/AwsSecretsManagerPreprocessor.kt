@@ -67,7 +67,7 @@ class AwsSecretsManagerPreprocessor(
           val map = runCatching { Json.Default.decodeFromString<Map<String, String>>(secret) }.getOrElse { emptyMap() }
           val indexedValue = map[index]
           if (indexedValue == null)
-            ConfigFailure.PreprocessorWarning("Index '$index' not present in secret '$key'").invalid()
+            ConfigFailure.PreprocessorWarning("Index '$index' not present in secret '$key'. Available keys are ${map.keys.joinToString(",")}").invalid()
           else
             node.copy(value = indexedValue)
               .withMeta(CommonMetadata.Secret, true)
