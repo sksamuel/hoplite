@@ -36,7 +36,7 @@ class ConfigFilePropertySource(
 
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
     val parser = context.parsers.locate(config.ext())
-    return Validated.ap(parser, config.open()) { a, b -> b.use { a.load(it, config.describe()) } }
+    return Validated.ap(parser, config.open()) { a, b -> if (b.available() > 0) b.use { a.load(it, config.describe()) } else ConfigFailure.EmptySource(config.describe()).invalid() }
       .mapInvalid { ConfigFailure.MultipleFailures(it) }
       .flatRecover { if (optional) Undefined.valid() else it.invalid() }
   }

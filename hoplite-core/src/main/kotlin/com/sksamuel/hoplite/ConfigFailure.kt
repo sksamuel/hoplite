@@ -96,6 +96,10 @@ sealed interface ConfigFailure {
     override fun description(): String = "Could not find config file $source"
   }
 
+  data class EmptySource(val source: String) : ConfigFailure {
+    override fun description(): String = "Source $source is empty"
+  }
+
   data class MultipleFailures(val failures: NonEmptyList<ConfigFailure>) : ConfigFailure {
     override fun description(): String = failures.map { it.description() }.list.joinToString("\n\n")
   }
