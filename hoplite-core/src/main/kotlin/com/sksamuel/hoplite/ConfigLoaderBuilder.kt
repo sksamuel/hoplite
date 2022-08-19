@@ -13,7 +13,6 @@ import com.sksamuel.hoplite.report.Reporter
 import com.sksamuel.hoplite.secrets.AllStringNodesSecretsPolicy
 import com.sksamuel.hoplite.secrets.Obfuscator
 import com.sksamuel.hoplite.secrets.PrefixObfuscator
-import com.sksamuel.hoplite.secrets.SecretStrengthAnalyzer
 import com.sksamuel.hoplite.secrets.SecretsPolicy
 import com.sksamuel.hoplite.sources.EnvironmentVariableOverridePropertySource
 import com.sksamuel.hoplite.sources.SystemPropertiesPropertySource
@@ -44,9 +43,6 @@ class ConfigLoaderBuilder private constructor() {
   private var secretsPolicy: SecretsPolicy = AllStringNodesSecretsPolicy
   private var obfuscator: Obfuscator = PrefixObfuscator(3)
   private var preprocessingIterations: Int = 1
-
-  private var secretStrengthAnalyzers: MutableMap<Environment?, SecretStrengthAnalyzer> = mutableMapOf()
-  private var failOnWeakSecrets: MutableSet<Environment?> = mutableSetOf()
 
   private var environment: Environment? = null
   private var flattenArraysToString: Boolean = false
@@ -219,30 +215,7 @@ class ConfigLoaderBuilder private constructor() {
   fun withObfuscator(obfuscator: Obfuscator): ConfigLoaderBuilder = apply { this.obfuscator = obfuscator }
 
   @ExperimentalHoplite
-  fun failOnWeakSecrets() = apply { failOnWeakSecrets.add(null) }
-
-  @ExperimentalHoplite
-  fun failOnWeakSecrets(vararg environments: Environment): ConfigLoaderBuilder {
-    environments.forEach { failOnWeakSecrets(it) }
-    return this
-  }
-
-  @ExperimentalHoplite
   fun withSecretsPolicy(secretsPolicy: SecretsPolicy) = apply { this.secretsPolicy = secretsPolicy }
-
-  @ExperimentalHoplite
-  fun withSecretStrengthAnalyzer(secretStrengthAnalyzer: SecretStrengthAnalyzer) = apply {
-    this.secretStrengthAnalyzers[null] = secretStrengthAnalyzer
-  }
-
-  @ExperimentalHoplite
-  fun withSecretStrengthAnalyzer(
-    secretStrengthAnalyzer: SecretStrengthAnalyzer,
-    vararg environments: Environment
-  ): ConfigLoaderBuilder {
-    environments.forEach { this.secretStrengthAnalyzers[it] = secretStrengthAnalyzer }
-    return this
-  }
 
   /**
    * Enables a report on all config keys, their values, and which were used or unused.
@@ -266,16 +239,6 @@ class ConfigLoaderBuilder private constructor() {
   fun report(reporter: Reporter) = apply { useReport = true }
 
   fun build(): ConfigLoader {
-
-    failOnWeakSecrets.forEach { env ->
-      if (secretStrengthAnalyzers[env] == null) {
-        if (env == null)
-          error("failOnWeakSecrets is enabled but no secret-strength-analyzer is specified")
-        else
-          error("failOnWeakSecrets is enabled for ${env.name} but no secret-strength-analyzer is specified")
-      }
-    }
-
     return ConfigLoader(
       decoderRegistry = DefaultDecoderRegistry(decoders),
       propertySources = propertySources.toList(),
@@ -289,11 +252,9 @@ class ConfigLoaderBuilder private constructor() {
       allowUnresolvedSubstitutions = allowUnresolvedSubstitutions,
       preprocessingIterations = preprocessingIterations,
       cascadeMode = cascadeMode,
-      secretStrengthAnalyzer = secretStrengthAnalyzers,
       secretsPolicy = secretsPolicy,
       environment = environment,
       obfuscator = obfuscator,
-      failOnWeakSecrets = failOnWeakSecrets.toSet(),
       flattenArraysToString = flattenArraysToString,
     )
   }

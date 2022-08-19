@@ -8,13 +8,12 @@ import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.env.Environment
 import com.sksamuel.hoplite.secrets.Obfuscator
 import com.sksamuel.hoplite.secrets.PrefixObfuscator
-import com.sksamuel.hoplite.secrets.SecretStrength
 import com.sksamuel.hoplite.secrets.SecretsPolicy
 import com.sksamuel.hoplite.unprocessedValue
 import com.sksamuel.hoplite.valueOrNull
 import kotlin.math.max
 
-@Deprecated("Specify options through ConfigBuilderLoader")
+@Deprecated("Specify reporter options through ConfigBuilderLoader")
 class ReporterBuilder {
 
   private var print: Print = { println(it) }
@@ -109,13 +108,11 @@ class Reporter(
       )
     }
 
-    val hasStrengths = obfuscated.any { it.secretStrength != null }
     val hasProcessed = obfuscated.any { it.node.unprocessedValue() != null }
 
     val keyPadded = max(Titles.Key.length, nodes.maxOf { it.node.path.flatten().length })
     val sourcePadded = nodes.maxOf { max(it.node.pos.source()?.length ?: 0, Titles.Source.length) }
     val valuePadded = max(Titles.Value.length, obfuscated.maxOf { (it.node as StringNode).value.length })
-    val strengthPadded = max(Titles.Strength.length, nodes.maxOf { it.secretStrength?.asString()?.length ?: 0 })
     val unprocessedPadded = max(Titles.Remote.length, nodes.maxOf {
       it.node.unprocessedValue()?.length ?: 0
     })
@@ -125,7 +122,6 @@ class Reporter(
         it.node.path.flatten().padEnd(keyPadded, ' '),
         (it.node.pos.source() ?: "").padEnd(sourcePadded, ' '),
         (it.node as StringNode).value.padEnd(valuePadded, ' '),
-        if (hasStrengths) it.secretStrength.asString().padEnd(strengthPadded, ' ') else null,
         if (hasProcessed) (it.node.unprocessedValue() ?: "").padEnd(unprocessedPadded, ' ') else null,
       ).joinToString(" | ", "| ", " |")
     }
@@ -136,7 +132,6 @@ class Reporter(
       "".padEnd(keyPadded + 2, '-'),
       "".padEnd(sourcePadded + 2, '-'),
       "".padEnd(valuePadded + 2, '-'),
-      if (hasStrengths) "".padEnd(strengthPadded + 2, '-') else null,
       if (hasProcessed) "".padEnd(unprocessedPadded + 2, '-') else null,
     ).joinToString("+", "+", "+")
 
@@ -144,16 +139,9 @@ class Reporter(
       Titles.Key.padEnd(keyPadded, ' '),
       Titles.Source.padEnd(sourcePadded, ' '),
       Titles.Value.padEnd(valuePadded, ' '),
-      if (hasStrengths) Titles.Strength.padEnd(strengthPadded, ' ') else null,
       if (hasProcessed) Titles.Remote.padEnd(unprocessedPadded, ' ') else null,
     ).joinToString(" | ", "| ", " |")
 
     return (listOfNotNull(titleRow, bar, titles, bar) + rows + listOf(bar)).joinToString(System.lineSeparator())
   }
-}
-
-fun SecretStrength?.asString() = when (this) {
-  null -> ""
-  SecretStrength.Strong -> "Strong"
-  is SecretStrength.Weak -> "WEAK - " + this.reason
 }

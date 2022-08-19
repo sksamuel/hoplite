@@ -1,6 +1,5 @@
 package com.sksamuel.hoplite
 
-import com.sksamuel.hoplite.secrets.SecretStrength
 import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.decoder.DotPath
@@ -33,7 +32,7 @@ data class DecoderContext(
   fun decoder(type: KParameter): Validated<ConfigFailure, Decoder<*>> = decoder(type.type)
 
   fun used(node: Node, type: KType, value: Any?) {
-    this.used.add(NodeState(node, true, value, type, false, null))
+    this.used.add(NodeState(node, true, value, type, false))
   }
 
   companion object {
@@ -47,5 +46,4 @@ data class NodeState(
   val value: Any?, // the value assigned when this node was used
   val type: KType?,
   val secret: Boolean = false, // if this node is a secret
-  val secretStrength: SecretStrength? = null, // if this node is a secret, then the strength
 )

@@ -5,7 +5,6 @@ package com.sksamuel.hoplite
 import com.sksamuel.hoplite.ClasspathResourceLoader.Companion.toClasspathResourceLoader
 import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.env.Environment
-import com.sksamuel.hoplite.fp.NonEmptyList
 import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.getOrElse
 import com.sksamuel.hoplite.fp.invalid
@@ -16,8 +15,6 @@ import com.sksamuel.hoplite.preprocessor.UnresolvedSubstitutionChecker
 import com.sksamuel.hoplite.report.Reporter
 import com.sksamuel.hoplite.secrets.Obfuscator
 import com.sksamuel.hoplite.secrets.PrefixObfuscator
-import com.sksamuel.hoplite.secrets.SecretStrength
-import com.sksamuel.hoplite.secrets.SecretStrengthAnalyzer
 import com.sksamuel.hoplite.secrets.SecretsPolicy
 import kotlin.reflect.KClass
 
@@ -38,7 +35,6 @@ class ConfigLoader(
   val preprocessingIterations: Int = 1,
   val cascadeMode: CascadeMode = CascadeMode.Merge,
   val secretsPolicy: SecretsPolicy? = null,
-  val secretStrengthAnalyzer: MutableMap<Environment?, SecretStrengthAnalyzer> = mutableMapOf(),
   val environment: Environment? = null,
   val obfuscator: Obfuscator? = null,
   val failOnWeakSecrets: Set<Environment?> = emptySet(),
@@ -161,24 +157,14 @@ class ConfigLoader(
             )
 
             val decoded = decode(klass, preprocessed, context)
-            val state = createDecodingState(preprocessed, context, secretsPolicy, secretStrengthAnalyzer[environment])
+            val state = createDecodingState(preprocessed, context, secretsPolicy)
 
             // always do report regardless of decoder result
             if (useReport) {
               Reporter({ println(it) }, obfuscator ?: PrefixObfuscator(3), environment).printReport(sources, state)
             }
 
-            val weak = state.states.mapNotNull {
-              when (it.secretStrength) {
-                is SecretStrength.Weak -> ConfigFailure.WeakSecret(it.node.path, it.secretStrength)
-                else -> null
-              }
-            }
-
-            // if we have a weak secret, then die
-            if (failOnWeakSecrets.contains(environment) && weak.isNotEmpty()) {
-              ConfigFailure.MultipleFailures(NonEmptyList.unsafe(weak)).invalid()
-            } else decoded
+            decoded
           }
       }
   }
@@ -217,7 +203,7 @@ class ConfigLoader(
     .flatMap { Preprocessing(preprocessors, preprocessingIterations).preprocess(it.node) }
 
   private fun <A : Any> decode(kclass: KClass<A>, node: Node, context: DecoderContext): ConfigResult<A> {
-    val decoding = Decoding(decoderRegistry, secretsPolicy, secretStrengthAnalyzer[environment])
+    val decoding = Decoding(decoderRegistry, secretsPolicy)
     return decoding.decode(kclass, node, mode, context)
   }
 

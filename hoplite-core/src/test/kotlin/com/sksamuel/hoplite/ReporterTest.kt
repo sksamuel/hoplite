@@ -4,7 +4,6 @@ import com.sksamuel.hoplite.env.Environment
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.preprocessor.TraversingPrimitivePreprocessor
 import com.sksamuel.hoplite.report.Reporter
-import com.sksamuel.hoplite.secrets.DefaultSecretStrengthAnalyzer
 import com.sksamuel.hoplite.secrets.StandardSecretsPolicy
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.system.captureStandardOut
@@ -102,50 +101,6 @@ Property sources (highest to lowest priority):
 
   }
 
-  test("withReport should include secret strengths") {
-
-    data class Test(
-      val name: String,
-      val host: String,
-      val port: Int,
-      val password1: String,
-      val password2: String,
-    )
-
-    captureStandardOut {
-      ConfigLoaderBuilder.default()
-        .addPropertySource(
-          PropertySource.string(
-            """
-          name = my database
-          host = localhost
-          port = 3306
-          password1 = ssm://mysecretkey
-          password2 = ssm://mysecretkey2
-          """.trimIndent(), "props"
-          )
-        )
-        .withReport()
-        .withSecretsPolicy(StandardSecretsPolicy)
-        .withSecretStrengthAnalyzer(DefaultSecretStrengthAnalyzer())
-        .build()
-        .loadConfigOrThrow<Test>()
-    }.shouldContain(
-      """
-Used keys: 5
-+-----------+---------------------+-------------+---------------------------------+
-| Key       | Source              | Value       | Secret Strength                 |
-+-----------+---------------------+-------------+---------------------------------+
-| host      | props string source | localhost   |                                 |
-| name      | props string source | my database |                                 |
-| password1 | props string source | ssm*****    | WEAK - Does not contain a digit |
-| password2 | props string source | ssm*****    | Strong                          |
-| port      | props string source | 3306        |                                 |
-+-----------+---------------------+-------------+---------------------------------+
-"""
-    )
-  }
-
   test("withReport should include remote lookups") {
 
     data class Test(
@@ -177,20 +132,19 @@ Used keys: 5
           }
         })
         .withSecretsPolicy(StandardSecretsPolicy)
-        .withSecretStrengthAnalyzer(DefaultSecretStrengthAnalyzer())
         .build()
         .loadConfigOrThrow<Test>()
     }.shouldContain(
       """
 Used keys: 4
-+----------+---------------------+-------------+-----------------+----------------------+
-| Key      | Source              | Value       | Secret Strength | Unprocessed Value    |
-+----------+---------------------+-------------+-----------------+----------------------+
-| host     | props string source | localhost   |                 |                      |
-| name     | props string source | my database |                 |                      |
-| password | props string source | gcp*****    | Strong          | gcpsm://mysecretkey2 |
-| port     | props string source | 3306        |                 |                      |
-+----------+---------------------+-------------+-----------------+----------------------+
++----------+---------------------+-------------+----------------------+
+| Key      | Source              | Value       | Unprocessed Value    |
++----------+---------------------+-------------+----------------------+
+| host     | props string source | localhost   |                      |
+| name     | props string source | my database |                      |
+| password | props string source | gcp*****    | gcpsm://mysecretkey2 |
+| port     | props string source | 3306        |                      |
++----------+---------------------+-------------+----------------------+
 
 """
     )
