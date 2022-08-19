@@ -27,7 +27,7 @@ class ConfigLoader(
   val preprocessors: List<Preprocessor>,
   val paramMappers: List<ParameterMapper>,
   val onFailure: List<(Throwable) -> Unit> = emptyList(),
-  val mode: DecodeMode = DecodeMode.Lenient,
+  val decodeMode: DecodeMode = DecodeMode.Lenient,
   val useReport: Boolean = false,
   val allowEmptyTree: Boolean, // if true then we allow config files to be empty
   val allowUnresolvedSubstitutions: Boolean,
@@ -37,7 +37,6 @@ class ConfigLoader(
   val secretsPolicy: SecretsPolicy? = null,
   val environment: Environment? = null,
   val obfuscator: Obfuscator? = null,
-  val failOnWeakSecrets: Set<Environment?> = emptySet(),
   val flattenArraysToString: Boolean = false,
 ) {
 
@@ -204,7 +203,7 @@ class ConfigLoader(
 
   private fun <A : Any> decode(kclass: KClass<A>, node: Node, context: DecoderContext): ConfigResult<A> {
     val decoding = Decoding(decoderRegistry, secretsPolicy)
-    return decoding.decode(kclass, node, mode, context)
+    return decoding.decode(kclass, node, decodeMode, context)
   }
 
   @PublishedApi

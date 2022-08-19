@@ -246,7 +246,7 @@ class ConfigLoaderBuilder private constructor() {
       preprocessors = preprocessors.toList(),
       paramMappers = paramMappers.toList(),
       onFailure = failureCallbacks.toList(),
-      mode = decodeMode,
+      decodeMode = decodeMode,
       useReport = useReport,
       allowEmptyTree = allowEmptyTree,
       allowUnresolvedSubstitutions = allowUnresolvedSubstitutions,
