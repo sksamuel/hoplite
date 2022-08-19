@@ -40,7 +40,7 @@ class AwsSecretsManagerPreprocessorTest : FunSpec() {
       .build()
 
     client.createSecret(CreateSecretRequest().withName("foo").withSecretString("secret!"))
-    client.createSecret(CreateSecretRequest().withName("bubble").withSecretString("""{"a": "1", "b": "2"}"""))
+    client.createSecret(CreateSecretRequest().withName("bubble").withSecretString("""{"f": "1", "g": "2"}"""))
 
     test("placeholder should be detected and used") {
       ConfigLoaderBuilder.default()
@@ -115,7 +115,7 @@ class AwsSecretsManagerPreprocessorTest : FunSpec() {
 
     test("should support index keys") {
       val props = Properties()
-      props["a"] = "awssm://bubble[foo]"
+      props["a"] = "awssm://bubble[f]"
       ConfigLoaderBuilder.default()
         .addPreprocessor(AwsSecretsManagerPreprocessor { client })
         .addPropertySource(PropsPropertySource(props))
