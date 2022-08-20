@@ -5,6 +5,7 @@ import com.sksamuel.hoplite.sources.CommandLinePropertySource
 import com.sksamuel.hoplite.sources.ConfigFilePropertySource
 import com.sksamuel.hoplite.sources.EnvironmentVariablesPropertySource
 import com.sksamuel.hoplite.sources.InputStreamPropertySource
+import com.sksamuel.hoplite.sources.MapPropertySource
 import java.io.File
 import java.io.InputStream
 import java.nio.file.Path
@@ -45,23 +46,24 @@ interface PropertySource {
      *
      * @param optional if true then the resource can not exist and the config loader will ignore this source
      */
-    fun resource(resource: String, optional: Boolean = false) =
-      ConfigFilePropertySource(ConfigSource.ClasspathSource(resource), optional = optional)
+    fun resource(resource: String, optional: Boolean = false, allowEmpty: Boolean = false) =
+      ConfigFilePropertySource(ConfigSource.ClasspathSource(resource), optional = optional, allowEmpty)
 
     /**
      * Returns a [PropertySource] that will read the specified file from the filesystem.
      *
      * @param optional if true then the resource can not exist and the config loader will ignore this source
      */
-    fun file(file: File, optional: Boolean = false) = path(file.toPath(), optional)
+    fun file(file: File, optional: Boolean = false, allowEmpty: Boolean = false) =
+      path(file.toPath(), optional, allowEmpty)
 
     /**
      * Returns a [PropertySource] that will read the specified resource from the classpath.
      *
      * @param optional if true then the resource can not exist and the config loader will ignore this source
      */
-    fun path(path: Path, optional: Boolean = false) =
-      ConfigFilePropertySource(ConfigSource.PathSource(path), optional = optional)
+    fun path(path: Path, optional: Boolean = false, allowEmpty: Boolean = false) =
+      ConfigFilePropertySource(ConfigSource.PathSource(path), optional = optional, allowEmpty = allowEmpty)
 
     /**
      * Returns a [PropertySource] that will read the specified input stream.

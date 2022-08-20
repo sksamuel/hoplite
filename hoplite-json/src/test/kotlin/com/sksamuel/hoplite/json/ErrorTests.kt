@@ -64,8 +64,8 @@ class ErrorTests : StringSpec({
       ConfigLoader().loadConfigOrThrow<Foo>("/weqweqweqw.json", "ewrwerwerwer.yaml")
     }.message shouldBe """Error loading config because:
 
-    Could not find config file /weqweqweqw.json
+    Could not find /weqweqweqw.json
 
-    Could not find config file ewrwerwerwer.yaml"""
+    Could not find ewrwerwerwer.yaml"""
   }
 })

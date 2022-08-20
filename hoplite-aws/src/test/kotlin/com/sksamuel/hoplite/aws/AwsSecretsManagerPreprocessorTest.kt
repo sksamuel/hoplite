@@ -10,6 +10,7 @@ import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.decoder.DotPath
 import com.sksamuel.hoplite.fp.Validated
+import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.parsers.PropsPropertySource
 import com.sksamuel.hoplite.traverse
 import io.kotest.assertions.throwables.shouldThrow
@@ -77,7 +78,8 @@ class AwsSecretsManagerPreprocessorTest : FunSpec() {
           Pos.NoPos,
           DotPath.root,
           emptyMap()
-        )
+        ),
+        DecoderContext.zero,
       ).shouldBeInstanceOf<Validated.Invalid<ConfigFailure>>().error.description().shouldContain("unkunk")
     }
 
@@ -89,7 +91,8 @@ class AwsSecretsManagerPreprocessorTest : FunSpec() {
           Pos.NoPos,
           DotPath.root,
           emptyMap(),
-        )
+        ),
+        DecoderContext.zero,
       ).shouldBeInstanceOf<Validated.Invalid<ConfigFailure>>().error.description().shouldContain("Empty secret")
     }
 
@@ -98,9 +101,9 @@ class AwsSecretsManagerPreprocessorTest : FunSpec() {
         StringNode(
           "secretsmanager://unkunk", Pos.NoPos, DotPath.root,
           emptyMap()
-        )
-      )
-        .shouldBeInstanceOf<Validated.Invalid<ConfigFailure>>().error.description()
+        ),
+        DecoderContext.zero,
+      ).shouldBeInstanceOf<Validated.Invalid<ConfigFailure>>().error.description()
         .shouldNotContain("secretsmanager://")
     }
 

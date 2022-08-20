@@ -6,6 +6,7 @@ import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.valid
+import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.parsers.PropsPropertySource
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -17,7 +18,7 @@ class IterationsTest : FunSpec() {
       data class Config(val a: String)
 
       val preprocessor = object : TraversingPrimitivePreprocessor() {
-        override fun handle(node: PrimitiveNode): ConfigResult<Node> {
+        override fun handle(node: PrimitiveNode, context: DecoderContext): ConfigResult<Node> {
           return when (node) {
             is StringNode -> node.copy(value = node.value + "a").valid()
             else -> node.valid()

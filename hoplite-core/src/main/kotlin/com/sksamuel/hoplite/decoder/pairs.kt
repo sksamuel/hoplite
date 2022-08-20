@@ -17,7 +17,8 @@ class PairDecoder : NullHandlingDecoder<Pair<*, *>> {
 
   override fun safeDecode(node: Node,
                           type: KType,
-                          context: DecoderContext): ConfigResult<Pair<*, *>> {
+                          context: DecoderContext
+  ): ConfigResult<Pair<*, *>> {
 
     fun decode(node: ArrayNode): ConfigResult<Pair<Any?, Any?>> {
       return if (node.elements.size == 2) {
@@ -43,7 +44,8 @@ class TripleDecoder : NullHandlingDecoder<Triple<*, *, *>> {
 
   override fun safeDecode(node: Node,
                           type: KType,
-                          context: DecoderContext): ConfigResult<Triple<*, *, *>> {
+                          context: DecoderContext
+  ): ConfigResult<Triple<*, *, *>> {
 
     fun decode(a: Node, b: Node, c: Node): ConfigResult<Triple<Any?, Any?, Any?>> {
       val aType = type.arguments[0].type!!

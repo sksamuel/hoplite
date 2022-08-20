@@ -9,6 +9,7 @@ import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.valid
+import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.withMeta
 
 /**
@@ -24,7 +25,7 @@ object LookupPreprocessor : Preprocessor {
   private val regex2 = "\\{\\{(.*?)\\}\\}".toRegex()
   private val valueWithDefaultRegex = "(.*?):-(.*?)".toRegex()
 
-  override fun process(node: Node): ConfigResult<Node> {
+  override fun process(node: Node, context: DecoderContext): ConfigResult<Node> {
 
     fun lookup(key: String): String? = when (val n = node.atPath(key)) {
       is StringNode -> n.value

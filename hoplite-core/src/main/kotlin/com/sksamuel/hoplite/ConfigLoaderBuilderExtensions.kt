@@ -4,6 +4,7 @@ import com.sksamuel.hoplite.sources.CommandLinePropertySource
 import com.sksamuel.hoplite.sources.ConfigFilePropertySource
 import com.sksamuel.hoplite.sources.EnvironmentVariablesPropertySource
 import com.sksamuel.hoplite.sources.InputStreamPropertySource
+import com.sksamuel.hoplite.sources.MapPropertySource
 import java.io.File
 import java.io.InputStream
 import java.nio.file.Path
@@ -16,9 +17,11 @@ import kotlin.io.path.exists
  * @param resource the resource to be read
  * @param optional if true, the config loader will ignore this source if the resource does not exist
  */
-fun ConfigLoaderBuilder.addResourceSource(resource: String, optional: Boolean = false) = addPropertySource(
-  ConfigFilePropertySource(ConfigSource.ClasspathSource(resource), optional = optional)
-)
+fun ConfigLoaderBuilder.addResourceSource(
+  resource: String,
+  optional: Boolean = false,
+  allowEmpty: Boolean = false,
+) = addPropertySource(ConfigFilePropertySource(ConfigSource.ClasspathSource(resource), optional = optional, allowEmpty))
 
 /**
  * Adds a [PropertySource] that will read the specified file from the filesystem.
@@ -26,8 +29,11 @@ fun ConfigLoaderBuilder.addResourceSource(resource: String, optional: Boolean = 
  * @param file the [File] to be read
  * @param optional if true, the config loader will ignore this source if the resource does not exist
  */
-fun ConfigLoaderBuilder.addFileSource(file: File, optional: Boolean = false) =
-  addPathSource(file.toPath(), optional)
+fun ConfigLoaderBuilder.addFileSource(
+  file: File,
+  optional: Boolean = false,
+  allowEmpty: Boolean = false
+) = addPathSource(file.toPath(), optional, allowEmpty)
 
 /**
  * Adds a [PropertySource] that will read the specified resource from the classpath.
@@ -35,9 +41,11 @@ fun ConfigLoaderBuilder.addFileSource(file: File, optional: Boolean = false) =
  * @param path the [Path] of the resource to be read
  * @param optional if true, the config loader will ignore this source if the resource does not exist
  */
-fun ConfigLoaderBuilder.addPathSource(path: Path, optional: Boolean = false) = addPropertySource(
-  ConfigFilePropertySource(ConfigSource.PathSource(path), optional = optional)
-)
+fun ConfigLoaderBuilder.addPathSource(
+  path: Path,
+  optional: Boolean = false,
+  allowEmpty: Boolean = false
+) = addPropertySource(ConfigFilePropertySource(ConfigSource.PathSource(path), optional = optional, allowEmpty))
 
 /**
  * Adds a [PropertySource] to this [ConfigLoaderBuilder] that will read the specified [resourceOrFile]
@@ -48,13 +56,25 @@ fun ConfigLoaderBuilder.addPathSource(path: Path, optional: Boolean = false) = a
  */
 fun ConfigLoaderBuilder.addResourceOrFileSource(
   resourceOrFile: String,
-  optional: Boolean = false
+  optional: Boolean = false,
+  allowEmpty: Boolean = false,
 ): ConfigLoaderBuilder {
   val path = Paths.get(resourceOrFile)
   return if (path.exists()) {
-    addPropertySource(ConfigFilePropertySource(ConfigSource.PathSource(path)))
+    addPropertySource(
+      ConfigFilePropertySource(
+        ConfigSource.PathSource(path),
+        allowEmpty = allowEmpty
+      )
+    )
   } else {
-    addPropertySource(ConfigFilePropertySource(ConfigSource.ClasspathSource(resourceOrFile), optional))
+    addPropertySource(
+      ConfigFilePropertySource(
+        ConfigSource.ClasspathSource(resourceOrFile),
+        optional,
+        allowEmpty
+      )
+    )
   }
 }
 

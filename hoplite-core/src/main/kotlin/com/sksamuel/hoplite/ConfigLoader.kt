@@ -5,17 +5,16 @@ package com.sksamuel.hoplite
 import com.sksamuel.hoplite.ClasspathResourceLoader.Companion.toClasspathResourceLoader
 import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.env.Environment
-import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.getOrElse
-import com.sksamuel.hoplite.fp.invalid
-import com.sksamuel.hoplite.fp.valid
+import com.sksamuel.hoplite.internal.CascadeMode
+import com.sksamuel.hoplite.internal.ConfigParser
+import com.sksamuel.hoplite.internal.DecodeMode
 import com.sksamuel.hoplite.parsers.ParserRegistry
 import com.sksamuel.hoplite.preprocessor.Preprocessor
-import com.sksamuel.hoplite.preprocessor.UnresolvedSubstitutionChecker
-import com.sksamuel.hoplite.report.Reporter
 import com.sksamuel.hoplite.secrets.Obfuscator
 import com.sksamuel.hoplite.secrets.PrefixObfuscator
 import com.sksamuel.hoplite.secrets.SecretsPolicy
+import com.sksamuel.hoplite.secrets.StrictObfuscator
 import kotlin.reflect.KClass
 
 class ConfigException(msg: String, val t: Throwable? = null) : java.lang.RuntimeException(msg, t)
@@ -96,7 +95,7 @@ class ConfigLoader(
    * function will throw.
    */
   fun <A : Any> loadConfigOrThrow(klass: KClass<A>, inputs: List<ConfigSource>): A =
-    loadConfig(klass, inputs).returnOrThrow()
+    loadConfig(klass, inputs, emptyList()).returnOrThrow()
 
   /**
    * Attempts to load config from the specified resources either on the class path or as files on the
@@ -122,50 +121,41 @@ class ConfigLoader(
   inline fun <reified A : Any> loadConfig(
     resourceOrFiles: List<String>,
     classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader(),
-  ): ConfigResult<A> =
-    ConfigSource
-      .fromResourcesOrFiles(resourceOrFiles.toList(), classpathResourceLoader)
-      .flatMap { loadConfig(A::class, it) }
+  ): ConfigResult<A> = loadConfig(A::class, emptyList(), resourceOrFiles, classpathResourceLoader)
 
   /**
    * Attempts to load config from the registered property sources marshalled as an instance of A.
    * If any properties are missing, or cannot be converted into the applicable types, then this
    * function will return an invalid [ConfigFailure].
    */
-  inline fun <reified A : Any> loadConfig(): ConfigResult<A> = loadConfig(A::class, emptyList())
+  inline fun <reified A : Any> loadConfig(): ConfigResult<A> = loadConfig(A::class, emptyList(), emptyList())
 
-  fun <A : Any> loadConfig(klass: KClass<A>, configSources: List<ConfigSource>): ConfigResult<A> {
-    // This is where the actual processing takes place for marshalled config.
-    // All other loadConfig or throw methods ultimately end up in this method.
-    require(klass.isData) { "Can only decode into data classes [was ${klass}]" }
-
-    if (decoderRegistry.size == 0)
-      return ConfigFailure.EmptyDecoderRegistry.invalid()
-
-    return NodeParser(parserRegistry, allowEmptyTree, cascadeMode)
-      .parseNode(propertySources, configSources)
-      .flatMap { (sources, node) ->
-        Preprocessing(preprocessors, preprocessingIterations).preprocess(node)
-          .flatMap { if (allowUnresolvedSubstitutions) it.valid() else UnresolvedSubstitutionChecker.process(it) }
-          .flatMap { preprocessed ->
-
-            val context = DecoderContext(
-              decoders = decoderRegistry,
-              paramMappers = paramMappers,
-              flattenArraysToString = flattenArraysToString,
-            )
-
-            val decoded = decode(klass, preprocessed, context)
-            val state = createDecodingState(preprocessed, context, secretsPolicy)
-
-            // always do report regardless of decoder result
-            if (useReport) {
-              Reporter({ println(it) }, obfuscator ?: PrefixObfuscator(3), environment).printReport(sources, state)
-            }
-
-            decoded
-          }
-      }
+  // This is where the actual processing takes place for marshalled config.
+  // All other loadConfig or loadConfigOrThrow methods ultimately end up in this method.
+  @PublishedApi
+  internal fun <A : Any> loadConfig(
+    kclass: KClass<A>,
+    configSources: List<ConfigSource>,
+    resourceOrFiles: List<String>,
+    classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader(),
+  ): ConfigResult<A> {
+    require(kclass.isData) { "Can only decode into data classes [was ${kclass}]" }
+    return ConfigParser(
+      classpathResourceLoader = classpathResourceLoader,
+      parserRegistry = parserRegistry,
+      allowEmptyTree = allowEmptyTree,
+      cascadeMode = cascadeMode,
+      preprocessors = preprocessors,
+      preprocessingIterations = preprocessingIterations,
+      decoderRegistry = decoderRegistry,
+      paramMappers = paramMappers,
+      flattenArraysToString = flattenArraysToString,
+      allowUnresolvedSubstitutions = allowUnresolvedSubstitutions,
+      secretsPolicy = secretsPolicy,
+      decodeMode = decodeMode,
+      useReport = useReport,
+      obfuscator = obfuscator ?: PrefixObfuscator(3),
+    ).decode(kclass, environment, resourceOrFiles, propertySources, configSources)
   }
 
   /**
@@ -189,21 +179,31 @@ class ConfigLoader(
   fun loadNodeOrThrow(
     resourceOrFiles: List<String>,
     classpathResourceLoader: ClasspathResourceLoader = ConfigLoader::class.java.toClasspathResourceLoader(),
-  ): Node = loadNode(resourceOrFiles, classpathResourceLoader).returnOrThrow()
+  ): Node = loadNode(resourceOrFiles, emptyList(), classpathResourceLoader).returnOrThrow()
 
   fun loadNode(vararg resourceOrFiles: String): ConfigResult<Node> = loadNode(resourceOrFiles.toList())
 
   fun loadNode(
     resourceOrFiles: List<String>,
+    configSources: List<ConfigSource> = emptyList(),
     classpathResourceLoader: ClasspathResourceLoader = ConfigLoader::class.java.toClasspathResourceLoader(),
-  ): ConfigResult<Node> = ConfigSource
-    .fromResourcesOrFiles(resourceOrFiles.toList(), classpathResourceLoader)
-    .flatMap { NodeParser(parserRegistry, allowEmptyTree, cascadeMode).parseNode(propertySources, it) }
-    .flatMap { Preprocessing(preprocessors, preprocessingIterations).preprocess(it.node) }
-
-  private fun <A : Any> decode(kclass: KClass<A>, node: Node, context: DecoderContext): ConfigResult<A> {
-    val decoding = Decoding(decoderRegistry, secretsPolicy)
-    return decoding.decode(kclass, node, decodeMode, context)
+  ): ConfigResult<Node> {
+    return ConfigParser(
+      classpathResourceLoader = classpathResourceLoader,
+      parserRegistry = parserRegistry,
+      allowEmptyTree = allowEmptyTree,
+      cascadeMode = cascadeMode,
+      preprocessors = preprocessors,
+      preprocessingIterations = preprocessingIterations,
+      decoderRegistry = decoderRegistry,
+      paramMappers = paramMappers,
+      flattenArraysToString = false, // not needed to load nodes
+      allowUnresolvedSubstitutions = allowUnresolvedSubstitutions,
+      secretsPolicy = null, // not used when loading nodes
+      decodeMode = DecodeMode.Lenient,  // not used when loading nodes
+      useReport = false,  // not used when loading nodes
+      obfuscator = StrictObfuscator("*"),  // not used when loading nodes
+    ).load(resourceOrFiles, propertySources, configSources)
   }
 
   @PublishedApi
@@ -213,4 +213,7 @@ class ConfigLoader(
     throw ConfigException(err)
   }
 }
+
+@Deprecated("Moved package. Use com.sksamuel.hoplite.sources.MapPropertySource")
+typealias MapPropertySource = com.sksamuel.hoplite.sources.MapPropertySource
 

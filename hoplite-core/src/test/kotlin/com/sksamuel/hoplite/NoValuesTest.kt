@@ -8,13 +8,13 @@ import io.kotest.matchers.string.shouldContain
 class NoValuesTest : FunSpec({
 
   test("ConfigLoader should return NoValues if all sources returned Undefined") {
-    ConfigLoader().loadNode().getInvalidUnsafe() shouldBe ConfigFailure.NoValues
+    ConfigLoader().loadNode().getInvalidUnsafe() shouldBe ConfigFailure.UndefinedTree
   }
 
   test("ConfigLoader should return meaningful error if no sources return a value") {
     shouldThrowAny {
       ConfigLoader().loadNodeOrThrow()
-    }.message shouldContain "Registered properties sources returned no config"
+    }.message shouldContain "The applied config was empty"
   }
 
   test("ConfigLoader should ignore no values when option is enabled") {

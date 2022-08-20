@@ -3,6 +3,8 @@ package com.sksamuel.hoplite
 import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.decoder.DefaultDecoderRegistry
 import com.sksamuel.hoplite.env.Environment
+import com.sksamuel.hoplite.internal.CascadeMode
+import com.sksamuel.hoplite.internal.DecodeMode
 import com.sksamuel.hoplite.parsers.DefaultParserRegistry
 import com.sksamuel.hoplite.parsers.Parser
 import com.sksamuel.hoplite.preprocessor.EnvOrSystemPropertyPreprocessor

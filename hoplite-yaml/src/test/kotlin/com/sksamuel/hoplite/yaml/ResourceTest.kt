@@ -15,7 +15,7 @@ class ResourceTest : FunSpec({
     data class Foo(val a: String)
 
     val e = ConfigLoader().loadConfig<Foo>("/missing.yml") as Validated.Invalid<ConfigFailure>
-    e.error.description() shouldBe """Could not find config file /missing.yml"""
+    e.error.description() shouldBe """Could not find /missing.yml"""
   }
 
   test("do not return failure for optional file property source") {

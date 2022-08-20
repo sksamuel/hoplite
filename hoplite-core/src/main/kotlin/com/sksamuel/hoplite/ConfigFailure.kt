@@ -3,7 +3,9 @@ package com.sksamuel.hoplite
 import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.decoder.DotPath
 import com.sksamuel.hoplite.fp.NonEmptyList
+import com.sksamuel.hoplite.internal.OverridePath
 import com.sksamuel.hoplite.parsers.Parser
+import java.nio.file.Path
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
@@ -43,16 +45,12 @@ sealed interface ConfigFailure {
     }
   }
 
-  data class MissingConfigValue(private val key: String) : ConfigFailure {
-    override fun description(): String = "Missing config value $key"
-  }
-
   object NoSources : ConfigFailure {
     override fun description(): String = "No registered property sources or config files"
   }
 
-  object NoValues : ConfigFailure {
-    override fun description(): String = "Registered properties sources returned no config"
+  object UndefinedTree : ConfigFailure {
+    override fun description(): String = "The applied config was empty"
   }
 
   data class NoSuchParser(
@@ -60,7 +58,7 @@ sealed interface ConfigFailure {
     val map: Map<String, Parser>
   ) : ConfigFailure {
     override fun description(): String =
-      "Could not detect parser for file extension '.$file' - available parsers are $map"
+      "Could not detect parser for file extension '.$file' - available parsers are ${map.keys.joinToString(", ")}"
   }
 
   data class PreprocessorWarning(val message: String) : ConfigFailure {
@@ -93,11 +91,19 @@ sealed interface ConfigFailure {
   }
 
   data class UnknownSource(val source: String) : ConfigFailure {
-    override fun description(): String = "Could not find config file $source"
+    override fun description(): String = "Could not find $source"
   }
 
-  data class EmptySource(val source: String) : ConfigFailure {
-    override fun description(): String = "Source $source is empty"
+  data class UnknownPath(val path: Path) : ConfigFailure {
+    override fun description(): String = "Could not find file $path:"
+  }
+
+  data class ErrorOpeningPath(val path: Path) : ConfigFailure {
+    override fun description(): String = "Could open $path"
+  }
+
+  data class EmptyConfigSource(val source: ConfigSource) : ConfigFailure {
+    override fun description(): String = "Config source ${source.describe()} is empty"
   }
 
   data class MultipleFailures(val failures: NonEmptyList<ConfigFailure>) : ConfigFailure {
@@ -200,7 +206,7 @@ sealed interface ConfigFailure {
     }
   }
 
-  object MissingValue : ConfigFailure {
+  data class MissingConfigValue(val type: KType) : ConfigFailure {
     override fun description(): String = "Missing from config"
   }
 

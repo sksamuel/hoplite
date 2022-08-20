@@ -1,6 +1,6 @@
 package com.sksamuel.hoplite.report
 
-import com.sksamuel.hoplite.DecodingState
+import com.sksamuel.hoplite.internal.DecodingState
 import com.sksamuel.hoplite.NodeState
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.PropertySource
@@ -55,8 +55,8 @@ class Reporter(
   }
 
   fun printReport(
-    sources: List<PropertySource>,
-    state: DecodingState,
+     sources: List<PropertySource>,
+     state: DecodingState,
   ) {
 
     val r = buildString {

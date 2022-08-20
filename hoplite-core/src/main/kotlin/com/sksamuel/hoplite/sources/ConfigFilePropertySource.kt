@@ -7,10 +7,10 @@ import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PropertySource
 import com.sksamuel.hoplite.PropertySourceContext
 import com.sksamuel.hoplite.Undefined
-import com.sksamuel.hoplite.fp.Validated
-import com.sksamuel.hoplite.fp.flatRecover
+import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
+import com.sksamuel.hoplite.toValidated
 import java.io.File
 import java.nio.file.Path
 
@@ -23,10 +23,13 @@ import java.nio.file.Path
  * @param optional if true then a missing file will be skipped.
  *                 if false, then a missing file will return an error.
  *                 Defaults to false.
+ *
+ * @param allowEmpty if true then the config file can beempty
  */
 class ConfigFilePropertySource(
   private val config: ConfigSource,
   private val optional: Boolean = false,
+  private val allowEmpty: Boolean,
 ) : PropertySource {
 
   /**
@@ -35,10 +38,19 @@ class ConfigFilePropertySource(
   override fun source(): String = config.describe()
 
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
-    val parser = context.parsers.locate(config.ext())
-    return Validated.ap(parser, config.open()) { a, b -> if (b.available() > 0) b.use { a.load(it, config.describe()) } else ConfigFailure.EmptySource(config.describe()).invalid() }
-      .mapInvalid { ConfigFailure.MultipleFailures(it) }
-      .flatRecover { if (optional) Undefined.valid() else it.invalid() }
+    return context.parsers.locate(config.ext()).flatMap { parser ->
+      config.open(optional).flatMap { input ->
+        when {
+          input == null && optional -> Undefined.valid()
+          input == null -> ConfigFailure.UnknownSource(config.describe()).invalid()
+          input.available() == 0 && allowEmpty -> Undefined.valid()
+          input.available() == 0 -> ConfigFailure.EmptyConfigSource(config).invalid()
+          else -> runCatching {
+            input.use { parser.load(it, config.describe()) }
+          }.toValidated { ConfigFailure.PropertySourceFailure("Could not parse ${config.describe()}") }
+        }
+      }
+    }
   }
 
   companion object {
@@ -46,7 +58,7 @@ class ConfigFilePropertySource(
     fun optionalPath(
       path: Path,
     ): ConfigFilePropertySource =
-      ConfigFilePropertySource(ConfigSource.PathSource(path), true)
+      ConfigFilePropertySource(ConfigSource.PathSource(path), optional = true, allowEmpty = false)
 
     fun optionalFile(
       file: File,
@@ -55,6 +67,6 @@ class ConfigFilePropertySource(
     fun optionalResource(
       resource: String,
     ): ConfigFilePropertySource =
-      ConfigFilePropertySource(ConfigSource.ClasspathSource(resource), true)
+      ConfigFilePropertySource(ConfigSource.ClasspathSource(resource), optional = true, allowEmpty = false)
   }
 }
