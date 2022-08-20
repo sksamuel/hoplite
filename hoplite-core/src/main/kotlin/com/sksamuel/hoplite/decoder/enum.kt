@@ -20,7 +20,8 @@ class EnumDecoder<T : Any> : NullHandlingDecoder<T> {
 
   override fun safeDecode(node: Node,
                           type: KType,
-                          context: DecoderContext): ConfigResult<T> {
+                          context: DecoderContext
+  ): ConfigResult<T> {
 
     val klass = type.classifier as KClass<*>
 

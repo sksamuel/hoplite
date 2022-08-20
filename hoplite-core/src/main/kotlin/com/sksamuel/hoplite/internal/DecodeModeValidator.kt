@@ -1,5 +1,7 @@
-package com.sksamuel.hoplite
+package com.sksamuel.hoplite.internal
 
+import com.sksamuel.hoplite.ConfigFailure
+import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.fp.NonEmptyList
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid

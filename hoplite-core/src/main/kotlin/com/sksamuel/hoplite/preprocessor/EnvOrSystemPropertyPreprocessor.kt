@@ -4,6 +4,7 @@ package com.sksamuel.hoplite.preprocessor
 
 import com.sksamuel.hoplite.CommonMetadata
 import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
@@ -22,7 +23,7 @@ object EnvOrSystemPropertyPreprocessor : TraversingPrimitivePreprocessor() {
   private val regex = "\\$\\{(.*?)\\}".toRegex()
   private val valueWithDefaultRegex = "(.*?):-(.*?)".toRegex()
 
-  override fun handle(node: PrimitiveNode): ConfigResult<Node> = when (node) {
+  override fun handle(node: PrimitiveNode, context: DecoderContext): ConfigResult<Node> = when (node) {
     is StringNode -> {
       val rawValue = node.value
       val value = regex.replace(rawValue) { match ->

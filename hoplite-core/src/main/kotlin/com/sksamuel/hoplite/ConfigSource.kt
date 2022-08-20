@@ -4,6 +4,7 @@ import com.sksamuel.hoplite.ClasspathResourceLoader.Companion.toClasspathResourc
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.sequence
 import com.sksamuel.hoplite.fp.valid
+import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.InputStream
 import java.nio.file.Files
@@ -16,8 +17,10 @@ abstract class ConfigSource {
   /**
    * Opens a new [InputStream], the caller should call [AutoCloseable.close]
    * when they no longer need the [InputStream].
+   *
+   * Returns null if optional is true and the config does not exist.
    */
-  abstract fun open(): ConfigResult<InputStream>
+  abstract fun open(optional: Boolean): ConfigResult<InputStream?>
 
   /**
    * Return a string detailing the location of this source, eg file://myfile
@@ -32,9 +35,13 @@ abstract class ConfigSource {
   class PathSource(val path: Path) : ConfigSource() {
     override fun describe(): String = path.toString()
     override fun ext() = path.fileName.toString().split('.').last()
-    override fun open(): ConfigResult<InputStream> =
-      runCatching { Files.newInputStream(path) }
-        .toValidated { ConfigFailure.UnknownSource(path.toString()) }
+    override fun open(optional: Boolean): ConfigResult<InputStream?> {
+      return when {
+        path.exists() -> runCatching { Files.newInputStream(path) }.toValidated { ConfigFailure.ErrorOpeningPath(path) }
+        optional -> null.valid()
+        else -> ConfigFailure.UnknownPath(path).invalid()
+      }
+    }
   }
 
   class ClasspathSource(
@@ -43,8 +50,14 @@ abstract class ConfigSource {
   ) : ConfigSource() {
     override fun describe(): String = "classpath:$resource"
     override fun ext() = resource.split('.').last()
-    override fun open(): ConfigResult<InputStream> =
-      classpathResourceLoader.getResourceAsStream(resource)?.valid() ?: ConfigFailure.UnknownSource(resource).invalid()
+    override fun open(optional: Boolean): ConfigResult<InputStream?> {
+      val input = classpathResourceLoader.getResourceAsStream(resource)
+      return when {
+        input != null -> input.valid()
+        optional -> null.valid()
+        else -> ConfigFailure.UnknownSource(resource).invalid()
+      }
+    }
   }
 
   companion object {

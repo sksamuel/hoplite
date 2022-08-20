@@ -8,6 +8,7 @@ import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.valid
+import com.sksamuel.hoplite.DecoderContext
 import java.util.UUID
 import kotlin.math.abs
 import kotlin.random.Random
@@ -83,7 +84,7 @@ object RandomPreprocessor : TraversingPrimitivePreprocessor() {
     uuidRule
   )
 
-  override fun handle(node: PrimitiveNode): ConfigResult<Node> = when (node) {
+  override fun handle(node: PrimitiveNode, context: DecoderContext): ConfigResult<Node> = when (node) {
     is StringNode -> {
       val value = rules.fold(node.value) { str, rule -> rule(str) }
       node.copy(value = value).valid()

@@ -3,6 +3,7 @@ package com.sksamuel.hoplite.vault
 import com.sksamuel.hoplite.CommonMetadata
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
@@ -30,7 +31,7 @@ class VaultSecretPreprocessor(
   private val regex = "vault://(.+?)".toRegex()
   private val tokenRegex = "(.+)\\s+(.+)".toRegex()
 
-  override fun handle(node: PrimitiveNode): ConfigResult<Node> = when (node) {
+  override fun handle(node: PrimitiveNode, context: DecoderContext): ConfigResult<Node> = when (node) {
     is StringNode -> {
       when (val match = regex.matchEntire(node.value)) {
         null -> node.valid()

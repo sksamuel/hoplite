@@ -9,6 +9,7 @@ import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
+import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.preprocessor.TraversingPrimitivePreprocessor
 import com.sksamuel.hoplite.withMeta
 import java.util.Optional
@@ -39,7 +40,7 @@ class ConsulConfigPreprocessor(
     client.keyValueClient().getValueAsString(key)
   }
 
-  override fun handle(node: PrimitiveNode): ConfigResult<Node> = when (node) {
+  override fun handle(node: PrimitiveNode, context: DecoderContext): ConfigResult<Node> = when (node) {
     is StringNode -> when (val match = regex1.matchEntire(node.value) ?: regex2.matchEntire(node.value)) {
       null -> node.valid()
       else -> {

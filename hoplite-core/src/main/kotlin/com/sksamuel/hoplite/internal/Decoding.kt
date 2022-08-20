@@ -1,32 +1,18 @@
-package com.sksamuel.hoplite
+package com.sksamuel.hoplite.internal
 
+import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.DecoderContext
+import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.NodeState
+import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.decoder.DotPath
-import com.sksamuel.hoplite.fp.Validated
 import com.sksamuel.hoplite.fp.flatMap
-import com.sksamuel.hoplite.fp.valid
-import com.sksamuel.hoplite.preprocessor.Preprocessor
+import com.sksamuel.hoplite.paths
 import com.sksamuel.hoplite.secrets.SecretsPolicy
+import com.sksamuel.hoplite.traverse
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
-
-class Preprocessing(
-  private val preprocessors: List<Preprocessor>,
-  private val iterations: Int,
-) {
-
-  fun preprocess(node: Node): ConfigResult<Node> {
-    return iterate(node, iterations)
-  }
-
-  private fun iterate(node: Node, iterations: Int): Validated<ConfigFailure, Node> =
-    if (iterations == 0) node.valid() else process(node).flatMap { iterate(it, iterations - 1) }
-
-  private fun process(node: Node): Validated<ConfigFailure, Node> =
-    preprocessors.fold<Preprocessor, ConfigResult<Node>>(node.valid()) { acc, preprocessor ->
-      acc.flatMap { preprocessor.process(it) }
-    }
-}
 
 class Decoding(
   private val decoderRegistry: DecoderRegistry,

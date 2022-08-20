@@ -4,6 +4,8 @@ data class Environment(val name: String) {
 
   companion object {
 
+    // some commonly defined environments
+
     val prod = Environment("prod")
     val production = Environment("production")
     val dev = Environment("dev")

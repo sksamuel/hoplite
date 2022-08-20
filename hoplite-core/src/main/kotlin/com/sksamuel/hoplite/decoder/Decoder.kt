@@ -86,7 +86,7 @@ interface NullHandlingDecoder<T> : Decoder<T> {
    */
   private fun offerUndefined(type: KType): Validated<ConfigFailure, *> {
     return if (type.isMarkedNullable) Validated.Valid(null) else
-      ConfigFailure.MissingValue.invalid()
+      ConfigFailure.MissingConfigValue(type).invalid()
   }
 
   override fun decode(node: Node, type: KType, context: DecoderContext): ConfigResult<T> =

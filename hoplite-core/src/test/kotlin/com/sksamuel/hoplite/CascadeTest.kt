@@ -1,6 +1,9 @@
 package com.sksamuel.hoplite
 
 import com.sksamuel.hoplite.decoder.DotPath
+import com.sksamuel.hoplite.internal.CascadeMode
+import com.sksamuel.hoplite.internal.Cascader
+import com.sksamuel.hoplite.internal.OverridePath
 import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -9,6 +12,8 @@ import io.kotest.matchers.shouldBe
 class CascadeTest : FunSpec({
 
   test("CascadeMode.Merge should work with two maps at immediate depth") {
+
+    val cascader = Cascader(CascadeMode.Merge, false)
 
     val node1 = MapNode(
       mapOf(
@@ -27,18 +32,20 @@ class CascadeTest : FunSpec({
       DotPath.root
     )
 
-    val f = node1.cascade(node2, CascadeMode.Merge).node
+    val f = cascader.cascade(node1, node2).node
     f["a"] shouldBe StringNode("foo", Pos.NoPos, DotPath.root)
     f["b"] shouldBe StringNode("bar", Pos.NoPos, DotPath.root)
     f["c"] shouldBe StringNode("baz", Pos.NoPos, DotPath.root)
 
-    val g = node2.cascade(node1, CascadeMode.Merge).node
+    val g = cascader.cascade(node2, node1).node
     g["a"] shouldBe StringNode("faz", Pos.NoPos, DotPath.root)
     g["b"] shouldBe StringNode("bar", Pos.NoPos, DotPath.root)
     g["c"] shouldBe StringNode("baz", Pos.NoPos, DotPath.root)
   }
 
   test("CascadeMode.Merge should work with two maps at arbitrary depth") {
+
+    val cascader = Cascader(CascadeMode.Merge, false)
 
     val node1 = MapNode(
       mapOf(
@@ -70,13 +77,13 @@ class CascadeTest : FunSpec({
       DotPath.root,
     )
 
-    val f = node1.cascade(node2, CascadeMode.Merge).node
+    val f = cascader.cascade(node1, node2).node
     f["a"] shouldBe StringNode("foo", Pos.NoPos, DotPath.root)
     f["b"]["j"] shouldBe StringNode("jen", Pos.NoPos, DotPath.root)
     f["b"]["k"] shouldBe StringNode("ken", Pos.NoPos, DotPath.root)
     f["c"] shouldBe StringNode("baz", Pos.NoPos, DotPath.root)
 
-    val g = node2.cascade(node1, CascadeMode.Merge).node
+    val g = cascader.cascade(node2, node1).node
     g["a"] shouldBe StringNode("foo", Pos.NoPos, DotPath.root)
     g["b"]["j"] shouldBe StringNode("jen", Pos.NoPos, DotPath.root)
     g["b"]["k"] shouldBe StringNode("kez", Pos.NoPos, DotPath.root)
@@ -116,7 +123,8 @@ class CascadeTest : FunSpec({
       DotPath.root,
     )
 
-    val merged = node1.cascade(node2, CascadeMode.Override).node
+    val cascader = Cascader(CascadeMode.Override, false)
+    val merged = cascader.cascade(node1, node2).node
     merged["a"] shouldBe StringNode("foo", Pos.NoPos, DotPath("a"))
     merged["b"] shouldBe MapNode(
       mapOf(
@@ -162,7 +170,8 @@ class CascadeTest : FunSpec({
       DotPath.root,
     )
 
-    node1.cascade(node2, CascadeMode.Merge).overrides shouldBe listOf(
+    val cascader = Cascader(CascadeMode.Merge, false)
+    cascader.cascade(node1, node2).overrides shouldBe listOf(
       OverridePath(DotPath("b", "k"), Pos.SourcePos("y"), Pos.SourcePos("x")),
       OverridePath(DotPath("c"), Pos.NoPos, Pos.NoPos),
     )

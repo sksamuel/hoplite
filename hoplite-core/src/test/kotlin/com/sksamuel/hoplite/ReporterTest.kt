@@ -124,7 +124,7 @@ Property sources (highest to lowest priority):
         )
         .withReport()
         .addPreprocessor(object : TraversingPrimitivePreprocessor() {
-          override fun handle(node: PrimitiveNode): ConfigResult<Node> {
+          override fun handle(node: PrimitiveNode, context: DecoderContext): ConfigResult<Node> {
             return if (node is StringNode && node.value.startsWith("gcpsm://"))
               node.withMeta(CommonMetadata.UnprocessedValue, "gcpsm://mysecretkey2").valid()
             else

@@ -1,12 +1,15 @@
-package com.sksamuel.hoplite
+package com.sksamuel.hoplite.sources
 
+import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.PropertySource
+import com.sksamuel.hoplite.PropertySourceContext
+import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.parsers.toNode
 
 /**
- * An implementation of [PropertySource] that provides config based on command line arguments.
- *
- * Parameters will be processed if they start with a given prefix. Key and value are split by a given delimiter.
+ * An implementation of [PropertySource] that simply wraps a [Map].
  */
 class MapPropertySource(
   private val map: Map<String, Any?>,

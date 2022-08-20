@@ -6,6 +6,7 @@ import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.valid
+import com.sksamuel.hoplite.DecoderContext
 import java.io.InputStream
 import java.nio.file.Path
 import java.util.Properties
@@ -20,7 +21,7 @@ import java.util.Properties
  */
 class PropsPreprocessor(private val input: InputStream) : TraversingPrimitivePreprocessor() {
 
-  override fun handle(node: PrimitiveNode): ConfigResult<Node> = when (node) {
+  override fun handle(node: PrimitiveNode, context: DecoderContext): ConfigResult<Node> = when (node) {
     is StringNode -> {
       val value = regex.replace(node.value) {
         val key = it.groupValues[1]

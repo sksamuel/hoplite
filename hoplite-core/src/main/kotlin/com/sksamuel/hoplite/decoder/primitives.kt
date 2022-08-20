@@ -26,7 +26,7 @@ class StringDecoder : NonNullableLeafDecoder<String> {
     is BooleanNode -> node.value.toString().valid()
     is LongNode -> node.value.toString().valid()
     is DoubleNode -> node.value.toString().valid()
-    is ArrayNode -> if (context.flattenArraysToString) {
+    is ArrayNode -> if (context.config.flattenArraysToString) {
       val allPrimitives = node.elements.all { it is PrimitiveNode }
       if (allPrimitives)
         node.elements.map { it as PrimitiveNode }.joinToString(",") { it.value.toString() }.valid()
