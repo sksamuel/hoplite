@@ -1,15 +1,14 @@
 package com.sksamuel.hoplite.report
 
-import com.sksamuel.hoplite.internal.DecodingState
 import com.sksamuel.hoplite.NodeState
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.PropertySource
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.env.Environment
+import com.sksamuel.hoplite.internal.DecodingState
 import com.sksamuel.hoplite.secrets.Obfuscator
 import com.sksamuel.hoplite.secrets.PrefixObfuscator
 import com.sksamuel.hoplite.secrets.SecretsPolicy
-import com.sksamuel.hoplite.unprocessedValue
 import com.sksamuel.hoplite.valueOrNull
 import kotlin.math.max
 
@@ -46,8 +45,6 @@ class Reporter(
     const val Key = "Key"
     const val Source = "Source"
     const val Value = "Value"
-    const val Remote = "Unprocessed Value"
-    const val Strength = "Secret Strength"
   }
 
   companion object {
@@ -108,21 +105,15 @@ class Reporter(
       )
     }
 
-    val hasProcessed = obfuscated.any { it.node.unprocessedValue() != null }
-
     val keyPadded = max(Titles.Key.length, nodes.maxOf { it.node.path.flatten().length })
     val sourcePadded = nodes.maxOf { max(it.node.pos.source()?.length ?: 0, Titles.Source.length) }
     val valuePadded = max(Titles.Value.length, obfuscated.maxOf { (it.node as StringNode).value.length })
-    val unprocessedPadded = max(Titles.Remote.length, nodes.maxOf {
-      it.node.unprocessedValue()?.length ?: 0
-    })
 
     val rows = obfuscated.map {
       listOfNotNull(
         it.node.path.flatten().padEnd(keyPadded, ' '),
         (it.node.pos.source() ?: "").padEnd(sourcePadded, ' '),
         (it.node as StringNode).value.padEnd(valuePadded, ' '),
-        if (hasProcessed) (it.node.unprocessedValue() ?: "").padEnd(unprocessedPadded, ' ') else null,
       ).joinToString(" | ", "| ", " |")
     }
 
@@ -132,14 +123,12 @@ class Reporter(
       "".padEnd(keyPadded + 2, '-'),
       "".padEnd(sourcePadded + 2, '-'),
       "".padEnd(valuePadded + 2, '-'),
-      if (hasProcessed) "".padEnd(unprocessedPadded + 2, '-') else null,
     ).joinToString("+", "+", "+")
 
     val titles = listOfNotNull(
       Titles.Key.padEnd(keyPadded, ' '),
       Titles.Source.padEnd(sourcePadded, ' '),
       Titles.Value.padEnd(valuePadded, ' '),
-      if (hasProcessed) Titles.Remote.padEnd(unprocessedPadded, ' ') else null,
     ).joinToString(" | ", "| ", " |")
 
     return (listOfNotNull(titleRow, bar, titles, bar) + rows + listOf(bar)).joinToString(System.lineSeparator())

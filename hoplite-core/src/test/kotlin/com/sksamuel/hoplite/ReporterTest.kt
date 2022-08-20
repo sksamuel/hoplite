@@ -101,7 +101,7 @@ Property sources (highest to lowest priority):
 
   }
 
-  test("withReport should include remote lookups") {
+  test("withReport should use secrets policy") {
 
     data class Test(
       val name: String,
@@ -137,14 +137,14 @@ Property sources (highest to lowest priority):
     }.shouldContain(
       """
 Used keys: 4
-+----------+---------------------+-------------+----------------------+
-| Key      | Source              | Value       | Unprocessed Value    |
-+----------+---------------------+-------------+----------------------+
-| host     | props string source | localhost   |                      |
-| name     | props string source | my database |                      |
-| password | props string source | gcp*****    | gcpsm://mysecretkey2 |
-| port     | props string source | 3306        |                      |
-+----------+---------------------+-------------+----------------------+
++----------+---------------------+-------------+
+| Key      | Source              | Value       |
++----------+---------------------+-------------+
+| host     | props string source | localhost   |
+| name     | props string source | my database |
+| password | props string source | gcp*****    |
+| port     | props string source | 3306        |
++----------+---------------------+-------------+
 
 """
     )

@@ -9,7 +9,7 @@ import com.sksamuel.hoplite.StringNode
 import java.security.MessageDigest
 
 /**
- * Implementations can choose how to obfuscate [PrimitiveNode]s.
+ * Implementations can choose how to obfuscate [PrimitiveNode]s for display in reports.
  */
 interface Obfuscator {
   fun obfuscate(node: PrimitiveNode): String
@@ -76,26 +76,6 @@ class PrefixObfuscator(
       is StringNode -> {
         if (isNumericOrBoolean(node.value)) return node.value
         return node.value.take(prefixLength) + suffixMask
-      }
-    }
-  }
-}
-
-/**
- * An [Obfuscator] that returns the first three characters with a fixed mask for strings,
- * and the value otherwise.
- */
-@Deprecated("Use PrefixObfuscator")
-object DefaultObfuscator : Obfuscator {
-  override fun obfuscate(node: PrimitiveNode): String {
-    return when (node) {
-      is BooleanNode -> node.value.toString()
-      is NullNode -> node.value.toString()
-      is DoubleNode -> node.value.toString()
-      is LongNode -> node.value.toString()
-      is StringNode -> {
-        if (isNumericOrBoolean(node.value)) return node.value
-        return node.value.take(3) + "*****"
       }
     }
   }

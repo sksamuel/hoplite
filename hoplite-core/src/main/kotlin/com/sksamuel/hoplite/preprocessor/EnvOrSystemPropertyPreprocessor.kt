@@ -2,20 +2,16 @@
 
 package com.sksamuel.hoplite.preprocessor
 
-import com.sksamuel.hoplite.CommonMetadata
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.valid
-import com.sksamuel.hoplite.withMeta
 
 /**
- * Replaces strings of the form ${var} with the value of the env variable or system property 'var'.
+ * Replaces strings of the form ${var} with the value of the env variable 'var' or system property 'var'.
  * Defaults can also be applied in case the env var is not available: ${var:-default}.
- *
- * If a replacement var is not available, then this preprocessor will throw an error.
  */
 object EnvOrSystemPropertyPreprocessor : TraversingPrimitivePreprocessor() {
 
@@ -38,8 +34,7 @@ object EnvOrSystemPropertyPreprocessor : TraversingPrimitivePreprocessor() {
           }
         }
       }
-      if (value == node.value) node.valid() else
-        node.copy(value = value).withMeta(CommonMetadata.UnprocessedValue, rawValue).valid()
+      if (value == node.value) node.valid() else node.copy(value = value).valid()
     }
     else -> node.valid()
   }
