@@ -23,8 +23,13 @@ import com.sksamuel.hoplite.withMeta
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
+/**
+ * @param report set to true to output a report on secrets used.
+ *               Requires the overall hoplite report to be enabled.
+ */
 class AwsSecretsManagerPreprocessor(
-  private val createClient: () -> AWSSecretsManager = { AWSSecretsManagerClientBuilder.standard().build() }
+  private val report: Boolean = false,
+  private val createClient: () -> AWSSecretsManager = { AWSSecretsManagerClientBuilder.standard().build() },
 ) : TraversingPrimitivePreprocessor() {
 
   private val client by lazy { createClient() }
@@ -53,8 +58,20 @@ class AwsSecretsManagerPreprocessor(
 
   private fun fetchSecret(key: String, index: String?, node: StringNode, context: DecoderContext): ConfigResult<Node> {
     return try {
+
       val req = GetSecretValueRequest().withSecretId(key)
       val value = client.getSecretValue(req)
+
+      context.report(
+        "AWS Secrets Manager Lookups",
+        mapOf(
+          "name" to value.name,
+          "arn" to value.arn,
+          "createdDate" to value.createdDate.toString(),
+          "versionId" to value.versionId,
+        )
+      )
+
       val secret = value.secretString
       if (secret.isNullOrBlank())
         ConfigFailure.PreprocessorWarning("Empty secret '$key' in AWS SecretsManager").invalid()

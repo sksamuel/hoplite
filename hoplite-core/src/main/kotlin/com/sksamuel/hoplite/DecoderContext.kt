@@ -24,7 +24,7 @@ data class DecoderContext(
   // this tracks the types that a node was marshalled into
   val used: MutableSet<NodeState> = mutableSetOf(),
   val metadata: MutableMap<String, Any?> = mutableMapOf(),
-  val reports: MutableMap<String, List<String>> = mutableMapOf(),
+  val reports: MutableMap<String, Map<String, String?>> = mutableMapOf(),
   val config: DecoderConfig = DecoderConfig(false),
 ) {
 
@@ -51,9 +51,9 @@ data class DecoderContext(
     metadata[key] = value
   }
 
-  fun report(section: String, message: String) {
-    val messages = reports.getOrPut(section) { emptyList() }
-    reports[section] = messages + message
+  fun report(section: String, row: Map<String, String>) {
+    val rows = reports.getOrPut(section) { emptyMap() }
+    reports[section] = rows + row
   }
 
   companion object {

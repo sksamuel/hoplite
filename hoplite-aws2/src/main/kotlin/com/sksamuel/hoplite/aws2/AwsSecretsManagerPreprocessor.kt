@@ -3,12 +3,12 @@ package com.sksamuel.hoplite.aws2
 import com.sksamuel.hoplite.CommonMetadata
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
-import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.preprocessor.TraversingPrimitivePreprocessor
 import com.sksamuel.hoplite.withMeta
 import kotlinx.serialization.decodeFromString
@@ -21,8 +21,13 @@ import software.amazon.awssdk.services.secretsmanager.model.LimitExceededExcepti
 import software.amazon.awssdk.services.secretsmanager.model.ResourceNotFoundException
 import software.amazon.awssdk.services.secretsmanager.model.SecretsManagerException
 
+/**
+ * @param report set to true to output a report on secrets used.
+ *               Requires the overall hoplite report to be enabled.
+ */
 class AwsSecretsManagerPreprocessor(
-  private val createClient: () -> SecretsManagerClient = { SecretsManagerClient.create() }
+  private val report: Boolean = false,
+  private val createClient: () -> SecretsManagerClient = { SecretsManagerClient.create() },
 ) : TraversingPrimitivePreprocessor() {
 
   private val client by lazy { createClient() }
@@ -42,17 +47,29 @@ class AwsSecretsManagerPreprocessor(
           val keyMatch = keyRegex.matchEntire(value)
           val (key, index) = if (keyMatch == null) Pair(value, null) else
             Pair(keyMatch.groupValues[1], keyMatch.groupValues[2])
-          fetchSecret(key, index, node)
+          fetchSecret(key, index, node, context)
         }
       }
     }
     else -> node.valid()
   }
 
-  private fun fetchSecret(key: String, index: String?, node: StringNode): ConfigResult<Node> {
+  private fun fetchSecret(key: String, index: String?, node: StringNode, context: DecoderContext): ConfigResult<Node> {
     return try {
+
       val valueRequest = GetSecretValueRequest.builder().secretId(key).build()
       val value = client.getSecretValue(valueRequest)
+
+      context.report(
+        "AWS Secrets Manager Lookups",
+        mapOf(
+          "name" to value.name(),
+          "arn" to value.arn(),
+          "createdDate" to value.createdDate().toString(),
+          "versionId" to value.versionId(),
+        )
+      )
+
       val secret = value.secretString()
       if (secret.isNullOrBlank())
         ConfigFailure.PreprocessorWarning("Empty secret '$key' in AWS SecretsManager").invalid()
@@ -67,7 +84,13 @@ class AwsSecretsManagerPreprocessor(
           val map = runCatching { Json.Default.decodeFromString<Map<String, String>>(secret) }.getOrElse { emptyMap() }
           val indexedValue = map[index]
           if (indexedValue == null)
-            ConfigFailure.PreprocessorWarning("Index '$index' not present in secret '$key'. Available keys are ${map.keys.joinToString(",")}").invalid()
+            ConfigFailure.PreprocessorWarning(
+              "Index '$index' not present in secret '$key'. Available keys are ${
+                map.keys.joinToString(
+                  ","
+                )
+              }"
+            ).invalid()
           else
             node.copy(value = indexedValue)
               .withMeta(CommonMetadata.Secret, true)
