@@ -75,9 +75,7 @@ class Reporter(
 
       appendLine()
       appendLine(reportSections(sections))
-      appendLine()
 
-      appendLine()
       appendLine("--End Hoplite Config Report--")
       appendLine()
     }
