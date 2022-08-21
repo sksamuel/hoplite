@@ -23,6 +23,12 @@ fun ConfigLoaderBuilder.addResourceSource(
   allowEmpty: Boolean = false,
 ) = addPropertySource(ConfigFilePropertySource(ConfigSource.ClasspathSource(resource), optional = optional, allowEmpty))
 
+fun ConfigLoaderBuilder.addFileSource(
+  file: String,
+  optional: Boolean = false,
+  allowEmpty: Boolean = false,
+): ConfigLoaderBuilder = addFileSource(File(file), optional, allowEmpty)
+
 /**
  * Adds a [PropertySource] that will read the specified file from the filesystem.
  *
@@ -46,51 +52,6 @@ fun ConfigLoaderBuilder.addPathSource(
   optional: Boolean = false,
   allowEmpty: Boolean = false
 ) = addPropertySource(ConfigFilePropertySource(ConfigSource.PathSource(path), optional = optional, allowEmpty))
-
-/**
- * Adds a [PropertySource] to this [ConfigLoaderBuilder] that will read the specified [resource]
- * from the classpath.
- *
- * @param resource the classpath resource
- * @param optional if true, the config loader will ignore this source if the resourceOrFile does not exist
- * @param allowEmpty if true, then if the resource is empty, it will not error.
- */
-fun ConfigLoaderBuilder.addResource(
-  resource: String,
-  optional: Boolean = false,
-  allowEmpty: Boolean = false,
-): ConfigLoaderBuilder {
-  return addPropertySource(
-    ConfigFilePropertySource(
-      ConfigSource.ClasspathSource(resource),
-      optional,
-      allowEmpty
-    )
-  )
-}
-
-/**
- * Adds a [PropertySource] to this [ConfigLoaderBuilder] that will read the specified [file]
- * from the filesystem.
- *
- * @param file the filesystem file.
- * @param optional if true, the config loader will ignore this source if the resourceOrFile does not exist
- * @param allowEmpty if true, then if the resource is empty, it will not error.
- */
-fun ConfigLoaderBuilder.addFileSource(
-  file: String,
-  optional: Boolean = false,
-  allowEmpty: Boolean = false,
-): ConfigLoaderBuilder {
-  val path = Paths.get(file)
-  return addPropertySource(
-    ConfigFilePropertySource(
-      ConfigSource.PathSource(path),
-      optional = optional,
-      allowEmpty = allowEmpty
-    )
-  )
-}
 
 /**
  * Adds a [PropertySource] to this [ConfigLoaderBuilder] that will read the specified [resourceOrFile]
