@@ -9,9 +9,7 @@
 * Added `CascadeMode` to control how config should cascade through files.
 * Added decoder for `java.util.Locale`
 * `PrefixObfuscator` can now be configured by prefix length and mask.
-* Added `Remote Lookup` column to reports to show the key used when resolving secrets remotely.
-* Added `Strength` column to show secret show when configured with a `SecretStrengthAnalyzer`.
-* Added `failOnWeakSecrets` option to fail if a remote secret is deemed too weak. This can be scoped per environment.
+* Added remote-lookup details to the report to show keys used from AWS Secrets Manager, GCP cloud etc.
 * Support squashing arrays into a comma delimited list by setting `flattenArraysToString` on the config builder.
 
 **Breaking Changes**
