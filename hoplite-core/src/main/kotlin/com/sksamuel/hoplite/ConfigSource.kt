@@ -4,7 +4,6 @@ import com.sksamuel.hoplite.ClasspathResourceLoader.Companion.toClasspathResourc
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.sequence
 import com.sksamuel.hoplite.fp.valid
-import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.InputStream
 import java.nio.file.Files
@@ -82,8 +81,9 @@ abstract class ConfigSource {
     }
 
     /**
-     * If this [resourceOrFile] is located in the classpath returns a [ConfigSource.ClasspathSource],
-     * otherwise if this [resourceOrFile] is located in the filesystem returns a [ConfigSource.PathSource].
+     * For each [resourceOrFiles], if they  are located in the classpath, then a [ConfigSource.ClasspathSource]
+     * is returned, otherwise a [ConfigSource.PathSource] is returned.
+     *
      * If the resource is neither on the classpath nor the fileystem, returns a [ConfigFailure].
      */
     fun fromResourcesOrFiles(
