@@ -39,7 +39,7 @@ class VaultSecretPreprocessor(
           when (val match2 = tokenRegex.matchEntire(match.groupValues[1])) {
             null -> ConfigFailure.PreprocessorWarning("Must specify vault key at '${match.groupValues[0]}'").invalid()
             else -> {
-              fetchSecret(match2.groupValues[1], match2.groupValues[2], node)
+              fetchSecret(match2.groupValues[1], match2.groupValues[2], node, context)
             }
           }
         }
@@ -48,7 +48,12 @@ class VaultSecretPreprocessor(
     else -> node.valid()
   }
 
-  private fun fetchSecret(path: String, key: String, node: StringNode): ConfigResult<Node> = runCatching {
+  private fun fetchSecret(
+    path: String,
+    key: String,
+    node: StringNode,
+    context: DecoderContext
+  ): ConfigResult<Node> = runCatching {
 
     val paths = path.split("/")
     if (paths.size < 2) return ConfigFailure.PreprocessorWarning("Invalid vault path '$path'").invalid()
@@ -56,6 +61,8 @@ class VaultSecretPreprocessor(
     val ops = client.opsForKeyValue(paths[0], apiVersion)
     val pathSecret = ops.get(paths.drop(1).joinToString("/"))
       ?: return ConfigFailure.PreprocessorWarning("Vault path '$path' not found").invalid()
+
+    context.report("Vault Lookups", mapOf("Path" to path, "Key" to key, "Lease Id" to pathSecret.leaseId))
 
     val data = pathSecret.data
     if (data == null) {

@@ -6,12 +6,12 @@ import com.google.cloud.secretmanager.v1.SecretManagerServiceClient
 import com.sksamuel.hoplite.CommonMetadata
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
-import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.preprocessor.TraversingPrimitivePreprocessor
 import com.sksamuel.hoplite.withMeta
 
@@ -26,16 +26,17 @@ class GcpSecretManagerPreprocessor(private val createClient: () -> SecretManager
     is StringNode -> {
       when (val match = regex.matchEntire(node.value)) {
         null -> node.valid()
-        else -> fetchSecret(match.groupValues[1].trim(), node)
+        else -> fetchSecret(match.groupValues[1].trim(), node, context)
       }
     }
     else -> node.valid()
   }
 
-  private fun fetchSecret(key: String, node: StringNode): ConfigResult<Node> {
+  private fun fetchSecret(key: String, node: StringNode, context: DecoderContext): ConfigResult<Node> {
     return try {
       val resp = client.value.accessSecretVersion(AccessSecretVersionRequest.newBuilder().setName(key).build())
       val value = resp.payload.data.toStringUtf8()
+      context.report("GCP Secret Manager Lookups", mapOf("Name" to key))
       if (value.isNullOrBlank())
         ConfigFailure.PreprocessorWarning("Empty value for '$key' in GCP Secret Manager").invalid()
       else
