@@ -3,6 +3,8 @@ package com.sksamuel.hoplite
 import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.decoder.DotPath
+import com.sksamuel.hoplite.env.Environment
+import com.sksamuel.hoplite.env.ServiceName
 import com.sksamuel.hoplite.fp.Validated
 import kotlin.reflect.KParameter
 import kotlin.reflect.KType
@@ -25,6 +27,8 @@ data class DecoderContext(
   val metadata: MutableMap<String, Any?> = mutableMapOf(),
   val reports: MutableMap<String, List<Map<String, Any?>>> = mutableMapOf(),
   val config: DecoderConfig = DecoderConfig(false),
+  val environment: Environment? = null,
+  val serviceName: ServiceName? = null,
 ) {
 
   /**

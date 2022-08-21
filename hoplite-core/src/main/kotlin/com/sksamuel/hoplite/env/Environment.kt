@@ -1,5 +1,12 @@
 package com.sksamuel.hoplite.env
 
+/**
+ * Specifies the [Environment] that config is being loaded into. For example, prod, staging or local.
+ *
+ * This class can be used to restrict settings to particular environments. For example, you may wish
+ * to apply different pre-processors in prod than staging, or enable a property source
+ * only in local or test.
+ */
 data class Environment(val name: String) {
 
   override fun toString(): String = name

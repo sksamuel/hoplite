@@ -11,6 +11,7 @@ import com.sksamuel.hoplite.ParameterMapper
 import com.sksamuel.hoplite.PropertySource
 import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.env.Environment
+import com.sksamuel.hoplite.env.ServiceName
 import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
@@ -36,6 +37,8 @@ class ConfigParser(
   private val decodeMode: DecodeMode,
   private val useReport: Boolean,
   private val obfuscator: Obfuscator,
+  private val environment: Environment?,
+  private val serviceName: ServiceName?,
 ) {
 
   private val loader = PropertySourceLoader(classpathResourceLoader, parserRegistry, allowEmptyTree)
@@ -58,6 +61,8 @@ class ConfigParser(
       decoders = decoderRegistry,
       paramMappers = paramMappers,
       config = DecoderConfig(flattenArraysToString),
+      environment = environment,
+      serviceName = serviceName,
     )
 
     return loader.loadNodes(propertySources, configSources, resourceOrFiles)
@@ -71,7 +76,8 @@ class ConfigParser(
 
         // always do report regardless of decoder result
         if (useReport) {
-          Reporter({ println(it) }, obfuscator, environment).printReport(propertySources, state, context.reports)
+          Reporter({ println(it) }, obfuscator, environment, serviceName)
+            .printReport(propertySources, state, context.reports)
         }
 
         decoded
@@ -89,6 +95,8 @@ class ConfigParser(
       decoders = decoderRegistry,
       paramMappers = paramMappers,
       config = DecoderConfig(flattenArraysToString),
+      environment = environment,
+      serviceName = serviceName,
     )
 
     return loader.loadNodes(propertySources, configSources, resourceOrFiles)

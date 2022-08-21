@@ -5,6 +5,7 @@ package com.sksamuel.hoplite
 import com.sksamuel.hoplite.ClasspathResourceLoader.Companion.toClasspathResourceLoader
 import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.env.Environment
+import com.sksamuel.hoplite.env.ServiceName
 import com.sksamuel.hoplite.fp.getOrElse
 import com.sksamuel.hoplite.internal.CascadeMode
 import com.sksamuel.hoplite.internal.ConfigParser
@@ -35,6 +36,7 @@ class ConfigLoader(
   val cascadeMode: CascadeMode = CascadeMode.Merge,
   val secretsPolicy: SecretsPolicy? = null,
   val environment: Environment? = null,
+  val serviceName: ServiceName? = null,
   val obfuscator: Obfuscator? = null,
   val flattenArraysToString: Boolean = false,
 ) {
@@ -155,6 +157,8 @@ class ConfigLoader(
       decodeMode = decodeMode,
       useReport = useReport,
       obfuscator = obfuscator ?: PrefixObfuscator(3),
+      environment = environment,
+      serviceName = serviceName,
     ).decode(kclass, environment, resourceOrFiles, propertySources, configSources)
   }
 
@@ -203,6 +207,8 @@ class ConfigLoader(
       decodeMode = DecodeMode.Lenient,  // not used when loading nodes
       useReport = false,  // not used when loading nodes
       obfuscator = StrictObfuscator("*"),  // not used when loading nodes
+      environment = environment,
+      serviceName = serviceName,
     ).load(resourceOrFiles, propertySources, configSources)
   }
 
