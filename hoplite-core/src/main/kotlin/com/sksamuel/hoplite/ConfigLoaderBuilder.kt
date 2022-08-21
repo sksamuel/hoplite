@@ -32,7 +32,7 @@ class ConfigLoaderBuilder private constructor() {
 
   private var decodeMode: DecodeMode = DecodeMode.Lenient
   private var cascadeMode: CascadeMode = CascadeMode.Merge
-  private var allowEmptyTree = false
+  private var allowEmptySources = false
   private var allowUnresolvedSubstitutions = false
 
   private val propertySources = mutableListOf<PropertySource>()
@@ -188,8 +188,14 @@ class ConfigLoaderBuilder private constructor() {
   /**
    * When enabled, allows a config loader to continue even if all the property sources provide no config.
    */
-  fun allowEmptyTree(): ConfigLoaderBuilder = apply {
-    allowEmptyTree = true
+  @Deprecated("use allowEmptySources", ReplaceWith("allowEmptySources()"))
+  fun allowEmptyTree(): ConfigLoaderBuilder = allowEmptySources()
+
+  /**
+   * When enabled, allows a config loader to continue even if all the property sources provide no config.
+   */
+  fun allowEmptySources(): ConfigLoaderBuilder = apply {
+    allowEmptySources = true
   }
 
   /**
@@ -250,7 +256,7 @@ class ConfigLoaderBuilder private constructor() {
       onFailure = failureCallbacks.toList(),
       decodeMode = decodeMode,
       useReport = useReport,
-      allowEmptyTree = allowEmptyTree,
+      allowEmptyTree = allowEmptySources,
       allowUnresolvedSubstitutions = allowUnresolvedSubstitutions,
       preprocessingIterations = preprocessingIterations,
       cascadeMode = cascadeMode,
