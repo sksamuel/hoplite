@@ -85,7 +85,6 @@ class ConfigLoaderBuilder private constructor() {
   /**
    * Sets the current environment, eg prod or dev.
    */
-  @ExperimentalHoplite
   fun withEnvironment(environment: Environment) = apply { this.environment = environment }
 
   fun addSource(propertySource: PropertySource) = addPropertySource(propertySource)
