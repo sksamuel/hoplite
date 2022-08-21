@@ -502,6 +502,7 @@ There are built in decoders for all the standard day to day types, such as primi
 | `BigDecimal`                            | Converts from a String, Long, Int, Double, or Float into a BigDecimal                                                                                                                                       |
 | `BigInteger`                            | Converts from a String, Long or Int into a BigInteger.                                                                                                                                                      |
 | `UUID`                                  | Creates a `java.util.UUID` from a String                                                                                                                                                                    |
+| `Locale`                                | Creates a `java.util.Locale` from a String                                                                                                                                                                    |
 | **java.time types**                     |                                                                                                                                                                                                             |
 | `LocalDateTime`                         |
 | `LocalDate`                             |
