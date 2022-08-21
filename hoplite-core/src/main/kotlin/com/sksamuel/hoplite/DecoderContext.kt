@@ -4,7 +4,6 @@ import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.decoder.DotPath
 import com.sksamuel.hoplite.fp.Validated
-import com.sksamuel.hoplite.internal.DecoderConfig
 import kotlin.reflect.KParameter
 import kotlin.reflect.KType
 
@@ -24,7 +23,7 @@ data class DecoderContext(
   // this tracks the types that a node was marshalled into
   val used: MutableSet<NodeState> = mutableSetOf(),
   val metadata: MutableMap<String, Any?> = mutableMapOf(),
-  val reports: MutableMap<String, Map<String, String?>> = mutableMapOf(),
+  val reports: MutableMap<String, List<Map<String, Any?>>> = mutableMapOf(),
   val config: DecoderConfig = DecoderConfig(false),
 ) {
 
@@ -51,8 +50,8 @@ data class DecoderContext(
     metadata[key] = value
   }
 
-  fun report(section: String, row: Map<String, String>) {
-    val rows = reports.getOrPut(section) { emptyMap() }
+  fun report(section: String, row: Map<String, Any?>) {
+    val rows = reports.getOrPut(section) { emptyList() }
     reports[section] = rows + row
   }
 
@@ -67,4 +66,8 @@ data class NodeState(
   val value: Any?, // the value assigned when this node was used
   val type: KType?,
   val secret: Boolean = false, // if this node is a secret
+)
+
+data class DecoderConfig(
+  val flattenArraysToString: Boolean,
 )

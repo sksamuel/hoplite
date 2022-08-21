@@ -4,6 +4,7 @@ import com.sksamuel.hoplite.ClasspathResourceLoader
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.ConfigSource
+import com.sksamuel.hoplite.DecoderConfig
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.ParameterMapper
@@ -70,7 +71,7 @@ class ConfigParser(
 
         // always do report regardless of decoder result
         if (useReport) {
-          Reporter({ println(it) }, obfuscator, environment).printReport(propertySources, state)
+          Reporter({ println(it) }, obfuscator, environment).printReport(propertySources, state, context.reports)
         }
 
         decoded

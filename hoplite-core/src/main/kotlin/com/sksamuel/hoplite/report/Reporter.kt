@@ -52,8 +52,9 @@ class Reporter(
   }
 
   fun printReport(
-     sources: List<PropertySource>,
-     state: DecodingState,
+    sources: List<PropertySource>,
+    state: DecodingState,
+    sections: Map<String, List<Map<String, Any?>>>,
   ) {
 
     val r = buildString {
@@ -71,6 +72,10 @@ class Reporter(
 
       if (state.unused.isEmpty()) appendLine("Unused keys: none")
       if (state.unused.isNotEmpty()) appendLine(reportNodes(state.states.filterNot { it.used }, "Unused keys"))
+
+      appendLine()
+      appendLine(reportSections(sections))
+      appendLine()
 
       appendLine()
       appendLine("--End Hoplite Config Report--")
@@ -132,5 +137,28 @@ class Reporter(
     ).joinToString(" | ", "| ", " |")
 
     return (listOfNotNull(titleRow, bar, titles, bar) + rows + listOf(bar)).joinToString(System.lineSeparator())
+  }
+
+  private fun reportSections(sections: Map<String, List<Map<String, Any?>>>): String {
+    return buildString {
+      sections.forEach { (section, rows) ->
+
+        val keys = rows.flatMap { map -> map.map { it.key } }.distinct()
+        val values = rows.map { row -> keys.associateWith { row[it]?.toString() ?: "" } }
+        val pads = keys.associateWith { key -> max(key.length, values.mapNotNull { it[key] }.maxOf { it.length }) }
+        val bar = keys.joinToString("+", "+", "+") { "".padEnd((pads[it] ?: 0) + 2, '-') }
+        val titles = keys.joinToString(" | ", "| ", " |") { it.padEnd(pads[it] ?: 0, ' ') }
+
+        appendLine(section)
+        appendLine(bar)
+        appendLine(titles)
+        appendLine(bar)
+        values.forEach { row ->
+          appendLine(row.entries.joinToString(" | ", "| ", " |") { it.value.padEnd((pads[it.key] ?: 0)) })
+        }
+        appendLine(bar)
+        appendLine()
+      }
+    }
   }
 }

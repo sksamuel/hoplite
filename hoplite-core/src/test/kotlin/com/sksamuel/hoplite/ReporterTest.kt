@@ -163,10 +163,49 @@ Used keys: 4
         .withReport()
         .build()
         .loadConfigOrThrow<Test>()
-    }.shouldContain("""--Start Hoplite Config Report---
+    }.shouldContain(
+      """--Start Hoplite Config Report---
 
 Environment: staging
 
-Property sources (highest to lowest priority):""")
+Property sources (highest to lowest priority):"""
+    )
+  }
+
+  test("withReport should include report sections") {
+
+    data class Test(
+      val a: String,
+    )
+
+    captureStandardOut {
+      ConfigLoaderBuilder.default()
+        .addPropertySource(PropertySource.map(mapOf("a" to "foo")))
+        .addPreprocessor { node, context ->
+          context.report("AWS Secrets Manager Lookups", mapOf("foo" to "a", "bar" to "b"))
+          context.report("AWS Secrets Manager Lookups", mapOf("foo" to null, "bar" to "big long extra wide value"))
+          context.report("AWS Secrets Manager Lookups", mapOf("foo" to "e", "big fat title" to "f"))
+          context.report("Vault Lookups", mapOf("foo" to "e", "baz" to "f"))
+          node.valid()
+        }
+        .withEnvironment(Environment.staging)
+        .withReport()
+        .build()
+        .loadConfigOrThrow<Test>()
+    }.shouldContain("""AWS Secrets Manager Lookups
++-----+---------------------------+---------------+
+| foo | bar                       | big fat title |
++-----+---------------------------+---------------+
+| a   | b                         |               |
+|     | big long extra wide value |               |
+| e   |                           | f             |
++-----+---------------------------+---------------+
+
+Vault Lookups
++-----+-----+
+| foo | baz |
++-----+-----+
+| e   | f   |
++-----+-----+""")
   }
 })

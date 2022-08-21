@@ -65,10 +65,10 @@ class AwsSecretsManagerPreprocessor(
       context.report(
         "AWS Secrets Manager Lookups",
         mapOf(
-          "name" to value.name,
-          "arn" to value.arn,
-          "createdDate" to value.createdDate.toString(),
-          "versionId" to value.versionId,
+          "Name" to value.name,
+          "Arn" to value.arn,
+          "Created Date" to value.createdDate.toString(),
+          "Version Id" to value.versionId,
         )
       )
 
