@@ -646,6 +646,7 @@ These preprocessors must be added to the `ConfigBuilder` before they take effect
 | `ParameterStorePreprocessor`    | Replaces strings of the form ${ssm:key} by looking up the value of 'key' from the [AWS Systems Manager Parameter Store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html).<br/><br/>This preprocessor requires the `hoplite-aws` module to be added to the classpath. |
 | `ConsulConfigPreprocessor`      | Replaces strings of the form consul://key by looking up the value of 'key' from a [Consul](https://www.consul.io/) server.<br/><br/>This preprocessor requires the `hoplite-consul` module to be added to the classpath.                                                                                               |
 | `VaultSecretPreprocessor`       | Replaces strings of the form vault://key by looking up the value of 'key' from a [Vault](https://www.vaultproject.io/) instance.<br/><br/>This preprocessor requires the `hoplite-vault` module to be added to the classpath.                                                                                          |
+| `GcpSecretManagerPreprocessor`  | Replaces strings of the form gcpsm://key by looking up the value of 'key' from a [Google Cloud Secret Manager](https://cloud.google.com/secret-manager) instance.<br/><br/>This preprocessor requires the `hoplite-gcp` module to be added to the classpath.                                                           |
 
 
 
