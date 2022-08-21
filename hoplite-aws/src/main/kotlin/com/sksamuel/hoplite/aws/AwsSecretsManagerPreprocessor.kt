@@ -62,15 +62,16 @@ class AwsSecretsManagerPreprocessor(
       val req = GetSecretValueRequest().withSecretId(key)
       val value = client.getSecretValue(req)
 
-      context.report(
-        "AWS Secrets Manager Lookups",
-        mapOf(
-          "Name" to value.name,
-          "Arn" to value.arn,
-          "Created Date" to value.createdDate.toString(),
-          "Version Id" to value.versionId,
+      if (report)
+        context.report(
+          "AWS Secrets Manager Lookups",
+          mapOf(
+            "Name" to value.name,
+            "Arn" to value.arn,
+            "Created Date" to value.createdDate.toString(),
+            "Version Id" to value.versionId,
+          )
         )
-      )
 
       val secret = value.secretString
       if (secret.isNullOrBlank())

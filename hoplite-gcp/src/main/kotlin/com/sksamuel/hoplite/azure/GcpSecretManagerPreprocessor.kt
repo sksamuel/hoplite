@@ -15,8 +15,10 @@ import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.preprocessor.TraversingPrimitivePreprocessor
 import com.sksamuel.hoplite.withMeta
 
-class GcpSecretManagerPreprocessor(private val createClient: () -> SecretManagerServiceClient) :
-  TraversingPrimitivePreprocessor() {
+class GcpSecretManagerPreprocessor(
+  private val report: Boolean = false,
+  private val createClient: () -> SecretManagerServiceClient,
+) : TraversingPrimitivePreprocessor() {
 
   private val client = lazy { createClient() }
 
@@ -36,7 +38,10 @@ class GcpSecretManagerPreprocessor(private val createClient: () -> SecretManager
     return try {
       val resp = client.value.accessSecretVersion(AccessSecretVersionRequest.newBuilder().setName(key).build())
       val value = resp.payload.data.toStringUtf8()
-      context.report("GCP Secret Manager Lookups", mapOf("Name" to key))
+
+      if (report)
+        context.report("GCP Secret Manager Lookups", mapOf("Key" to key))
+
       if (value.isNullOrBlank())
         ConfigFailure.PreprocessorWarning("Empty value for '$key' in GCP Secret Manager").invalid()
       else

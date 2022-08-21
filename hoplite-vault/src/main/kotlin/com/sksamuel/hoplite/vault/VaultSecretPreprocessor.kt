@@ -15,6 +15,7 @@ import org.springframework.vault.core.VaultKeyValueOperationsSupport
 import org.springframework.vault.core.VaultTemplate
 
 class VaultSecretPreprocessor(
+  private val report: Boolean = false,
   private val createClient: () -> VaultTemplate,
   private val apiVersion: VaultKeyValueOperationsSupport.KeyValueBackend = VaultKeyValueOperationsSupport.KeyValueBackend.KV_2,
 ) : TraversingPrimitivePreprocessor() {
@@ -22,7 +23,9 @@ class VaultSecretPreprocessor(
   constructor(
     client: VaultTemplate,
     apiVersion: VaultKeyValueOperationsSupport.KeyValueBackend = VaultKeyValueOperationsSupport.KeyValueBackend.KV_2,
+    report: Boolean = false,
   ) : this(
+    report,
     { client },
     apiVersion
   )
@@ -62,7 +65,8 @@ class VaultSecretPreprocessor(
     val pathSecret = ops.get(paths.drop(1).joinToString("/"))
       ?: return ConfigFailure.PreprocessorWarning("Vault path '$path' not found").invalid()
 
-    context.report("Vault Lookups", mapOf("Path" to path, "Key" to key, "Lease Id" to pathSecret.leaseId))
+    if (report)
+      context.report("Vault Lookups", mapOf("Path" to path, "Key" to key, "Lease Id" to pathSecret.leaseId))
 
     val data = pathSecret.data
     if (data == null) {
