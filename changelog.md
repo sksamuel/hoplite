@@ -2,8 +2,8 @@
 
 ### 2.6.1
 
-* Added `ServiceName` abstraction
-* Provide `ServiceName` and `Environment` to decoders and preprocessors through the `DecoderContext`.
+* Add fallback version of `Environment.forEnvVar`
+* Provide `Environment` to decoders and preprocessors through the `DecoderContext`.
 
 ### 2.6.0
 

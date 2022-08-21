@@ -3,7 +3,6 @@ package com.sksamuel.hoplite
 import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.decoder.DefaultDecoderRegistry
 import com.sksamuel.hoplite.env.Environment
-import com.sksamuel.hoplite.env.ServiceName
 import com.sksamuel.hoplite.internal.CascadeMode
 import com.sksamuel.hoplite.internal.DecodeMode
 import com.sksamuel.hoplite.parsers.DefaultParserRegistry
@@ -48,7 +47,6 @@ class ConfigLoaderBuilder private constructor() {
   private var preprocessingIterations: Int = 1
 
   private var environment: Environment? = null
-  private var serviceName: ServiceName? = null
   private var flattenArraysToString: Boolean = false
 
   companion object {
@@ -88,12 +86,6 @@ class ConfigLoaderBuilder private constructor() {
    * Sets the current environment, eg prod or dev.
    */
   fun withEnvironment(environment: Environment) = apply { this.environment = environment }
-
-  /**
-   * Sets the service or config name.
-   * This name is used in reports and errors.
-   */
-  fun withServiceName(serviceName: ServiceName) = apply { this.serviceName = serviceName }
 
   fun addSource(propertySource: PropertySource) = addPropertySource(propertySource)
   fun addPropertySource(propertySource: PropertySource) = addPropertySources(listOf(propertySource))
@@ -269,7 +261,6 @@ class ConfigLoaderBuilder private constructor() {
       cascadeMode = cascadeMode,
       secretsPolicy = secretsPolicy,
       environment = environment,
-      serviceName = serviceName,
       obfuscator = obfuscator,
       flattenArraysToString = flattenArraysToString,
     )
