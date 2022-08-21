@@ -27,5 +27,14 @@ data class Environment(val name: String) {
       if (env.isNullOrBlank()) error("Environment variable $envVarName must be specified")
       return Environment(env)
     }
+
+    /**
+     * Returns an [Environment] created by looking up the env-var with the given [name].
+     * If the env-var does not exist, the fallback value is used
+     */
+    fun fromEnvVar(envVarName: String, fallback: Environment): Environment {
+      val env = System.getenv(envVarName)
+      return if (env.isNullOrBlank()) fallback else Environment(env)
+    }
   }
 }
