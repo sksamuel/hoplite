@@ -915,6 +915,7 @@ seperate modules because they bring in dependencies from those projects and so t
 | hoplite-azure                 | Provides a preprocessor for retreiving values from Azure Key Vault.                                     |
 | hoplite-consul                | Provides a preprocessor for retreiving values from a Consul instance.                                   |
 | hoplite-datetime              | Provides decoders for [kotlinx datetime](https://github.com/Kotlin/kotlinx-datetime).                   |
+| hoplite-gcp                   | Provides a preprocessor for retreiving values from Google Cloud Platform Secrets Manager.               |
 | hoplite-hdfs                  | Provides decoder for hadoop `Path`                                                                      |
 | hoplite-hikaricp              | Provides decoder for `HikariDataSource`                                                                 |
 | hoplite-micrometer-datadog    | Provides a decoder for Micrometer's `DatadogConfig` registry                                            |
