@@ -52,7 +52,7 @@ data class Server(val port: Int, val redirectUrl: String)
 data class Config(val env: String, val database: Database, val server: Server)
 ```
 
-For our staging environment, we may create a YAML (or Json, etc) file called `application-staging.yaml`:
+For our staging environment, we may create a YAML (or Json, etc) file called `application-staging.yaml`. The name doesn't matter, you can use any convention you wish.
 
 ```yaml
 env: staging
@@ -71,7 +71,7 @@ server:
 Finally, to build an instance of `Config` from this file, and assuming the config file was on the classpath, we can simply execute:
 
 ```kotlin
-val config = ConfigLoader().loadConfigOrThrow<Config>("/application-staging.yaml")
+val config = ConfigLoaderBuilder.default().build().loadConfigOrThrow<Config>("/application-staging.yaml")
 ```
 
 If the values in the config file are compatible, then an instance of `Config` will be returned.
@@ -82,12 +82,12 @@ Otherwise, an exception will be thrown containing details of the errors.
 
 ## Config Loader
 
-As you have seen from the getting started guide, `ConfigLoader` is the entry point to using Hoplite. We can create an
-instance of this loader directly for simple cases, or use the `ConfigLoaderBuilder` if we need to customize how the
-loader works. Then we can load config into data classes from resources on the classpath, `java.io.File`, `java.nio.Path`
-, or URLS.
+As you have seen from the getting started guide, `ConfigLoader` is the entry point to using Hoplite. We create an
+instance of this loader using the `ConfigLoaderBuilder` builder.
 
-It is preferable to use the builder approach to creating a config loader beyond very simple usecases. To start, use `ConfigLoaderBuilder.default()` and after adding your sources, call `build`. Here is an example:
+Then we can load config into data classes from resources on the classpath, `java.io.File`, `java.nio.Path`, and so on.
+
+To create a default builder, use `ConfigLoaderBuilder.default()` and after adding your sources, call `build`. Here is an example:
 
 ```kotlin
 ConfigLoaderBuilder.default()
@@ -96,6 +96,9 @@ ConfigLoaderBuilder.default()
   .build()
   .loadConfigOrThrow<MyConfig>()
 ```
+
+The `default` method on `ConfigLoaderBuilder` sets up recommended defaults. If you wish to start with a completely blank
+config builder, then use `ConfigLoaderBuilder.empty()`.
 
 There are two ways to retrieve a populated data class from config. The first is to throw an exception if the config
 could not be resolved via the `loadConfigOrThrow<T>` function. Another is to return a `ConfigResult` via
@@ -502,7 +505,7 @@ There are built in decoders for all the standard day to day types, such as primi
 | `BigDecimal`                            | Converts from a String, Long, Int, Double, or Float into a BigDecimal                                                                                                                                       |
 | `BigInteger`                            | Converts from a String, Long or Int into a BigInteger.                                                                                                                                                      |
 | `UUID`                                  | Creates a `java.util.UUID` from a String                                                                                                                                                                    |
-| `Locale`                                | Creates a `java.util.Locale` from a String                                                                                                                                                                    |
+| `Locale`                                | Creates a `java.util.Locale` from a String                                                                                                                                                                  |
 | **java.time types**                     |                                                                                                                                                                                                             |
 | `LocalDateTime`                         |
 | `LocalDate`                             |
