@@ -10,7 +10,9 @@
 * Added decoder for `java.util.Locale`
 * `PrefixObfuscator` can now be configured by prefix length and mask.
 * Added remote-lookup details to the report to show keys used from AWS Secrets Manager, GCP cloud etc.
-* Support squashing arrays into a comma delimited list by setting `flattenArraysToString` on the config builder.
+* Support squashing arrays into a comma delimited list by setting `flattenArraysToString` on the config builder. #339
+* Support map lookup in AWS preprocessors #341
+* Fix sealed subclass picking #338
 
 **Breaking Changes**
 
