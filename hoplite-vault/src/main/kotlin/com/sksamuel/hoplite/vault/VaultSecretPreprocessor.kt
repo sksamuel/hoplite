@@ -15,18 +15,18 @@ import org.springframework.vault.core.VaultKeyValueOperationsSupport
 import org.springframework.vault.core.VaultTemplate
 
 class VaultSecretPreprocessor(
-  private val report: Boolean = false,
   private val createClient: () -> VaultTemplate,
+  private val report: Boolean = false,
   private val apiVersion: VaultKeyValueOperationsSupport.KeyValueBackend = VaultKeyValueOperationsSupport.KeyValueBackend.KV_2,
 ) : TraversingPrimitivePreprocessor() {
 
   constructor(
     client: VaultTemplate,
-    apiVersion: VaultKeyValueOperationsSupport.KeyValueBackend = VaultKeyValueOperationsSupport.KeyValueBackend.KV_2,
     report: Boolean = false,
+    apiVersion: VaultKeyValueOperationsSupport.KeyValueBackend = VaultKeyValueOperationsSupport.KeyValueBackend.KV_2,
   ) : this(
-    report,
     { client },
+    report,
     apiVersion
   )
 
