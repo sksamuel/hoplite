@@ -1,5 +1,10 @@
 # Changelog
 
+### 2.6.1
+
+* Added `ServiceName` abstraction
+* Provide `ServiceName` and `Environment` to decoders and preprocessors through the `DecoderContext`.
+
 ### 2.6.0
 
 * Added `Environment` abstraction
