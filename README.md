@@ -52,7 +52,8 @@ data class Server(val port: Int, val redirectUrl: String)
 data class Config(val env: String, val database: Database, val server: Server)
 ```
 
-For our staging environment, we may create a YAML (or Json, etc) file called `application-staging.yaml`. The name doesn't matter, you can use any convention you wish.
+For our staging environment, we may create a YAML (or Json, etc) file called `application-staging.yaml`.
+The name doesn't matter, you can use any convention you wish.
 
 ```yaml
 env: staging
@@ -71,7 +72,10 @@ server:
 Finally, to build an instance of `Config` from this file, and assuming the config file was on the classpath, we can simply execute:
 
 ```kotlin
-val config = ConfigLoaderBuilder.default().build().loadConfigOrThrow<Config>("/application-staging.yaml")
+val config = ConfigLoaderBuilder.default()
+               .addResourceSource("/application-staging.yml")
+               .build()
+               .loadConfigOrThrow<Config>()
 ```
 
 If the values in the config file are compatible, then an instance of `Config` will be returned.
@@ -83,11 +87,11 @@ Otherwise, an exception will be thrown containing details of the errors.
 ## Config Loader
 
 As you have seen from the getting started guide, `ConfigLoader` is the entry point to using Hoplite. We create an
-instance of this loader using the `ConfigLoaderBuilder` builder.
+instance of this loader class through the `ConfigLoaderBuilder` builder. To this builder we add sources, configuration,
+enable reports, add preprocessors and more.
 
-Then we can load config into data classes from resources on the classpath, `java.io.File`, `java.nio.Path`, and so on.
-
-To create a default builder, use `ConfigLoaderBuilder.default()` and after adding your sources, call `build`. Here is an example:
+To create a default builder, use `ConfigLoaderBuilder.default()` and after adding your sources, call `build`.
+Here is an example:
 
 ```kotlin
 ConfigLoaderBuilder.default()
@@ -97,15 +101,15 @@ ConfigLoaderBuilder.default()
   .loadConfigOrThrow<MyConfig>()
 ```
 
-The `default` method on `ConfigLoaderBuilder` sets up recommended defaults. If you wish to start with a completely blank
+The `default` method on `ConfigLoaderBuilder` sets up recommended defaults. If you wish to start with a completely empty
 config builder, then use `ConfigLoaderBuilder.empty()`.
 
 There are two ways to retrieve a populated data class from config. The first is to throw an exception if the config
-could not be resolved via the `loadConfigOrThrow<T>` function. Another is to return a `ConfigResult` via
-the `loadConfig<T>` function if you want to handle errors without exceptions.
+could not be resolved. We do this via the `loadConfigOrThrow<T>` function. Another is to return a `ConfigResult` validation
+monad via the `loadConfig<T>` function if you want to handle errors manually.
 
 For most cases, when you are resolving config at application startup, the exception based approach is better. This is
-because you typically want any errors in config to abort application bootstrapping, dumping errors to the console.
+because you typically want any errors in config to abort application bootstrapping, dumping errors immediately to the console.
 
 
 
