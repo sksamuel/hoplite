@@ -18,6 +18,7 @@ These breaking changes are to advanced customization features. Most users will n
 
 * `ReporterBuilder` has been removed - specify the _obfuscator_ and _secrets policy_ directly on the `ConfigLoaderBuilder`.
 * `SecretsPolicy` interface has been changed to directly use `Node`s and not just `Path`s.
+* The `Preprocessor` interface has changed to have an extra parameter named `DecoderContext`.
 
 ### 2.5.2
 
