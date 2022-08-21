@@ -2,6 +2,8 @@ package com.sksamuel.hoplite.env
 
 data class Environment(val name: String) {
 
+  override fun toString(): String = name
+
   companion object {
 
     // some commonly defined environments
