@@ -54,7 +54,7 @@ data class DecoderContext(
 
   fun report(section: String, row: Map<String, Any?>) {
     val rows = reports.getOrPut(section) { emptyList() }
-    reports[section] = rows + row
+    reports[section] = (rows + row).distinct()
   }
 
   companion object {
