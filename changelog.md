@@ -1,5 +1,9 @@
 # Changelog
 
+### 2.6.2
+
+* Avoid reporting remote keys used in multiple places.
+
 ### 2.6.1
 
 * Add fallback version of `Environment.forEnvVar`
