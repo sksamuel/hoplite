@@ -27,7 +27,7 @@ into the required type will cause the config to fail with detailed error message
 - **Preprocessors:** Support for several [preprocessors](https://github.com/sksamuel/hoplite#preprocessors) that will
   replace placeholders with values resolved from external configs, such as AWS Secrets Manager, Azure KeyVault and so on.
 - **Reloadable config:** Trigger config [reloads](#reloadable-config) on a fixed interval or in response to external
-  events.
+  events such as consul value changes.
 
 ## Changelog
 
