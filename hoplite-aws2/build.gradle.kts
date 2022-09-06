@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-   api(project(":hoplite-core"))
+   api(projects.hopliteCore)
    api(Libs.Aws2.regions)
    api(Libs.Aws2.secretsmanager)
    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")

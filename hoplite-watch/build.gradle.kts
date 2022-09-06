@@ -1,11 +1,7 @@
-plugins {
-   kotlin("jvm")
-}
-
 dependencies {
-   api(project(":hoplite-core"))
+   api(projects.hopliteCore)
    implementation(Libs.Kotlin.coroutines)
-   testImplementation(project(":hoplite-json"))
+   testImplementation(projects.hopliteJson)
 }
 
 apply("../publish.gradle.kts")

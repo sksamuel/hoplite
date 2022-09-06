@@ -3,10 +3,10 @@ plugins {
 }
 
 dependencies {
-   api(project(":hoplite-core"))
-   testImplementation(project(":hoplite-toml"))
-   testImplementation(project(":hoplite-yaml"))
-   testImplementation(project(":hoplite-json"))
+   api(projects.hopliteCore)
+   testImplementation(projects.hopliteToml)
+   testImplementation(projects.hopliteYaml)
+   testImplementation(projects.hopliteJson)
    implementation(Libs.Vavr.kotlin)
 }
 

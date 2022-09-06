@@ -1,5 +1,5 @@
 dependencies {
-   api(project(":hoplite-core"))
+   api(projects.hopliteCore)
    api(Libs.Google.secretsmanager)
    testApi(Libs.Kotest.testContainers)
 }

@@ -1,5 +1,5 @@
 dependencies {
-   api(project(":hoplite-core"))
+   api(projects.hopliteCore)
    implementation(Libs.Typesafe.config)
 }
 

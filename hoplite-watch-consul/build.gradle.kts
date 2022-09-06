@@ -1,16 +1,12 @@
-plugins {
-   kotlin("jvm")
-}
-
 dependencies {
-   api(project(":hoplite-core"))
-   api(project(":hoplite-watch"))
+   api(projects.hopliteCore)
+   api(projects.hopliteWatch)
    implementation(Libs.Orbitz.consul)
 
    testImplementation(Libs.EmbeddedConsul.consul)
-   testImplementation(project(":hoplite-consul"))
-   testImplementation(project(":hoplite-json"))
-   testImplementation(project(":hoplite-yaml"))
+   testImplementation(projects.hopliteConsul)
+   testImplementation(projects.hopliteJson)
+   testImplementation(projects.hopliteYaml)
 }
 
 apply("../publish.gradle.kts")

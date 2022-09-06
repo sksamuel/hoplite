@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-   api(project(":hoplite-core"))
+   api(projects.hopliteCore)
    implementation(Libs.Micrometer.datadog)
 }
 

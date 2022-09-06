@@ -3,10 +3,10 @@ plugins {
 }
 
 dependencies {
-   api(project(":hoplite-core"))
+   api(projects.hopliteCore)
    api(Libs.Hikari.core)
 
-   testImplementation(project(":hoplite-yaml"))
+   testImplementation(projects.hopliteYaml)
    testImplementation(Libs.Postgres.driver)
 }
 

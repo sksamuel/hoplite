@@ -1,9 +1,5 @@
-plugins {
-   kotlin("jvm")
-}
-
 dependencies {
-   api(project(":hoplite-core"))
+   api(projects.hopliteCore)
    implementation(Libs.Vault.core)
    testApi(Libs.Kotest.testContainers)
    testApi("org.testcontainers:vault:_")

@@ -1,3 +1,5 @@
+rootProject.name = "hoplite"
+
 pluginManagement {
    repositories {
       mavenLocal()
@@ -22,26 +24,31 @@ refreshVersions {
    }
 }
 
-include("hoplite-core")
-include("hoplite-azure")
-include("hoplite-aws")
-include("hoplite-aws2")
-include("hoplite-arrow")
-include("hoplite-consul")
-include("hoplite-cronutils")
-include("hoplite-datetime")
-include("hoplite-gcp")
-include("hoplite-hdfs")
-include("hoplite-hikaricp")
-include("hoplite-hocon")
-include("hoplite-javax")
-include("hoplite-json")
-include("hoplite-micrometer-datadog")
-include("hoplite-micrometer-prometheus")
-include("hoplite-micrometer-statsd")
-include("hoplite-toml")
-include("hoplite-vault")
-include("hoplite-vavr")
-include("hoplite-watch")
-include("hoplite-watch-consul")
-include("hoplite-yaml")
+include(
+   ":hoplite-core",
+   ":hoplite-azure",
+   ":hoplite-aws",
+   ":hoplite-aws2",
+   ":hoplite-arrow",
+   ":hoplite-consul",
+   ":hoplite-cronutils",
+   ":hoplite-datetime",
+   ":hoplite-gcp",
+   ":hoplite-hdfs",
+   ":hoplite-hikaricp",
+   ":hoplite-hocon",
+   ":hoplite-javax",
+   ":hoplite-json",
+   ":hoplite-micrometer-datadog",
+   ":hoplite-micrometer-prometheus",
+   ":hoplite-micrometer-statsd",
+   ":hoplite-toml",
+   ":hoplite-vault",
+   ":hoplite-vavr",
+   ":hoplite-watch",
+   ":hoplite-watch-consul",
+   ":hoplite-yaml"
+)
+
+enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")

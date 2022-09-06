@@ -1,5 +1,5 @@
 dependencies {
-   api(project(":hoplite-core"))
+   api(projects.hopliteCore)
    api(Libs.Azure.keyvault)
    api(Libs.Azure.identity)
    testApi(Libs.Kotest.testContainers)

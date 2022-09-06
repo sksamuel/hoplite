@@ -1,10 +1,9 @@
 plugins {
-   kotlin("jvm")
    kotlin("plugin.serialization").version(Libs.kotlinVersion)
 }
 
 dependencies {
-   api(project(":hoplite-core"))
+   api(projects.hopliteCore)
    implementation(Libs.Snake.snakeyaml)
    testImplementation(Libs.CharlesKorn.kaml)
 }
