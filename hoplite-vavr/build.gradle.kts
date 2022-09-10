@@ -7,7 +7,7 @@ dependencies {
    testImplementation(projects.hopliteToml)
    testImplementation(projects.hopliteYaml)
    testImplementation(projects.hopliteJson)
-   implementation(Libs.Vavr.kotlin)
+   implementation(libs.vavr.kotlin)
 }
 
 apply("../publish.gradle.kts")

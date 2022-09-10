@@ -4,8 +4,8 @@ plugins {
 
 dependencies {
    api(projects.hopliteCore)
-   implementation(Libs.Jackson.core)
-   implementation(Libs.Jackson.databind)
+   implementation(libs.jackson.core)
+   implementation(libs.jackson.databind)
 }
 
 apply("../publish.gradle.kts")

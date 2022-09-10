@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
    api(projects.hopliteCore)
-   implementation(Libs.Micrometer.statsd)
+   implementation(libs.micrometer.registry.statsd)
 }
 
 apply("../publish.gradle.kts")

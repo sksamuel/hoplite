@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
    api(projects.hopliteCore)
-   api(Libs.Orbitz.consul)
+   api(libs.consul.client)
 }
 
 apply("../publish.gradle.kts")

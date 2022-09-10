@@ -9,8 +9,8 @@ repositories {
 }
 
 dependencies {
-   implementation("com.sksamuel.hoplite:hoplite-core")
-   implementation("com.sksamuel.hoplite:hoplite-yaml")
+   implementation("com.sksamuel.hoplite:hoplite-core:_")
+   implementation("com.sksamuel.hoplite:hoplite-yaml:_")
 }
 
 application {

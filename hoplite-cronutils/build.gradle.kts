@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
    api(projects.hopliteCore)
-   api(Libs.CronUtils.utils)
+   api(libs.cron.utils)
 }
 
 apply("../publish.gradle.kts")

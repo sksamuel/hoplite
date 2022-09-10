@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
    api(projects.hopliteCore)
-   implementation(Libs.Micrometer.prometheus)
+   implementation(libs.micrometer.registry.prometheus)
 }
 
 apply("../publish.gradle.kts")

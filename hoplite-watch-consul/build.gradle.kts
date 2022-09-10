@@ -1,9 +1,9 @@
 dependencies {
    api(projects.hopliteCore)
    api(projects.hopliteWatch)
-   implementation(Libs.Orbitz.consul)
+   implementation(libs.consul.client)
 
-   testImplementation(Libs.EmbeddedConsul.consul)
+   testImplementation(libs.embedded.consul)
    testImplementation(projects.hopliteConsul)
    testImplementation(projects.hopliteJson)
    testImplementation(projects.hopliteYaml)

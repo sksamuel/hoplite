@@ -4,10 +4,10 @@ plugins {
 
 dependencies {
    api(projects.hopliteCore)
-   api(Libs.Hikari.core)
+   api(libs.hikaricp)
 
    testImplementation(projects.hopliteYaml)
-   testImplementation(Libs.Postgres.driver)
+   testImplementation(libs.postgresql)
 }
 
 apply("../publish.gradle.kts")

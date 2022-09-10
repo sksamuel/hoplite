@@ -1,11 +1,11 @@
 plugins {
-   kotlin("plugin.serialization").version(Libs.kotlinVersion)
+   kotlin("plugin.serialization").version("1.6.21")
 }
 
 dependencies {
    api(projects.hopliteCore)
-   implementation(Libs.Snake.snakeyaml)
-   testImplementation(Libs.CharlesKorn.kaml)
+   implementation(libs.snakeyaml)
+   testImplementation(libs.kaml)
 }
 
 apply("../publish.gradle.kts")

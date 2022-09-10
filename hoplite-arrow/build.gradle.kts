@@ -7,7 +7,7 @@ dependencies {
   testImplementation(projects.hopliteToml)
   testImplementation(projects.hopliteYaml)
   testImplementation(projects.hopliteJson)
-  implementation(Libs.Arrow.Core)
+  implementation(Arrow.core)
 }
 
 apply("../publish.gradle.kts")
