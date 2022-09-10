@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-   api(Libs.Kotlin.reflect)
+   api(libs.kotlin.reflect)
 }
 
 apply("../publish.gradle.kts")

@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
    api(projects.hopliteCore)
-   implementation(Libs.Kotlin.datetime)
+   implementation(KotlinX.datetime)
 }
 
 apply("../publish.gradle.kts")

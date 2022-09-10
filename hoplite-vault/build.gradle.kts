@@ -1,8 +1,8 @@
 dependencies {
    api(projects.hopliteCore)
-   implementation(Libs.Vault.core)
-   testApi(Libs.Kotest.testContainers)
-   testApi("org.testcontainers:vault:_")
+   implementation(libs.spring.vault.core)
+   testApi(Testing.kotest.extensions.testContainers)
+   testApi(libs.vault)
 }
 
 apply("../publish.gradle.kts")

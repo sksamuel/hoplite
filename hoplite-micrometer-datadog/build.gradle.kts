@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
    api(projects.hopliteCore)
-   implementation(Libs.Micrometer.datadog)
+   implementation(libs.micrometer.registry.datadog)
 }
 
 apply("../publish.gradle.kts")

@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
    api(projects.hopliteCore)
-   implementation(Libs.Toml.toml)
+   implementation(libs.tomlj)
 }
 
 apply("../publish.gradle.kts")

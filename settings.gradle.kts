@@ -14,11 +14,11 @@ pluginManagement {
 }
 
 plugins {
-   id("de.fayard.refreshVersions") version "0.40.2"
+   id("de.fayard.refreshVersions") version "0.50.0"
 }
 
 refreshVersions {
-   enableBuildSrcLibs()
+//   enableBuildSrcLibs()
    rejectVersionIf {
       candidate.stabilityLevel != de.fayard.refreshVersions.core.StabilityLevel.Stable
    }

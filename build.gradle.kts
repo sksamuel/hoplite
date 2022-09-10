@@ -18,19 +18,18 @@ plugins {
    id("java-library")
    id("maven-publish")
    id("signing")
-   id("io.kotest")
-   kotlin("jvm").version(Libs.kotlinVersion)
+   kotlin("jvm").version("1.6.21")
 }
 
 allprojects {
    apply(plugin = "org.jetbrains.kotlin.jvm")
 
-   group = Libs.org
+   group = "com.sksamuel.hoplite"
    version = Ci.version
 
    dependencies {
-      testImplementation(Libs.Kotest.assertions)
-      testImplementation(Libs.Kotest.junit5)
+      testImplementation("io.kotest:kotest-assertions-core:5.4.2")
+      testImplementation("io.kotest:kotest-runner-junit5:5.4.2")
    }
 
    tasks.named<Test>("test") {
