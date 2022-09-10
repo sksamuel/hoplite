@@ -8,9 +8,7 @@ dependencies {
    api(libs.aws.java.sdk.ssm)
    api(libs.aws.java.sdk.secretsmanager)
    implementation(KotlinX.serialization.json)
-   // TODO: Use new artifact as group changed.
-   testApi("io.kotest:kotest-extensions-testcontainers:_")
-//   moved:Testing.kotest.extensions.testContainers)
+   testApi(Testing.kotest.extensions.testContainers)
    testApi(libs.localstack)
    testApi(libs.logback.classic)
    testApi(libs.slf4j.api)
