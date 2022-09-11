@@ -74,8 +74,11 @@ class PrefixObfuscator(
       is DoubleNode -> node.value.toString()
       is LongNode -> node.value.toString()
       is StringNode -> {
-        if (isNumericOrBoolean(node.value)) return node.value
-        return node.value.take(prefixLength) + suffixMask
+        return when {
+          isNumericOrBoolean(node.value) -> node.value
+          node.value.length <= prefixLength -> node.value
+          else -> node.value.take(prefixLength) + suffixMask
+        }
       }
     }
   }

@@ -13,11 +13,11 @@ import io.kotest.matchers.shouldBe
 class PrefixObfuscatorTest : FunSpec({
 
   test("happy path") {
-    PrefixObfuscator(3).obfuscate(StringNode("foo", Pos.NoPos, DotPath.root)).shouldBe("foo*****")
+    PrefixObfuscator(3).obfuscate(StringNode("foo", Pos.NoPos, DotPath.root)).shouldBe("foo")
     PrefixObfuscator(3).obfuscate(StringNode("foobar", Pos.NoPos, DotPath.root)).shouldBe("foo*****")
     PrefixObfuscator(3).obfuscate(StringNode("foobarfoobar", Pos.NoPos, DotPath.root)).shouldBe("foo*****")
-    PrefixObfuscator(3).obfuscate(StringNode("f", Pos.NoPos, DotPath.root)).shouldBe("f*****")
-    PrefixObfuscator(3).obfuscate(StringNode("", Pos.NoPos, DotPath.root)).shouldBe("*****")
+    PrefixObfuscator(3).obfuscate(StringNode("f", Pos.NoPos, DotPath.root)).shouldBe("f")
+    PrefixObfuscator(3).obfuscate(StringNode("", Pos.NoPos, DotPath.root)).shouldBe("")
   }
 
   test("non-strings should not be obfucscatd") {
