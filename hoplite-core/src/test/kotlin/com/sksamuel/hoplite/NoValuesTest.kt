@@ -29,7 +29,7 @@ class NoValuesTest : FunSpec({
     )
 
     ConfigLoaderBuilder.default()
-      .allowEmptyTree()
+      .allowEmptySources()
       .build()
       .loadConfigOrThrow<Test>()
       .name shouldBe "a"
