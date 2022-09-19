@@ -65,13 +65,16 @@ class Reporter(
       appendLine()
       appendLine(report(sources))
       appendLine()
-      if (state.used.isEmpty()) appendLine("Used keys: none")
-      if (state.used.isNotEmpty()) appendLine(reportNodes(state.states.filter { it.used }, "Used keys"))
+
+      val used = state.states.filter { it.used }
+      if (used.isEmpty()) appendLine("Used keys: none")
+      if (used.isNotEmpty()) appendLine(reportNodes(used, "Used keys"))
 
       appendLine()
 
-      if (state.unused.isEmpty()) appendLine("Unused keys: none")
-      if (state.unused.isNotEmpty()) appendLine(reportNodes(state.states.filterNot { it.used }, "Unused keys"))
+      val unused = state.states.filterNot { it.used }
+      if (unused.isEmpty()) appendLine("Unused keys: none")
+      if (unused.isNotEmpty()) appendLine(reportNodes(unused, "Unused keys"))
 
       appendLine()
       appendLine(reportSections(sections))
@@ -89,6 +92,7 @@ class Reporter(
   }
 
   private fun reportNodes(nodes: List<NodeState>, title: String?): String {
+    require(nodes.isNotEmpty())
 
     // copy the notes, obfuscating if a secret, and turning all nodes into string nodes for reporting ease
     val obfuscated: List<NodeState> = nodes.sortedBy { it.node.path.flatten() }.map { state ->
