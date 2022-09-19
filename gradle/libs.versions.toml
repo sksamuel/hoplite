@@ -28,23 +28,23 @@ kotest-assertions-core-jvm = { group = "io.kotest", name = "kotest-assertions-co
 
 kotest-runner-junit5-jvm = { group = "io.kotest", name = "kotest-runner-junit5-jvm", version.ref = "kotest" }
 
-aws-java-sdk-core = "com.amazonaws:aws-java-sdk-core:1.12.300"
+aws-java-sdk-core = "com.amazonaws:aws-java-sdk-core:1.12.305"
 
-aws-java-sdk-ssm = "com.amazonaws:aws-java-sdk-ssm:1.12.300"
+aws-java-sdk-ssm = "com.amazonaws:aws-java-sdk-ssm:1.12.305"
 
-aws-java-sdk-secretsmanager = "com.amazonaws:aws-java-sdk-secretsmanager:1.12.300"
+aws-java-sdk-secretsmanager = "com.amazonaws:aws-java-sdk-secretsmanager:1.12.305"
 
 kotlin-serialization = { group = "org.jetbrains.kotlin", name = "kotlin-serialization", version.ref = "kotlin" }
 
 localstack = "org.testcontainers:localstack:1.17.3"
 
-logback-classic = "ch.qos.logback:logback-classic:1.4.0"
+logback-classic = "ch.qos.logback:logback-classic:1.4.1"
 
-slf4j-api = "org.slf4j:slf4j-api:2.0.0"
+slf4j-api = "org.slf4j:slf4j-api:2.0.1"
 
-regions = "software.amazon.awssdk:regions:2.17.271"
+regions = "software.amazon.awssdk:regions:2.17.276"
 
-secretsmanager = "software.amazon.awssdk:secretsmanager:2.17.271"
+secretsmanager = "software.amazon.awssdk:secretsmanager:2.17.276"
 
 azure-security-keyvault-secrets = "com.azure:azure-security-keyvault-secrets:4.4.6"
 
@@ -56,7 +56,7 @@ kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", vers
 
 cron-utils = "com.cronutils:cron-utils:9.2.0"
 
-google-cloud-secretmanager = "com.google.cloud:google-cloud-secretmanager:2.3.3"
+google-cloud-secretmanager = "com.google.cloud:google-cloud-secretmanager:2.3.4"
 
 hadoop-common = "org.apache.hadoop:hadoop-common:2.10.2"
 ##                                           ⬆ :3.0.0"
@@ -89,11 +89,11 @@ jackson-core = "com.fasterxml.jackson.core:jackson-core:2.13.4"
 
 jackson-databind = "com.fasterxml.jackson.core:jackson-databind:2.13.4"
 
-micrometer-registry-datadog = "io.micrometer:micrometer-registry-datadog:1.9.3"
+micrometer-registry-datadog = "io.micrometer:micrometer-registry-datadog:1.9.4"
 
-micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1.9.3"
+micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1.9.4"
 
-micrometer-registry-statsd = "io.micrometer:micrometer-registry-statsd:1.9.3"
+micrometer-registry-statsd = "io.micrometer:micrometer-registry-statsd:1.9.4"
 
 tomlj = "org.tomlj:tomlj:1.0.0"
 
@@ -104,7 +104,7 @@ vault = "org.testcontainers:vault:1.17.3"
 vavr-kotlin = "io.vavr:vavr-kotlin:0.10.2"
 embedded-consul = "com.pszymczyk.consul:embedded-consul:2.2.1"
 
-snakeyaml = "org.yaml:snakeyaml:1.31"
+snakeyaml = "org.yaml:snakeyaml:1.32"
 
 kaml = "com.charleskorn.kaml:kaml:0.48.0"
 
