@@ -1,5 +1,10 @@
 # Changelog
 
+### 2.6.3
+
+* Fixed NPE in reporter with empty sources #345
+* Do not add mask to prefix if string is less than prefix length
+
 ### 2.6.2
 
 * Avoid reporting remote keys used in multiple places.
