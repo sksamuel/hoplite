@@ -154,13 +154,13 @@ Hoplite supports config files in several formats. You can mix and match formats 
 For each format you wish to use, you must include the appropriate hoplite module on your classpath.
 The format that hoplite uses to parse a file is determined by the file extension.
 
-| Format                                       | Module                                                             | File Extensions     |
-|:---------------------------------------------|:-------------------------------------------------------------------|:--------------------|
-| [Json](https://www.json.org/)                | [`hoplite-json`](https://search.maven.org/search?q=hoplite-json)   | .json               |
-| [Yaml](https://yaml.org/)                    | [`hoplite-yaml`](https://search.maven.org/search?q=hoplite-yaml)   | .yml, .yaml         |
-| [Toml](https://github.com/toml-lang/toml)    | [`hoplite-toml`](https://search.maven.org/search?q=hoplite-toml)   | .toml               |
-| [Hocon](https://github.com/lightbend/config) | [`hoplite-hocon`](https://search.maven.org/search?q=hoplite-hocon) | .conf               |
-| Java Properties files                        | built-in                                                           | .props, .properties |
+| Format                                                              | Module                                                             | File Extensions     |
+|:--------------------------------------------------------------------|:-------------------------------------------------------------------|:--------------------|
+| [Json](https://www.json.org/)                                       | [`hoplite-json`](https://search.maven.org/search?q=hoplite-json)   | .json               |
+| [Yaml](https://yaml.org/) Note: Yaml files are limited 3mb in size. | [`hoplite-yaml`](https://search.maven.org/search?q=hoplite-yaml)   | .yml, .yaml         |
+| [Toml](https://github.com/toml-lang/toml)                           | [`hoplite-toml`](https://search.maven.org/search?q=hoplite-toml)   | .toml               |
+| [Hocon](https://github.com/lightbend/config)                        | [`hoplite-hocon`](https://search.maven.org/search?q=hoplite-hocon) | .conf               |
+| Java Properties files                                               | built-in                                                           | .props, .properties |
 
 If you wish to add another format you can extend `Parser` and provide an instance of that implementation to
 the `ConfigLoaderBuilder` via `addParser`.
