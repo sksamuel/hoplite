@@ -104,7 +104,7 @@ vault = "org.testcontainers:vault:1.17.3"
 vavr-kotlin = "io.vavr:vavr-kotlin:0.10.2"
 embedded-consul = "com.pszymczyk.consul:embedded-consul:2.2.1"
 
-snakeyaml = "org.yaml:snakeyaml:1.32"
+snakeyaml = "org.yaml:snakeyaml:1.33"
 
 kaml = "com.charleskorn.kaml:kaml:0.48.0"
 
