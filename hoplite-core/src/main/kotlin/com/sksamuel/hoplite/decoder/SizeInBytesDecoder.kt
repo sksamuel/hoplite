@@ -22,7 +22,7 @@ data class SizeInBytes(val size: Long) {
   fun gigabytes() = convert(InformationUnit.Gigabytes)
   fun gibibytes() = convert(InformationUnit.Gibibytes)
 
-  fun convert(unit: InformationUnit): Long = (unit.ratioToPrimary / size).toLong()
+  fun convert(unit: InformationUnit): Long = (size / unit.ratioToPrimary).toLong()
 
   companion object {
     fun parse(input: String): SizeInBytes? {
