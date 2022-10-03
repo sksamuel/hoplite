@@ -41,7 +41,7 @@ kotlin-serialization = { group = "org.jetbrains.kotlin", name = "kotlin-serializ
 
 localstack = "org.testcontainers:localstack:1.17.4"
 
-logback-classic = "ch.qos.logback:logback-classic:1.4.1"
+logback-classic = "ch.qos.logback:logback-classic:1.4.3"
 
 slf4j-api = "org.slf4j:slf4j-api:2.0.3"
 
