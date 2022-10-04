@@ -1,5 +1,9 @@
 # Changelog
 
+### 2.6.4
+
+* Correct conversion between bytes and other units #347
+
 ### 2.6.3
 
 * Fixed NPE in reporter with empty sources #345
