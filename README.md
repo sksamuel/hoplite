@@ -395,7 +395,7 @@ println(config)
 The resolution rules are as follows:
 
 - "a" is present in both files and so is resolved from the first file - which was "prod.json"
-- "b" is present in both files and therefore resolved from the file file as well
+- "b" is present in both files and therefore resolved from the file as well
 - "c" is a nested value of "b" and is not present in the first file so is resolved from the second file "default.json"
 - "d" is a nested value of "b" present in both files and therefore resolved from the first file
 - "e" is present in both files and so the entire list is resolved from the first file. This means that the list only contains a single element, and x is null despite being present in the list in the first file. List's cannot be merged.
