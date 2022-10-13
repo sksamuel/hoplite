@@ -1,5 +1,9 @@
 # Changelog
 
+### 2.6.5
+
+* Add `prefix` option to `EnvironmentVariablesPropertySource` which is then stripped from env vars before resolution is applied.
+
 ### 2.6.4
 
 * Correct conversion between bytes and other units #347
