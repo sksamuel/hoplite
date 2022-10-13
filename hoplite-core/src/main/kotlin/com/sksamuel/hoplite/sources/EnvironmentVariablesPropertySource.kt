@@ -12,32 +12,35 @@ class EnvironmentVariablesPropertySource(
   private val useUnderscoresAsSeparator: Boolean,
   private val allowUppercaseNames: Boolean,
   private val environmentVariableMap: () -> Map<String, String> = { System.getenv() },
+  private val prefix: String? = null, // optional prefix to strip from the vars
 ) : PropertySource {
 
   override fun source(): String = "Env Var"
 
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
     val props = Properties()
-    environmentVariableMap().forEach {
-      val key = it.key
-        .let { key -> if (useUnderscoresAsSeparator) key.replace("__", ".") else key }
-        .let { key ->
-          if (allowUppercaseNames && Character.isUpperCase(key.codePointAt(0))) {
-            key.split(".").joinToString(separator = ".") { value ->
-              value.fold("") { acc, char ->
-                when {
-                  acc.isEmpty() -> acc + char.lowercaseChar()
-                  acc.last() == '_' -> acc.dropLast(1) + char.uppercaseChar()
-                  else -> acc + char.lowercaseChar()
+    environmentVariableMap()
+      .mapKeys { if (prefix == null) it.key else it.key.removePrefix(prefix) }
+      .forEach {
+        val key = it.key
+          .let { key -> if (useUnderscoresAsSeparator) key.replace("__", ".") else key }
+          .let { key ->
+            if (allowUppercaseNames && Character.isUpperCase(key.codePointAt(0))) {
+              key.split(".").joinToString(separator = ".") { value ->
+                value.fold("") { acc, char ->
+                  when {
+                    acc.isEmpty() -> acc + char.lowercaseChar()
+                    acc.last() == '_' -> acc.dropLast(1) + char.uppercaseChar()
+                    else -> acc + char.lowercaseChar()
+                  }
                 }
               }
+            } else {
+              key
             }
-          } else {
-            key
           }
-        }
-      props[key] = it.value
-    }
+        props[key] = it.value
+      }
     return props.toNode("env").valid()
   }
 }

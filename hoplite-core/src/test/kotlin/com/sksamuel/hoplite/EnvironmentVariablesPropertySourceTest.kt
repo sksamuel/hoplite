@@ -10,8 +10,9 @@ class EnvironmentVariablesPropertySourceTest : FunSpec({
   test("build env source should include paths") {
     EnvironmentVariablesPropertySource(
       useUnderscoresAsSeparator = false,
-      allowUppercaseNames = false
-    ) { mapOf("a" to "foo", "a.b" to "bar", "c" to "baz") }.node(
+      allowUppercaseNames = false,
+      environmentVariableMap = { mapOf("a" to "foo", "a.b" to "bar", "c" to "baz") },
+    ).node(
       PropertySourceContext.empty
     ).getUnsafe() shouldBe MapNode(
       mapOf(

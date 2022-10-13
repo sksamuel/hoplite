@@ -22,7 +22,7 @@ class EnvPropertySourceUppercaseTest : DescribeSpec({
                 mapOf(
                   "CREDS.USERNAME" to "a",
                   "CREDS.PASSWORD" to "c",
-                  "SOME_CAMEL_SETTING" to "c"
+                  "SOME_CAMEL_SETTING" to "c",
                 )
               },
             )
@@ -30,6 +30,7 @@ class EnvPropertySourceUppercaseTest : DescribeSpec({
         }.loadConfigOrThrow<Config>()
       } shouldBe Config(Creds("a", "c"), "c")
     }
+
     it("with underscore separator") {
       run {
         ConfigLoader {
@@ -41,15 +42,15 @@ class EnvPropertySourceUppercaseTest : DescribeSpec({
                 mapOf(
                   "CREDS__USERNAME" to "a",
                   "CREDS__PASSWORD" to "b",
-                  "SOME_CAMEL_SETTING" to "c"
+                  "SOME_CAMEL_SETTING" to "c",
                 )
               },
             )
           )
         }.loadConfigOrThrow<Config>()
       } shouldBe Config(Creds("a", "b"), "c")
-
     }
+
     it("with lowercase names") {
       run {
         ConfigLoader {
@@ -60,12 +61,35 @@ class EnvPropertySourceUppercaseTest : DescribeSpec({
               mapOf(
                 "creds__username" to "a",
                 "creds__password" to "d",
-                "someCamelSetting" to "e"
+                "someCamelSetting" to "e",
               )
             }
           ))
         }.loadConfigOrThrow<Config>()
       } shouldBe Config(Creds("a", "d"), "e")
     }
+
+    it("with prefix") {
+      run {
+        ConfigLoader {
+          addPropertySource(
+            EnvironmentVariablesPropertySource(
+              useUnderscoresAsSeparator = true,
+              allowUppercaseNames = true,
+              environmentVariableMap = {
+                mapOf(
+                  "WIBBLE_CREDS.USERNAME" to "a",
+                  "WIBBLE_CREDS.PASSWORD" to "c",
+                  "WIBBLE_SOME_CAMEL_SETTING" to "c",
+                  "SOME_CAMEL_SETTING" to "asdassd",
+                )
+              },
+              prefix = "WIBBLE_",
+            )
+          )
+        }.loadConfigOrThrow<Config>()
+      } shouldBe Config(Creds("a", "c"), "c")
+    }
   }
+
 })
