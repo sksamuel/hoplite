@@ -81,7 +81,6 @@ class EnvPropertySourceUppercaseTest : DescribeSpec({
                   "WIBBLE_CREDS.USERNAME" to "a",
                   "WIBBLE_CREDS.PASSWORD" to "c",
                   "WIBBLE_SOME_CAMEL_SETTING" to "c",
-                  "SOME_CAMEL_SETTING" to "asdassd",
                 )
               },
               prefix = "WIBBLE_",
