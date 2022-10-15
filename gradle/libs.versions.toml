@@ -31,27 +31,27 @@ kotest-assertions-core-jvm = { group = "io.kotest", name = "kotest-assertions-co
 
 kotest-runner-junit5-jvm = { group = "io.kotest", name = "kotest-runner-junit5-jvm", version.ref = "kotest" }
 
-aws-java-sdk-core = "com.amazonaws:aws-java-sdk-core:1.12.314"
+aws-java-sdk-core = "com.amazonaws:aws-java-sdk-core:1.12.321"
 
-aws-java-sdk-ssm = "com.amazonaws:aws-java-sdk-ssm:1.12.314"
+aws-java-sdk-ssm = "com.amazonaws:aws-java-sdk-ssm:1.12.321"
 
-aws-java-sdk-secretsmanager = "com.amazonaws:aws-java-sdk-secretsmanager:1.12.314"
+aws-java-sdk-secretsmanager = "com.amazonaws:aws-java-sdk-secretsmanager:1.12.321"
 
 kotlin-serialization = { group = "org.jetbrains.kotlin", name = "kotlin-serialization", version.ref = "kotlin" }
 
-localstack = "org.testcontainers:localstack:1.17.4"
+localstack = "org.testcontainers:localstack:1.17.5"
 
-logback-classic = "ch.qos.logback:logback-classic:1.4.3"
+logback-classic = "ch.qos.logback:logback-classic:1.4.4"
 
 slf4j-api = "org.slf4j:slf4j-api:2.0.3"
 
-regions = "software.amazon.awssdk:regions:2.17.285"
+regions = "software.amazon.awssdk:regions:2.17.292"
 
-secretsmanager = "software.amazon.awssdk:secretsmanager:2.17.285"
+secretsmanager = "software.amazon.awssdk:secretsmanager:2.17.292"
 
 azure-security-keyvault-secrets = "com.azure:azure-security-keyvault-secrets:4.5.0"
 
-azure-identity = "com.azure:azure-identity:1.6.0"
+azure-identity = "com.azure:azure-identity:1.6.1"
 
 consul-client = "com.orbitz.consul:consul-client:1.5.3"
 
@@ -59,28 +59,9 @@ kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", vers
 
 cron-utils = "com.cronutils:cron-utils:9.2.0"
 
-google-cloud-secretmanager = "com.google.cloud:google-cloud-secretmanager:2.3.9"
+google-cloud-secretmanager = "com.google.cloud:google-cloud-secretmanager:2.3.10"
 
 hadoop-common = "org.apache.hadoop:hadoop-common:2.10.2"
-##                                           ⬆ :3.0.0"
-##                                           ⬆ :3.0.1"
-##                                           ⬆ :3.0.2"
-##                                           ⬆ :3.0.3"
-##                                           ⬆ :3.1.0"
-##                                           ⬆ :3.1.1"
-##                                           ⬆ :3.1.2"
-##                                           ⬆ :3.1.3"
-##                                           ⬆ :3.1.4"
-##                                           ⬆ :3.2.0"
-##                                           ⬆ :3.2.1"
-##                                           ⬆ :3.2.2"
-##                                           ⬆ :3.2.3"
-##                                           ⬆ :3.2.4"
-##                                           ⬆ :3.3.0"
-##                                           ⬆ :3.3.1"
-##                                           ⬆ :3.3.2"
-##                                           ⬆ :3.3.3"
-##                                           ⬆ :3.3.4"
 
 hikaricp = "com.zaxxer:HikariCP:5.0.1"
 
@@ -90,25 +71,26 @@ config = "com.typesafe:config:1.4.2"
 
 jackson-core = "com.fasterxml.jackson.core:jackson-core:2.13.4"
 
-jackson-databind = "com.fasterxml.jackson.core:jackson-databind:2.13.4"
+jackson-databind = "com.fasterxml.jackson.core:jackson-databind:2.13.4.2"
 
-micrometer-registry-datadog = "io.micrometer:micrometer-registry-datadog:1.9.4"
+micrometer-registry-datadog = "io.micrometer:micrometer-registry-datadog:1.9.5"
 
-micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1.9.4"
+micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1.9.5"
 
-micrometer-registry-statsd = "io.micrometer:micrometer-registry-statsd:1.9.4"
+micrometer-registry-statsd = "io.micrometer:micrometer-registry-statsd:1.9.5"
 
 tomlj = "org.tomlj:tomlj:1.0.0"
 
 spring-vault-core = "org.springframework.vault:spring-vault-core:2.3.2"
 
-vault = "org.testcontainers:vault:1.17.4"
+vault = "org.testcontainers:vault:1.17.5"
 
 vavr-kotlin = "io.vavr:vavr-kotlin:0.10.2"
+
 embedded-consul = "com.pszymczyk.consul:embedded-consul:2.2.1"
 
 snakeyaml = "org.yaml:snakeyaml:1.33"
 
-kaml = "com.charleskorn.kaml:kaml:0.48.0"
+kaml = "com.charleskorn.kaml:kaml:0.49.0"
 
 kotest-extensions-testcontainers = { group = "io.kotest", name = "kotest-extensions-testcontainers", version.ref = "kotest" }
