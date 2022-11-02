@@ -31,11 +31,11 @@ kotest-assertions-core-jvm = { group = "io.kotest", name = "kotest-assertions-co
 
 kotest-runner-junit5-jvm = { group = "io.kotest", name = "kotest-runner-junit5-jvm", version.ref = "kotest" }
 
-aws-java-sdk-core = "com.amazonaws:aws-java-sdk-core:1.12.326"
+aws-java-sdk-core = "com.amazonaws:aws-java-sdk-core:1.12.334"
 
-aws-java-sdk-ssm = "com.amazonaws:aws-java-sdk-ssm:1.12.326"
+aws-java-sdk-ssm = "com.amazonaws:aws-java-sdk-ssm:1.12.334"
 
-aws-java-sdk-secretsmanager = "com.amazonaws:aws-java-sdk-secretsmanager:1.12.326"
+aws-java-sdk-secretsmanager = "com.amazonaws:aws-java-sdk-secretsmanager:1.12.334"
 
 kotlin-serialization = { group = "org.jetbrains.kotlin", name = "kotlin-serialization", version.ref = "kotlin" }
 
@@ -45,9 +45,9 @@ logback-classic = "ch.qos.logback:logback-classic:1.4.4"
 
 slf4j-api = "org.slf4j:slf4j-api:2.0.3"
 
-regions = "software.amazon.awssdk:regions:2.17.295"
+regions = "software.amazon.awssdk:regions:2.18.9"
 
-secretsmanager = "software.amazon.awssdk:secretsmanager:2.17.295"
+secretsmanager = "software.amazon.awssdk:secretsmanager:2.18.9"
 
 azure-security-keyvault-secrets = "com.azure:azure-security-keyvault-secrets:4.5.1"
 
@@ -59,7 +59,7 @@ kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", vers
 
 cron-utils = "com.cronutils:cron-utils:9.2.0"
 
-google-cloud-secretmanager = "com.google.cloud:google-cloud-secretmanager:2.4.0"
+google-cloud-secretmanager = "com.google.cloud:google-cloud-secretmanager:2.5.0"
 
 hadoop-common = "org.apache.hadoop:hadoop-common:2.10.2"
 ##                                           ⬆ :3.0.0"
