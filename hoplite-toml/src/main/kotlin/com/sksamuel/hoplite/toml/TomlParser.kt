@@ -71,14 +71,14 @@ object TableProduction {
 object ListProduction {
   operator fun invoke(array: TomlArray, pos: Pos, source: String, path: DotPath): ArrayNode {
     val elements = (0 until array.size()).map { k ->
-      when {
-        array.containsBooleans() -> BooleanNode(array.getBoolean(k), pos, path, emptyMap())
-        array.containsDoubles() -> DoubleNode(array.getDouble(k), pos, path, emptyMap())
-        array.containsLongs() -> LongNode(array.getLong(k), pos, path, emptyMap())
-        array.containsStrings() -> StringNode(array.getString(k), pos, path, emptyMap())
-        array.containsArrays() -> ListProduction(array.getArray(k), pos, source, path)
-        array.containsTables() -> TableProduction(array.getTable(k), pos, source, path)
-        else -> StringNode(array[k].toString(), pos, path, emptyMap())
+      when (val value = array.get(k)) {
+        is Boolean -> BooleanNode(value, pos, path, emptyMap())
+        is Double -> DoubleNode(value, pos, path, emptyMap())
+        is Long -> LongNode(value, pos, path, emptyMap())
+        is String -> StringNode(value, pos, path, emptyMap())
+        is TomlArray -> ListProduction(value, pos, source, path)
+        is TomlTable -> TableProduction(value, pos, source, path)
+        else -> StringNode(value.toString(), pos, path, emptyMap())
       }
     }
     return ArrayNode(elements, pos, path)
