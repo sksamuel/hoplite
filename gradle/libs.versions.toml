@@ -8,11 +8,13 @@ org-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version = "1.6.21"
 ##                                                                 ⬆ = "1.7.0" }
 ##                                                                 ⬆ = "1.7.10" }
 ##                                                                 ⬆ = "1.7.20" }
+##                                                                 ⬆ = "1.7.21" }
 
 org-jetbrains-kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version = "1.6.21" }
 ##                                                                                                   ⬆ = "1.7.0" }
 ##                                                                                                   ⬆ = "1.7.10" }
 ##                                                                                                   ⬆ = "1.7.20" }
+##                                                                                                   ⬆ = "1.7.21" }
 
 [versions]
 
@@ -20,6 +22,7 @@ kotlin = "1.6.21"
 ##  ⬆ = "1.7.0"
 ##  ⬆ = "1.7.10"
 ##  ⬆ = "1.7.20"
+##  ⬆ = "1.7.21"
 
 kotest = "5.4.2"
 
@@ -31,27 +34,27 @@ kotest-assertions-core-jvm = { group = "io.kotest", name = "kotest-assertions-co
 
 kotest-runner-junit5-jvm = { group = "io.kotest", name = "kotest-runner-junit5-jvm", version.ref = "kotest" }
 
-aws-java-sdk-core = "com.amazonaws:aws-java-sdk-core:1.12.334"
+aws-java-sdk-core = "com.amazonaws:aws-java-sdk-core:1.12.349"
 
-aws-java-sdk-ssm = "com.amazonaws:aws-java-sdk-ssm:1.12.334"
+aws-java-sdk-ssm = "com.amazonaws:aws-java-sdk-ssm:1.12.349"
 
-aws-java-sdk-secretsmanager = "com.amazonaws:aws-java-sdk-secretsmanager:1.12.334"
+aws-java-sdk-secretsmanager = "com.amazonaws:aws-java-sdk-secretsmanager:1.12.349"
 
 kotlin-serialization = { group = "org.jetbrains.kotlin", name = "kotlin-serialization", version.ref = "kotlin" }
 
-localstack = "org.testcontainers:localstack:1.17.5"
+localstack = "org.testcontainers:localstack:1.17.6"
 
-logback-classic = "ch.qos.logback:logback-classic:1.4.4"
+logback-classic = "ch.qos.logback:logback-classic:1.4.5"
 
-slf4j-api = "org.slf4j:slf4j-api:2.0.3"
+slf4j-api = "org.slf4j:slf4j-api:2.0.5"
 
-regions = "software.amazon.awssdk:regions:2.18.9"
+regions = "software.amazon.awssdk:regions:2.18.24"
 
-secretsmanager = "software.amazon.awssdk:secretsmanager:2.18.9"
+secretsmanager = "software.amazon.awssdk:secretsmanager:2.18.24"
 
-azure-security-keyvault-secrets = "com.azure:azure-security-keyvault-secrets:4.5.1"
+azure-security-keyvault-secrets = "com.azure:azure-security-keyvault-secrets:4.5.2"
 
-azure-identity = "com.azure:azure-identity:1.6.1"
+azure-identity = "com.azure:azure-identity:1.7.1"
 
 consul-client = "com.orbitz.consul:consul-client:1.5.3"
 
@@ -59,7 +62,7 @@ kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", vers
 
 cron-utils = "com.cronutils:cron-utils:9.2.0"
 
-google-cloud-secretmanager = "com.google.cloud:google-cloud-secretmanager:2.5.0"
+google-cloud-secretmanager = "com.google.cloud:google-cloud-secretmanager:2.6.0"
 
 hadoop-common = "org.apache.hadoop:hadoop-common:2.10.2"
 ##                                           ⬆ :3.0.0"
@@ -84,25 +87,26 @@ hadoop-common = "org.apache.hadoop:hadoop-common:2.10.2"
 
 hikaricp = "com.zaxxer:HikariCP:5.0.1"
 
-postgresql = "org.postgresql:postgresql:42.5.0"
+postgresql = "org.postgresql:postgresql:42.5.1"
 
 config = "com.typesafe:config:1.4.2"
 
-jackson-core = "com.fasterxml.jackson.core:jackson-core:2.13.4"
+jackson-core = "com.fasterxml.jackson.core:jackson-core:2.14.1"
 
-jackson-databind = "com.fasterxml.jackson.core:jackson-databind:2.13.4.2"
+jackson-databind = "com.fasterxml.jackson.core:jackson-databind:2.14.1"
 
-micrometer-registry-datadog = "io.micrometer:micrometer-registry-datadog:1.9.5"
+micrometer-registry-datadog = "io.micrometer:micrometer-registry-datadog:1.10.2"
 
-micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1.9.5"
+micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1.10.2"
 
-micrometer-registry-statsd = "io.micrometer:micrometer-registry-statsd:1.9.5"
+micrometer-registry-statsd = "io.micrometer:micrometer-registry-statsd:1.10.2"
 
 tomlj = "org.tomlj:tomlj:1.1.0"
 
 spring-vault-core = "org.springframework.vault:spring-vault-core:2.3.2"
+##                                                           ⬆ :3.0.0"
 
-vault = "org.testcontainers:vault:1.17.5"
+vault = "org.testcontainers:vault:1.17.6"
 
 vavr-kotlin = "io.vavr:vavr-kotlin:0.10.2"
 
