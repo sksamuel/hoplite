@@ -1,5 +1,9 @@
 # Changelog
 
+### 2.7.0
+
+* TOML now supports heterogenous arrays.
+
 ### 2.6.5
 
 * Add `prefix` option to `EnvironmentVariablesPropertySource` which is then stripped from env vars before resolution is applied.
