@@ -25,7 +25,7 @@ class Cascader(private val cascadeMode: CascadeMode, private val allowEmptyTree:
       cascadeMode == CascadeMode.Error && reduced.overrides.isNotEmpty() ->
         ConfigFailure.OverrideConfigError(reduced.overrides).invalid()
       reduced.node == Undefined && allowEmptyTree -> MapNode(emptyMap(), Pos.NoPos, DotPath.root).valid()
-      reduced.node == Undefined ->  ConfigFailure.UndefinedTree.invalid()
+      reduced.node == Undefined -> ConfigFailure.UndefinedTree.invalid()
       else -> reduced.node.valid()
     }
   }
@@ -79,7 +79,7 @@ class Cascader(private val cascadeMode: CascadeMode, private val allowEmptyTree:
 
 enum class CascadeMode {
   Merge,
-  Error,
+  Error, // throw an error if a config value has the same key as another
   Override,
 }
 
