@@ -9,12 +9,14 @@ org-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version = "1.6.21"
 ##                                                                 ⬆ = "1.7.10" }
 ##                                                                 ⬆ = "1.7.20" }
 ##                                                                 ⬆ = "1.7.21" }
+##                                                                 ⬆ = "1.7.22" }
 
 org-jetbrains-kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version = "1.6.21" }
 ##                                                                                                   ⬆ = "1.7.0" }
 ##                                                                                                   ⬆ = "1.7.10" }
 ##                                                                                                   ⬆ = "1.7.20" }
 ##                                                                                                   ⬆ = "1.7.21" }
+##                                                                                                   ⬆ = "1.7.22" }
 
 [versions]
 
@@ -23,6 +25,7 @@ kotlin = "1.6.21"
 ##  ⬆ = "1.7.10"
 ##  ⬆ = "1.7.20"
 ##  ⬆ = "1.7.21"
+##  ⬆ = "1.7.22"
 
 kotest = "5.4.2"
 
@@ -34,11 +37,35 @@ kotest-assertions-core-jvm = { group = "io.kotest", name = "kotest-assertions-co
 
 kotest-runner-junit5-jvm = { group = "io.kotest", name = "kotest-runner-junit5-jvm", version.ref = "kotest" }
 
-aws-java-sdk-core = "com.amazonaws:aws-java-sdk-core:1.12.349"
+aws-java-sdk-core = "com.amazonaws:aws-java-sdk-core:1.12.357"
+##                                               ⬆ :1.12.350"
+##                                               ⬆ :1.12.351"
+##                                               ⬆ :1.12.352"
+##                                               ⬆ :1.12.353"
+##                                               ⬆ :1.12.354"
+##                                               ⬆ :1.12.355"
+##                                               ⬆ :1.12.356"
+##                                               ⬆ :1.12.357"
 
-aws-java-sdk-ssm = "com.amazonaws:aws-java-sdk-ssm:1.12.349"
+aws-java-sdk-ssm = "com.amazonaws:aws-java-sdk-ssm:1.12.357"
+##                                             ⬆ :1.12.350"
+##                                             ⬆ :1.12.351"
+##                                             ⬆ :1.12.352"
+##                                             ⬆ :1.12.353"
+##                                             ⬆ :1.12.354"
+##                                             ⬆ :1.12.355"
+##                                             ⬆ :1.12.356"
+##                                             ⬆ :1.12.357"
 
-aws-java-sdk-secretsmanager = "com.amazonaws:aws-java-sdk-secretsmanager:1.12.349"
+aws-java-sdk-secretsmanager = "com.amazonaws:aws-java-sdk-secretsmanager:1.12.357"
+##                                                                   ⬆ :1.12.350"
+##                                                                   ⬆ :1.12.351"
+##                                                                   ⬆ :1.12.352"
+##                                                                   ⬆ :1.12.353"
+##                                                                   ⬆ :1.12.354"
+##                                                                   ⬆ :1.12.355"
+##                                                                   ⬆ :1.12.356"
+##                                                                   ⬆ :1.12."
 
 kotlin-serialization = { group = "org.jetbrains.kotlin", name = "kotlin-serialization", version.ref = "kotlin" }
 
@@ -48,9 +75,9 @@ logback-classic = "ch.qos.logback:logback-classic:1.4.5"
 
 slf4j-api = "org.slf4j:slf4j-api:2.0.5"
 
-regions = "software.amazon.awssdk:regions:2.18.24"
+regions = "software.amazon.awssdk:regions:2.18.30"
 
-secretsmanager = "software.amazon.awssdk:secretsmanager:2.18.24"
+secretsmanager = "software.amazon.awssdk:secretsmanager:2.18.30"
 
 azure-security-keyvault-secrets = "com.azure:azure-security-keyvault-secrets:4.5.2"
 
