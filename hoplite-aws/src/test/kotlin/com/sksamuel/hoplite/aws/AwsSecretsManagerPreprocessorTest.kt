@@ -28,8 +28,9 @@ import java.util.Properties
 
 class AwsSecretsManagerPreprocessorTest : FunSpec() {
 
-  private val localstackImage = DockerImageName.parse("localstack/localstack:1.3.1")
-  private val localstack = LocalStackContainer(localstackImage).withServices(LocalStackContainer.Service.SECRETSMANAGER)
+  private val localstack = LocalStackContainer(DockerImageName.parse("localstack/localstack:1.3.1"))
+    .withServices(LocalStackContainer.Service.SECRETSMANAGER)
+    .withEnv("SKIP_SSL_CERT_DOWNLOAD", "true")
 
   init {
 
