@@ -2,8 +2,11 @@ package com.sksamuel.hoplite.decoder
 
 import com.sksamuel.hoplite.ConfigException
 import com.sksamuel.hoplite.ConfigLoader
+import com.sksamuel.hoplite.ConfigLoaderBuilder
+import com.sksamuel.hoplite.addEnvironmentSource
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.extensions.system.withEnvironment
 import io.kotest.matchers.shouldBe
 
 sealed class Database {
@@ -16,7 +19,7 @@ sealed class Lonely
 sealed class PoolingStrategy {
   object ABI : PoolingStrategy()
   data class Combo(val combo: List<PoolingStrategy>) : PoolingStrategy()
-  object Omni: PoolingStrategy()
+  object Omni : PoolingStrategy()
   object OsVersion : PoolingStrategy()
 }
 
@@ -55,17 +58,19 @@ class SealedClassDecoderTest : FunSpec({
 
   test("object inside sealed class decoding") {
     data class Config(val poolingStrategy: PoolingStrategy)
+
     val config = ConfigLoader().loadConfigOrThrow<Config>("/sealed_class_with_object.yaml")
     config.poolingStrategy shouldBe PoolingStrategy.OsVersion
   }
 
   test("list of object inside sealed class decoding") {
     data class Config(val poolingStrategy: PoolingStrategy)
+
     val config = ConfigLoader().loadConfigOrThrow<Config>("/sealed_class_with_list_of_objects.yaml")
     config.poolingStrategy shouldBe PoolingStrategy.Combo(listOf(PoolingStrategy.Omni, PoolingStrategy.OsVersion))
   }
 
-  test("should error for invalid value inside sealed class"){
+  test("should error for invalid value inside sealed class") {
     data class Config(val poolingStrategy: PoolingStrategy)
     shouldThrow<ConfigException> {
       ConfigLoader().loadConfigOrThrow<Config>("/sealed_class_with_object_invalid_value.yaml")
@@ -74,5 +79,17 @@ class SealedClassDecoderTest : FunSpec({
       "    - Could not instantiate 'com.sksamuel.hoplite.decoder.`SealedClassDecoderTest\$1\$6\$Config`' because:\n" +
       "\n" +
       "        - 'poolingStrategy': Could not find appropriate subclass of class com.sksamuel.hoplite.decoder.PoolingStrategy: Tried com.sksamuel.hoplite.decoder.PoolingStrategy\$ABI, com.sksamuel.hoplite.decoder.PoolingStrategy\$Combo, com.sksamuel.hoplite.decoder.PoolingStrategy\$Omni, com.sksamuel.hoplite.decoder.PoolingStrategy\$OsVersion (classpath:/sealed_class_with_object_invalid_value.yaml:0:17)"
+  }
+
+  test("env source should support case insenstivity when overriding sealed class") {
+    data class TestConfig(val database: Database)
+
+    withEnvironment("DATABASE__PORT", "9345") {
+      val config = ConfigLoaderBuilder.default()
+        .addEnvironmentSource()
+        .build()
+        .loadConfigOrThrow<TestConfig>("/sealed_class.yml")
+      config shouldBe TestConfig(database = Database.Elasticsearch("localhost", 9345, "foo"))
+    }
   }
 })
