@@ -45,13 +45,18 @@ class Cascader(private val cascadeMode: CascadeMode, private val allowEmptyTree:
       "Trying to merge node with path ${a.path.flatten()} with node with path ${b.path.flatten()}"
     }
 
+    val isFallthrough = when (cascadeMode) {
+      CascadeMode.Override, CascadeMode.Fallthrough -> true
+      else -> false
+    }
+
     return when (a) {
       // if I am null, then we should use the other one, but that is not an override
       is NullNode -> CascadeResult(b)
       is MapNode -> when {
-        // in override mode, this entire map takes precendence.
+        // in fallthrough mode, this entire map takes precendence.
         // note override only happens after root, otherwise one entire file would override another
-        cascadeMode == CascadeMode.Override && a.path != DotPath.root -> CascadeResult(a)
+        isFallthrough && a.path != DotPath.root -> CascadeResult(a)
         else -> {
           when (b) {
             // if both are maps we merge
@@ -80,7 +85,9 @@ class Cascader(private val cascadeMode: CascadeMode, private val allowEmptyTree:
 enum class CascadeMode {
   Merge,
   Error, // throw an error if a config value has the same key as another
+  @Deprecated("use Fallthrough")
   Override,
+  Fallthrough,
 }
 
 data class CascadeResult(

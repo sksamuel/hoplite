@@ -90,7 +90,7 @@ class CascadeTest : FunSpec({
     g["c"] shouldBe StringNode("baz", Pos.NoPos, DotPath.root)
   }
 
-  test("CascadeMode.Override should take an entire map if present") {
+  test("CascadeMode.Fallthrough should take an entire map if present") {
 
     val node1 = MapNode(
       mapOf(
@@ -123,7 +123,7 @@ class CascadeTest : FunSpec({
       DotPath.root,
     )
 
-    val cascader = Cascader(CascadeMode.Override, false)
+    val cascader = Cascader(CascadeMode.Fallthrough, false)
     val merged = cascader.cascade(node1, node2).node
     merged["a"] shouldBe StringNode("foo", Pos.NoPos, DotPath("a"))
     merged["b"] shouldBe MapNode(
