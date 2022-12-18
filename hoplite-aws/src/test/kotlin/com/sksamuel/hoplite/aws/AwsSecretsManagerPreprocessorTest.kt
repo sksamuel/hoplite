@@ -28,7 +28,7 @@ import java.util.Properties
 
 class AwsSecretsManagerPreprocessorTest : FunSpec() {
 
-  private val localstackImage = DockerImageName.parse("localstack/localstack:0.14.2")
+  private val localstackImage = DockerImageName.parse("localstack/localstack:1.3.1")
   private val localstack = LocalStackContainer(localstackImage).withServices(LocalStackContainer.Service.SECRETSMANAGER)
 
   init {
