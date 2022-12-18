@@ -1,9 +1,0 @@
-# This is a TOML document.
-a = "1 week"
-b = "2 days"
-c = "3 years"
-d = "4m"
-e = "3y"
-f = "9w"
-g = "7d"
-

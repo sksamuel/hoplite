@@ -1,3 +1,0 @@
-[versions]
-version = "1.2.3"
-strict_version = { strictly = "2.3.4" }
