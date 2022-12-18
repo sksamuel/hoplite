@@ -37,35 +37,31 @@ kotest-assertions-core-jvm = { group = "io.kotest", name = "kotest-assertions-co
 
 kotest-runner-junit5-jvm = { group = "io.kotest", name = "kotest-runner-junit5-jvm", version.ref = "kotest" }
 
-aws-java-sdk-core = "com.amazonaws:aws-java-sdk-core:1.12.357"
-##                                               ⬆ :1.12.350"
-##                                               ⬆ :1.12.351"
-##                                               ⬆ :1.12.352"
-##                                               ⬆ :1.12.353"
-##                                               ⬆ :1.12.354"
-##                                               ⬆ :1.12.355"
-##                                               ⬆ :1.12.356"
-##                                               ⬆ :1.12.357"
+aws-java-sdk-core = "com.amazonaws:aws-java-sdk-core:1.12.367"
+##                                               ⬆ :1.12.358"
+##                                               ⬆ :1.12.359"
+##                                               ⬆ :1.12.360"
+##                                               ⬆ :1.12.361"
+##                                               ⬆ :1.12.362"
+##                                               ⬆ :1.12.363"
+##                                               ⬆ :1.12.364"
+##                                               ⬆ :1.12.365"
+##                                               ⬆ :1.12.366"
+##                                               ⬆ :1.12.367"
 
-aws-java-sdk-ssm = "com.amazonaws:aws-java-sdk-ssm:1.12.357"
-##                                             ⬆ :1.12.350"
-##                                             ⬆ :1.12.351"
-##                                             ⬆ :1.12.352"
-##                                             ⬆ :1.12.353"
-##                                             ⬆ :1.12.354"
-##                                             ⬆ :1.12.355"
-##                                             ⬆ :1.12.356"
-##                                             ⬆ :1.12.357"
+aws-java-sdk-ssm = "com.amazonaws:aws-java-sdk-ssm:1.12.367"
+##                                             ⬆ :1.12.358"
+##                                             ⬆ :1.12.359"
+##                                             ⬆ :1.12.360"
+##                                             ⬆ :1.12.361"
+##                                             ⬆ :1.12.362"
+##                                             ⬆ :1.12.363"
+##                                             ⬆ :1.12.364"
+##                                             ⬆ :1.12.365"
+##                                             ⬆ :1.12.366"
+##                                             ⬆ :1.12.367"
 
-aws-java-sdk-secretsmanager = "com.amazonaws:aws-java-sdk-secretsmanager:1.12.357"
-##                                                                   ⬆ :1.12.350"
-##                                                                   ⬆ :1.12.351"
-##                                                                   ⬆ :1.12.352"
-##                                                                   ⬆ :1.12.353"
-##                                                                   ⬆ :1.12.354"
-##                                                                   ⬆ :1.12.355"
-##                                                                   ⬆ :1.12.356"
-##                                                                   ⬆ :1.12."
+aws-java-sdk-secretsmanager = "com.amazonaws:aws-java-sdk-secretsmanager:1.12.367"
 
 kotlin-serialization = { group = "org.jetbrains.kotlin", name = "kotlin-serialization", version.ref = "kotlin" }
 
@@ -73,15 +69,26 @@ localstack = "org.testcontainers:localstack:1.17.6"
 
 logback-classic = "ch.qos.logback:logback-classic:1.4.5"
 
-slf4j-api = "org.slf4j:slf4j-api:2.0.5"
+slf4j-api = "org.slf4j:slf4j-api:2.0.6"
 
-regions = "software.amazon.awssdk:regions:2.18.30"
+regions = "software.amazon.awssdk:regions:2.18.41"
+##                                    ⬆ :2.18.31"
+##                                    ⬆ :2.18.32"
+##                                    ⬆ :2.18.33"
+##                                    ⬆ :2.18.34"
+##                                    ⬆ :2.18.35"
+##                                    ⬆ :2.18.36"
+##                                    ⬆ :2.18.37"
+##                                    ⬆ :2.18.38"
+##                                    ⬆ :2.18.39"
+##                                    ⬆ :2.18.40"
+##                                    ⬆ :2.18.41"
 
-secretsmanager = "software.amazon.awssdk:secretsmanager:2.18.30"
+secretsmanager = "software.amazon.awssdk:secretsmanager:2.18.41"
 
 azure-security-keyvault-secrets = "com.azure:azure-security-keyvault-secrets:4.5.2"
 
-azure-identity = "com.azure:azure-identity:1.7.1"
+azure-identity = "com.azure:azure-identity:1.7.2"
 
 consul-client = "com.orbitz.consul:consul-client:1.5.3"
 
@@ -89,7 +96,7 @@ kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", vers
 
 cron-utils = "com.cronutils:cron-utils:9.2.0"
 
-google-cloud-secretmanager = "com.google.cloud:google-cloud-secretmanager:2.6.0"
+google-cloud-secretmanager = "com.google.cloud:google-cloud-secretmanager:2.7.0"
 
 hadoop-common = "org.apache.hadoop:hadoop-common:2.10.2"
 ##                                           ⬆ :3.0.0"
