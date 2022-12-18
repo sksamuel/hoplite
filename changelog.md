@@ -1,5 +1,9 @@
 # Changelog
 
+### 2.7.1
+
+*
+
 ### 2.7.0
 
 * TOML now supports heterogenous arrays.

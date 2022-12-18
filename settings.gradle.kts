@@ -43,7 +43,6 @@ include(
    ":hoplite-micrometer-prometheus",
    ":hoplite-micrometer-statsd",
    ":hoplite-toml",
-   ":hoplite-toml-provided",
    ":hoplite-vault",
    ":hoplite-vavr",
    ":hoplite-watch",
