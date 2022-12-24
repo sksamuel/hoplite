@@ -37,11 +37,26 @@ kotest-assertions-core-jvm = { group = "io.kotest", name = "kotest-assertions-co
 
 kotest-runner-junit5-jvm = { group = "io.kotest", name = "kotest-runner-junit5-jvm", version.ref = "kotest" }
 
-aws-java-sdk-core = "com.amazonaws:aws-java-sdk-core:1.12.367"
+aws-java-sdk-core = "com.amazonaws:aws-java-sdk-core:1.12.372"
+##                                               ⬆ :1.12.368"
+##                                               ⬆ :1.12.369"
+##                                               ⬆ :1.12.370"
+##                                               ⬆ :1.12.371"
+##                                               ⬆ :1.12.372"
 
-aws-java-sdk-ssm = "com.amazonaws:aws-java-sdk-ssm:1.12.367"
+aws-java-sdk-ssm = "com.amazonaws:aws-java-sdk-ssm:1.12.372"
+##                                             ⬆ :1.12.368"
+##                                             ⬆ :1.12.369"
+##                                             ⬆ :1.12.370"
+##                                             ⬆ :1.12.371"
+##                                             ⬆ :1.12.372"
 
-aws-java-sdk-secretsmanager = "com.amazonaws:aws-java-sdk-secretsmanager:1.12.367"
+aws-java-sdk-secretsmanager = "com.amazonaws:aws-java-sdk-secretsmanager:1.12.372"
+##                                                                   ⬆ :1.12.368"
+##                                                                   ⬆ :1.12.369"
+##                                                                   ⬆ :1.12.370"
+##                                                                   ⬆ :1.12.371"
+##                                                                   ⬆ :1.12."
 
 kotlin-serialization = { group = "org.jetbrains.kotlin", name = "kotlin-serialization", version.ref = "kotlin" }
 
@@ -51,9 +66,19 @@ logback-classic = "ch.qos.logback:logback-classic:1.4.5"
 
 slf4j-api = "org.slf4j:slf4j-api:2.0.6"
 
-regions = "software.amazon.awssdk:regions:2.18.41"
+regions = "software.amazon.awssdk:regions:2.19.4"
+##                                    ⬆ :2.19.0"
+##                                    ⬆ :2.19.1"
+##                                    ⬆ :2.19.2"
+##                                    ⬆ :2.19.3"
+##                                    ⬆ :2."
 
-secretsmanager = "software.amazon.awssdk:secretsmanager:2.18.41"
+secretsmanager = "software.amazon.awssdk:secretsmanager:2.19.4"
+##                                                  ⬆ :2.19.0"
+##                                                  ⬆ :2.19.1"
+##                                                  ⬆ :2.19.2"
+##                                                  ⬆ :2.19.3"
+##                                                  ⬆ :2.19.4"
 
 azure-security-keyvault-secrets = "com.azure:azure-security-keyvault-secrets:4.5.2"
 
@@ -68,6 +93,25 @@ cron-utils = "com.cronutils:cron-utils:9.2.0"
 google-cloud-secretmanager = "com.google.cloud:google-cloud-secretmanager:2.7.0"
 
 hadoop-common = "org.apache.hadoop:hadoop-common:2.10.2"
+##                                           ⬆ :3.0.0"
+##                                           ⬆ :3.0.1"
+##                                           ⬆ :3.0.2"
+##                                           ⬆ :3.0.3"
+##                                           ⬆ :3.1.0"
+##                                           ⬆ :3.1.1"
+##                                           ⬆ :3.1.2"
+##                                           ⬆ :3.1.3"
+##                                           ⬆ :3.1.4"
+##                                           ⬆ :3.2.0"
+##                                           ⬆ :3.2.1"
+##                                           ⬆ :3.2.2"
+##                                           ⬆ :3.2.3"
+##                                           ⬆ :3.2.4"
+##                                           ⬆ :3.3.0"
+##                                           ⬆ :3.3.1"
+##                                           ⬆ :3.3.2"
+##                                           ⬆ :3.3.3"
+##                                           ⬆ :3.3.4"
 
 hikaricp = "com.zaxxer:HikariCP:5.0.1"
 
@@ -88,6 +132,7 @@ micrometer-registry-statsd = "io.micrometer:micrometer-registry-statsd:1.10.2"
 tomlj = "org.tomlj:tomlj:1.1.0"
 
 spring-vault-core = "org.springframework.vault:spring-vault-core:2.3.2"
+##                                                           ⬆ :3.0.0"
 
 vault = "org.testcontainers:vault:1.17.6"
 
