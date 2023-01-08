@@ -10,6 +10,7 @@ org-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version = "1.6.21"
 ##                                                                 ⬆ = "1.7.20" }
 ##                                                                 ⬆ = "1.7.21" }
 ##                                                                 ⬆ = "1.7.22" }
+##                                                                 ⬆ = "1.8.0" }
 
 org-jetbrains-kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version = "1.6.21" }
 ##                                                                                                   ⬆ = "1.7.0" }
@@ -17,6 +18,7 @@ org-jetbrains-kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.
 ##                                                                                                   ⬆ = "1.7.20" }
 ##                                                                                                   ⬆ = "1.7.21" }
 ##                                                                                                   ⬆ = "1.7.22" }
+##                                                                                                   ⬆ = "1.8.0" }
 
 [versions]
 
@@ -26,6 +28,7 @@ kotlin = "1.6.21"
 ##  ⬆ = "1.7.20"
 ##  ⬆ = "1.7.21"
 ##  ⬆ = "1.7.22"
+##  ⬆ = "1.8.0"
 
 kotest = "5.4.2"
 
@@ -37,26 +40,11 @@ kotest-assertions-core-jvm = { group = "io.kotest", name = "kotest-assertions-co
 
 kotest-runner-junit5-jvm = { group = "io.kotest", name = "kotest-runner-junit5-jvm", version.ref = "kotest" }
 
-aws-java-sdk-core = "com.amazonaws:aws-java-sdk-core:1.12.372"
-##                                               ⬆ :1.12.368"
-##                                               ⬆ :1.12.369"
-##                                               ⬆ :1.12.370"
-##                                               ⬆ :1.12.371"
-##                                               ⬆ :1.12.372"
+aws-java-sdk-core = "com.amazonaws:aws-java-sdk-core:1.12.380"
 
-aws-java-sdk-ssm = "com.amazonaws:aws-java-sdk-ssm:1.12.372"
-##                                             ⬆ :1.12.368"
-##                                             ⬆ :1.12.369"
-##                                             ⬆ :1.12.370"
-##                                             ⬆ :1.12.371"
-##                                             ⬆ :1.12.372"
+aws-java-sdk-ssm = "com.amazonaws:aws-java-sdk-ssm:1.12.380"
 
-aws-java-sdk-secretsmanager = "com.amazonaws:aws-java-sdk-secretsmanager:1.12.372"
-##                                                                   ⬆ :1.12.368"
-##                                                                   ⬆ :1.12.369"
-##                                                                   ⬆ :1.12.370"
-##                                                                   ⬆ :1.12.371"
-##                                                                   ⬆ :1.12."
+aws-java-sdk-secretsmanager = "com.amazonaws:aws-java-sdk-secretsmanager:1.12.380"
 
 kotlin-serialization = { group = "org.jetbrains.kotlin", name = "kotlin-serialization", version.ref = "kotlin" }
 
@@ -66,23 +54,13 @@ logback-classic = "ch.qos.logback:logback-classic:1.4.5"
 
 slf4j-api = "org.slf4j:slf4j-api:2.0.6"
 
-regions = "software.amazon.awssdk:regions:2.19.4"
-##                                    ⬆ :2.19.0"
-##                                    ⬆ :2.19.1"
-##                                    ⬆ :2.19.2"
-##                                    ⬆ :2.19.3"
-##                                    ⬆ :2."
+regions = "software.amazon.awssdk:regions:2.19.12"
 
-secretsmanager = "software.amazon.awssdk:secretsmanager:2.19.4"
-##                                                  ⬆ :2.19.0"
-##                                                  ⬆ :2.19.1"
-##                                                  ⬆ :2.19.2"
-##                                                  ⬆ :2.19.3"
-##                                                  ⬆ :2.19.4"
+secretsmanager = "software.amazon.awssdk:secretsmanager:2.19.12"
 
 azure-security-keyvault-secrets = "com.azure:azure-security-keyvault-secrets:4.5.2"
 
-azure-identity = "com.azure:azure-identity:1.7.2"
+azure-identity = "com.azure:azure-identity:1.7.3"
 
 consul-client = "com.orbitz.consul:consul-client:1.5.3"
 
