@@ -6,7 +6,7 @@ import io.kotest.matchers.shouldBe
 
 class ByteArrayDecoderTest : StringSpec({
 
-  "triple should be decoded from string with 3 fields" {
+  "byte array decoder should decode strings" {
     data class Test(val a: ByteArray)
 
     val config = ConfigLoader().loadConfigOrThrow<Test>("/test_byte_array.props")
