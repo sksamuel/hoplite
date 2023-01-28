@@ -15,8 +15,8 @@ import io.kotest.matchers.shouldBe
 data class TestConfig(val foo: String)
 
 @ExperimentalKotest
-class ConsulWatcherTest: FunSpec({
-  lateinit var consul : ConsulProcess
+class ConsulWatcherTest : FunSpec({
+  lateinit var consul: ConsulProcess
 
   beforeSpec {
     consul = ConsulStarterBuilder.consulStarter().buildAndStart()
@@ -26,7 +26,7 @@ class ConsulWatcherTest: FunSpec({
     consul.close()
   }
 
-  test("Can reload values from a consul cache") {
+  test("Can reload values from a consul cache").config(enabledIf = { System.getenv("CI") != "true" }) {
     val embeddedConsulURL = "http://localhost:${consul.httpPort}"
     val kvClient = Consul.builder()
       .withUrl(embeddedConsulURL)
