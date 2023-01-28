@@ -26,7 +26,7 @@ class ConsulWatcherTest : FunSpec({
     consul.close()
   }
 
-  test("Can reload values from a consul cache").config(enabledIf = { System.getenv("CI") != "true" }) {
+  test("Can reload values from a consul cache") {
     val embeddedConsulURL = "http://localhost:${consul.httpPort}"
     val kvClient = Consul.builder()
       .withUrl(embeddedConsulURL)
