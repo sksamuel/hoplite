@@ -40,26 +40,11 @@ kotest-assertions-core-jvm = { group = "io.kotest", name = "kotest-assertions-co
 
 kotest-runner-junit5-jvm = { group = "io.kotest", name = "kotest-runner-junit5-jvm", version.ref = "kotest" }
 
-aws-java-sdk-core = "com.amazonaws:aws-java-sdk-core:1.12.380"
-##                                               ⬆ :1.12.381"
-##                                               ⬆ :1.12.382"
-##                                               ⬆ :1.12.383"
-##                                               ⬆ :1.12.384"
-##                                               ⬆ :1.12.385"
+aws-java-sdk-core = "com.amazonaws:aws-java-sdk-core:1.12.395"
 
-aws-java-sdk-ssm = "com.amazonaws:aws-java-sdk-ssm:1.12.380"
-##                                             ⬆ :1.12.381"
-##                                             ⬆ :1.12.382"
-##                                             ⬆ :1.12.383"
-##                                             ⬆ :1.12.384"
-##                                             ⬆ :1.12.385"
+aws-java-sdk-ssm = "com.amazonaws:aws-java-sdk-ssm:1.12.395"
 
-aws-java-sdk-secretsmanager = "com.amazonaws:aws-java-sdk-secretsmanager:1.12.380"
-##                                                                   ⬆ :1.12.381"
-##                                                                   ⬆ :1.12.382"
-##                                                                   ⬆ :1.12.383"
-##                                                                   ⬆ :1.12.384"
-##                                                                   ⬆ :1.12.385"
+aws-java-sdk-secretsmanager = "com.amazonaws:aws-java-sdk-secretsmanager:1.12.395"
 
 kotlin-serialization = { group = "org.jetbrains.kotlin", name = "kotlin-serialization", version.ref = "kotlin" }
 
@@ -69,22 +54,11 @@ logback-classic = "ch.qos.logback:logback-classic:1.4.5"
 
 slf4j-api = "org.slf4j:slf4j-api:2.0.6"
 
-regions = "software.amazon.awssdk:regions:2.19.12"
-##                                    ⬆ :2.19.13"
-##                                    ⬆ :2.19.14"
-##                                    ⬆ :2.19.15"
-##                                    ⬆ :2.19.16"
-##                                    ⬆ :2.19.17"
+regions = "software.amazon.awssdk:regions:2.19.26"
 
-secretsmanager = "software.amazon.awssdk:secretsmanager:2.19.12"
-##                                                  ⬆ :2.19.13"
-##                                                  ⬆ :2.19.14"
-##                                                  ⬆ :2.19.15"
-##                                                  ⬆ :2.19.16"
-##                                                  ⬆ :2.19.17"
+secretsmanager = "software.amazon.awssdk:secretsmanager:2.19.26"
 
-azure-security-keyvault-secrets = "com.azure:azure-security-keyvault-secrets:4.5.2"
-##                                                                       ⬆ :4.5.3"
+azure-security-keyvault-secrets = "com.azure:azure-security-keyvault-secrets:4.5.3"
 
 azure-identity = "com.azure:azure-identity:1.7.3"
 
@@ -94,8 +68,7 @@ kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", vers
 
 cron-utils = "com.cronutils:cron-utils:9.2.0"
 
-google-cloud-secretmanager = "com.google.cloud:google-cloud-secretmanager:2.7.0"
-##                                                                    ⬆ :2.8.0"
+google-cloud-secretmanager = "com.google.cloud:google-cloud-secretmanager:2.9.0"
 
 hadoop-common = "org.apache.hadoop:hadoop-common:2.10.2"
 ##                                           ⬆ :3.0.0"
@@ -128,14 +101,11 @@ jackson-core = "com.fasterxml.jackson.core:jackson-core:2.14.1"
 
 jackson-databind = "com.fasterxml.jackson.core:jackson-databind:2.14.1"
 
-micrometer-registry-datadog = "io.micrometer:micrometer-registry-datadog:1.10.2"
-##                                                                   ⬆ :1.10.3"
+micrometer-registry-datadog = "io.micrometer:micrometer-registry-datadog:1.10.3"
 
-micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1.10.2"
-##                                                                         ⬆ :1.10.3"
+micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1.10.3"
 
-micrometer-registry-statsd = "io.micrometer:micrometer-registry-statsd:1.10.2"
-##                                                                 ⬆ :1.10.3"
+micrometer-registry-statsd = "io.micrometer:micrometer-registry-statsd:1.10.3"
 
 tomlj = "org.tomlj:tomlj:1.1.0"
 
@@ -150,6 +120,6 @@ embedded-consul = "com.pszymczyk.consul:embedded-consul:2.2.1"
 
 snakeyaml = "org.yaml:snakeyaml:1.33"
 
-kaml = "com.charleskorn.kaml:kaml:0.49.0"
+kaml = "com.charleskorn.kaml:kaml:0.50.0"
 
 kotest-extensions-testcontainers = { group = "io.kotest", name = "kotest-extensions-testcontainers", version.ref = "kotest" }
