@@ -2,7 +2,7 @@
 
 ### 2.7.1
 
-*
+* Added support for `ByteArray`.
 
 ### 2.7.0
 
