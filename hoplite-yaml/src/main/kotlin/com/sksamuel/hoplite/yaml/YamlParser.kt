@@ -11,6 +11,7 @@ import com.sksamuel.hoplite.decoder.DotPath
 import com.sksamuel.hoplite.parsers.Parser
 import com.sksamuel.hoplite.withPath
 import org.yaml.snakeyaml.DumperOptions
+import org.yaml.snakeyaml.LoaderOptions
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.SafeConstructor
 import org.yaml.snakeyaml.error.Mark
@@ -30,7 +31,7 @@ import java.io.InputStreamReader
 
 class YamlParser : Parser {
   override fun defaultFileExtensions(): List<String> = listOf("yml", "yaml")
-  private val yaml = Yaml(SafeConstructor())
+  private val yaml = Yaml()
   override fun load(input: InputStream, source: String): Node {
     val reader = InputStreamReader(input)
     val events = yaml.parse(reader).iterator()
