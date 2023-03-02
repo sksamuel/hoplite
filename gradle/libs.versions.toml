@@ -122,6 +122,6 @@ embedded-consul = "com.pszymczyk.consul:embedded-consul:2.2.1"
 
 snakeyaml = "org.yaml:snakeyaml:2.0"
 
-kaml = "com.charleskorn.kaml:kaml:0.52.0"
+kaml = "com.charleskorn.kaml:kaml:0.42.0"
 
 kotest-extensions-testcontainers = { group = "io.kotest", name = "kotest-extensions-testcontainers", version.ref = "kotest" }
