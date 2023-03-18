@@ -1,4 +1,4 @@
-package com.sksamuel.hoplite.azure
+package com.sksamuel.hoplite.gcp
 
 import com.google.api.gax.rpc.ApiException
 import com.google.cloud.secretmanager.v1.AccessSecretVersionRequest
