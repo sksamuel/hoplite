@@ -98,9 +98,9 @@ class Reporter(
     val obfuscated: List<NodeState> = nodes.sortedBy { it.node.path.flatten() }.map { state ->
 
       val value = if (state.secret && state.node is PrimitiveNode)
-        obfuscator.obfuscate(state.node)
+        obfuscator.obfuscate(state.node).replace("\n", "")
       else
-        state.node.valueOrNull()
+        state.node.valueOrNull()?.replace("\n", "")
 
       state.copy(
         node = StringNode(

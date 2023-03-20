@@ -71,6 +71,46 @@ Property sources (highest to lowest priority):
 
   }
 
+  test("report should remove new lines") {
+
+    data class Test(
+      val name: String,
+      val host: String,
+      val port: Int,
+      val password: Secret,
+    )
+
+    captureStandardOut {
+      ConfigLoaderBuilder.default()
+        .addPropertySource(
+          PropertySource.string(
+            """
+          name = my database
+          host = l\nremotehost
+          port = 3306
+          password = ssm://mysecretkey
+          """.trimIndent(), "props"
+          )
+        )
+        .withReport()
+        .build()
+        .loadConfigOrThrow<Test>()
+    }.shouldContain(
+      """
+Used keys: 4
++----------+---------------------+----------+
+| Key      | Source              | Value    |
++----------+---------------------+----------+
+| host     | props string source | lr*****  |
+| name     | props string source | my ***** |
+| password | props string source | ssm***** |
+| port     | props string source | 3306     |
++----------+---------------------+----------+
+"""
+    )
+
+  }
+
   test("should print report on failed config") {
 
     data class Config(val name: String, val host: String, val port: Int)
