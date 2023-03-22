@@ -47,7 +47,7 @@ class ConfigFilePropertySource(
           input.available() == 0 -> ConfigFailure.EmptyConfigSource(config).invalid()
           else -> runCatching {
             input.use { parser.load(it, config.describe()) }
-          }.toValidated { ConfigFailure.PropertySourceFailure("Could not parse ${config.describe()}") }
+          }.toValidated { ConfigFailure.PropertySourceFailure("Could not parse ${config.describe()}", it) }
         }
       }
     }

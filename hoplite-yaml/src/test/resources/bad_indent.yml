@@ -1,0 +1,30 @@
+ort:
+  allowedProcessEnvironmentVariableNames:
+    - PASSPORT
+    - USER_HOME
+  deniedProcessEnvironmentVariablesSubstrings:
+    - PASS
+    - SECRET
+    - TOKEN
+    - USER
+  enableRepositoryPackageCurations: true
+  enableRepositoryPackageConfigurations: true
+
+  licenseFilePatterns:
+    licenseFilenames: [ 'license*' ]
+    patentFilenames: [ patents ]
+    rootLicenseFilenames: [ 'readme*' ]
+
+  severeIssueThreshold: ERROR
+  severeRuleViolationThreshold: ERROR
+
+  analyzer:
+    allowDynamicVersions: true
+    enabledPackageManagers: [ Gradle, Yarn ]
+    packageManagers:
+        Yarn:
+        options:
+          directDependenciesOnly: true
+      Gradle:
+        options:
+          directDependenciesOnly: true

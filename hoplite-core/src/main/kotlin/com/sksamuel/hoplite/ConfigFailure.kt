@@ -82,8 +82,8 @@ sealed interface ConfigFailure {
         "Expected args are ${constructor.parameters.map { it.type.simpleName }}. Underlying error was $e"
   }
 
-  data class PropertySourceFailure(val msg: String) : ConfigFailure {
-    override fun description(): String = msg
+  data class PropertySourceFailure(val msg: String, val cause: Throwable?) : ConfigFailure {
+    override fun description(): String = msg + " " + cause
   }
 
   data class DataClassWithoutConstructor(val kclass: KClass<*>) : ConfigFailure {
