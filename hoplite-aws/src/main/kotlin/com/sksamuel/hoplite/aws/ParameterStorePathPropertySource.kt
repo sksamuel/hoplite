@@ -8,8 +8,7 @@ import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PropertySource
 import com.sksamuel.hoplite.PropertySourceContext
-import com.sksamuel.hoplite.fp.invalid
-import com.sksamuel.hoplite.fp.valid
+import com.sksamuel.hoplite.decoder.toValidated
 import com.sksamuel.hoplite.parsers.toNode
 import java.util.Properties
 
@@ -54,11 +53,8 @@ class ParameterStorePathPropertySource(
         props[name.removePrefix("/")] = it.value
       }
       props.toNode("aws_parameter_store at $prefix", "/")
-    }.fold(
-      { it.valid() },
-      {
-        ConfigFailure.PropertySourceFailure("Could not fetch data from AWS parameter store: ${it.message}").invalid()
-      }
-    )
+    }.toValidated {
+      ConfigFailure.PropertySourceFailure("Could not fetch data from AWS parameter store: ${it.message}", it)
+    }
   }
 }
