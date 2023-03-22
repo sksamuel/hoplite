@@ -1,5 +1,16 @@
 # Changelog
 
+### 2.7.3
+
+* Add better yaml errors when invalid file #354
+* Fix formatting for secrets which contain new lines #363
+* Moves `GcpSecretManagerPreprocessor` from azure to gcp package #362
+
+### 2.7.2
+
+* Added BooleanArrayDecoder
+* Updated to latest SnakeYML version to avoid CVE
+
 ### 2.7.1
 
 * Added support for `ByteArray`.
