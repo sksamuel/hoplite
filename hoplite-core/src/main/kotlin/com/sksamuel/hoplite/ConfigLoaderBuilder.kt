@@ -43,7 +43,7 @@ class ConfigLoaderBuilder private constructor() {
   private val decoders = mutableListOf<Decoder<*>>()
 
   private var useReport: Boolean = false
-  private var printFunction: Print = { println(it) }
+  private var reportPrintFn: Print = { println(it) }
   private var secretsPolicy: SecretsPolicy = AllStringNodesSecretsPolicy
   private var obfuscator: Obfuscator = PrefixObfuscator(3)
   private var preprocessingIterations: Int = 1
@@ -223,7 +223,7 @@ class ConfigLoaderBuilder private constructor() {
   fun withObfusctator(obfuscator: Obfuscator): ConfigLoaderBuilder = withObfuscator(obfuscator)
   fun withObfuscator(obfuscator: Obfuscator): ConfigLoaderBuilder = apply { this.obfuscator = obfuscator }
 
-  fun withPrintFunction(printFunction: Print): ConfigLoaderBuilder = apply { this.printFunction = printFunction }
+  fun withReportPrintFn(reportPrintFn: Print): ConfigLoaderBuilder = apply { this.reportPrintFn = reportPrintFn }
 
   @ExperimentalHoplite
   fun withSecretsPolicy(secretsPolicy: SecretsPolicy) = apply { this.secretsPolicy = secretsPolicy }
@@ -266,7 +266,7 @@ class ConfigLoaderBuilder private constructor() {
       secretsPolicy = secretsPolicy,
       environment = environment,
       obfuscator = obfuscator,
-      printFunction = printFunction,
+      reportPrintFn = reportPrintFn,
       flattenArraysToString = flattenArraysToString,
     )
   }

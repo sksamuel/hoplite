@@ -37,7 +37,7 @@ class ConfigLoader(
   val secretsPolicy: SecretsPolicy? = null,
   val environment: Environment? = null,
   val obfuscator: Obfuscator? = null,
-  val printFunction: Print? = null,
+  val reportPrintFn: Print? = null,
   val flattenArraysToString: Boolean = false,
 ) {
 
@@ -157,7 +157,7 @@ class ConfigLoader(
       decodeMode = decodeMode,
       useReport = useReport,
       obfuscator = obfuscator ?: PrefixObfuscator(3),
-      printFunction = printFunction ?: { println(it) },
+      reportPrintFn = reportPrintFn ?: { println(it) },
       environment = environment,
     ).decode(kclass, environment, resourceOrFiles, propertySources, configSources)
   }
@@ -207,7 +207,7 @@ class ConfigLoader(
       decodeMode = DecodeMode.Lenient,  // not used when loading nodes
       useReport = false,  // not used when loading nodes
       obfuscator = StrictObfuscator("*"),  // not used when loading nodes
-      printFunction = printFunction ?: { println(it) }, // not used when loading nodes
+      reportPrintFn = reportPrintFn ?: { }, // not used when loading nodes
       environment = environment,
     ).load(resourceOrFiles, propertySources, configSources)
   }

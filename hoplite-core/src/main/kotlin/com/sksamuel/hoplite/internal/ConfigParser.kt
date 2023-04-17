@@ -37,7 +37,7 @@ class ConfigParser(
   private val decodeMode: DecodeMode,
   private val useReport: Boolean,
   private val obfuscator: Obfuscator,
-  private val printFunction: Print,
+  private val reportPrintFn: Print,
   private val environment: Environment?,
 ) {
 
@@ -75,7 +75,7 @@ class ConfigParser(
 
         // always do report regardless of decoder result
         if (useReport) {
-          Reporter(printFunction, obfuscator, environment)
+          Reporter(reportPrintFn, obfuscator, environment)
             .printReport(propertySources, state, context.reports)
         }
 
