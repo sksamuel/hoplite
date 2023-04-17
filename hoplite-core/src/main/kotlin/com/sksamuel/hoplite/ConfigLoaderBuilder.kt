@@ -11,6 +11,7 @@ import com.sksamuel.hoplite.preprocessor.EnvOrSystemPropertyPreprocessor
 import com.sksamuel.hoplite.preprocessor.LookupPreprocessor
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.preprocessor.RandomPreprocessor
+import com.sksamuel.hoplite.report.Print
 import com.sksamuel.hoplite.report.Reporter
 import com.sksamuel.hoplite.secrets.AllStringNodesSecretsPolicy
 import com.sksamuel.hoplite.secrets.Obfuscator
@@ -42,6 +43,7 @@ class ConfigLoaderBuilder private constructor() {
   private val decoders = mutableListOf<Decoder<*>>()
 
   private var useReport: Boolean = false
+  private var reportPrintFn: Print = { println(it) }
   private var secretsPolicy: SecretsPolicy = AllStringNodesSecretsPolicy
   private var obfuscator: Obfuscator = PrefixObfuscator(3)
   private var preprocessingIterations: Int = 1
@@ -221,6 +223,8 @@ class ConfigLoaderBuilder private constructor() {
   fun withObfusctator(obfuscator: Obfuscator): ConfigLoaderBuilder = withObfuscator(obfuscator)
   fun withObfuscator(obfuscator: Obfuscator): ConfigLoaderBuilder = apply { this.obfuscator = obfuscator }
 
+  fun withReportPrintFn(reportPrintFn: (String) -> Unit): ConfigLoaderBuilder = apply { this.reportPrintFn = reportPrintFn }
+
   @ExperimentalHoplite
   fun withSecretsPolicy(secretsPolicy: SecretsPolicy) = apply { this.secretsPolicy = secretsPolicy }
 
@@ -262,6 +266,7 @@ class ConfigLoaderBuilder private constructor() {
       secretsPolicy = secretsPolicy,
       environment = environment,
       obfuscator = obfuscator,
+      reportPrintFn = reportPrintFn,
       flattenArraysToString = flattenArraysToString,
     )
   }

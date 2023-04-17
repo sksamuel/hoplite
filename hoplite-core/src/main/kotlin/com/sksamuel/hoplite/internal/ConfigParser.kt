@@ -16,6 +16,7 @@ import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.parsers.ParserRegistry
 import com.sksamuel.hoplite.preprocessor.Preprocessor
+import com.sksamuel.hoplite.report.Print
 import com.sksamuel.hoplite.report.Reporter
 import com.sksamuel.hoplite.secrets.Obfuscator
 import com.sksamuel.hoplite.secrets.SecretsPolicy
@@ -36,6 +37,7 @@ class ConfigParser(
   private val decodeMode: DecodeMode,
   private val useReport: Boolean,
   private val obfuscator: Obfuscator,
+  private val reportPrintFn: Print,
   private val environment: Environment?,
 ) {
 
@@ -73,7 +75,7 @@ class ConfigParser(
 
         // always do report regardless of decoder result
         if (useReport) {
-          Reporter({ println(it) }, obfuscator, environment)
+          Reporter(reportPrintFn, obfuscator, environment)
             .printReport(propertySources, state, context.reports)
         }
 
