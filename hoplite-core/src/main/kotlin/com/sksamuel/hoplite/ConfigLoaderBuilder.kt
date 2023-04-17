@@ -223,7 +223,7 @@ class ConfigLoaderBuilder private constructor() {
   fun withObfusctator(obfuscator: Obfuscator): ConfigLoaderBuilder = withObfuscator(obfuscator)
   fun withObfuscator(obfuscator: Obfuscator): ConfigLoaderBuilder = apply { this.obfuscator = obfuscator }
 
-  fun withReportPrintFn(reportPrintFn: Print): ConfigLoaderBuilder = apply { this.reportPrintFn = reportPrintFn }
+  fun withReportPrintFn(reportPrintFn: (String) -> Unit): ConfigLoaderBuilder = apply { this.reportPrintFn = reportPrintFn }
 
   @ExperimentalHoplite
   fun withSecretsPolicy(secretsPolicy: SecretsPolicy) = apply { this.secretsPolicy = secretsPolicy }
