@@ -1,5 +1,9 @@
 # Changelog
 
+### 2.7.4
+
+* Add withPrintFn option to the config builder to support logging config with a user defined function
+
 ### 2.7.3
 
 * Add better yaml errors when invalid file #354
