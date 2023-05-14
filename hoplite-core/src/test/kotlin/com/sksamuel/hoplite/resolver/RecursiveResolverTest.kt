@@ -18,7 +18,7 @@ class RecursiveResolverTest : StringSpec() {
       props["foo"] = "ar"
       props["bar"] = "az"
       props["baz"] = "oat"
-      props["result"] = "b\${{ b\${{ b\${{ foo }} }} }}ymcb\${{ b\${{ b\${{ foo }} }} }}face"
+      props["result"] = "b\${{ ref:b\${{ ref:b\${{ ref:foo }} }} }}ymcb\${{ ref:b\${{ ref:b\${{ ref:foo }} }} }}face"
 
       val config = ConfigLoaderBuilder.create()
         .addPropertySource(PropsPropertySource(props))
@@ -32,7 +32,7 @@ class RecursiveResolverTest : StringSpec() {
 
       val props = Properties()
       props["foo"] = "mc"
-      props["result"] = "boaty\${{ foo }}boat\${{sysprop.bar}}"
+      props["result"] = "boaty\${{ ref:foo }}boat\${{sysprop:bar}}"
 
       val config = withSystemProperty("bar", "face") {
         ConfigLoaderBuilder.create()

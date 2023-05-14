@@ -12,7 +12,7 @@ class SystemPropertyResolverTest : FunSpec({
 
   test("should find matches") {
 
-    val node = StringNode("boaty\${{sysprop.bar}}face", Pos.NoPos, DotPath.root)
+    val node = StringNode("boaty\${{sysprop:bar}}face", Pos.NoPos, DotPath.root)
 
     val config = withSystemProperty(key = "bar", value = "mcboat") {
       SystemPropertyResolver.resolve(node, node, DecoderContext.zero)
@@ -23,7 +23,7 @@ class SystemPropertyResolverTest : FunSpec({
 
   test("support leading whitespace") {
 
-    val node = StringNode("boaty\${{  sysprop.bar}}face", Pos.NoPos, DotPath.root)
+    val node = StringNode("boaty\${{  sysprop:bar}}face", Pos.NoPos, DotPath.root)
 
     val config = withSystemProperty(key = "bar", value = "mcboat") {
       SystemPropertyResolver.resolve(node, node, DecoderContext.zero)
@@ -34,7 +34,7 @@ class SystemPropertyResolverTest : FunSpec({
 
   test("support trailing whitespace") {
 
-    val node = StringNode("boaty\${{  sysprop.bar    }}face", Pos.NoPos, DotPath.root)
+    val node = StringNode("boaty\${{  sysprop:bar    }}face", Pos.NoPos, DotPath.root)
 
     val config = withSystemProperty(key = "bar", value = "mcboat") {
       SystemPropertyResolver.resolve(node, node, DecoderContext.zero)
