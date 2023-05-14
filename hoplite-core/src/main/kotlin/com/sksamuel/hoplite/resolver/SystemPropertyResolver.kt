@@ -7,8 +7,8 @@ import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.valid
 
 /**
- * Replaces strings of the form ${{ sysprop://name }} by looking up the name as a system property.
- * Defaults can also be applied in case the system property does not exist: ${{ sysprop://name :- default }}
+ * Replaces strings of the form ${{ sysprop:name }} by looking up the name as a system property.
+ * Defaults can also be applied in case the system property does not exist: ${{ sysprop:name :- default }}
  */
 object SystemPropertyResolver : ContextResolver() {
 

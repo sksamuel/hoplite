@@ -7,8 +7,8 @@ import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.valid
 
 /**
- * Replaces strings of the form ${{ env://name }} by looking up the name as an environment variable.
- * Defaults can also be applied in case the env var does not exist: ${{ env://name :- default }}
+ * Replaces strings of the form ${{ env:name }} by looking up the name as an environment variable.
+ * Defaults can also be applied in case the env var does not exist: ${{ env:name :- default }}
  */
 object EnvVarResolver : ContextResolver() {
 

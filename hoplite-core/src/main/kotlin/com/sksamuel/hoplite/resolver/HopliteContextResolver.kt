@@ -9,9 +9,9 @@ import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.valid
 
 /**
- * Replaces strings of the form ${{ hoplite://environment }} by using the [com.sksamuel.hoplite.env.Environment] value
+ * Replaces strings of the form ${{ hoplite:environment }} by using the [com.sksamuel.hoplite.env.Environment] value
  * provided to the config loader. Defaults can also be applied in case the environment does not
- * exist, eg: ${{ hoplite://environment :- default }}
+ * exist, eg: ${{ hoplite:environment :- default }}
  */
 object HopliteContextResolver : ContextResolver() {
 
