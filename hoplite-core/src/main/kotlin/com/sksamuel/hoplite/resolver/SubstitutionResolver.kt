@@ -1,33 +1,30 @@
-@file:Suppress("RegExpRedundantEscape")
-
 package com.sksamuel.hoplite.resolver
 
 import com.sksamuel.hoplite.BooleanNode
+import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.DoubleNode
 import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.fp.Validated
+import com.sksamuel.hoplite.fp.valid
 
 /**
- * Replaces strings of the form ${{ path }} by looking up the path in the parsed config.
- * Defaults can also be applied in case the path does not exist: ${{ path:-default }}
- *
- * Note: This resolver will greedily accept inputs meant for the [EnvVarPropertyResolver] and
- * the [SystemPropertyResolver]. Therefore, this should always be registered after those.
+ * Replaces strings of the form ${{ ref://path }} by looking up the path in the parsed config.
+ * Defaults can also be applied in case the path does not exist: ${{ ref://path:-default }}
  */
-object SubstitutionResolver : RegexResolverWithDefault() {
+object SubstitutionResolver : ContextResolver() {
 
-  // redundant escaping required for Android support
-  // this regex will match most nested replacements first (inside to outside)
-  override val regex = "\\$\\{\\{([^{}]*)\\}\\}".toRegex()
+  override val contextKey = "ref"
+  override val default = true
 
-  override fun lookup(path: String, node: StringNode, root: Node, context: DecoderContext): Pair<String, StringNode> =
+  override fun lookup(path: String, node: StringNode, root: Node, context: DecoderContext): ConfigResult<String?> =
     when (val n = root.atPath(path)) {
-      is StringNode -> n.value to node
-      is LongNode -> n.value.toString() to node
-      is DoubleNode -> n.value.toString() to node
-      is BooleanNode -> n.value.toString() to node
-      else -> "null" to node
+      is StringNode -> n.value.valid()
+      is LongNode -> n.value.toString().valid()
+      is DoubleNode -> n.value.toString().valid()
+      is BooleanNode -> n.value.toString().valid()
+      else -> Validated.Valid(null)
     }
 }

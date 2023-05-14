@@ -5,6 +5,7 @@ import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.decoder.DotPath
 import com.sksamuel.hoplite.env.Environment
 import com.sksamuel.hoplite.fp.Validated
+import com.sksamuel.hoplite.resolver.ContextResolverMode
 import com.sksamuel.hoplite.resolver.Resolving
 import kotlin.reflect.KParameter
 import kotlin.reflect.KType
@@ -29,6 +30,8 @@ data class DecoderContext(
   val config: DecoderConfig = DecoderConfig(false),
   val environment: Environment? = null,
   val resolvers: Resolving = Resolving.empty,
+  // determines if we should error when a context resolver cannot find a substitution
+  val contextResolverMode: ContextResolverMode = ContextResolverMode.Error,
 ) {
 
   /**

@@ -110,6 +110,10 @@ sealed interface ConfigFailure {
     override fun description(): String = failures.map { it.description() }.list.joinToString("\n\n")
   }
 
+  data class ResolverError(val message: String) : ConfigFailure {
+    override fun description(): String = message
+  }
+
   data class NoSealedClassObjectSubtype(val type: KClass<*>, val node: StringNode) : ConfigFailure {
     override fun description(): String {
       val subclasses = type.sealedSubclasses.joinToString(", ") { it.jvmName }

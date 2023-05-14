@@ -1,23 +1,22 @@
-@file:Suppress("RegExpRedundantEscape")
-
 package com.sksamuel.hoplite.resolver
 
+import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.fp.valid
 
 /**
- * Replaces strings of the form ${{ sysprop.name }} by looking up the name as a system property.
- * Defaults can also be applied in case the system property does not exist: ${{ sysprop.name :- default }}
+ * Replaces strings of the form ${{ sysprop://name }} by looking up the name as a system property.
+ * Defaults can also be applied in case the system property does not exist: ${{ sysprop://name :- default }}
  */
-object SystemPropertyResolver : RegexResolverWithDefault() {
+object SystemPropertyResolver : ContextResolver() {
 
-  // redundant escaping required for Android support
-  // this regex will match most nested replacements first (inside to outside)
-  override val regex = "\\$\\{\\{\\s*sysprop\\.([^{}]*)\\}\\}".toRegex()
+  override val contextKey = "sysprop"
+  override val default = true
 
-  override fun lookup(path: String, node: StringNode, root: Node, context: DecoderContext): Pair<String, StringNode> {
-    return System.getProperty(path) to node
+  override fun lookup(path: String, node: StringNode, root: Node, context: DecoderContext): ConfigResult<String?> {
+    return System.getProperty(path).valid()
   }
 
 }

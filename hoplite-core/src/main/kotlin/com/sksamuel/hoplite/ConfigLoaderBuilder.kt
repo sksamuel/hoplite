@@ -13,9 +13,9 @@ import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.preprocessor.RandomPreprocessor
 import com.sksamuel.hoplite.report.Print
 import com.sksamuel.hoplite.report.Reporter
-import com.sksamuel.hoplite.resolver.EnvVarPropertyResolver
+import com.sksamuel.hoplite.resolver.EnvVarResolver
 import com.sksamuel.hoplite.resolver.Resolver
-import com.sksamuel.hoplite.resolver.ResolverMode
+import com.sksamuel.hoplite.resolver.ContextResolverMode
 import com.sksamuel.hoplite.resolver.SubstitutionResolver
 import com.sksamuel.hoplite.resolver.SystemPropertyResolver
 import com.sksamuel.hoplite.secrets.AllStringNodesSecretsPolicy
@@ -40,7 +40,7 @@ class ConfigLoaderBuilder private constructor() {
   private var cascadeMode: CascadeMode = CascadeMode.Merge
   private var allowEmptySources = false
   private var allowUnresolvedSubstitutions = false
-  private var resolverMode = ResolverMode.Error
+  private var contextResolverMode = ContextResolverMode.Error
 
   private val propertySources = mutableListOf<PropertySource>()
   private val preprocessors = mutableListOf<Preprocessor>()
@@ -155,15 +155,13 @@ class ConfigLoaderBuilder private constructor() {
    * Adds the given [Resolver] to the end of the resolvers list.
    * Adding a resolver removes all preprocessors as the two do not work together.
    */
-  fun addResolver(resolver: Resolver) = apply {
-    this.resolvers.add(resolver)
-  }
+  fun addResolver(resolver: Resolver) = addResolvers(setOf(resolver))
 
   /**
    * Adds the given [Resolver]s to the end of the resolvers list.
-   * Adding a resolver removes all preprocessors as the two do not work together.
    */
-  fun addResolvers(resolvers: Iterable<Resolver>) = apply {
+  fun addResolvers(resolvers: Iterable<Resolver>): ConfigLoaderBuilder = apply {
+    require(preprocessors.isEmpty()) { "Preprocessors cannot be used with resolvers. Preprocessors will be removed in Hoplite 3.0" }
     this.resolvers.addAll(resolvers)
   }
 
@@ -171,9 +169,7 @@ class ConfigLoaderBuilder private constructor() {
    * Adds the given [Resolver]s to the end of the resolvers list.
    * Adding a resolver removes all preprocessors as the two do not work together.
    */
-  fun addResolvers(vararg resolvers: Resolver) = apply {
-    this.resolvers.addAll(resolvers)
-  }
+  fun addResolvers(vararg resolvers: Resolver): ConfigLoaderBuilder = addResolvers(resolvers.toList())
 
   fun addPreprocessor(preprocessor: Preprocessor) = addPreprocessors(listOf(preprocessor))
 
@@ -263,8 +259,8 @@ class ConfigLoaderBuilder private constructor() {
     allowUnresolvedSubstitutions = true
   }
 
-  fun withSubstitutionMode(mode: ResolverMode) = apply {
-    resolverMode = mode
+  fun withSubstitutionMode(mode: ContextResolverMode) = apply {
+    contextResolverMode = mode
   }
 
   /**
@@ -284,7 +280,8 @@ class ConfigLoaderBuilder private constructor() {
   fun withObfusctator(obfuscator: Obfuscator): ConfigLoaderBuilder = withObfuscator(obfuscator)
   fun withObfuscator(obfuscator: Obfuscator): ConfigLoaderBuilder = apply { this.obfuscator = obfuscator }
 
-  fun withReportPrintFn(reportPrintFn: (String) -> Unit): ConfigLoaderBuilder = apply { this.reportPrintFn = reportPrintFn }
+  fun withReportPrintFn(reportPrintFn: (String) -> Unit): ConfigLoaderBuilder =
+    apply { this.reportPrintFn = reportPrintFn }
 
   @ExperimentalHoplite
   fun withSecretsPolicy(secretsPolicy: SecretsPolicy) = apply { this.secretsPolicy = secretsPolicy }
@@ -348,7 +345,7 @@ fun defaultPreprocessors(): List<Preprocessor> = listOf(
 )
 
 fun defaultResolvers(): List<Resolver> = listOf(
-  EnvVarPropertyResolver,
+  EnvVarResolver,
   SystemPropertyResolver,
   SubstitutionResolver, // has to run after env/sysprop because it is the most permissive on the syntax
 )

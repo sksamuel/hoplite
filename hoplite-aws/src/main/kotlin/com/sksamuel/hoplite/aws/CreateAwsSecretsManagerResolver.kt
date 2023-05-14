@@ -8,4 +8,4 @@ import com.sksamuel.hoplite.resolver.Resolver
 fun createAwsSecretsManagerResolver(
   report: Boolean = false,
   createClient: () -> AWSSecretsManager = { AWSSecretsManagerClientBuilder.standard().build() },
-): Resolver = CompositeResolver(AwsSecretsManagerPrefixResolver(report, createClient))
+): Resolver = TODO()// CompositeResolver(AwsSecretsManagerPrefixResolver(report, createClient))
