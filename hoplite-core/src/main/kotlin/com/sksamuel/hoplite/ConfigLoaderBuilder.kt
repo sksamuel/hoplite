@@ -13,11 +13,12 @@ import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.preprocessor.RandomPreprocessor
 import com.sksamuel.hoplite.report.Print
 import com.sksamuel.hoplite.report.Reporter
-import com.sksamuel.hoplite.resolver.EnvVarResolver
-import com.sksamuel.hoplite.resolver.Resolver
 import com.sksamuel.hoplite.resolver.ContextResolverMode
-import com.sksamuel.hoplite.resolver.SubstitutionResolver
-import com.sksamuel.hoplite.resolver.SystemPropertyResolver
+import com.sksamuel.hoplite.resolver.EnvVarContextResolver
+import com.sksamuel.hoplite.resolver.HopliteContextResolver
+import com.sksamuel.hoplite.resolver.ReferenceContextResolver
+import com.sksamuel.hoplite.resolver.Resolver
+import com.sksamuel.hoplite.resolver.SystemPropertyContextResolver
 import com.sksamuel.hoplite.secrets.AllStringNodesSecretsPolicy
 import com.sksamuel.hoplite.secrets.Obfuscator
 import com.sksamuel.hoplite.secrets.PrefixObfuscator
@@ -345,9 +346,10 @@ fun defaultPreprocessors(): List<Preprocessor> = listOf(
 )
 
 fun defaultResolvers(): List<Resolver> = listOf(
-  EnvVarResolver,
-  SystemPropertyResolver,
-  SubstitutionResolver, // has to run after env/sysprop because it is the most permissive on the syntax
+  EnvVarContextResolver,
+  SystemPropertyContextResolver,
+  ReferenceContextResolver,
+  HopliteContextResolver,
 )
 
 fun defaultParamMappers(): List<ParameterMapper> = listOf(

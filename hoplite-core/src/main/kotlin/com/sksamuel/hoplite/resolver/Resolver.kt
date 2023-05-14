@@ -10,8 +10,8 @@ import com.sksamuel.hoplite.fp.valid
 /**
  * A [Resolver] is used to modify a value before the value is applied to a field in a data config class.
  *
- * For example, a resolver may apply substitutions from elsewhere in the tree (see [SubstitutionResolver]),
- * or apply envvar overrides (see [EnvVarResolver]), or it may resolve against a secrets manager
+ * For example, a resolver may apply substitutions from elsewhere in the tree (see [ReferenceContextResolver]),
+ * or apply envvar overrides (see [EnvVarContextResolver]), or it may resolve against a secrets manager
  * such as Vault or AWS Secrets Manager.
  *
  * For a full list of out of the box resolvers see project documentation at

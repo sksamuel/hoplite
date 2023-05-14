@@ -17,8 +17,8 @@ import com.sksamuel.hoplite.fp.valid
  * Context patterns are of the form ${{ context:path }} where `context` indicates the context
  * resolver to use, and `path` is provided to that resolver for runtime resolution.
  *
- * For example, the [EnvVarResolver] will replace ${{ env:name }} with the env variable `name`,
- * and the [SystemPropertyResolver] will replace ${{ sysprop:name }} with the system property `name`.
+ * For example, the [EnvVarContextResolver] will replace ${{ env:name }} with the env variable `name`,
+ * and the [SystemPropertyContextResolver] will replace ${{ sysprop:name }} with the system property `name`.
  *
  * If the supplied context or path cannot be resolved, an error will be returned if the
  * [ContextResolverMode] is set to [ContextResolverMode.Error] (which is the default). To disable

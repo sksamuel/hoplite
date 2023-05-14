@@ -14,7 +14,7 @@ import com.sksamuel.hoplite.fp.valid
  * Replaces strings of the form ${{ ref://path }} by looking up the path in the parsed config.
  * Defaults can also be applied in case the path does not exist: ${{ ref://path:-default }}
  */
-object SubstitutionResolver : ContextResolver() {
+object ReferenceContextResolver : ContextResolver() {
 
   override val contextKey = "ref"
   override val default = true

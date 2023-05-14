@@ -21,7 +21,7 @@ class SubstitutionResolverTest : FunSpec({
     props["bar"] = "mcboat"
     val root = PropsPropertySource(props).node(PropertySourceContext(defaultParserRegistry())).getUnsafe()
 
-    val config = SubstitutionResolver.resolve(node, root, DecoderContext.zero)
+    val config = ReferenceContextResolver.resolve(node, root, DecoderContext.zero)
     (config.getUnsafe() as StringNode).value shouldBe "boatymcboatface"
   }
 
@@ -32,7 +32,7 @@ class SubstitutionResolverTest : FunSpec({
     val root = PropsPropertySource(props).node(PropertySourceContext(defaultParserRegistry())).getUnsafe()
     val node = StringNode("boaty\${{  ref:bar}}face", Pos.NoPos, DotPath.root)
 
-    val config = SubstitutionResolver.resolve(node, root, DecoderContext.zero)
+    val config = ReferenceContextResolver.resolve(node, root, DecoderContext.zero)
     (config.getUnsafe() as StringNode).value shouldBe "boatymcboatface"
   }
 
@@ -43,7 +43,7 @@ class SubstitutionResolverTest : FunSpec({
     val root = PropsPropertySource(props).node(PropertySourceContext(defaultParserRegistry())).getUnsafe()
     val node = StringNode("boaty\${{  ref:bar    }}face", Pos.NoPos, DotPath.root)
 
-    val config = SubstitutionResolver.resolve(node, root, DecoderContext.zero)
+    val config = ReferenceContextResolver.resolve(node, root, DecoderContext.zero)
     (config.getUnsafe() as StringNode).value shouldBe "boatymcboatface"
   }
 })

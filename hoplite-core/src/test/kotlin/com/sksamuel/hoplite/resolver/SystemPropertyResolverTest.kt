@@ -15,7 +15,7 @@ class SystemPropertyResolverTest : FunSpec({
     val node = StringNode("boaty\${{sysprop:bar}}face", Pos.NoPos, DotPath.root)
 
     val config = withSystemProperty(key = "bar", value = "mcboat") {
-      SystemPropertyResolver.resolve(node, node, DecoderContext.zero)
+      SystemPropertyContextResolver.resolve(node, node, DecoderContext.zero)
     }
 
     (config.getUnsafe() as StringNode).value shouldBe "boatymcboatface"
@@ -26,7 +26,7 @@ class SystemPropertyResolverTest : FunSpec({
     val node = StringNode("boaty\${{  sysprop:bar}}face", Pos.NoPos, DotPath.root)
 
     val config = withSystemProperty(key = "bar", value = "mcboat") {
-      SystemPropertyResolver.resolve(node, node, DecoderContext.zero)
+      SystemPropertyContextResolver.resolve(node, node, DecoderContext.zero)
     }
 
     (config.getUnsafe() as StringNode).value shouldBe "boatymcboatface"
@@ -37,7 +37,7 @@ class SystemPropertyResolverTest : FunSpec({
     val node = StringNode("boaty\${{  sysprop:bar    }}face", Pos.NoPos, DotPath.root)
 
     val config = withSystemProperty(key = "bar", value = "mcboat") {
-      SystemPropertyResolver.resolve(node, node, DecoderContext.zero)
+      SystemPropertyContextResolver.resolve(node, node, DecoderContext.zero)
     }
 
     (config.getUnsafe() as StringNode).value shouldBe "boatymcboatface"

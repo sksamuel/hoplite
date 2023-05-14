@@ -10,7 +10,7 @@ import com.sksamuel.hoplite.fp.valid
  * Replaces strings of the form ${{ env:name }} by looking up the name as an environment variable.
  * Defaults can also be applied in case the env var does not exist: ${{ env:name :- default }}
  */
-object EnvVarResolver : ContextResolver() {
+object EnvVarContextResolver : ContextResolver() {
 
   override val contextKey: String = "env"
   override val default: Boolean = true
