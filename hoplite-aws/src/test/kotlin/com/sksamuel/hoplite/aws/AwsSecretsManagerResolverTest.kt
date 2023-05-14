@@ -39,7 +39,7 @@ class AwsSecretsManagerResolverTest : FunSpec() {
 
     test("placeholder should be detected and used") {
       val props = Properties()
-      props["a"] = "awssecretsmanager://foo"
+      props["a"] = "\${{ aws-secrets-manager:foo }}"
       ConfigLoaderBuilder.create()
         .addResolver(createAwsSecretsManagerResolver { client })
         .addPropertySource(PropsPropertySource(props))
@@ -50,7 +50,7 @@ class AwsSecretsManagerResolverTest : FunSpec() {
 
     test("unknown secret should return error and include key") {
       val props = Properties()
-      props["a"] = "awssecretsmanager://qwerty"
+      props["a"] = "\${{ aws-secrets-manager:qwerty }}"
       ConfigLoaderBuilder.create()
         .addResolver(createAwsSecretsManagerResolver { client })
         .addPropertySource(PropsPropertySource(props))
@@ -61,7 +61,7 @@ class AwsSecretsManagerResolverTest : FunSpec() {
 
     test("empty secret should return error and include empty secret message") {
       val props = Properties()
-      props["a"] = "awssecretsmanager://bibblebobble"
+      props["a"] = "\${{ aws-secrets-manager:bibblebobble }}"
       client.createSecret(CreateSecretRequest().withName("bibblebobble").withSecretString(""))
       ConfigLoaderBuilder.create()
         .addResolver(createAwsSecretsManagerResolver { client })
@@ -73,19 +73,20 @@ class AwsSecretsManagerResolverTest : FunSpec() {
 
     test("unknown secret should return error and not include prefix") {
       val props = Properties()
-      props["a"] = "awssecretsmanager://unkunk"
+      props["a"] = "\${{ aws-secrets-manager:unkunk }}"
       ConfigLoaderBuilder.create()
         .addResolver(createAwsSecretsManagerResolver { client })
         .addPropertySource(PropsPropertySource(props))
         .build()
         .loadConfig<ConfigHolder>()
-        .shouldBeInstanceOf<Validated.Invalid<ConfigFailure>>().error.description().shouldNotContain("awssecretsmanager://")
+        .shouldBeInstanceOf<Validated.Invalid<ConfigFailure>>().error.description()
+        .shouldNotContain("aws-secrets-manager://")
     }
 
     test("multiple errors should be returned at once") {
       val props = Properties()
-      props["a"] = "awssecretsmanager://foo.bar"
-      props["b"] = "awssecretsmanager://bar.baz"
+      props["a"] = "\${{ aws-secrets-manager:foo.bar }}"
+      props["b"] = "\${{ aws-secrets-manager:bar.baz }}"
       shouldThrow<ConfigException> {
         ConfigLoaderBuilder.create()
           .addResolver(createAwsSecretsManagerResolver { client })
@@ -97,7 +98,7 @@ class AwsSecretsManagerResolverTest : FunSpec() {
 
     test("should support index keys") {
       val props = Properties()
-      props["a"] = "awssecretsmanager://bubble[f]"
+      props["a"] = "\${{ aws-secrets-manager:bubble[f] }}"
       ConfigLoaderBuilder.create()
         .addResolver(createAwsSecretsManagerResolver { client })
         .addPropertySource(PropsPropertySource(props))

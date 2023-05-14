@@ -61,7 +61,7 @@ class AwsOps(private val client: AWSSecretsManager) {
           ConfigFailure.ResolverError(
             "Index '$index' not present in AWS secret '${result.name}'. Present keys are ${map.keys.joinToString(",")}"
           ).invalid()
-        else secret.valid()
+        else indexedValue.valid()
       }
     }
   }

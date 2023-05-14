@@ -10,12 +10,13 @@ import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.resolver.ContextResolver
 
 abstract class AwsSecretsManagerRegexResolver(
-   private val report: Boolean = false,
-   createClient: () -> AWSSecretsManager = { AWSSecretsManagerClientBuilder.standard().build() },
+  private val report: Boolean = false,
+  createClient: () -> AWSSecretsManager = { AWSSecretsManagerClientBuilder.standard().build() },
 ) : ContextResolver() {
 
-  private val client = createClient()
-  private val ops = AwsOps(client)
+  // should stay lazy so still be added to config even when not used, eg locally
+  private val client by lazy { createClient() }
+  private val ops by lazy { AwsOps(client) }
 
   override fun lookup(path: String, node: StringNode, root: Node, context: DecoderContext): ConfigResult<String?> {
     val (key, index) = ops.extractIndex(path)

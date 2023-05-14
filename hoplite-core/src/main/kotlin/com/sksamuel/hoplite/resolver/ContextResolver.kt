@@ -14,11 +14,11 @@ import com.sksamuel.hoplite.fp.valid
 /**
  * A [ContextResolver] applies substitutions to context patterns in a [StringNode]'s value.
  *
- * Context patterns are of the form ${{ context.path }} where `context` indicates the context
+ * Context patterns are of the form ${{ context:path }} where `context` indicates the context
  * resolver to use, and `path` is provided to that resolver for runtime resolution.
  *
- * For example, the [EnvVarResolver] will replace ${{ env.name }} with the env variable `name`,
- * and the [SystemPropertyResolver] will replace ${{ sysprop.name }} with the system property `name`.
+ * For example, the [EnvVarResolver] will replace ${{ env:name }} with the env variable `name`,
+ * and the [SystemPropertyResolver] will replace ${{ sysprop:name }} with the system property `name`.
  *
  * If the supplied context or path cannot be resolved, an error will be returned if the
  * [ContextResolverMode] is set to [ContextResolverMode.Error] (which is the default). To disable
@@ -31,7 +31,7 @@ abstract class ContextResolver : Resolver {
 
   // this regex will match most nested replacements first (inside to outside)
   // redundant escaping required for Android support
-  fun regex() = "\\$\\{\\{\\s*$contextKey://([^{}]*)\\}\\}".toRegex()
+  fun regex() = "\\$\\{\\{\\s*$contextKey:([^{}]*)\\}\\}".toRegex()
 
   private val valueWithDefaultRegex = "(.+):-(.+)".toRegex()
 
