@@ -13,6 +13,12 @@ import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.preprocessor.RandomPreprocessor
 import com.sksamuel.hoplite.report.Print
 import com.sksamuel.hoplite.report.Reporter
+import com.sksamuel.hoplite.resolver.ContextResolverMode
+import com.sksamuel.hoplite.resolver.EnvVarContextResolver
+import com.sksamuel.hoplite.resolver.HopliteContextResolver
+import com.sksamuel.hoplite.resolver.ReferenceContextResolver
+import com.sksamuel.hoplite.resolver.Resolver
+import com.sksamuel.hoplite.resolver.SystemPropertyContextResolver
 import com.sksamuel.hoplite.secrets.AllStringNodesSecretsPolicy
 import com.sksamuel.hoplite.secrets.Obfuscator
 import com.sksamuel.hoplite.secrets.PrefixObfuscator
@@ -35,9 +41,11 @@ class ConfigLoaderBuilder private constructor() {
   private var cascadeMode: CascadeMode = CascadeMode.Merge
   private var allowEmptySources = false
   private var allowUnresolvedSubstitutions = false
+  private var contextResolverMode = ContextResolverMode.Error
 
   private val propertySources = mutableListOf<PropertySource>()
   private val preprocessors = mutableListOf<Preprocessor>()
+  private val resolvers = mutableListOf<Resolver>()
   private val paramMappers = mutableListOf<ParameterMapper>()
   private val parsers = mutableMapOf<String, Parser>()
   private val decoders = mutableListOf<Decoder<*>>()
@@ -66,6 +74,24 @@ class ConfigLoaderBuilder private constructor() {
       return empty()
         .addDefaultDecoders()
         .addDefaultPreprocessors()
+        .addDefaultParamMappers()
+        .addDefaultPropertySources()
+        .addDefaultParsers()
+    }
+
+    /**
+     * Returns a [ConfigLoaderBuilder] with all defaults applied.
+     *
+     * This means that the default [Decoder]s, [Resolver]s, [ParameterMapper]s, [PropertySource]s,
+     * and [Parser]s are all registered.
+     *
+     * If you wish to avoid adding defaults, for example to avoid certain decoders or sources, then
+     * use [empty] to obtain an empty ConfigLoaderBuilder and call the various addDefault methods manually.
+     */
+    fun create(): ConfigLoaderBuilder {
+      return empty()
+        .addDefaultDecoders()
+        .addDefaultResolvers()
         .addDefaultParamMappers()
         .addDefaultPropertySources()
         .addDefaultParsers()
@@ -120,7 +146,34 @@ class ConfigLoaderBuilder private constructor() {
    */
   fun addDefaultDecoders() = addDecoders(ServiceLoader.load(Decoder::class.java, classLoader))
 
+  /**
+   * Adds the default [Resolver]s to the end of the resolvers list.
+   * Adding a resolver removes all preprocessors as the two do not work together.
+   */
+  fun addDefaultResolvers() = addResolvers(defaultResolvers())
+
+  /**
+   * Adds the given [Resolver] to the end of the resolvers list.
+   * Adding a resolver removes all preprocessors as the two do not work together.
+   */
+  fun addResolver(resolver: Resolver) = addResolvers(setOf(resolver))
+
+  /**
+   * Adds the given [Resolver]s to the end of the resolvers list.
+   */
+  fun addResolvers(resolvers: Iterable<Resolver>): ConfigLoaderBuilder = apply {
+    require(preprocessors.isEmpty()) { "Preprocessors cannot be used with resolvers. Preprocessors will be removed in Hoplite 3.0" }
+    this.resolvers.addAll(resolvers)
+  }
+
+  /**
+   * Adds the given [Resolver]s to the end of the resolvers list.
+   * Adding a resolver removes all preprocessors as the two do not work together.
+   */
+  fun addResolvers(vararg resolvers: Resolver): ConfigLoaderBuilder = addResolvers(resolvers.toList())
+
   fun addPreprocessor(preprocessor: Preprocessor) = addPreprocessors(listOf(preprocessor))
+
   fun addPreprocessors(preprocessors: Iterable<Preprocessor>): ConfigLoaderBuilder = apply {
     this.preprocessors.addAll(preprocessors)
   }
@@ -202,8 +255,13 @@ class ConfigLoaderBuilder private constructor() {
   /**
    * When enabled, allows placeholder substitutions like ${foo} not to cause an error if they are not resolvable.
    */
+  @Deprecated("Use SubstitutionMode")
   fun allowUnresolvedSubstitutions(): ConfigLoaderBuilder = apply {
     allowUnresolvedSubstitutions = true
+  }
+
+  fun withSubstitutionMode(mode: ContextResolverMode) = apply {
+    contextResolverMode = mode
   }
 
   /**
@@ -223,7 +281,8 @@ class ConfigLoaderBuilder private constructor() {
   fun withObfusctator(obfuscator: Obfuscator): ConfigLoaderBuilder = withObfuscator(obfuscator)
   fun withObfuscator(obfuscator: Obfuscator): ConfigLoaderBuilder = apply { this.obfuscator = obfuscator }
 
-  fun withReportPrintFn(reportPrintFn: (String) -> Unit): ConfigLoaderBuilder = apply { this.reportPrintFn = reportPrintFn }
+  fun withReportPrintFn(reportPrintFn: (String) -> Unit): ConfigLoaderBuilder =
+    apply { this.reportPrintFn = reportPrintFn }
 
   @ExperimentalHoplite
   fun withSecretsPolicy(secretsPolicy: SecretsPolicy) = apply { this.secretsPolicy = secretsPolicy }
@@ -257,6 +316,7 @@ class ConfigLoaderBuilder private constructor() {
       preprocessors = preprocessors.toList(),
       paramMappers = paramMappers.toList(),
       onFailure = failureCallbacks.toList(),
+      resolvers = resolvers,
       decodeMode = decodeMode,
       useReport = useReport,
       allowEmptyTree = allowEmptySources,
@@ -279,10 +339,17 @@ fun defaultPropertySources(): List<PropertySource> = listOfNotNull(
   XdgConfigPropertySource,
 )
 
-fun defaultPreprocessors() = listOf(
+fun defaultPreprocessors(): List<Preprocessor> = listOf(
   EnvOrSystemPropertyPreprocessor,
   RandomPreprocessor,
-  LookupPreprocessor
+  LookupPreprocessor,
+)
+
+fun defaultResolvers(): List<Resolver> = listOf(
+  EnvVarContextResolver,
+  SystemPropertyContextResolver,
+  ReferenceContextResolver,
+  HopliteContextResolver,
 )
 
 fun defaultParamMappers(): List<ParameterMapper> = listOf(

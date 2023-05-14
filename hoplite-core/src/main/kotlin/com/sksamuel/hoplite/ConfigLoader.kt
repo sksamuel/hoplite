@@ -12,6 +12,7 @@ import com.sksamuel.hoplite.internal.DecodeMode
 import com.sksamuel.hoplite.parsers.ParserRegistry
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.report.Print
+import com.sksamuel.hoplite.resolver.Resolver
 import com.sksamuel.hoplite.secrets.Obfuscator
 import com.sksamuel.hoplite.secrets.PrefixObfuscator
 import com.sksamuel.hoplite.secrets.SecretsPolicy
@@ -39,6 +40,7 @@ class ConfigLoader(
   val obfuscator: Obfuscator? = null,
   val reportPrintFn: Print? = null,
   val flattenArraysToString: Boolean = false,
+  val resolvers: List<Resolver> = emptyList(),
 ) {
 
   companion object {
@@ -159,6 +161,7 @@ class ConfigLoader(
       obfuscator = obfuscator ?: PrefixObfuscator(3),
       reportPrintFn = reportPrintFn ?: { println(it) },
       environment = environment,
+      resolvers = resolvers,
     ).decode(kclass, environment, resourceOrFiles, propertySources, configSources)
   }
 
@@ -209,6 +212,7 @@ class ConfigLoader(
       obfuscator = StrictObfuscator("*"),  // not used when loading nodes
       reportPrintFn = reportPrintFn ?: { }, // not used when loading nodes
       environment = environment,
+      resolvers = resolvers,
     ).load(resourceOrFiles, propertySources, configSources)
   }
 

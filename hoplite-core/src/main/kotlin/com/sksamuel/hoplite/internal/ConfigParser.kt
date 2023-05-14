@@ -18,6 +18,8 @@ import com.sksamuel.hoplite.parsers.ParserRegistry
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.report.Print
 import com.sksamuel.hoplite.report.Reporter
+import com.sksamuel.hoplite.resolver.Resolver
+import com.sksamuel.hoplite.resolver.Resolving
 import com.sksamuel.hoplite.secrets.Obfuscator
 import com.sksamuel.hoplite.secrets.SecretsPolicy
 import kotlin.reflect.KClass
@@ -29,6 +31,7 @@ class ConfigParser(
   cascadeMode: CascadeMode,
   preprocessors: List<Preprocessor>,
   preprocessingIterations: Int,
+  private val resolvers: List<Resolver>,
   private val decoderRegistry: DecoderRegistry,
   private val paramMappers: List<ParameterMapper>,
   private val flattenArraysToString: Boolean,
@@ -46,6 +49,16 @@ class ConfigParser(
   private val preprocessing = Preprocessing(preprocessors, preprocessingIterations)
   private val decoding = Decoding(decoderRegistry, secretsPolicy)
 
+  private fun context(root: Node): DecoderContext {
+    return DecoderContext(
+      decoders = decoderRegistry,
+      paramMappers = paramMappers,
+      config = DecoderConfig(flattenArraysToString),
+      environment = environment,
+      resolvers = Resolving(resolvers, root)
+    )
+  }
+
   fun <A : Any> decode(
     kclass: KClass<A>,
     environment: Environment?,
@@ -57,21 +70,14 @@ class ConfigParser(
     if (decoderRegistry.size == 0)
       return ConfigFailure.EmptyDecoderRegistry.invalid()
 
-    val context = DecoderContext(
-      decoders = decoderRegistry,
-      paramMappers = paramMappers,
-      config = DecoderConfig(flattenArraysToString),
-      environment = environment,
-    )
+    return loader.loadNodes(propertySources, configSources, resourceOrFiles).flatMap { nodes ->
+      cascader.cascade(nodes).flatMap { node ->
+        val context = context(node)
+        preprocessing.preprocess(node, context).flatMap { preprocessed ->
+          check(preprocessed).flatMap {
 
-    return loader.loadNodes(propertySources, configSources, resourceOrFiles)
-      .flatMap { cascader.cascade(it) }
-      .flatMap { preprocessing.preprocess(it, context) }
-      .flatMap { if (allowUnresolvedSubstitutions) it.valid() else UnresolvedSubstitutionChecker.process(it) }
-      .flatMap { preprocessed ->
-
-        val decoded = decoding.decode(kclass, preprocessed, decodeMode, context)
-        val state = createDecodingState(preprocessed, context, secretsPolicy)
+            val decoded = decoding.decode(kclass, preprocessed, decodeMode, context)
+            val state = createDecodingState(preprocessed, context, secretsPolicy)
 
         // always do report regardless of decoder result
         if (useReport) {
@@ -79,9 +85,11 @@ class ConfigParser(
             .printReport(propertySources, state, context.reports)
         }
 
-        decoded
+            decoded
+          }
+        }
       }
-
+    }
   }
 
   fun load(
@@ -89,17 +97,21 @@ class ConfigParser(
     propertySources: List<PropertySource>,
     configSources: List<ConfigSource>,
   ): ConfigResult<Node> {
+    return loader.loadNodes(propertySources, configSources, resourceOrFiles).flatMap { nodes ->
+      cascader.cascade(nodes).flatMap { node ->
+        val context = context(node)
+        preprocessing.preprocess(node, context).flatMap { preprocessed ->
+          if (allowUnresolvedSubstitutions) preprocessed.valid() else UnresolvedSubstitutionChecker.process(preprocessed)
+        }
+      }
+    }
+  }
 
-    val context = DecoderContext(
-      decoders = decoderRegistry,
-      paramMappers = paramMappers,
-      config = DecoderConfig(flattenArraysToString),
-      environment = environment,
-    )
-
-    return loader.loadNodes(propertySources, configSources, resourceOrFiles)
-      .flatMap { cascader.cascade(it) }
-      .flatMap { preprocessing.preprocess(it, context) }
-      .flatMap { if (allowUnresolvedSubstitutions) it.valid() else UnresolvedSubstitutionChecker.process(it) }
+  private fun check(node: Node): ConfigResult<Node> {
+    // if resolvers is not empty, we don't use allowUnresolvedSubstitutions, but instead the resolver mode setting
+    return if (allowUnresolvedSubstitutions || resolvers.isNotEmpty())
+      node.valid()
+    else
+      UnresolvedSubstitutionChecker.process(node)
   }
 }

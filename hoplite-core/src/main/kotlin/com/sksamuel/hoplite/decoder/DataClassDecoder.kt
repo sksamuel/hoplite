@@ -16,6 +16,7 @@ import com.sksamuel.hoplite.fp.sequence
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.isDefined
 import com.sksamuel.hoplite.simpleName
+import kotlinx.coroutines.runBlocking
 import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -84,6 +85,7 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
         names.forEach {
           context.usedPaths.add(node.atKey(it).path)
         }
+
         val n = names.fold<String, Node>(Undefined) { n, name ->
           if (n.isDefined) n else {
             usedName = name
@@ -95,10 +97,16 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
           // if we have no value for this parameter at all, and it is optional we can skip it, and
           // kotlin will use the default
           param.isOptional && n is Undefined -> null
-          else -> context.decoder(param)
-            .flatMap { it.decode(n, param.type, context) }
-            .map { Arg(param, usedName, it, n) }
-            .mapInvalid { ConfigFailure.ParamFailure(param, it) }
+          else ->
+            context.decoder(param).flatMap { decoder ->
+              runBlocking {
+                context.resolvers.resolve(n, context).flatMap { resolvedNode ->
+                  decoder.decode(resolvedNode, param.type, context).map { decoded ->
+                    Arg(param, usedName, decoded, n)
+                  }
+                }
+              }
+            }.mapInvalid { ConfigFailure.ParamFailure(param, it) }
         }
       }.sequence()
 

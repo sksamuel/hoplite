@@ -64,9 +64,6 @@ object CommonMetadata {
   const val RemoteLookup = "RemoteLookup"
 }
 
-fun Node.remoteLookup(): String? = meta[CommonMetadata.RemoteLookup]?.toString()
-fun Node.unprocessedValue(): String? = meta[CommonMetadata.UnprocessedValue]?.toString()
-
 /**
  * Returnes true if this node is not [Undefined]
  */
@@ -90,15 +87,15 @@ fun Node.withPath(path: DotPath): Node = when (this) {
 /**
  * Copies this node, adding in the given metadata key/value.
  */
-fun Node.withMeta(key: String, value: Any?): Node = when (this) {
-  is ArrayNode -> copy(meta = meta + Pair(key, value))
-  is MapNode -> copy(meta = meta + Pair(key, value))
-  is BooleanNode -> copy(meta = meta + Pair(key, value))
-  is NullNode -> copy(meta = meta + Pair(key, value))
-  is DoubleNode -> copy(meta = meta + Pair(key, value))
-  is LongNode -> copy(meta = meta + Pair(key, value))
-  is StringNode -> copy(meta = meta + Pair(key, value))
-  Undefined -> Undefined
+fun <T : Node> T.withMeta(key: String, value: Any?): T = when (this) {
+  is ArrayNode -> copy(meta = meta + Pair(key, value)) as T
+  is MapNode -> copy(meta = meta + Pair(key, value)) as T
+  is BooleanNode -> copy(meta = meta + Pair(key, value)) as T
+  is NullNode -> copy(meta = meta + Pair(key, value)) as T
+  is DoubleNode -> copy(meta = meta + Pair(key, value)) as T
+  is LongNode -> copy(meta = meta + Pair(key, value)) as T
+  is StringNode -> copy(meta = meta + Pair(key, value)) as T
+  else -> Undefined as T
 }
 
 /**

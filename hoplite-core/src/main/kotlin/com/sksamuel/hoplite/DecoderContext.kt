@@ -5,6 +5,8 @@ import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.decoder.DotPath
 import com.sksamuel.hoplite.env.Environment
 import com.sksamuel.hoplite.fp.Validated
+import com.sksamuel.hoplite.resolver.ContextResolverMode
+import com.sksamuel.hoplite.resolver.Resolving
 import kotlin.reflect.KParameter
 import kotlin.reflect.KType
 
@@ -27,6 +29,9 @@ data class DecoderContext(
   val reports: MutableMap<String, List<Map<String, Any?>>> = mutableMapOf(),
   val config: DecoderConfig = DecoderConfig(false),
   val environment: Environment? = null,
+  val resolvers: Resolving = Resolving.empty,
+  // determines if we should error when a context resolver cannot find a substitution
+  val contextResolverMode: ContextResolverMode = ContextResolverMode.Error,
 ) {
 
   /**
@@ -52,13 +57,17 @@ data class DecoderContext(
     metadata[key] = value
   }
 
+  /**
+   * Adds the given row to the named [section] in the report.
+   */
   fun report(section: String, row: Map<String, Any?>) {
     val rows = reports.getOrPut(section) { emptyList() }
     reports[section] = (rows + row).distinct()
   }
 
   companion object {
-    val zero = DecoderContext(DecoderRegistry.zero, emptyList(), mutableSetOf())
+    val zero =
+      DecoderContext(DecoderRegistry.zero, emptyList(), mutableSetOf(), resolvers = Resolving(emptyList(), Undefined))
   }
 }
 
