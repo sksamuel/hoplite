@@ -9,7 +9,6 @@ import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.decoder.DotPath
 import java.util.Properties
 
-@Suppress("UNCHECKED_CAST")
 fun Properties.toNode(source: String, delimiter: String = ".") = asIterable().toNode(
   source = source,
   keyExtractor = { it.key.toString() },
@@ -17,7 +16,6 @@ fun Properties.toNode(source: String, delimiter: String = ".") = asIterable().to
   delimiter = delimiter,
 )
 
-@Suppress("UNCHECKED_CAST")
 fun <T : Any> Map<String, T?>.toNode(source: String, delimiter: String = ".") = entries.toNode(
   source = source,
   keyExtractor = { it.key },
@@ -30,7 +28,6 @@ data class Element(
   var value: Any? = null,
 )
 
-@Suppress("UNCHECKED_CAST")
 private fun <T> Iterable<T>.toNode(
   source: String,
   keyExtractor: (T) -> String,
