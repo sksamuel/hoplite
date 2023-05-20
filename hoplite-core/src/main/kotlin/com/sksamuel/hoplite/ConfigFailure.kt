@@ -83,7 +83,7 @@ sealed interface ConfigFailure {
   }
 
   data class PropertySourceFailure(val msg: String, val cause: Throwable?) : ConfigFailure {
-    override fun description(): String = msg + " " + cause
+    override fun description(): String = "$msg $cause"
   }
 
   data class DataClassWithoutConstructor(val kclass: KClass<*>) : ConfigFailure {
