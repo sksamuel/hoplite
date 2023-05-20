@@ -1,7 +1,6 @@
 package com.sksamuel.hoplite.decoder
 
 import com.sksamuel.hoplite.ConfigLoader
-import com.sksamuel.hoplite.decoder.BasicPrincipal
 import io.kotest.matchers.shouldBe
 import io.kotest.core.spec.style.StringSpec
 import java.security.Principal
