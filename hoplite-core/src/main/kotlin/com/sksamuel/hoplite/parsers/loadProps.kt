@@ -54,7 +54,7 @@ private fun <T> Iterable<T>.toNode(
     is Element -> when {
       value != null && values.isEmpty() -> value?.transform(path) ?: Undefined
       else -> MapNode(
-        map = values.takeUnless { it.isEmpty() }?.mapValues { it.value.transform(path.with(it.key)) } ?: emptyMap(),
+        map = values.takeUnless { it.isEmpty() }?.mapValues { it.value.transform(path.with(it.key)) }.orEmpty(),
         pos = pos,
         path = path,
         value = value?.transform(path) ?: Undefined,
@@ -73,7 +73,7 @@ private fun <T> Iterable<T>.toNode(
     is Map<*, *> -> MapNode(
       map = takeUnless { it.isEmpty() }?.mapNotNull { entry ->
         entry.value?.let { entry.key.toString() to it.transform(path.with(entry.key.toString())) }
-      }?.toMap() ?: emptyMap(),
+      }?.toMap().orEmpty(),
       pos = pos,
       path = path,
     )
