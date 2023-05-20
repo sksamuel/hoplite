@@ -92,11 +92,11 @@ enum class CascadeMode {
 
 data class CascadeResult(
   val node: Node,
-  val overrides: List<OverridePath> = emptyList(),
+  val overrides: List<OverridePath> = emptyList()
 )
 
 data class OverridePath(
   val path: DotPath,
   val overridePos: Pos,
-  val overridenPos: Pos,
+  val overridenPos: Pos
 )

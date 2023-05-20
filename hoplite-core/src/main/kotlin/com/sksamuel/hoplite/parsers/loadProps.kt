@@ -9,28 +9,25 @@ import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.decoder.DotPath
 import java.util.Properties
 
-@Suppress("UNCHECKED_CAST")
 fun Properties.toNode(source: String, delimiter: String = ".") = asIterable().toNode(
   source = source,
   keyExtractor = { it.key.toString() },
   valueExtractor = { it.value },
-  delimiter = delimiter,
+  delimiter = delimiter
 )
 
-@Suppress("UNCHECKED_CAST")
 fun <T : Any> Map<String, T?>.toNode(source: String, delimiter: String = ".") = entries.toNode(
   source = source,
   keyExtractor = { it.key },
   valueExtractor = { it.value },
-  delimiter = delimiter,
+  delimiter = delimiter
 )
 
 data class Element(
   val values: MutableMap<String, Element> = hashMapOf(),
-  var value: Any? = null,
+  var value: Any? = null
 )
 
-@Suppress("UNCHECKED_CAST")
 private fun <T> Iterable<T>.toNode(
   source: String,
   keyExtractor: (T) -> String,
@@ -45,7 +42,7 @@ private fun <T> Iterable<T>.toNode(
     val segments = key.split(delimiter)
 
     segments.foldIndexed(map) { index, element, segment ->
-      element.values.computeIfAbsent(segment) { Element() }.also {
+      element.values.getOrPut(segment) { Element() }.also {
         if (index == segments.size - 1) it.value = value
       }
     }
@@ -57,28 +54,28 @@ private fun <T> Iterable<T>.toNode(
     is Element -> when {
       value != null && values.isEmpty() -> value?.transform(path) ?: Undefined
       else -> MapNode(
-        map = values.takeUnless { it.isEmpty() }?.mapValues { it.value.transform(path.with(it.key)) } ?: emptyMap(),
+        map = values.takeUnless { it.isEmpty() }?.mapValues { it.value.transform(path.with(it.key)) }.orEmpty(),
         pos = pos,
         path = path,
-        value = value?.transform(path) ?: Undefined,
+        value = value?.transform(path) ?: Undefined
       )
     }
     is Array<*> -> ArrayNode(
       elements = mapNotNull { it?.transform(path) },
       pos = pos,
-      path = path,
+      path = path
     )
     is Collection<*> -> ArrayNode(
       elements = mapNotNull { it?.transform(path) },
       pos = pos,
-      path = path,
+      path = path
     )
     is Map<*, *> -> MapNode(
       map = takeUnless { it.isEmpty() }?.mapNotNull { entry ->
         entry.value?.let { entry.key.toString() to it.transform(path.with(entry.key.toString())) }
-      }?.toMap() ?: emptyMap(),
+      }?.toMap().orEmpty(),
       pos = pos,
-      path = path,
+      path = path
     )
     else -> StringNode(this.toString(), pos, path = path, emptyMap())
   }

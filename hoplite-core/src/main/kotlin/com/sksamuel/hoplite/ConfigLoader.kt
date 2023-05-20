@@ -40,7 +40,7 @@ class ConfigLoader(
   val obfuscator: Obfuscator? = null,
   val reportPrintFn: Print? = null,
   val flattenArraysToString: Boolean = false,
-  val resolvers: List<Resolver> = emptyList(),
+  val resolvers: List<Resolver> = emptyList()
 ) {
 
   companion object {
@@ -90,7 +90,7 @@ class ConfigLoader(
    */
   inline fun <reified A : Any> loadConfigOrThrow(
     resourceOrFiles: List<String>,
-    classpathResourceLoader: ClasspathResourceLoader = ConfigSource.Companion::class.java.toClasspathResourceLoader(),
+    classpathResourceLoader: ClasspathResourceLoader = ConfigSource.Companion::class.java.toClasspathResourceLoader()
   ): A = loadConfig<A>(resourceOrFiles, classpathResourceLoader).returnOrThrow()
 
   /**
@@ -111,7 +111,7 @@ class ConfigLoader(
    */
   inline fun <reified A : Any> loadConfig(
     vararg resourceOrFiles: String,
-    classpathResourceLoader: ClasspathResourceLoader = ConfigSource.Companion::class.java.toClasspathResourceLoader(),
+    classpathResourceLoader: ClasspathResourceLoader = ConfigSource.Companion::class.java.toClasspathResourceLoader()
   ): ConfigResult<A> = loadConfig(resourceOrFiles.toList(), classpathResourceLoader)
 
   /**
@@ -124,7 +124,7 @@ class ConfigLoader(
    */
   inline fun <reified A : Any> loadConfig(
     resourceOrFiles: List<String>,
-    classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader(),
+    classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader()
   ): ConfigResult<A> = loadConfig(A::class, emptyList(), resourceOrFiles, classpathResourceLoader)
 
   /**
@@ -141,7 +141,7 @@ class ConfigLoader(
     kclass: KClass<A>,
     configSources: List<ConfigSource>,
     resourceOrFiles: List<String>,
-    classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader(),
+    classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader()
   ): ConfigResult<A> {
     require(kclass.isData) { "Can only decode into data classes [was ${kclass}]" }
     return ConfigParser(
@@ -161,7 +161,7 @@ class ConfigLoader(
       obfuscator = obfuscator ?: PrefixObfuscator(3),
       reportPrintFn = reportPrintFn ?: { println(it) },
       environment = environment,
-      resolvers = resolvers,
+      resolvers = resolvers
     ).decode(kclass, environment, resourceOrFiles, propertySources, configSources)
   }
 
@@ -185,7 +185,7 @@ class ConfigLoader(
    */
   fun loadNodeOrThrow(
     resourceOrFiles: List<String>,
-    classpathResourceLoader: ClasspathResourceLoader = ConfigLoader::class.java.toClasspathResourceLoader(),
+    classpathResourceLoader: ClasspathResourceLoader = ConfigLoader::class.java.toClasspathResourceLoader()
   ): Node = loadNode(resourceOrFiles, emptyList(), classpathResourceLoader).returnOrThrow()
 
   fun loadNode(vararg resourceOrFiles: String): ConfigResult<Node> = loadNode(resourceOrFiles.toList())
@@ -193,7 +193,7 @@ class ConfigLoader(
   fun loadNode(
     resourceOrFiles: List<String>,
     configSources: List<ConfigSource> = emptyList(),
-    classpathResourceLoader: ClasspathResourceLoader = ConfigLoader::class.java.toClasspathResourceLoader(),
+    classpathResourceLoader: ClasspathResourceLoader = ConfigLoader::class.java.toClasspathResourceLoader()
   ): ConfigResult<Node> {
     return ConfigParser(
       classpathResourceLoader = classpathResourceLoader,
@@ -212,7 +212,7 @@ class ConfigLoader(
       obfuscator = StrictObfuscator("*"),  // not used when loading nodes
       reportPrintFn = reportPrintFn ?: { }, // not used when loading nodes
       environment = environment,
-      resolvers = resolvers,
+      resolvers = resolvers
     ).load(resourceOrFiles, propertySources, configSources)
   }
 

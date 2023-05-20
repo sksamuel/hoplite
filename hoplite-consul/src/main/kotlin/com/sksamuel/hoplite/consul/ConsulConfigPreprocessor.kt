@@ -24,7 +24,7 @@ import java.util.Optional
 class ConsulConfigPreprocessor(
   private val url: String,
   private val report: Boolean = false,
-  private val configure: (Consul.Builder) -> Unit = {},
+  private val configure: (Consul.Builder) -> Unit = {}
 ) : TraversingPrimitivePreprocessor() {
 
   private val client by lazy { createClient() }

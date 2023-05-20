@@ -12,7 +12,7 @@ import com.sksamuel.hoplite.parsers.toNode
  * An implementation of [PropertySource] that simply wraps a [Map].
  */
 class MapPropertySource(
-  private val map: Map<String, Any?>,
+  private val map: Map<String, Any?>
 ) : PropertySource {
 
   override fun source(): String = "Provided Map"

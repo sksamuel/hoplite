@@ -73,6 +73,6 @@ val StandardSecretsPolicy = CompositeSecretsPolicy(
   setOf(
     MetadataSecretPolicy,
     ByNameSecretsPolicy(defaultSecretNames),
-    SecretTypeSecretsPolicy,
+    SecretTypeSecretsPolicy
   )
 )

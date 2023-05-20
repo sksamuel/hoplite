@@ -48,11 +48,11 @@ class StrictModeTest : FunSpec() {
 
       data class Bar(
         val x: String,
-        val e: String,
+        val e: String
       )
 
       data class Foo(
-        val A: Bar,
+        val A: Bar
       )
 
       shouldThrowAny {

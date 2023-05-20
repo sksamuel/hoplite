@@ -80,7 +80,7 @@ class AwsSecretsManagerPreprocessorTest : FunSpec() {
           DotPath.root,
           emptyMap()
         ),
-        DecoderContext.zero,
+        DecoderContext.zero
       ).shouldBeInstanceOf<Validated.Invalid<ConfigFailure>>().error.description().shouldContain("unkunk")
     }
 
@@ -91,9 +91,9 @@ class AwsSecretsManagerPreprocessorTest : FunSpec() {
           "secretsmanager://bibblebobble",
           Pos.NoPos,
           DotPath.root,
-          emptyMap(),
+          emptyMap()
         ),
-        DecoderContext.zero,
+        DecoderContext.zero
       ).shouldBeInstanceOf<Validated.Invalid<ConfigFailure>>().error.description().shouldContain("Empty secret")
     }
 
@@ -103,7 +103,7 @@ class AwsSecretsManagerPreprocessorTest : FunSpec() {
           "secretsmanager://unkunk", Pos.NoPos, DotPath.root,
           emptyMap()
         ),
-        DecoderContext.zero,
+        DecoderContext.zero
       ).shouldBeInstanceOf<Validated.Invalid<ConfigFailure>>().error.description()
         .shouldNotContain("secretsmanager://")
     }

@@ -38,7 +38,7 @@ typealias Print = (String) -> Unit
 class Reporter(
   private val print: Print,
   private val obfuscator: Obfuscator,
-  private val environment: Environment?,
+  private val environment: Environment?
 ) {
 
   object Titles {
@@ -54,7 +54,7 @@ class Reporter(
   fun printReport(
     sources: List<PropertySource>,
     state: DecodingState,
-    sections: Map<String, List<Map<String, Any?>>>,
+    sections: Map<String, List<Map<String, Any?>>>
   ) {
 
     val r = buildString {
@@ -120,7 +120,7 @@ class Reporter(
       listOfNotNull(
         it.node.path.flatten().padEnd(keyPadded, ' '),
         (it.node.pos.source() ?: "").padEnd(sourcePadded, ' '),
-        (it.node as StringNode).value.padEnd(valuePadded, ' '),
+        (it.node as StringNode).value.padEnd(valuePadded, ' ')
       ).joinToString(" | ", "| ", " |")
     }
 
@@ -129,13 +129,13 @@ class Reporter(
     val bar = listOfNotNull(
       "".padEnd(keyPadded + 2, '-'),
       "".padEnd(sourcePadded + 2, '-'),
-      "".padEnd(valuePadded + 2, '-'),
+      "".padEnd(valuePadded + 2, '-')
     ).joinToString("+", "+", "+")
 
     val titles = listOfNotNull(
       Titles.Key.padEnd(keyPadded, ' '),
       Titles.Source.padEnd(sourcePadded, ' '),
-      Titles.Value.padEnd(valuePadded, ' '),
+      Titles.Value.padEnd(valuePadded, ' ')
     ).joinToString(" | ", "| ", " |")
 
     return (listOfNotNull(titleRow, bar, titles, bar) + rows + listOf(bar)).joinToString(System.lineSeparator())

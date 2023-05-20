@@ -29,7 +29,7 @@ import kotlinx.serialization.json.Json
  */
 class AwsSecretsManagerPreprocessor(
   private val report: Boolean = false,
-  private val createClient: () -> AWSSecretsManager = { AWSSecretsManagerClientBuilder.standard().build() },
+  private val createClient: () -> AWSSecretsManager = { AWSSecretsManagerClientBuilder.standard().build() }
 ) : TraversingPrimitivePreprocessor() {
 
   private val client by lazy { createClient() }
@@ -69,7 +69,7 @@ class AwsSecretsManagerPreprocessor(
             "Name" to value.name,
             "Arn" to value.arn,
             "Created Date" to value.createdDate.toString(),
-            "Version Id" to value.versionId,
+            "Version Id" to value.versionId
           )
         )
 

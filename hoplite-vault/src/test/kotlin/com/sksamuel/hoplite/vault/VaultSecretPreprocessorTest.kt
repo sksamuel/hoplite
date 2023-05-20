@@ -118,5 +118,5 @@ class VaultSecretPreprocessorTest : FunSpec({
 
 data class ConfigHolder(
   val foo: String,
-  val bar: String,
+  val bar: String
 )

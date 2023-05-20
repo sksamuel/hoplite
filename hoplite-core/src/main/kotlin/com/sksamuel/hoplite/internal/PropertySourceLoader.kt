@@ -21,13 +21,13 @@ import com.sksamuel.hoplite.sources.ConfigFilePropertySource
 class PropertySourceLoader(
   private val classpathResourceLoader: ClasspathResourceLoader,
   private val parserRegistry: ParserRegistry,
-  private val allowEmptyPropertySources: Boolean,
+  private val allowEmptyPropertySources: Boolean
 ) {
 
   fun loadNodes(
     propertySources: List<PropertySource>,
     configSources: List<ConfigSource>,
-    resourceOrFiles: List<String>,
+    resourceOrFiles: List<String>
   ): ConfigResult<NonEmptyList<Node>> {
     require(propertySources.isNotEmpty() || configSources.isNotEmpty() || resourceOrFiles.isNotEmpty())
 
@@ -37,7 +37,6 @@ class PropertySourceLoader(
         propertySources + (configSources + sources).map {
           ConfigFilePropertySource(
             it,
-            optional = false,
             allowEmpty = allowEmptyPropertySources
           )
         }

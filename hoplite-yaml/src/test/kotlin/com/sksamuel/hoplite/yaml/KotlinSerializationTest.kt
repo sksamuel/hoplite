@@ -27,7 +27,7 @@ class KotlinSerializationTest : FunSpec() {
 @Serializable
 data class Config(
   @SerialName("my-property")
-  val myProperty: String,
+  val myProperty: String
 )
 
 object SerialNameMapper : ParameterMapper {

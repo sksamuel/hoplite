@@ -22,9 +22,9 @@ class EnvPropertySourceUppercaseTest : DescribeSpec({
                 mapOf(
                   "CREDS.USERNAME" to "a",
                   "CREDS.PASSWORD" to "c",
-                  "SOME_CAMEL_SETTING" to "c",
+                  "SOME_CAMEL_SETTING" to "c"
                 )
-              },
+              }
             )
           )
         }.loadConfigOrThrow<Config>()
@@ -42,9 +42,9 @@ class EnvPropertySourceUppercaseTest : DescribeSpec({
                 mapOf(
                   "CREDS__USERNAME" to "a",
                   "CREDS__PASSWORD" to "b",
-                  "SOME_CAMEL_SETTING" to "c",
+                  "SOME_CAMEL_SETTING" to "c"
                 )
-              },
+              }
             )
           )
         }.loadConfigOrThrow<Config>()
@@ -61,7 +61,7 @@ class EnvPropertySourceUppercaseTest : DescribeSpec({
               mapOf(
                 "creds__username" to "a",
                 "creds__password" to "d",
-                "someCamelSetting" to "e",
+                "someCamelSetting" to "e"
               )
             }
           ))
@@ -80,10 +80,10 @@ class EnvPropertySourceUppercaseTest : DescribeSpec({
                 mapOf(
                   "WIBBLE_CREDS.USERNAME" to "a",
                   "WIBBLE_CREDS.PASSWORD" to "c",
-                  "WIBBLE_SOME_CAMEL_SETTING" to "c",
+                  "WIBBLE_SOME_CAMEL_SETTING" to "c"
                 )
               },
-              prefix = "WIBBLE_",
+              prefix = "WIBBLE_"
             )
           )
         }.loadConfigOrThrow<Config>()

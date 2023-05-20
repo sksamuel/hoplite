@@ -43,7 +43,7 @@ class ResourceTest : FunSpec({
 
     val config = ConfigLoader().loadConfigOrThrow<Test>(
       listOf("fallback_1.yml", "fallback_2.yml", "fallback_3.yml"),
-      Thread.currentThread().contextClassLoader.toClasspathResourceLoader(),
+      Thread.currentThread().contextClassLoader.toClasspathResourceLoader()
     )
     config.a shouldBe "foo"
     config.b shouldBe "voo"

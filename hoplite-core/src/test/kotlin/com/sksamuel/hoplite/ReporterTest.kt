@@ -19,7 +19,7 @@ class ReporterTest : FunSpec({
       val name: String,
       val host: String,
       val port: Int,
-      val password: Secret,
+      val password: Secret
     )
 
     captureStandardOut {
@@ -77,7 +77,7 @@ Property sources (highest to lowest priority):
       val name: String,
       val host: String,
       val port: Int,
-      val password: Secret,
+      val password: Secret
     )
 
     captureStandardOut {
@@ -147,7 +147,7 @@ Used keys: 4
       val name: String,
       val host: String,
       val port: Int,
-      val password: String,
+      val password: String
     )
 
     captureStandardOut {
@@ -193,7 +193,7 @@ Used keys: 4
   test("withReport should output env") {
 
     data class Test(
-      val a: String,
+      val a: String
     )
 
     captureStandardOut {
@@ -215,7 +215,7 @@ Property sources (highest to lowest priority):"""
   test("withReport should include report sections") {
 
     data class Test(
-      val a: String,
+      val a: String
     )
 
     captureStandardOut {

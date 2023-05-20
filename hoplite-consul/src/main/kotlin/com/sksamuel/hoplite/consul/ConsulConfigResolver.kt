@@ -21,7 +21,7 @@ import java.util.Optional
 class ConsulConfigResolver(
   private val url: String,
   private val report: Boolean = false,
-  private val configure: (Consul.Builder) -> Unit = {},
+  private val configure: (Consul.Builder) -> Unit = {}
 ) : ContextResolver() {
 
   private val client by lazy { createClient() }

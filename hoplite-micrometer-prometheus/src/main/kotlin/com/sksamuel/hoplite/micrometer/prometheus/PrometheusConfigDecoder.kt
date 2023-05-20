@@ -18,7 +18,7 @@ class PrometheusConfigDecoder : Decoder<PrometheusConfig> {
   override fun decode(
     node: Node,
     type: KType,
-    context: DecoderContext,
+    context: DecoderContext
   ): ConfigResult<PrometheusConfig> {
     return context.decoder(typeOf<InternalConfig>())
       .flatMap { it.decode(node, typeOf<InternalConfig>(), context) }
@@ -26,7 +26,7 @@ class PrometheusConfigDecoder : Decoder<PrometheusConfig> {
   }
 
   private fun createConfig(
-    config: InternalConfig,
+    config: InternalConfig
   ): PrometheusConfig {
     return object : PrometheusConfig {
       override fun step(): Duration = config.step ?: super.step()
@@ -40,5 +40,5 @@ class PrometheusConfigDecoder : Decoder<PrometheusConfig> {
 data class InternalConfig(
   val descriptions: Boolean?,
   val step: Duration?,
-  val histogramFlavor: HistogramFlavor?,
+  val histogramFlavor: HistogramFlavor?
 )

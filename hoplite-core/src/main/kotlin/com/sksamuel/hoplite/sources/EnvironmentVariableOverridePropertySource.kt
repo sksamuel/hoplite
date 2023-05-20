@@ -17,7 +17,7 @@ import java.util.Properties
  */
 class EnvironmentVariableOverridePropertySource(
   private val useUnderscoresAsSeparator: Boolean,
-  private val environmentVariableMap: () -> Map<String, String> = { System.getenv() },
+  private val environmentVariableMap: () -> Map<String, String> = { System.getenv() }
 ) : PropertySource {
 
   private val Prefix = "config.override."

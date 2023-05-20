@@ -31,7 +31,7 @@ data class DecoderContext(
   val environment: Environment? = null,
   val resolvers: Resolving = Resolving.empty,
   // determines if we should error when a context resolver cannot find a substitution
-  val contextResolverMode: ContextResolverMode = ContextResolverMode.Error,
+  val contextResolverMode: ContextResolverMode = ContextResolverMode.Error
 ) {
 
   /**
@@ -48,7 +48,7 @@ data class DecoderContext(
    * Makes a node as marshalled into the given [type] with the resolved value [value].
    */
   fun used(node: Node, type: KType, value: Any?) {
-    this.used.add(NodeState(node, true, value, type, false))
+    this.used.add(NodeState(node, true, value, type))
   }
 
   fun getMetaData(key: String): Any? = metadata[key]
@@ -80,5 +80,5 @@ data class NodeState(
 )
 
 data class DecoderConfig(
-  val flattenArraysToString: Boolean,
+  val flattenArraysToString: Boolean
 )

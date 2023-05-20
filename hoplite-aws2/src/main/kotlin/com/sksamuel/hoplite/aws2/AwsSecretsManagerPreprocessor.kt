@@ -27,7 +27,7 @@ import software.amazon.awssdk.services.secretsmanager.model.SecretsManagerExcept
  */
 class AwsSecretsManagerPreprocessor(
   private val report: Boolean = false,
-  private val createClient: () -> SecretsManagerClient = { SecretsManagerClient.create() },
+  private val createClient: () -> SecretsManagerClient = { SecretsManagerClient.create() }
 ) : TraversingPrimitivePreprocessor() {
 
   private val client by lazy { createClient() }
@@ -67,7 +67,7 @@ class AwsSecretsManagerPreprocessor(
             "Name" to value.name(),
             "Arn" to value.arn(),
             "Created Date" to value.createdDate().toString(),
-            "Version Id" to value.versionId(),
+            "Version Id" to value.versionId()
           )
         )
 

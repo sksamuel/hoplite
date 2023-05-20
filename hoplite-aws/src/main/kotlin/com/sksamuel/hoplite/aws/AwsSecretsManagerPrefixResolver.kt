@@ -35,7 +35,7 @@ import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder
  */
 class AwsSecretsManagerContextResolver(
   report: Boolean = false,
-  createClient: () -> AWSSecretsManager = { AWSSecretsManagerClientBuilder.standard().build() },
+  createClient: () -> AWSSecretsManager = { AWSSecretsManagerClientBuilder.standard().build() }
 ) : AwsSecretsManagerRegexResolver(report, createClient) {
   override val contextKey: String = "aws-secrets-manager"
   override val default: Boolean = false

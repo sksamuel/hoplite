@@ -65,7 +65,7 @@ object RangeDecoders {
   }
 
   private fun extractContents(value: String, r: Regex): Result<Pair<String, String>> = runCatching {
-      val (_, start, endInclusive) = r.matchEntire(value)?.groupValues ?: emptyList()
+      val (_, start, endInclusive) = r.matchEntire(value)?.groupValues.orEmpty()
       Pair(start, endInclusive)
     }
 

@@ -43,7 +43,7 @@ class PropsParserTest : StringSpec() {
         MapNode(
           emptyMap(),
           pos = Pos.SourcePos("a.props"),
-          DotPath.root,
+          DotPath.root
         )
     }
   }

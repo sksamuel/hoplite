@@ -47,7 +47,7 @@ class PropertySourceTest : FunSpec() {
       val arguments = mapOf(
         "a" to "A value",
         "b" to "42",
-        "other" to listOf("Value1", "Value2"),
+        "other" to listOf("Value1", "Value2")
       )
 
       val config = ConfigLoaderBuilder.default()
@@ -66,7 +66,7 @@ class PropertySourceTest : FunSpec() {
         "--b=42",
         "some other value",
         "--other=Value1",
-        "--other=Value2",
+        "--other=Value2"
       )
 
       val config = ConfigLoaderBuilder.default()
@@ -87,7 +87,7 @@ class PropertySourceTest : FunSpec() {
           "--b=42",
           "some other value",
           "--other=Value1",
-          "--other=Value2",
+          "--other=Value2"
         )
 
         val config = ConfigLoaderBuilder.default()
@@ -110,7 +110,7 @@ class PropertySourceTest : FunSpec() {
           "--b=42",
           "some other value",
           "--other=Value1",
-          "--other=Value2",
+          "--other=Value2"
         )
 
         val config = ConfigLoaderBuilder.default()

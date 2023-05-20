@@ -29,7 +29,7 @@ import java.nio.file.Path
 class ConfigFilePropertySource(
   private val config: ConfigSource,
   private val optional: Boolean = false,
-  private val allowEmpty: Boolean,
+  private val allowEmpty: Boolean
 ) : PropertySource {
 
   /**
@@ -56,16 +56,16 @@ class ConfigFilePropertySource(
   companion object {
 
     fun optionalPath(
-      path: Path,
+      path: Path
     ): ConfigFilePropertySource =
       ConfigFilePropertySource(ConfigSource.PathSource(path), optional = true, allowEmpty = false)
 
     fun optionalFile(
-      file: File,
+      file: File
     ): ConfigFilePropertySource = optionalPath(file.toPath())
 
     fun optionalResource(
-      resource: String,
+      resource: String
     ): ConfigFilePropertySource =
       ConfigFilePropertySource(ConfigSource.ClasspathSource(resource), optional = true, allowEmpty = false)
   }

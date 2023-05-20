@@ -80,7 +80,7 @@ object TokenProduction {
     stream: TokenStream<Event>,
     source: String,
     anchors: Map<String, Node>,
-    path: DotPath,
+    path: DotPath
   ): Pair<Node, Map<String, Node>> {
     return when (val event = stream.current()) {
       is MappingStartEvent -> MapProduction(stream, source, anchors, path)
@@ -118,7 +118,7 @@ object MapProduction {
     stream: TokenStream<Event>,
     source: String,
     anchors: Map<String, Node>,
-    path: DotPath,
+    path: DotPath
   ): Pair<Node, Map<String, Node>> {
     require(stream.current().`is`(Event.ID.MappingStart)) { "Expected mapping start at ${stream.current().startMark}" }
     val mapEvent = stream.current() as MappingStartEvent
@@ -150,7 +150,7 @@ object SequenceProduction {
     stream: TokenStream<Event>,
     source: String,
     anchors: Map<String, Node>,
-    path: DotPath,
+    path: DotPath
   ): Pair<Node, Map<String, Node>> {
     require(
       stream.current().`is`(Event.ID.SequenceStart)

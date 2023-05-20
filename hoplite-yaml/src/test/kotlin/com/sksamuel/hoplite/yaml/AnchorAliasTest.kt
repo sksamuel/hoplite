@@ -13,7 +13,7 @@ class AnchorAliasTest : FunSpec() {
 
       val config = ConfigLoader().loadConfigOrThrow<Test>(
         "/anchor.yml",
-        "/anchor-merge-base.yml",
+        "/anchor-merge-base.yml"
       )
 
       config shouldBe Test(

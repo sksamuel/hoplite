@@ -11,7 +11,7 @@ import com.sksamuel.hoplite.resolver.ContextResolver
 
 abstract class AwsSecretsManagerRegexResolver(
   private val report: Boolean = false,
-  createClient: () -> AWSSecretsManager = { AWSSecretsManagerClientBuilder.standard().build() },
+  createClient: () -> AWSSecretsManager = { AWSSecretsManagerClientBuilder.standard().build() }
 ) : ContextResolver() {
 
   // should stay lazy so still be added to config even when not used, eg locally

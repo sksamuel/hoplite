@@ -19,7 +19,7 @@ class StatsdConfigDecoder : Decoder<StatsdConfig> {
   override fun decode(
     node: Node,
     type: KType,
-    context: DecoderContext,
+    context: DecoderContext
   ): ConfigResult<StatsdConfig> {
     return context.decoder(typeOf<InternalConfig>())
       .flatMap { it.decode(node, typeOf<InternalConfig>(), context) }
@@ -27,7 +27,7 @@ class StatsdConfigDecoder : Decoder<StatsdConfig> {
   }
 
   private fun createConfig(
-    config: InternalConfig,
+    config: InternalConfig
   ): StatsdConfig {
     return object : StatsdConfig {
       override fun buffered(): Boolean = config.buffered ?: super.buffered()
@@ -55,5 +55,5 @@ data class InternalConfig(
   val pollingFrequency: Duration?,
   val step: Duration?,
   val flavor: StatsdFlavor?,
-  val protocol: StatsdProtocol?,
+  val protocol: StatsdProtocol?
 )

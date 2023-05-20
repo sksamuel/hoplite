@@ -11,7 +11,7 @@ class EnvironmentVariablesPropertySourceTest : FunSpec({
     EnvironmentVariablesPropertySource(
       useUnderscoresAsSeparator = false,
       allowUppercaseNames = false,
-      environmentVariableMap = { mapOf("a" to "foo", "a.b" to "bar", "c" to "baz") },
+      environmentVariableMap = { mapOf("a" to "foo", "a.b" to "bar", "c" to "baz") }
     ).node(
       PropertySourceContext.empty
     ).getUnsafe() shouldBe MapNode(
@@ -20,12 +20,12 @@ class EnvironmentVariablesPropertySourceTest : FunSpec({
           value = StringNode("foo", Pos.env, DotPath("a")),
           map = mapOf("b" to StringNode("bar", Pos.env, DotPath("a", "b"))),
           pos = Pos.SourcePos("env"),
-          path = DotPath("a"),
+          path = DotPath("a")
         ),
-        "c" to StringNode("baz", Pos.env, DotPath("c")),
+        "c" to StringNode("baz", Pos.env, DotPath("c"))
       ),
       pos = Pos.env,
-      DotPath.root,
+      DotPath.root
     )
   }
 

@@ -65,7 +65,7 @@ class HashObfuscator(private val hashCharsToShow: Int = 8) : Obfuscator {
  */
 class PrefixObfuscator(
   private val prefixLength: Int,
-  private val suffixMask: String = "*****",
+  private val suffixMask: String = "*****"
 ) : Obfuscator {
   override fun obfuscate(node: PrimitiveNode): String {
     return when (node) {

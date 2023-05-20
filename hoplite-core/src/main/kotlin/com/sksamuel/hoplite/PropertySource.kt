@@ -11,7 +11,7 @@ import java.io.InputStream
 import java.nio.file.Path
 
 data class PropertySourceContext(
-  val parsers: ParserRegistry,
+  val parsers: ParserRegistry
 ) {
   companion object {
     val empty = PropertySourceContext(ParserRegistry.empty)

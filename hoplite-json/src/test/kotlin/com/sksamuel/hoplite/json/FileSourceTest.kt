@@ -21,7 +21,7 @@ class FileSourceTest : FunSpec() {
       shouldThrowAny {
         ConfigLoaderBuilder.default()
           .addEnvironmentSource() // so we have at least one value
-          .addSource(PropertySource.file(File("foo.json"), false))
+          .addSource(PropertySource.file(File("foo.json")))
           .build().loadNodeOrThrow()
       }.message shouldContain "Could not find file foo.json"
     }
@@ -30,7 +30,7 @@ class FileSourceTest : FunSpec() {
       shouldThrowAny {
         ConfigLoaderBuilder.default()
           .addEnvironmentSource() // so we have at least one value
-          .addSource(PropertySource.file(File(this::class.java.getResource("/empty.json")!!.file), false))
+          .addSource(PropertySource.file(File(this::class.java.getResource("/empty.json")!!.file)))
           .build().loadNodeOrThrow()
       }.message shouldContain "empty.json is empty"
     }
@@ -38,7 +38,7 @@ class FileSourceTest : FunSpec() {
     test("PropertySource.file should NOT fail for empty file if allowEmpty=true") {
       ConfigLoaderBuilder.default()
         .addEnvironmentSource() // so we have at least one value
-        .addSource(PropertySource.file(File(this::class.java.getResource("/empty.json")!!.file), false, allowEmpty = true))
+        .addSource(PropertySource.file(File(this::class.java.getResource("/empty.json")!!.file), allowEmpty = true))
         .build().loadNodeOrThrow()
     }
 
@@ -46,7 +46,7 @@ class FileSourceTest : FunSpec() {
       shouldThrowAny {
         ConfigLoaderBuilder.default()
           .addEnvironmentSource() // so we have at least one value
-          .addSource(PropertySource.file(File("wibble"), false))
+          .addSource(PropertySource.file(File("wibble")))
           .build().loadNodeOrThrow()
       }.message shouldContain "Could not detect parser for file extension '.wibble'"
     }

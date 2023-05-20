@@ -11,7 +11,7 @@ import com.sksamuel.hoplite.resolver.ContextResolver
 
 class AzureKeyVaultResolver(
   private val report: Boolean = false,
-  private val createClient: () -> SecretClient,
+  private val createClient: () -> SecretClient
 ) : ContextResolver() {
 
   constructor(url: String) : this(url, false)
@@ -19,7 +19,7 @@ class AzureKeyVaultResolver(
     SecretClientBuilder()
       .vaultUrl(url)
       .credential(DefaultAzureCredentialBuilder().build())
-      .buildClient();
+      .buildClient()
   })
 
   private val client = lazy { createClient() }
