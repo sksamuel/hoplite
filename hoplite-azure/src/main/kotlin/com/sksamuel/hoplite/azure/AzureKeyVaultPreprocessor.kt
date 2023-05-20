@@ -19,7 +19,7 @@ class AzureKeyVaultResolver(
     SecretClientBuilder()
       .vaultUrl(url)
       .credential(DefaultAzureCredentialBuilder().build())
-      .buildClient();
+      .buildClient()
   })
 
   private val client = lazy { createClient() }
