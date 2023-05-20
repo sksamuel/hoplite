@@ -43,7 +43,7 @@ object LookupPreprocessor : Preprocessor {
         }
       }
       return if (value == node.value) node else
-        node.copy(value = value).withMeta(CommonMetadata.UnprocessedValue, node.value) as StringNode
+        node.copy(value = value).withMeta(CommonMetadata.UnprocessedValue, node.value)
     }
 
     fun handle(n: Node): Node = when (n) {
