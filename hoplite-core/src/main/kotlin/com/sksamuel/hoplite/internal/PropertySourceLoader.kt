@@ -37,7 +37,6 @@ class PropertySourceLoader(
         propertySources + (configSources + sources).map {
           ConfigFilePropertySource(
             it,
-            optional = false,
             allowEmpty = allowEmptyPropertySources
           )
         }

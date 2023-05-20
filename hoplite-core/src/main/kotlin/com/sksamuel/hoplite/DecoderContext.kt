@@ -48,7 +48,7 @@ data class DecoderContext(
    * Makes a node as marshalled into the given [type] with the resolved value [value].
    */
   fun used(node: Node, type: KType, value: Any?) {
-    this.used.add(NodeState(node, true, value, type, false))
+    this.used.add(NodeState(node, true, value, type))
   }
 
   fun getMetaData(key: String): Any? = metadata[key]

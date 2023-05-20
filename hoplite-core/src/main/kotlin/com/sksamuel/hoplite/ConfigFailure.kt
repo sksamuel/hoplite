@@ -220,12 +220,12 @@ sealed interface ConfigFailure {
 
   data class CollectionElementErrors(val node: Node, val errors: NonEmptyList<ConfigFailure>) : ConfigFailure {
     override fun description(): String = "Collection element decode failure ${node.pos.loc()}:\n\n" +
-      errors.list.joinToString("\n\n") { it.description().indent(Constants.indent) }
+      errors.list.joinToString("\n\n") { it.description().indent() }
   }
 
   data class TupleErrors(val node: Node, val errors: NonEmptyList<ConfigFailure>) : ConfigFailure {
     override fun description(): String = "- Could not instantiate Tuple because:\n\n" +
-      errors.list.joinToString("\n\n") { it.description().indent(Constants.indent) }
+      errors.list.joinToString("\n\n") { it.description().indent() }
   }
 
   data class InvalidEnumConstant(
@@ -243,7 +243,7 @@ sealed interface ConfigFailure {
     val pos: Pos
   ) : ConfigFailure {
     override fun description(): String = "- Could not instantiate '$type' because:\n\n" +
-      errors.list.joinToString("\n\n") { it.description().indent(Constants.indent) }
+      errors.list.joinToString("\n\n") { it.description().indent() }
   }
 
   data class ParamFailure(val param: KParameter, val error: ConfigFailure) : ConfigFailure {
@@ -264,7 +264,7 @@ data class ThrowableFailure(val throwable: Throwable) : ConfigFailure {
   override fun description() = "${throwable.message}.${throwable.stackTrace.toList()}"
 }
 
-fun String.indent(indent: String = "    "): String {
+fun String.indent(indent: String = Constants.indent): String {
   val lines = lineSequence()
     .map {
       when {
