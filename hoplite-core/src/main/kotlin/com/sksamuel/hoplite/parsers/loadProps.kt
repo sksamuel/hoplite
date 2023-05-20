@@ -42,7 +42,7 @@ private fun <T> Iterable<T>.toNode(
     val segments = key.split(delimiter)
 
     segments.foldIndexed(map) { index, element, segment ->
-      element.values.computeIfAbsent(segment) { Element() }.also {
+      element.values.getOrPut(segment) { Element() }.also {
         if (index == segments.size - 1) it.value = value
       }
     }
