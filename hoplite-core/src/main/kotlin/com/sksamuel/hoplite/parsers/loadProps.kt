@@ -13,19 +13,19 @@ fun Properties.toNode(source: String, delimiter: String = ".") = asIterable().to
   source = source,
   keyExtractor = { it.key.toString() },
   valueExtractor = { it.value },
-  delimiter = delimiter,
+  delimiter = delimiter
 )
 
 fun <T : Any> Map<String, T?>.toNode(source: String, delimiter: String = ".") = entries.toNode(
   source = source,
   keyExtractor = { it.key },
   valueExtractor = { it.value },
-  delimiter = delimiter,
+  delimiter = delimiter
 )
 
 data class Element(
   val values: MutableMap<String, Element> = hashMapOf(),
-  var value: Any? = null,
+  var value: Any? = null
 )
 
 private fun <T> Iterable<T>.toNode(
@@ -57,25 +57,25 @@ private fun <T> Iterable<T>.toNode(
         map = values.takeUnless { it.isEmpty() }?.mapValues { it.value.transform(path.with(it.key)) }.orEmpty(),
         pos = pos,
         path = path,
-        value = value?.transform(path) ?: Undefined,
+        value = value?.transform(path) ?: Undefined
       )
     }
     is Array<*> -> ArrayNode(
       elements = mapNotNull { it?.transform(path) },
       pos = pos,
-      path = path,
+      path = path
     )
     is Collection<*> -> ArrayNode(
       elements = mapNotNull { it?.transform(path) },
       pos = pos,
-      path = path,
+      path = path
     )
     is Map<*, *> -> MapNode(
       map = takeUnless { it.isEmpty() }?.mapNotNull { entry ->
         entry.value?.let { entry.key.toString() to it.transform(path.with(entry.key.toString())) }
       }?.toMap().orEmpty(),
       pos = pos,
-      path = path,
+      path = path
     )
     else -> StringNode(this.toString(), pos, path = path, emptyMap())
   }

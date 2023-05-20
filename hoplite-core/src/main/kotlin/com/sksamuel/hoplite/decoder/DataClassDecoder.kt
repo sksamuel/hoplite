@@ -56,7 +56,7 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
 
     data class Constructor(
       val constructor: KFunction<Any>,
-      val args: List<Arg>,
+      val args: List<Arg>
     )
 
     val constructors = kclass.constructors.map { constructor ->
@@ -125,7 +125,7 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
         construct(
           type = type,
           constructor = constructor.constructor,
-          args = constructor.args.associate { it.parameter to it.value },
+          args = constructor.args.associate { it.parameter to it.value }
         )
       }
     )

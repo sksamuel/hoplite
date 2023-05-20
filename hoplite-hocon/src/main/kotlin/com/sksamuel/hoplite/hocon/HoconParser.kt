@@ -37,7 +37,7 @@ object MapProduction {
     config: ConfigObject,
     origin: ConfigOrigin,
     source: String,
-    path: DotPath,
+    path: DotPath
   ): Node {
     val obj = mutableMapOf<String, Node>()
     config.entries.forEach {

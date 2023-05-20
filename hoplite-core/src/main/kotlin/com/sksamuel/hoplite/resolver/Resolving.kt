@@ -17,7 +17,7 @@ import com.sksamuel.hoplite.valueOrNull
  */
 class Resolving(
   private val resolvers: List<Resolver>,
-  private val root: Node,
+  private val root: Node
 ) {
 
   suspend fun resolve(node: Node, context: DecoderContext): ConfigResult<Node> {

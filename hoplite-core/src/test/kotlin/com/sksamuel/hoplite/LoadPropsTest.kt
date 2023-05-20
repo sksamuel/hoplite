@@ -26,7 +26,7 @@ class LoadPropsTest : FunSpec({
               ),
               pos = Pos.SourcePos(source = "source"),
               DotPath("a", "b"),
-              value = Undefined,
+              value = Undefined
             ),
             "d" to StringNode("true", pos = Pos.SourcePos(source = "source"), DotPath("a", "d"))
           ),
@@ -52,7 +52,7 @@ class LoadPropsTest : FunSpec({
       ),
       pos = Pos.SourcePos(source = "source"),
       DotPath.root,
-      value = Undefined,
+      value = Undefined
     )
 
     val actual = props.toNode("source")

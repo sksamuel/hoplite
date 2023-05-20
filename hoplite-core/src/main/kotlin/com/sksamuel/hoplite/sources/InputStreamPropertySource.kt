@@ -20,7 +20,7 @@ import java.io.InputStream
 class InputStreamPropertySource(
   private val input: InputStream,
   private val ext: String,
-  private val source: String,
+  private val source: String
 ) : PropertySource {
 
   override fun source(): String = source

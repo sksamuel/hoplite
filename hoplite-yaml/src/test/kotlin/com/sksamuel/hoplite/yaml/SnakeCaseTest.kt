@@ -22,7 +22,7 @@ class SnakeCaseTest : StringSpec({
       val myServer1: String,
       val myServer2: String,
       val myServer11: String,
-      val myServer12: String,
+      val myServer12: String
     )
     ConfigLoader.builder()
       .addSource(YamlPropertySource("my_server_1: a"))

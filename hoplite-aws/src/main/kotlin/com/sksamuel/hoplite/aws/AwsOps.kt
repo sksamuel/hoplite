@@ -33,7 +33,7 @@ class AwsOps(private val client: AWSSecretsManager) {
         "Name" to result.name,
         "Arn" to result.arn,
         "Created Date" to result.createdDate.toString(),
-        "Version Id" to result.versionId,
+        "Version Id" to result.versionId
       )
     )
   }

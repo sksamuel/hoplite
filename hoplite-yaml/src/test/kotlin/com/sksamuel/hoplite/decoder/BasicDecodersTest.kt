@@ -57,7 +57,7 @@ class BasicTypesTest : FunSpec({
     val config = ConfigLoader().loadConfigOrThrow<Test>("/test_duration_iso_8601.yml")
     config shouldBe Test(
       Duration.ofSeconds(30),
-      Duration.ofHours(1),
+      Duration.ofHours(1)
     )
   }
 

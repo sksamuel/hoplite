@@ -20,13 +20,13 @@ import kotlin.io.path.exists
 fun ConfigLoaderBuilder.addResourceSource(
   resource: String,
   optional: Boolean = false,
-  allowEmpty: Boolean = false,
+  allowEmpty: Boolean = false
 ) = addPropertySource(ConfigFilePropertySource(ConfigSource.ClasspathSource(resource), optional = optional, allowEmpty))
 
 fun ConfigLoaderBuilder.addFileSource(
   file: String,
   optional: Boolean = false,
-  allowEmpty: Boolean = false,
+  allowEmpty: Boolean = false
 ): ConfigLoaderBuilder = addFileSource(File(file), optional, allowEmpty)
 
 /**
@@ -64,7 +64,7 @@ fun ConfigLoaderBuilder.addPathSource(
 fun ConfigLoaderBuilder.addResourceOrFileSource(
   resourceOrFile: String,
   optional: Boolean = false,
-  allowEmpty: Boolean = false,
+  allowEmpty: Boolean = false
 ): ConfigLoaderBuilder {
   val path = Paths.get(resourceOrFile)
   return if (path.exists()) {
@@ -114,7 +114,7 @@ fun ConfigLoaderBuilder.addMapSource(map: Map<String, Any>) = addPropertySource(
 fun ConfigLoaderBuilder.addCommandLineSource(
   arguments: Array<String>,
   prefix: String = "--",
-  delimiter: String = "=",
+  delimiter: String = "="
 ) = addPropertySource(
   CommandLinePropertySource(arguments, prefix, delimiter)
 )
@@ -127,7 +127,7 @@ fun ConfigLoaderBuilder.addCommandLineSource(
  */
 fun ConfigLoaderBuilder.addEnvironmentSource(
   useUnderscoresAsSeparator: Boolean = true,
-  allowUppercaseNames: Boolean = true,
+  allowUppercaseNames: Boolean = true
 ) = addPropertySource(
   EnvironmentVariablesPropertySource(useUnderscoresAsSeparator, allowUppercaseNames)
 )

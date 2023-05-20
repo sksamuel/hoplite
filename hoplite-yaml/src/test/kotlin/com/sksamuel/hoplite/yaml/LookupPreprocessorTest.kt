@@ -11,7 +11,7 @@ class LookupPreprocessorTest : FunSpec() {
     val b: String,
     val c: String,
     val d: String,
-    val e: String,
+    val e: String
   )
 
   data class Test2(
@@ -28,7 +28,7 @@ class LookupPreprocessorTest : FunSpec() {
           b = "bfoo",
           c = "cfoo.hello",
           d = "ddef.boo",
-          e = "E",
+          e = "E"
         )
     }
 
@@ -39,7 +39,7 @@ class LookupPreprocessorTest : FunSpec() {
           b = "bfoo",
           c = "cfoo.hello",
           d = "dE.boo",
-          e = "E",
+          e = "E"
         )
     }
 

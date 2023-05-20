@@ -7,17 +7,17 @@ import io.kotest.matchers.shouldBe
 
 data class A(
   @ConfigAlias("b") @ConfigAlias("zah") val bb: String,
-  val c: Int,
+  val c: Int
 )
 
 data class D(
   val e: String,
-  @ConfigAlias("f") val ff: Boolean,
+  @ConfigAlias("f") val ff: Boolean
 )
 
 data class AliasConfig(
   val a: A,
-  @ConfigAlias("d") val dd: D,
+  @ConfigAlias("d") val dd: D
 )
 
 class ConfigAliasTest : FunSpec() {

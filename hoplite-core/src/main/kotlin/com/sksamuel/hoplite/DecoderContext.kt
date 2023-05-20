@@ -31,7 +31,7 @@ data class DecoderContext(
   val environment: Environment? = null,
   val resolvers: Resolving = Resolving.empty,
   // determines if we should error when a context resolver cannot find a substitution
-  val contextResolverMode: ContextResolverMode = ContextResolverMode.Error,
+  val contextResolverMode: ContextResolverMode = ContextResolverMode.Error
 ) {
 
   /**
@@ -80,5 +80,5 @@ data class NodeState(
 )
 
 data class DecoderConfig(
-  val flattenArraysToString: Boolean,
+  val flattenArraysToString: Boolean
 )

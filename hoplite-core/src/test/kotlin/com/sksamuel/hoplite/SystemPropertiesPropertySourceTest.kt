@@ -18,7 +18,7 @@ class SystemPropertiesPropertySourceTest : FunSpec() {
           SystemPropertiesPropertySource(
             systemPropertiesMap = {
               mapOf("config.override.a" to "Overridden by system prop")
-            },
+            }
           )
         )
         addPropertySource(

@@ -14,7 +14,7 @@ import com.sksamuel.hoplite.preprocessor.Preprocessor
  */
 class Preprocessing(
   private val preprocessors: List<Preprocessor>,
-  private val iterations: Int,
+  private val iterations: Int
 ) {
 
   fun preprocess(node: Node, context: DecoderContext): ConfigResult<Node> {

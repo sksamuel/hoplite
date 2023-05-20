@@ -16,7 +16,7 @@ import kotlin.reflect.full.createType
 
 class Decoding(
   private val decoderRegistry: DecoderRegistry,
-  private val secretsPolicy: SecretsPolicy?,
+  private val secretsPolicy: SecretsPolicy?
 ) {
   fun <A : Any> decode(kclass: KClass<A>, node: Node, mode: DecodeMode, context: DecoderContext): ConfigResult<A> {
     return decoderRegistry.decoder(kclass)
@@ -33,7 +33,7 @@ class Decoding(
 fun createDecodingState(
   root: Node,
   context: DecoderContext,
-  secretsPolicy: SecretsPolicy?,
+  secretsPolicy: SecretsPolicy?
 ): DecodingState {
   val (used, unused) = root.paths()
     .filterNot { it.first == DotPath.root }
@@ -44,7 +44,7 @@ fun createDecodingState(
 private fun createNodeStates(
   root: Node,
   context: DecoderContext,
-  secretsPolicy: SecretsPolicy?,
+  secretsPolicy: SecretsPolicy?
 ): List<NodeState> {
   return root.traverse().map { node ->
 
@@ -57,7 +57,7 @@ private fun createNodeStates(
       used = state?.used ?: false,
       value = state?.value,
       type = state?.type,
-      secret = secret,
+      secret = secret
     )
   }
 }
@@ -66,5 +66,5 @@ data class DecodingState(
   val root: Node,
   val used: List<Pair<DotPath, Pos>>,
   val unused: List<Pair<DotPath, Pos>>,
-  val states: List<NodeState>,
+  val states: List<NodeState>
 )

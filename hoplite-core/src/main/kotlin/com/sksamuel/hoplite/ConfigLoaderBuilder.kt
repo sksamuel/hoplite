@@ -297,14 +297,14 @@ class ConfigLoaderBuilder private constructor() {
   @Deprecated(
     "use withReport(). Passing in a reporter no longer has any effect. Specify secrets policy and obfuscator directly on this builder.",
     ReplaceWith("withReport()"),
-    level = DeprecationLevel.ERROR,
+    level = DeprecationLevel.ERROR
   )
   fun withReport(reporter: Reporter) = apply { useReport = true }
 
   @Deprecated(
     "use withReport(). Passing in a reporter no longer has any effect. Specify secrets policy and obfuscator directly on this builder.",
     ReplaceWith("withReport()"),
-    level = DeprecationLevel.ERROR,
+    level = DeprecationLevel.ERROR
   )
   fun report(reporter: Reporter) = apply { useReport = true }
 
@@ -327,7 +327,7 @@ class ConfigLoaderBuilder private constructor() {
       environment = environment,
       obfuscator = obfuscator,
       reportPrintFn = reportPrintFn,
-      flattenArraysToString = flattenArraysToString,
+      flattenArraysToString = flattenArraysToString
     )
   }
 }
@@ -336,27 +336,27 @@ fun defaultPropertySources(): List<PropertySource> = listOfNotNull(
   EnvironmentVariableOverridePropertySource(true),
   SystemPropertiesPropertySource,
   UserSettingsPropertySource,
-  XdgConfigPropertySource,
+  XdgConfigPropertySource
 )
 
 fun defaultPreprocessors(): List<Preprocessor> = listOf(
   EnvOrSystemPropertyPreprocessor,
   RandomPreprocessor,
-  LookupPreprocessor,
+  LookupPreprocessor
 )
 
 fun defaultResolvers(): List<Resolver> = listOf(
   EnvVarContextResolver,
   SystemPropertyContextResolver,
   ReferenceContextResolver,
-  HopliteContextResolver,
+  HopliteContextResolver
 )
 
 fun defaultParamMappers(): List<ParameterMapper> = listOf(
   DefaultParamMapper,
   SnakeCaseParamMapper,
   KebabCaseParamMapper,
-  AliasAnnotationParamMapper,
+  AliasAnnotationParamMapper
 )
 
 val defaultDecoders = listOf(
@@ -409,5 +409,5 @@ val defaultDecoders = listOf(
   com.sksamuel.hoplite.decoder.SecondsDecoder(),
   com.sksamuel.hoplite.decoder.InlineClassDecoder(),
   com.sksamuel.hoplite.decoder.SealedClassDecoder(),
-  com.sksamuel.hoplite.decoder.DataClassDecoder(),
+  com.sksamuel.hoplite.decoder.DataClassDecoder()
 )

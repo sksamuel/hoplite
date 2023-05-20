@@ -25,7 +25,7 @@ class HoconParserTest : FunSpec() {
                 "featureB" to BooleanNode(true, Pos.LinePos(18, "a.json"), DotPath("featureFlags", "featureB"))
               ),
               Pos.LinePos(16, "a.json"),
-              DotPath("featureFlags"),
+              DotPath("featureFlags")
             ),
             "toplevel" to StringNode("hello", Pos.LinePos(21, "a.json"), DotPath("toplevel")),
             "conf" to MapNode(

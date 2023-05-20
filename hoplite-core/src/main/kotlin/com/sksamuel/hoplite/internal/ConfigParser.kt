@@ -41,7 +41,7 @@ class ConfigParser(
   private val useReport: Boolean,
   private val obfuscator: Obfuscator,
   private val reportPrintFn: Print,
-  private val environment: Environment?,
+  private val environment: Environment?
 ) {
 
   private val loader = PropertySourceLoader(classpathResourceLoader, parserRegistry, allowEmptyTree)
@@ -64,7 +64,7 @@ class ConfigParser(
     environment: Environment?,
     resourceOrFiles: List<String>,
     propertySources: List<PropertySource>,
-    configSources: List<ConfigSource>,
+    configSources: List<ConfigSource>
   ): ConfigResult<A> {
 
     if (decoderRegistry.size == 0)
@@ -95,7 +95,7 @@ class ConfigParser(
   fun load(
     resourceOrFiles: List<String>,
     propertySources: List<PropertySource>,
-    configSources: List<ConfigSource>,
+    configSources: List<ConfigSource>
   ): ConfigResult<Node> {
     return loader.loadNodes(propertySources, configSources, resourceOrFiles).flatMap { nodes ->
       cascader.cascade(nodes).flatMap { node ->

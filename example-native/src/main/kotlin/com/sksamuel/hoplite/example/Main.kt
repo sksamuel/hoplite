@@ -6,11 +6,11 @@ import java.nio.file.Path
 
 data class MyConfig(
   val name: String,
-  val nested: NestedConfig,
+  val nested: NestedConfig
 )
 
 data class NestedConfig(
-  val nums: List<Int>,
+  val nums: List<Int>
 )
 
 fun main(args: Array<String>) {

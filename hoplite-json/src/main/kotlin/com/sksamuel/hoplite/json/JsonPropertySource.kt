@@ -30,7 +30,7 @@ private val counter = AtomicInteger(0)
  */
 class JsonPropertySource(
   private val str: String,
-  private val source: String = "Provided JSON ${counter.incrementAndGet()}",
+  private val source: String = "Provided JSON ${counter.incrementAndGet()}"
 ) : PropertySource {
 
   override fun source(): String = source

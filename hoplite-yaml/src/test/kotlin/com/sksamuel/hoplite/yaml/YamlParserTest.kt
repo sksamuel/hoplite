@@ -19,26 +19,26 @@ class YamlParserTest : FunSpec() {
             "a" to StringNode(
               value = "hello",
               pos = LineColPos(line = 0, col = 5, source = "basic.yml"),
-              DotPath("a"),
+              DotPath("a")
             ),
             "b" to StringNode(
               value = "1",
               pos = LineColPos(line = 1, col = 5, source = "basic.yml"),
-              DotPath("b"),
+              DotPath("b")
             ),
             "c" to StringNode(
               value = "true",
               pos = LineColPos(line = 2, col = 5, source = "basic.yml"),
-              DotPath("c"),
+              DotPath("c")
             ),
             "d" to StringNode(
               value = "2.3",
               pos = LineColPos(line = 3, col = 5, source = "basic.yml"),
-              DotPath("d"),
-            ),
+              DotPath("d")
+            )
           ),
           pos = LineColPos(line = 0, col = 0, source = "basic.yml"),
-          DotPath.root,
+          DotPath.root
         )
     }
 
@@ -52,16 +52,16 @@ class YamlParserTest : FunSpec() {
                 "c" to StringNode(
                   value = "hello",
                   pos = LineColPos(line = 2, col = 5, source = "basic.yml"),
-                  DotPath("b", "c"),
+                  DotPath("b", "c")
                 ),
                 "d" to NullNode(LineColPos(line = 3, col = 5, source = "basic.yml"), DotPath("b", "d"))
               ),
               pos = LineColPos(line = 2, col = 2, source = "basic.yml"),
-              DotPath("b"),
+              DotPath("b")
             )
           ),
           pos = LineColPos(line = 0, col = 0, source = "basic.yml"),
-          DotPath.root,
+          DotPath.root
         )
     }
 
@@ -72,7 +72,7 @@ class YamlParserTest : FunSpec() {
             "a" to StringNode(
               value = "hello",
               pos = LineColPos(line = 0, col = 5, source = "basic.yml"),
-              DotPath("a"),
+              DotPath("a")
             ),
             "b" to ArrayNode(
               elements = listOf(
@@ -81,11 +81,11 @@ class YamlParserTest : FunSpec() {
                 StringNode(value = "z", pos = LineColPos(line = 4, col = 4, source = "basic.yml"), DotPath("b"))
               ),
               pos = LineColPos(line = 2, col = 2, source = "basic.yml"),
-              DotPath("b"),
+              DotPath("b")
             )
           ),
           pos = LineColPos(line = 0, col = 0, source = "basic.yml"),
-          DotPath.root,
+          DotPath.root
         )
     }
 
@@ -99,7 +99,7 @@ class YamlParserTest : FunSpec() {
             "a" to StringNode(
               value = "hello",
               pos = LineColPos(line = 0, col = 5, source = "basic.yml"),
-              DotPath("a"),
+              DotPath("a")
             ),
             "b" to ArrayNode(
               elements = listOf(
@@ -108,40 +108,40 @@ class YamlParserTest : FunSpec() {
                     "c" to StringNode(
                       value = "hello",
                       pos = LineColPos(line = 2, col = 9, source = "basic.yml"),
-                      DotPath("b", "c"),
+                      DotPath("b", "c")
                     ),
                     "d" to StringNode(
                       value = "true",
                       pos = LineColPos(line = 3, col = 9, source = "basic.yml"),
-                      DotPath("b", "d"),
+                      DotPath("b", "d")
                     )
                   ),
                   pos = LineColPos(line = 2, col = 4, source = "basic.yml"),
-                  DotPath("b"),
+                  DotPath("b")
                 ),
                 MapNode(
                   map = mapOf(
                     "e" to StringNode(
                       value = "1.4",
                       pos = LineColPos(line = 4, col = 9, source = "basic.yml"),
-                      DotPath("b", "e"),
+                      DotPath("b", "e")
                     ),
                     "f" to StringNode(
                       value = "4",
                       pos = LineColPos(line = 5, col = 9, source = "basic.yml"),
-                      DotPath("b", "f"),
+                      DotPath("b", "f")
                     )
                   ),
                   pos = LineColPos(line = 4, col = 4, source = "basic.yml"),
-                  DotPath("b"),
+                  DotPath("b")
                 )
               ),
               pos = LineColPos(line = 2, col = 2, source = "basic.yml"),
-              DotPath("b"),
+              DotPath("b")
             )
           ),
           pos = LineColPos(line = 0, col = 0, source = "basic.yml"),
-          DotPath.root,
+          DotPath.root
         )
     }
   }

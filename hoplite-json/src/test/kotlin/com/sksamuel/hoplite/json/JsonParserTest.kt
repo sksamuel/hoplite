@@ -49,7 +49,7 @@ class JsonParserTest : FunSpec() {
             "a" to StringNode(
               value = "hello",
               pos = LineColPos(line = 2, col = 15, source = "a.json"),
-              DotPath("a"),
+              DotPath("a")
             ),
             "b" to ArrayNode(
               elements = listOf(
@@ -58,7 +58,7 @@ class JsonParserTest : FunSpec() {
                 StringNode(value = "z", pos = LineColPos(line = 6, col = 8, source = "a.json"), DotPath("b"))
               ),
               pos = LineColPos(line = 3, col = 9, source = "a.json"),
-              DotPath("b"),
+              DotPath("b")
             )
           ),
           pos = LineColPos(line = 1, col = 2, source = "a.json"),
@@ -73,7 +73,7 @@ class JsonParserTest : FunSpec() {
             "a" to StringNode(
               value = "hello",
               pos = LineColPos(line = 2, col = 15, source = "a.json"),
-              DotPath("a"),
+              DotPath("a")
             ),
             "b" to ArrayNode(
               elements = listOf(
@@ -82,12 +82,12 @@ class JsonParserTest : FunSpec() {
                     "c" to StringNode(
                       value = "hello",
                       pos = LineColPos(line = 5, col = 19, source = "a.json"),
-                      DotPath("b", "c"),
+                      DotPath("b", "c")
                     ),
                     "d" to BooleanNode(
                       value = true,
                       pos = LineColPos(line = 6, col = 16, source = "a.json"),
-                      DotPath("b", "d"),
+                      DotPath("b", "d")
                     )
                   ),
                   pos = LineColPos(line = 4, col = 6, source = "a.json"),
@@ -98,7 +98,7 @@ class JsonParserTest : FunSpec() {
                     "e" to DoubleNode(
                       value = 1.4,
                       pos = LineColPos(line = 9, col = 15, source = "a.json"),
-                      DotPath("b", "e"),
+                      DotPath("b", "e")
                     ),
                     "f" to LongNode(
                       value = 4,
@@ -107,15 +107,15 @@ class JsonParserTest : FunSpec() {
                     )
                   ),
                   pos = LineColPos(line = 8, col = 6, source = "a.json"),
-                  DotPath("b"),
+                  DotPath("b")
                 )
               ),
               pos = LineColPos(line = 3, col = 9, source = "a.json"),
-              DotPath("b"),
+              DotPath("b")
             )
           ),
           pos = LineColPos(line = 1, col = 2, source = "a.json"),
-          DotPath.root,
+          DotPath.root
         )
     }
   }

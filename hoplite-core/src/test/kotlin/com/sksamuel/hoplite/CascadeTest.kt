@@ -59,7 +59,7 @@ class CascadeTest : FunSpec({
         )
       ),
       Pos.NoPos,
-      DotPath.root,
+      DotPath.root
     )
 
     val node2 = MapNode(
@@ -74,7 +74,7 @@ class CascadeTest : FunSpec({
         "c" to StringNode("baz", Pos.NoPos, DotPath.root)
       ),
       Pos.NoPos,
-      DotPath.root,
+      DotPath.root
     )
 
     val f = cascader.cascade(node1, node2).node
@@ -104,7 +104,7 @@ class CascadeTest : FunSpec({
         )
       ),
       Pos.NoPos,
-      DotPath.root,
+      DotPath.root
     )
 
     val node2 = MapNode(
@@ -112,7 +112,7 @@ class CascadeTest : FunSpec({
         "b" to MapNode(
           mapOf(
             "k" to StringNode("kez", Pos.NoPos, DotPath("b", "k")),
-            "m" to StringNode("moz", Pos.NoPos, DotPath("b", "m")),
+            "m" to StringNode("moz", Pos.NoPos, DotPath("b", "m"))
           ),
           Pos.NoPos,
           DotPath("b")
@@ -120,7 +120,7 @@ class CascadeTest : FunSpec({
         "c" to StringNode("baz", Pos.NoPos, DotPath("c"))
       ),
       Pos.NoPos,
-      DotPath.root,
+      DotPath.root
     )
 
     val cascader = Cascader(CascadeMode.Fallthrough, false)
@@ -148,10 +148,10 @@ class CascadeTest : FunSpec({
           ), Pos.NoPos,
           DotPath("b")
         ),
-        "c" to StringNode("baz", Pos.NoPos, DotPath("c")),
+        "c" to StringNode("baz", Pos.NoPos, DotPath("c"))
       ),
       Pos.NoPos,
-      DotPath.root,
+      DotPath.root
     )
 
     val node2 = MapNode(
@@ -159,21 +159,21 @@ class CascadeTest : FunSpec({
         "b" to MapNode(
           mapOf(
             "k" to StringNode("kez", Pos.SourcePos("x"), DotPath("b", "k")),
-            "m" to StringNode("moz", Pos.NoPos, DotPath("b", "m")),
+            "m" to StringNode("moz", Pos.NoPos, DotPath("b", "m"))
           ),
           Pos.NoPos,
           DotPath("b")
         ),
-        "c" to StringNode("maz", Pos.NoPos, DotPath("c")),
+        "c" to StringNode("maz", Pos.NoPos, DotPath("c"))
       ),
       Pos.NoPos,
-      DotPath.root,
+      DotPath.root
     )
 
     val cascader = Cascader(CascadeMode.Merge, false)
     cascader.cascade(node1, node2).overrides shouldBe listOf(
       OverridePath(DotPath("b", "k"), Pos.SourcePos("y"), Pos.SourcePos("x")),
-      OverridePath(DotPath("c"), Pos.NoPos, Pos.NoPos),
+      OverridePath(DotPath("c"), Pos.NoPos, Pos.NoPos)
     )
   }
 

@@ -17,7 +17,7 @@ class DatadogConfigDecoder : Decoder<DatadogConfig> {
   override fun decode(
     node: Node,
     type: KType,
-    context: DecoderContext,
+    context: DecoderContext
   ): ConfigResult<DatadogConfig> {
     return context.decoder(typeOf<InternalConfig>())
       .flatMap { it.decode(node, typeOf<InternalConfig>(), context) }
@@ -25,7 +25,7 @@ class DatadogConfigDecoder : Decoder<DatadogConfig> {
   }
 
   private fun createConfig(
-    config: InternalConfig,
+    config: InternalConfig
   ): DatadogConfig {
     return object : DatadogConfig {
       override fun apiKey(): String = config.apiKey
@@ -49,5 +49,5 @@ data class InternalConfig(
   val descriptions: Boolean?,
   val uri: String?,
   val batchSize: Int?,
-  val step: Duration?,
+  val step: Duration?
 )

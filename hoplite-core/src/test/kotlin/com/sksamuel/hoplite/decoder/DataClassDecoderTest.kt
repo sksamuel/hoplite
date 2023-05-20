@@ -68,7 +68,7 @@ class DataClassDecoderTest : StringSpec() {
           "c" to BooleanNode(true, Pos.NoPos, DotPath.root)
         ),
         Pos.NoPos,
-        DotPath.root,
+        DotPath.root
       )
       DataClassDecoder().decode(
         node,
@@ -94,7 +94,7 @@ class DataClassDecoderTest : StringSpec() {
           "d" to LongNode(millis.toEpochMilli(), Pos.NoPos, DotPath.root)
         ),
         Pos.NoPos,
-        DotPath.root,
+        DotPath.root
       )
       DataClassDecoder().decode(node,
         Foo::class.createType(),
@@ -129,7 +129,7 @@ class DataClassDecoderTest : StringSpec() {
           "a" to StringNode("value", Pos.NoPos, DotPath.root)
         ),
         Pos.NoPos,
-        DotPath.root,
+        DotPath.root
       )
 
       DataClassDecoder().decode(

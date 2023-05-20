@@ -60,7 +60,7 @@ class LocalTimeDecoder : NonNullableLeafDecoder<LocalTime> {
   override fun safeLeafDecode(
     node: Node,
     type: KType,
-    context: DecoderContext,
+    context: DecoderContext
   ): ConfigResult<LocalTime> = when (node) {
     is StringNode -> runCatching { LocalTime.parse(node.value, DateTimeFormatter.ISO_LOCAL_TIME) }.toValidated {
       ConfigFailure.DecodeError(node, type)

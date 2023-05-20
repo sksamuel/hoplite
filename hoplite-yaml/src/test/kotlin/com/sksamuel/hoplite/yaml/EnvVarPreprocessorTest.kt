@@ -16,7 +16,7 @@ class EnvVarPreprocessorTest : FunSpec() {
                   val e: String,
                   val f: String,
                   val g: String,
-                  val h: String,
+                  val h: String
   )
 
   data class Test2(

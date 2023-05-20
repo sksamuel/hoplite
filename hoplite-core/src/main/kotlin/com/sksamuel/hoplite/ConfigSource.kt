@@ -45,7 +45,7 @@ abstract class ConfigSource {
 
   class ClasspathSource(
     private val resource: String,
-    private val classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader(),
+    private val classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader()
   ) : ConfigSource() {
     override fun describe(): String = "classpath:$resource"
     override fun ext() = resource.split('.').last()
@@ -68,7 +68,7 @@ abstract class ConfigSource {
      */
     fun fromResourcesOrFiles(
       resourceOrFile: String,
-      classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader(),
+      classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader()
     ): ConfigResult<ConfigSource> {
       val path = Paths.get(resourceOrFile)
       return if (path.exists()) {
@@ -88,7 +88,7 @@ abstract class ConfigSource {
      */
     fun fromResourcesOrFiles(
       resourceOrFiles: List<String>,
-      classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader(),
+      classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader()
     ): ConfigResult<List<ConfigSource>> {
       return resourceOrFiles.map { fromResourcesOrFiles(it, classpathResourceLoader) }
         .sequence()
@@ -97,7 +97,7 @@ abstract class ConfigSource {
 
     fun fromClasspathResources(
       resources: List<String>,
-      classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader(),
+      classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader()
     ): ConfigResult<List<ConfigSource>> {
       return resources.map { resource ->
         classpathResourceLoader.getResourceAsStream(resource)
@@ -111,7 +111,7 @@ abstract class ConfigSource {
       return paths.map { path ->
         runCatching { Files.newInputStream(path) }.fold(
           { PathSource(path).valid() },
-          { ConfigFailure.UnknownSource(path.toString()).invalid() },
+          { ConfigFailure.UnknownSource(path.toString()).invalid() }
         )
       }.sequence()
         .mapInvalid { ConfigFailure.MultipleFailures(it) }

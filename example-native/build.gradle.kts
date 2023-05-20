@@ -43,6 +43,6 @@ nativeBuild {
       "-H:ReflectionConfigurationFiles=${projectDir}/META-INF/native-image/generated/reflect-config.json",
       """-H:ResourceConfigurationFiles=
         |${projectDir}/META-INF/native-image/kotlin-resource.json,
-        |${projectDir}/META-INF/native-image/generated/resource-config.json""".trimMargin().replace(System.lineSeparator(), ""),
+        |${projectDir}/META-INF/native-image/generated/resource-config.json""".trimMargin().replace(System.lineSeparator(), "")
    )
 }

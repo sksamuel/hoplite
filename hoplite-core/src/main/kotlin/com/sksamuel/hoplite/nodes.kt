@@ -114,7 +114,7 @@ data class MapNode(
   override val pos: Pos,
   override val path: DotPath,
   val value: Node = Undefined,
-  override val meta: Map<String, Any?> = emptyMap(),
+  override val meta: Map<String, Any?> = emptyMap()
 ) : ContainerNode() {
   override val simpleName: String = "Map"
   override fun atKey(key: String): Node = map[key] ?: Undefined
@@ -126,7 +126,7 @@ data class ArrayNode(
   val elements: List<Node>,
   override val pos: Pos,
   override val path: DotPath,
-  override val meta: Map<String, Any?> = emptyMap(),
+  override val meta: Map<String, Any?> = emptyMap()
 ) : ContainerNode() {
   override val simpleName: String = "List"
   override fun atKey(key: String): Node = Undefined
@@ -145,7 +145,7 @@ data class StringNode(
   override val value: String,
   override val pos: Pos,
   override val path: DotPath,
-  override val meta: Map<String, Any?> = emptyMap(),
+  override val meta: Map<String, Any?> = emptyMap()
 ) : PrimitiveNode() {
   override val simpleName: String = "String"
 }
@@ -154,7 +154,7 @@ data class BooleanNode(
   override val value: Boolean,
   override val pos: Pos,
   override val path: DotPath,
-  override val meta: Map<String, Any?> = emptyMap(),
+  override val meta: Map<String, Any?> = emptyMap()
 ) : PrimitiveNode() {
   override val simpleName: String = "Boolean"
 }
@@ -165,7 +165,7 @@ data class LongNode(
   override val value: Long,
   override val pos: Pos,
   override val path: DotPath,
-  override val meta: Map<String, Any?> = emptyMap(),
+  override val meta: Map<String, Any?> = emptyMap()
 ) : NumberNode() {
   override val simpleName: String = "Long"
 }
@@ -174,7 +174,7 @@ data class DoubleNode(
   override val value: Double,
   override val pos: Pos,
   override val path: DotPath,
-  override val meta: Map<String, Any?> = emptyMap(),
+  override val meta: Map<String, Any?> = emptyMap()
 ) : NumberNode() {
   override val simpleName: String = "Double"
 }
@@ -182,7 +182,7 @@ data class DoubleNode(
 data class NullNode(
   override val pos: Pos,
   override val path: DotPath,
-  override val meta: Map<String, Any?> = emptyMap(),
+  override val meta: Map<String, Any?> = emptyMap()
 ) : PrimitiveNode() {
   override val simpleName: String = "null"
   override val value: Any? = null

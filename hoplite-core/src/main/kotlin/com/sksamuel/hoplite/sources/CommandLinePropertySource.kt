@@ -16,7 +16,7 @@ import com.sksamuel.hoplite.parsers.toNode
 class CommandLinePropertySource(
   private val arguments: Array<String>,
   private val prefix: String,
-  private val delimiter: String,
+  private val delimiter: String
 ) : PropertySource {
 
   override fun source(): String = "Arguments delimited by $delimiter"

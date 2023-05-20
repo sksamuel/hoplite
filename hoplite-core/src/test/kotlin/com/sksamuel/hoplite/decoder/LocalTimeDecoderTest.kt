@@ -19,7 +19,7 @@ class LocalTimeDecoderTest : FunSpec() {
 
       val config = ConfigLoader().loadConfigOrThrow<Config>(
         listOf("localtime.props"),
-        Thread.currentThread().contextClassLoader.toClasspathResourceLoader(),
+        Thread.currentThread().contextClassLoader.toClasspathResourceLoader()
       )
       config.a shouldBe LocalTime.parse("18:15")
       config.b shouldBe LocalTime.parse("18:15:59")

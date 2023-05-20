@@ -17,7 +17,7 @@ import com.sksamuel.hoplite.withMeta
 
 class GcpSecretManagerPreprocessor(
   private val report: Boolean = false,
-  private val createClient: () -> SecretManagerServiceClient,
+  private val createClient: () -> SecretManagerServiceClient
 ) : TraversingPrimitivePreprocessor() {
 
   private val client = lazy { createClient() }

@@ -13,7 +13,7 @@ class SysPropPreprocessorTest : FunSpec() {
     val c: String,
     val d: String,
     val e: String,
-    val f: String,
+    val f: String
   )
 
   init {
@@ -26,7 +26,7 @@ class SysPropPreprocessorTest : FunSpec() {
             c = "aawobble",
             d = "wobblebb",
             e = "aawobblebb",
-            f = "\$wibble",
+            f = "\$wibble"
           )
       }
     }

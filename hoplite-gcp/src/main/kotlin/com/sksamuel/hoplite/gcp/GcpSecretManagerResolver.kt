@@ -14,7 +14,7 @@ import com.sksamuel.hoplite.resolver.ContextResolver
 
 class GcpSecretManagerResolver(
   private val report: Boolean = false,
-  private val createClient: () -> SecretManagerServiceClient,
+  private val createClient: () -> SecretManagerServiceClient
 ) : ContextResolver() {
 
   private val client = lazy { createClient() }

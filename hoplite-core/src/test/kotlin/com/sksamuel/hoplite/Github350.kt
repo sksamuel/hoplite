@@ -31,15 +31,15 @@ class Github350 : FunSpec() {
 
 data class Config(
   val googleCredentials: GoogleCredentials,
-  val database: Database,
+  val database: Database
 )
 
 data class GoogleCredentials(
   val clientId: String,
-  val clientSecret: String,
+  val clientSecret: String
 )
 
 data class Database(
   val jdbcUrl: String,
-  val driverClassName: String,
+  val driverClassName: String
 )
