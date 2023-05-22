@@ -90,6 +90,11 @@ sealed interface ConfigFailure {
     override fun description(): String = "Data class ${kclass.qualifiedName} has no constructors"
   }
 
+  data class NoSuchSealedSubtype(val kclass: KClass<*>, val value: String) : ConfigFailure {
+    override fun description(): String =
+      "No sealed subtype of `${kclass.jvmName}` was found using the discriminator value `$value`"
+  }
+
   data class UnknownSource(val source: String) : ConfigFailure {
     override fun description(): String = "Could not find $source"
   }
@@ -114,10 +119,14 @@ sealed interface ConfigFailure {
     override fun description(): String = message
   }
 
-  data class NoSealedClassObjectSubtype(val type: KClass<*>, val node: StringNode) : ConfigFailure {
+  data class InvalidDiscriminatorField(val kclass: KClass<*>, val field: String) : ConfigFailure {
+    override fun description(): String = "Invalid discriminator field to select sealed subtype. Must specify `$field` to be a valid subtype of `${kclass.java.name}`."
+  }
+
+  data class NoSealedClassObjectSubtype(val kclass: KClass<*>, val subtypeName: String) : ConfigFailure {
     override fun description(): String {
-      val subclasses = type.sealedSubclasses.joinToString(", ") { it.jvmName }
-      return "Could not find subclass of $type matching name ${node.value}: Tried $subclasses ${node.pos.loc()}"
+      val subclasses = kclass.sealedSubclasses.joinToString(", ") { it.java.simpleName }
+      return "Could not find subclass of $kclass matching name ${subtypeName}: Available $subclasses"
     }
   }
 
@@ -138,7 +147,7 @@ sealed interface ConfigFailure {
   }
 
   data class SealedClassWithoutImpls(val type: KClass<*>) : ConfigFailure {
-    override fun description(): String = "Sealed class $type does not define any subclasses"
+    override fun description(): String = "Sealed class `${type.jvmName}` does not define any subclasses"
   }
 
   data class SealedClassWithoutObject(val type: KClass<*>) : ConfigFailure {

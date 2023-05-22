@@ -6,10 +6,12 @@ import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.fp.Validated
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.plus
 import com.sksamuel.hoplite.fp.sequence
 import com.sksamuel.hoplite.fp.valid
+import com.sksamuel.hoplite.valueOrNull
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KType
@@ -27,7 +29,7 @@ class SealedClassDecoder : NullHandlingDecoder<Any> {
     }
   }
 
-  // it's common to have custom decoders for sealed classes, so sealed classes should be very low priority
+  // it's common to have custom decoders for sealed classes, so this decoder should be very low priority
   override fun priority(): Int = Integer.MIN_VALUE + 100
 
   override fun safeDecode(
@@ -35,13 +37,56 @@ class SealedClassDecoder : NullHandlingDecoder<Any> {
     type: KType,
     context: DecoderContext
   ): ConfigResult<Any> {
-    // to determine which sealed class to use, we can just try each in turn until one results in success
+
+    val kclass = type.classifier as KClass<*>
+
+    // if we have no subclasses then that is an error of course
+    if (kclass.sealedSubclasses.isEmpty()) return ConfigFailure.SealedClassWithoutImpls(kclass).invalid()
+
+    return when (val field = context.sealedTypeDiscriminatorField) {
+      null -> deriveInstance(node, type, context)
+      else -> useDiscriminator(field, node, type, context)
+    }
+  }
+
+  private fun useDiscriminator(field: String, node: Node, type: KType, context: DecoderContext): ConfigResult<Any> {
+    val kclass = type.classifier as KClass<*>
+    val subclasses = kclass.sealedSubclasses
+
+    // when explicitly specifying subtypes, we must have a map type containing the disriminator field,
+    // or a string type referencing an object instance
+    return when (node) {
+      is StringNode -> {
+        val referencedName = node.value
+        val subtype = subclasses.find { it.java.simpleName == referencedName }?.objectInstance
+        subtype?.valid() ?: ConfigFailure.NoSealedClassObjectSubtype(kclass, referencedName).invalid()
+      }
+      is MapNode -> {
+        when (val discriminatorField = node[field]) {
+          is StringNode -> {
+            val subtype = subclasses.find { it.java.simpleName == discriminatorField.value }
+            if (subtype == null) {
+              ConfigFailure.NoSuchSealedSubtype(kclass, discriminatorField.value).invalid()
+            } else {
+              // check for object-ness first
+              subtype.objectInstance?.valid()
+              // now we know the type is not an object, we can use the data class decoder directly
+                ?: DataClassDecoder().decode(node, subtype.createType(), context)
+            }
+          }
+          else -> ConfigFailure.InvalidDiscriminatorField(kclass, field).invalid()
+        }
+      }
+      else -> ConfigFailure.Generic("Sealed type values must be maps or strings").invalid()
+    }
+  }
+
+  // to determine which sealed class to use, we can just try each in turn until one results in success
+  private fun deriveInstance(node: Node, type: KType, context: DecoderContext): Validated<ConfigFailure, Any> {
     val kclass = type.classifier as KClass<*>
     val subclasses = kclass.sealedSubclasses
 
     return when {
-      // if we have no subclasses then that is an error of course
-      subclasses.isEmpty() -> ConfigFailure.SealedClassWithoutImpls(kclass).invalid()
       // if we have a map with no values then we can look for an object subclass,
       // but only if there is a single object subclass, otherwise we don't know which one to pick
       node is MapNode && node.size == 0 -> {
@@ -58,7 +103,7 @@ class SealedClassDecoder : NullHandlingDecoder<Any> {
         // we can use the object directly
         val error = if (node is StringNode) {
           val obj = subclasses.find { it.simpleName == node.value }?.objectInstance
-          if (obj != null) return obj.valid() else ConfigFailure.NoSealedClassObjectSubtype(kclass, node)
+          if (obj != null) return obj.valid() else ConfigFailure.NoSealedClassObjectSubtype(kclass, node.value)
         } else null
 
         val results = kclass.sealedSubclasses
