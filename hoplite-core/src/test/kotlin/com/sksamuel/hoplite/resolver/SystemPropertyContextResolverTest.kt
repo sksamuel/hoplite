@@ -8,9 +8,9 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.system.withSystemProperty
 import io.kotest.matchers.shouldBe
 
-class SystemPropertyResolverTest : FunSpec({
+class SystemPropertyContextResolverTest : FunSpec({
 
-  test("should find matches") {
+  test("should support context matches") {
 
     val node = StringNode("boaty\${{sysprop:bar}}face", Pos.NoPos, DotPath.root)
 
@@ -19,6 +19,17 @@ class SystemPropertyResolverTest : FunSpec({
     }
 
     (config.getUnsafe() as StringNode).value shouldBe "boatymcboatface"
+  }
+
+  test("should support prefix matches") {
+
+    val node = StringNode("sysprop://bar", Pos.NoPos, DotPath.root)
+
+    val config = withSystemProperty(key = "bar", value = "mcboat") {
+      SystemPropertyContextResolver.resolve(node, node, DecoderContext.zero)
+    }
+
+    (config.getUnsafe() as StringNode).value shouldBe "mcboat"
   }
 
   test("support leading whitespace") {

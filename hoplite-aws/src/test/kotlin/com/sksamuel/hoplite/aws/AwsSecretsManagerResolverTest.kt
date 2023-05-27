@@ -37,9 +37,20 @@ class AwsSecretsManagerResolverTest : FunSpec() {
     client.createSecret(CreateSecretRequest().withName("foo").withSecretString("secret!"))
     client.createSecret(CreateSecretRequest().withName("bubble").withSecretString("""{"f": "1", "g": "2"}"""))
 
-    test("placeholder should be detected and used") {
+    test("context pattern should be detected and used") {
       val props = Properties()
       props["a"] = "\${{ aws-secrets-manager:foo }}"
+      ConfigLoaderBuilder.create()
+        .addResolver(createAwsSecretsManagerResolver { client })
+        .addPropertySource(PropsPropertySource(props))
+        .build()
+        .loadConfigOrThrow<ConfigHolder>()
+        .a.shouldBe("secret!")
+    }
+
+    test("prefix pattern should be detected and used") {
+      val props = Properties()
+      props["a"] = "aws-secrets-manager://foo"
       ConfigLoaderBuilder.create()
         .addResolver(createAwsSecretsManagerResolver { client })
         .addPropertySource(PropsPropertySource(props))

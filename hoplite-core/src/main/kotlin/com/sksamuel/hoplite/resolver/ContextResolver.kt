@@ -15,7 +15,10 @@ import com.sksamuel.hoplite.fp.valid
  * A [ContextResolver] applies substitutions to context patterns in a [StringNode]'s value.
  *
  * Context patterns are of the form ${{ context:path }} where `context` indicates the context
- * resolver to use, and `path` is provided to that resolver for runtime resolution.
+ * resolver to use, and `path` is provided to that resolver for runtime resolution. Context
+ * patterns can be placed anywhere in a string, and can be nested.
+ *
+ * Additionally, we can use context://path to match a full string.
  *
  * For example, the [EnvVarContextResolver] will replace ${{ env:name }} with the env variable `name`,
  * and the [SystemPropertyContextResolver] will replace ${{ sysprop:name }} with the system property `name`.
@@ -31,7 +34,11 @@ abstract class ContextResolver : Resolver {
 
   // this regex will match most nested replacements first (inside to outside)
   // redundant escaping required for Android support
-  fun regex() = "\\$\\{\\{\\s*$contextKey:([^{}]*)\\}\\}".toRegex()
+  private fun contextRegex() = "\\$\\{\\{\\s*$contextKey:([^{}]*)\\}\\}".toRegex()
+
+  // this regex will match if the context is a prefex
+  // redundant escaping required for Android support
+  private fun prefixRegex() = "$contextKey://(.*)".toRegex()
 
   private val valueWithDefaultRegex = "(.+):-(.+)".toRegex()
 
@@ -57,7 +64,7 @@ abstract class ContextResolver : Resolver {
 
   private fun resolve(node: StringNode, root: Node, context: DecoderContext): ConfigResult<StringNode> {
 
-    val result = regex().find(node.value) ?: return node.valid()
+    val result = prefixRegex().matchEntire(node.value) ?: contextRegex().find(node.value) ?: return node.valid()
     val path = result.groupValues[1].trim()
 
     val matchWithDefault = valueWithDefaultRegex.matchEntire(path)
