@@ -30,7 +30,7 @@ class ConfigLoader(
   val onFailure: List<(Throwable) -> Unit> = emptyList(),
   val decodeMode: DecodeMode = DecodeMode.Lenient,
   val useReport: Boolean = false,
-  val allowEmptyTree: Boolean, // if true then we allow config files to be empty
+  val allowEmptyTree: Boolean, // if true then we allow the cascaded tree to be empty
   val allowUnresolvedSubstitutions: Boolean,
   val classLoader: ClassLoader? = null, // if null, then the current context thread loader
   val preprocessingIterations: Int = 1,

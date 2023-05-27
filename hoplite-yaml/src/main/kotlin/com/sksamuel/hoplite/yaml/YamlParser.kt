@@ -11,9 +11,7 @@ import com.sksamuel.hoplite.decoder.DotPath
 import com.sksamuel.hoplite.parsers.Parser
 import com.sksamuel.hoplite.withPath
 import org.yaml.snakeyaml.DumperOptions
-import org.yaml.snakeyaml.LoaderOptions
 import org.yaml.snakeyaml.Yaml
-import org.yaml.snakeyaml.constructor.SafeConstructor
 import org.yaml.snakeyaml.error.Mark
 import org.yaml.snakeyaml.events.AliasEvent
 import org.yaml.snakeyaml.events.DocumentEndEvent
@@ -37,9 +35,14 @@ class YamlParser : Parser {
     val events = yaml.parse(reader).iterator()
     val stream = TokenStream(events)
     require(stream.next().`is`(Event.ID.StreamStart)) { "Expected stream start at ${stream.current().startMark}" }
-    require(stream.next().`is`(Event.ID.DocumentStart)) { "Expected document start at ${stream.current().startMark}" }
-    stream.next()
-    return TokenProduction(stream, source, emptyMap(), DotPath.root).first
+    return when (stream.next().eventId) {
+      Event.ID.StreamEnd -> Undefined
+      Event.ID.DocumentStart -> {
+        stream.next() // move past the doc start
+        TokenProduction(stream, source, emptyMap(), DotPath.root).first
+      }
+      else -> error { "Expected document start at ${stream.current().startMark}" }
+    }
   }
 }
 
