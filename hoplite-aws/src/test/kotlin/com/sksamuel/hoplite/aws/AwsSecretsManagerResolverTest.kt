@@ -5,6 +5,7 @@ import com.amazonaws.services.secretsmanager.model.CreateSecretRequest
 import com.sksamuel.hoplite.ConfigException
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigLoaderBuilder
+import com.sksamuel.hoplite.ExperimentalHoplite
 import com.sksamuel.hoplite.fp.Validated
 import com.sksamuel.hoplite.parsers.PropsPropertySource
 import io.kotest.assertions.throwables.shouldThrow
@@ -19,6 +20,7 @@ import org.testcontainers.containers.localstack.LocalStackContainer
 import org.testcontainers.utility.DockerImageName
 import java.util.Properties
 
+@OptIn(ExperimentalHoplite::class)
 class AwsSecretsManagerResolverTest : FunSpec() {
 
   private val localstack = LocalStackContainer(DockerImageName.parse("localstack/localstack:1.3.1"))
@@ -41,7 +43,7 @@ class AwsSecretsManagerResolverTest : FunSpec() {
       val props = Properties()
       props["a"] = "\${{ aws-secrets-manager:foo }}"
       ConfigLoaderBuilder.create()
-        .addResolver(createAwsSecretsManagerResolver { client })
+        .addResolver(AwsSecretsManagerContextResolvers { client })
         .addPropertySource(PropsPropertySource(props))
         .build()
         .loadConfigOrThrow<ConfigHolder>()
@@ -52,7 +54,7 @@ class AwsSecretsManagerResolverTest : FunSpec() {
       val props = Properties()
       props["a"] = "aws-secrets-manager://foo"
       ConfigLoaderBuilder.create()
-        .addResolver(createAwsSecretsManagerResolver { client })
+        .addResolver(AwsSecretsManagerContextResolvers { client })
         .addPropertySource(PropsPropertySource(props))
         .build()
         .loadConfigOrThrow<ConfigHolder>()
@@ -63,7 +65,7 @@ class AwsSecretsManagerResolverTest : FunSpec() {
       val props = Properties()
       props["a"] = "\${{ aws-secrets-manager:qwerty }}"
       ConfigLoaderBuilder.create()
-        .addResolver(createAwsSecretsManagerResolver { client })
+        .addResolver(AwsSecretsManagerContextResolvers { client })
         .addPropertySource(PropsPropertySource(props))
         .build()
         .loadConfig<ConfigHolder>()
@@ -75,7 +77,7 @@ class AwsSecretsManagerResolverTest : FunSpec() {
       props["a"] = "\${{ aws-secrets-manager:bibblebobble }}"
       client.createSecret(CreateSecretRequest().withName("bibblebobble").withSecretString(""))
       ConfigLoaderBuilder.create()
-        .addResolver(createAwsSecretsManagerResolver { client })
+        .addResolver(AwsSecretsManagerContextResolvers { client })
         .addPropertySource(PropsPropertySource(props))
         .build()
         .loadConfig<ConfigHolder>()
@@ -86,7 +88,7 @@ class AwsSecretsManagerResolverTest : FunSpec() {
       val props = Properties()
       props["a"] = "\${{ aws-secrets-manager:unkunk }}"
       ConfigLoaderBuilder.create()
-        .addResolver(createAwsSecretsManagerResolver { client })
+        .addResolver(AwsSecretsManagerContextResolvers { client })
         .addPropertySource(PropsPropertySource(props))
         .build()
         .loadConfig<ConfigHolder>()
@@ -100,7 +102,7 @@ class AwsSecretsManagerResolverTest : FunSpec() {
       props["b"] = "\${{ aws-secrets-manager:bar.baz }}"
       shouldThrow<ConfigException> {
         ConfigLoaderBuilder.create()
-          .addResolver(createAwsSecretsManagerResolver { client })
+          .addResolver(AwsSecretsManagerContextResolvers { client })
           .addPropertySource(PropsPropertySource(props))
           .build()
           .loadConfigOrThrow<ConfigHolder2>()
@@ -111,7 +113,7 @@ class AwsSecretsManagerResolverTest : FunSpec() {
       val props = Properties()
       props["a"] = "\${{ aws-secrets-manager:bubble[f] }}"
       ConfigLoaderBuilder.create()
-        .addResolver(createAwsSecretsManagerResolver { client })
+        .addResolver(AwsSecretsManagerContextResolvers { client })
         .addPropertySource(PropsPropertySource(props))
         .build()
         .loadConfigOrThrow<ConfigHolder>()
