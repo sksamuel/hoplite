@@ -12,14 +12,16 @@ import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.resolver.ContextResolver
 
-class GcpSecretManagerResolver(
+abstract class AbstractGcpSecretManagerContextResolver(
   private val report: Boolean = false,
   private val createClient: () -> SecretManagerServiceClient
 ) : ContextResolver() {
 
   private val client = lazy { createClient() }
-  override val contextKey: String = "gcp-secrets-manager"
-  override val default: Boolean = false
+
+  companion object {
+    const val Section = "GCP Secret Manager Lookups"
+  }
 
   override fun lookup(path: String, node: StringNode, root: Node, context: DecoderContext): ConfigResult<String?> {
     return fetchSecret(path, context)
@@ -35,17 +37,13 @@ class GcpSecretManagerResolver(
       }
 
       if (value.isNullOrBlank())
-        ConfigFailure.PreprocessorWarning("Empty value for '$key' in GCP Secret Manager").invalid()
+        ConfigFailure.ResolverFailure("Empty value for '$key' in GCP Secret Manager").invalid()
       else
         value.valid()
     } catch (e: ApiException) {
-      ConfigFailure.PreprocessorWarning("Could not locate secret '$key' in GCP Secret Manager").invalid()
+      ConfigFailure.ResolverFailure("Could not locate secret '$key' in GCP Secret Manager").invalid()
     } catch (e: Exception) {
-      ConfigFailure.PreprocessorFailure("Failed loading secret '$key' from GCP Secret Manager", e).invalid()
+      ConfigFailure.ResolverException("Failed loading secret '$key' from GCP Secret Manager", e).invalid()
     }
-  }
-
-  companion object {
-    const val Section = "GCP Secret Manager Lookups"
   }
 }
