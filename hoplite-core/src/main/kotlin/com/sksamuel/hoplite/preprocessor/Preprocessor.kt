@@ -24,6 +24,7 @@ import com.sksamuel.hoplite.DecoderContext
  * which will perform the task of descending into child nodes when a container node
  * is encountered.
  */
+@Deprecated("Preprocessors are deprecated in favour of Resolvers which are lazily applied, so support nesting.")
 fun interface Preprocessor {
   fun process(node: Node, context: DecoderContext): ConfigResult<Node>
 }
