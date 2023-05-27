@@ -61,10 +61,12 @@ sealed interface ConfigFailure {
       "Could not detect parser for file extension '.$file' - available parsers are ${map.keys.joinToString(", ")}"
   }
 
+  @Deprecated("Switching to resolvers")
   data class PreprocessorWarning(val message: String) : ConfigFailure {
     override fun description(): String = message
   }
 
+  @Deprecated("Switching to resolvers")
   data class PreprocessorFailure(val message: String, val t: Throwable) : ConfigFailure {
     override fun description(): String =
       message + System.lineSeparator() + t.message + System.lineSeparator() + t.stackTraceToString()
@@ -115,8 +117,12 @@ sealed interface ConfigFailure {
     override fun description(): String = failures.map { it.description() }.list.joinToString("\n\n")
   }
 
-  data class ResolverError(val message: String) : ConfigFailure {
+  data class ResolverFailure(val message: String) : ConfigFailure {
     override fun description(): String = message
+  }
+
+  data class ResolverException(val message: String, val throwable: Throwable) : ConfigFailure {
+    override fun description(): String = message + "\n" + throwable
   }
 
   data class InvalidDiscriminatorField(val kclass: KClass<*>, val field: String) : ConfigFailure {

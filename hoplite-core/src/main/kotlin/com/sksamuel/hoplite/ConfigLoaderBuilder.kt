@@ -81,7 +81,7 @@ class ConfigLoaderBuilder private constructor() {
     }
 
     /**
-     * Returns a [ConfigLoaderBuilder] with all defaults applied.
+     * Returns a [ConfigLoaderBuilder] with all defaults applied, using resolvers in place of preprocessors.
      *
      * This means that the default [Decoder]s, [Resolver]s, [ParameterMapper]s, [PropertySource]s,
      * and [Parser]s are all registered.
@@ -89,6 +89,7 @@ class ConfigLoaderBuilder private constructor() {
      * If you wish to avoid adding defaults, for example to avoid certain decoders or sources, then
      * use [empty] to obtain an empty ConfigLoaderBuilder and call the various addDefault methods manually.
      */
+    @ExperimentalHoplite
     fun create(): ConfigLoaderBuilder {
       return empty()
         .addDefaultDecoders()
@@ -163,8 +164,12 @@ class ConfigLoaderBuilder private constructor() {
    * Adds the given [Resolver]s to the end of the resolvers list.
    */
   fun addResolvers(resolvers: Iterable<Resolver>): ConfigLoaderBuilder = apply {
-    require(preprocessors.isEmpty()) { "Preprocessors cannot be used with resolvers. Preprocessors will be removed in Hoplite 3.0" }
+    require(preprocessors.isEmpty()) { "Preprocessors cannot be used alongside resolvers. Call removePreprocessors() before adding any resolver. Preprocessors will be removed in Hoplite 3.0" }
     this.resolvers.addAll(resolvers)
+  }
+
+  fun removePreprocessors() = apply {
+    preprocessors.clear()
   }
 
   /**

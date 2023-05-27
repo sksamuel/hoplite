@@ -80,7 +80,7 @@ abstract class ContextResolver : Resolver {
     return replacement.flatMap {
       when {
         it == null && context.contextResolverMode == ContextResolverMode.Silent -> node.valid()
-        it == null -> ConfigFailure.ResolverError("Could not resolve '$path'").invalid()
+        it == null -> ConfigFailure.ResolverFailure("Could not resolve '$path'").invalid()
         else -> node.copy(value = node.value.replaceRange(result.range, it)).valid()
       }
     }

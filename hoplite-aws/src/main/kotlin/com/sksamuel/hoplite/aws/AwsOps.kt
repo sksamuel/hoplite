@@ -57,7 +57,7 @@ class AwsOps(private val client: AWSSecretsManager) {
       } else {
         val map = runCatching { Json.Default.decodeFromString<Map<String, String>>(secret) }.getOrElse { emptyMap() }
         map[index]?.valid()
-          ?: ConfigFailure.ResolverError(
+          ?: ConfigFailure.ResolverFailure(
             "Index '$index' not present in AWS secret '${result.name}'. Present keys are ${map.keys.joinToString(",")}"
           ).invalid()
       }
