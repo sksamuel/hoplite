@@ -25,7 +25,7 @@ class AzureKeyVaultContextResolver(
   private val client = lazy { createClient() }
   private val ops = lazy { AzureOps(client.value) }
 
-  override val contextKey = "azure-key-value"
+  override val contextKey = "azure-key-vault"
   override val default: Boolean = true
 
   override fun lookup(path: String, node: StringNode, root: Node, context: DecoderContext): ConfigResult<String?> {
