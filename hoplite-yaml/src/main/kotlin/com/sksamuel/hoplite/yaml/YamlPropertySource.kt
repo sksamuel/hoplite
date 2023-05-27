@@ -29,5 +29,7 @@ class YamlPropertySource(
   override fun source(): String = source
 
   override fun node(context: PropertySourceContext): ConfigResult<Node> =
-    YamlParser().load(str.byteInputStream(), source).valid()
+    YamlParser().load(str.byteInputStream(), source).valid().apply {
+      println(this)
+    }
 }

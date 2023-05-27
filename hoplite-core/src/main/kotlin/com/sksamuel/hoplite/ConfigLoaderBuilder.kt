@@ -40,6 +40,7 @@ class ConfigLoaderBuilder private constructor() {
   private var decodeMode: DecodeMode = DecodeMode.Lenient
   private var cascadeMode: CascadeMode = CascadeMode.Merge
   private var allowEmptySources = false
+  private var allowNullOverride = false
   private var allowUnresolvedSubstitutions = false
   private var sealedTypeDiscriminatorField: String? = null
   private var contextResolverMode = ContextResolverMode.Error
@@ -260,6 +261,13 @@ class ConfigLoaderBuilder private constructor() {
   }
 
   /**
+   * When enabled, allows config values to override to null.
+   */
+  fun allowNullOverride(): ConfigLoaderBuilder = apply {
+    allowNullOverride = true
+  }
+
+  /**
    * When enabled, allows placeholder substitutions like ${foo} not to cause an error if they are not resolvable.
    */
   @Deprecated("Use SubstitutionMode")
@@ -339,6 +347,7 @@ class ConfigLoaderBuilder private constructor() {
       decodeMode = decodeMode,
       useReport = useReport,
       allowEmptyTree = allowEmptySources,
+      allowNullOverride = allowNullOverride,
       allowUnresolvedSubstitutions = allowUnresolvedSubstitutions,
       preprocessingIterations = preprocessingIterations,
       cascadeMode = cascadeMode,

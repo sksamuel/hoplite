@@ -12,7 +12,11 @@ import com.sksamuel.hoplite.fp.NonEmptyList
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 
-class Cascader(private val cascadeMode: CascadeMode, private val allowEmptyTree: Boolean) {
+class Cascader(
+  private val cascadeMode: CascadeMode,
+  private val allowEmptyTree: Boolean,
+  private val allowNullOverride: Boolean = false,
+) {
 
   fun cascade(nodes: NonEmptyList<Node>): ConfigResult<Node> {
 
@@ -51,8 +55,8 @@ class Cascader(private val cascadeMode: CascadeMode, private val allowEmptyTree:
     }
 
     return when (a) {
-      // if I am null, then we should use the other one, but that is not an override
-      is NullNode -> CascadeResult(b)
+      // if I am null, then we should use the other one, unless allow null overriding is set, but that is not an override
+      is NullNode -> if (allowNullOverride) CascadeResult(a) else CascadeResult(b)
       is MapNode -> when {
         // in fallthrough mode, this entire map takes precendence.
         // note override only happens after root, otherwise one entire file would override another
@@ -85,6 +89,7 @@ class Cascader(private val cascadeMode: CascadeMode, private val allowEmptyTree:
 enum class CascadeMode {
   Merge,
   Error, // throw an error if a config value has the same key as another
+
   @Deprecated("use Fallthrough")
   Override,
   Fallthrough,

@@ -28,6 +28,7 @@ class ConfigParser(
   classpathResourceLoader: ClasspathResourceLoader,
   parserRegistry: ParserRegistry,
   allowEmptyTree: Boolean,
+  allowNullOverride: Boolean,
   cascadeMode: CascadeMode,
   preprocessors: List<Preprocessor>,
   preprocessingIterations: Int,
@@ -46,7 +47,7 @@ class ConfigParser(
 ) {
 
   private val loader = PropertySourceLoader(classpathResourceLoader, parserRegistry, allowEmptyTree)
-  private val cascader = Cascader(cascadeMode, allowEmptyTree)
+  private val cascader = Cascader(cascadeMode, allowEmptyTree, allowNullOverride)
   private val preprocessing = Preprocessing(preprocessors, preprocessingIterations)
   private val decoding = Decoding(decoderRegistry, secretsPolicy)
 

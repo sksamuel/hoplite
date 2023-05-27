@@ -42,6 +42,7 @@ class ConfigLoader(
   val flattenArraysToString: Boolean = false,
   val resolvers: List<Resolver> = emptyList(),
   val sealedTypeDiscriminatorField: String? = null,
+  val allowNullOverride: Boolean = false,
 ) {
 
   init {
@@ -160,6 +161,7 @@ class ConfigLoader(
       classpathResourceLoader = classpathResourceLoader,
       parserRegistry = parserRegistry,
       allowEmptyTree = allowEmptyTree,
+      allowNullOverride = allowNullOverride,
       cascadeMode = cascadeMode,
       preprocessors = preprocessors,
       preprocessingIterations = preprocessingIterations,
@@ -212,6 +214,7 @@ class ConfigLoader(
       classpathResourceLoader = classpathResourceLoader,
       parserRegistry = parserRegistry,
       allowEmptyTree = allowEmptyTree,
+      allowNullOverride = allowNullOverride,
       cascadeMode = cascadeMode,
       preprocessors = preprocessors,
       preprocessingIterations = preprocessingIterations,

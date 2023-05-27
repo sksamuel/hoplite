@@ -24,6 +24,7 @@ class EmptyDecoderRegistryTest : FunSpec() {
         allowEmptyTree = false,
         allowUnresolvedSubstitutions = false,
         sealedTypeDiscriminatorField = null,
+        allowNullOverride = false,
       ).loadConfig<Config>()
       e as Validated.Invalid<ConfigFailure>
       e.error shouldBe ConfigFailure.EmptyDecoderRegistry
