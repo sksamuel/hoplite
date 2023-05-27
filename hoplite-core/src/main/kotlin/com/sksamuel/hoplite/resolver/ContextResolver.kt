@@ -24,8 +24,8 @@ import com.sksamuel.hoplite.fp.valid
  * and the [SystemPropertyContextResolver] will replace ${{ sysprop:name }} with the system property `name`.
  *
  * If the supplied context or path cannot be resolved, an error will be returned if the
- * [ContextResolverMode] is set to [ContextResolverMode.Error] (which is the default). To disable
- * errors, set this value to [ContextResolverMode.Silent].
+ * [ContextResolverMode] is set to [ContextResolverMode.ErrorOnUnresolved] (which is the default). To disable
+ * errors, set this value to [ContextResolverMode.SkipUnresolved].
  */
 abstract class ContextResolver : Resolver {
 
@@ -79,7 +79,7 @@ abstract class ContextResolver : Resolver {
 
     return replacement.flatMap {
       when {
-        it == null && context.contextResolverMode == ContextResolverMode.Silent -> node.valid()
+        it == null && context.contextResolverMode == ContextResolverMode.SkipUnresolved -> node.valid()
         it == null -> ConfigFailure.ResolverFailure("Could not resolve '$path'").invalid()
         else -> node.copy(value = node.value.replaceRange(result.range, it)).valid()
       }

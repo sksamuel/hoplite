@@ -43,7 +43,7 @@ class ConfigLoaderBuilder private constructor() {
   private var allowNullOverride = false
   private var allowUnresolvedSubstitutions = false
   private var sealedTypeDiscriminatorField: String? = null
-  private var contextResolverMode = ContextResolverMode.Error
+  private var contextResolverMode = ContextResolverMode.ErrorOnUnresolved
 
   private val propertySources = mutableListOf<PropertySource>()
   private val preprocessors = mutableListOf<Preprocessor>()
@@ -357,6 +357,7 @@ class ConfigLoaderBuilder private constructor() {
       reportPrintFn = reportPrintFn,
       flattenArraysToString = flattenArraysToString,
       sealedTypeDiscriminatorField = sealedTypeDiscriminatorField,
+      contextResolverMode = contextResolverMode,
     )
   }
 }

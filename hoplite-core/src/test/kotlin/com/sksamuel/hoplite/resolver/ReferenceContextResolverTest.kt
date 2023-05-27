@@ -11,7 +11,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.util.Properties
 
-class SubstitutionResolverTest : FunSpec({
+class ReferenceContextResolverTest : FunSpec({
 
   test("should find matches") {
 
@@ -46,4 +46,5 @@ class SubstitutionResolverTest : FunSpec({
     val config = ReferenceContextResolver.resolve(node, root, DecoderContext.zero)
     (config.getUnsafe() as StringNode).value shouldBe "boatymcboatface"
   }
+
 })

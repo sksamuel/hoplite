@@ -18,6 +18,7 @@ import com.sksamuel.hoplite.parsers.ParserRegistry
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.report.Print
 import com.sksamuel.hoplite.report.Reporter
+import com.sksamuel.hoplite.resolver.ContextResolverMode
 import com.sksamuel.hoplite.resolver.Resolver
 import com.sksamuel.hoplite.resolver.Resolving
 import com.sksamuel.hoplite.secrets.Obfuscator
@@ -44,6 +45,7 @@ class ConfigParser(
   private val reportPrintFn: Print,
   private val environment: Environment?,
   private val sealedTypeDiscriminatorField: String?,
+  private val contextResolverMode: ContextResolverMode,
 ) {
 
   private val loader = PropertySourceLoader(classpathResourceLoader, parserRegistry, allowEmptyTree)
@@ -59,6 +61,7 @@ class ConfigParser(
       environment = environment,
       resolvers = Resolving(resolvers, root),
       sealedTypeDiscriminatorField = sealedTypeDiscriminatorField,
+      contextResolverMode = contextResolverMode,
     )
   }
 

@@ -12,6 +12,7 @@ import com.sksamuel.hoplite.internal.DecodeMode
 import com.sksamuel.hoplite.parsers.ParserRegistry
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.report.Print
+import com.sksamuel.hoplite.resolver.ContextResolverMode
 import com.sksamuel.hoplite.resolver.Resolver
 import com.sksamuel.hoplite.secrets.Obfuscator
 import com.sksamuel.hoplite.secrets.PrefixObfuscator
@@ -43,6 +44,7 @@ class ConfigLoader(
   val resolvers: List<Resolver> = emptyList(),
   val sealedTypeDiscriminatorField: String? = null,
   val allowNullOverride: Boolean = false,
+  val contextResolverMode: ContextResolverMode = ContextResolverMode.ErrorOnUnresolved,
 ) {
 
   init {
@@ -177,6 +179,7 @@ class ConfigLoader(
       environment = environment,
       resolvers = resolvers,
       sealedTypeDiscriminatorField = sealedTypeDiscriminatorField,
+      contextResolverMode = contextResolverMode,
     ).decode(kclass, environment, resourceOrFiles, propertySources, configSources)
   }
 
@@ -218,18 +221,19 @@ class ConfigLoader(
       cascadeMode = cascadeMode,
       preprocessors = preprocessors,
       preprocessingIterations = preprocessingIterations,
-      decoderRegistry = decoderRegistry,
-      paramMappers = paramMappers, // not needed to load nodes
-      flattenArraysToString = false,
-      allowUnresolvedSubstitutions = allowUnresolvedSubstitutions, // not used when loading nodes
+      resolvers = resolvers,
+      decoderRegistry = decoderRegistry, // not needed to load nodes
+      paramMappers = paramMappers,
+      flattenArraysToString = false, // not used when loading nodes
+      allowUnresolvedSubstitutions = allowUnresolvedSubstitutions,  // not used when loading nodes
       secretsPolicy = null,  // not used when loading nodes
       decodeMode = DecodeMode.Lenient,  // not used when loading nodes
-      useReport = false,  // not used when loading nodes
-      obfuscator = StrictObfuscator("*"), // not used when loading nodes
+      useReport = false, // not used when loading nodes
+      obfuscator = StrictObfuscator("*"),
       reportPrintFn = reportPrintFn ?: { },
       environment = environment,
-      resolvers = resolvers,
       sealedTypeDiscriminatorField = sealedTypeDiscriminatorField,
+      contextResolverMode = contextResolverMode,
     ).load(resourceOrFiles, propertySources, configSources)
   }
 
