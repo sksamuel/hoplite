@@ -42,7 +42,7 @@ class AwsSecretsManagerResolverTest : FunSpec() {
     test("context pattern should be detected and used") {
       val props = Properties()
       props["a"] = "\${{ aws-secrets-manager:foo }}"
-      ConfigLoaderBuilder.create()
+      ConfigLoaderBuilder.newBuilder()
         .addResolver(AwsSecretsManagerContextResolvers { client })
         .addPropertySource(PropsPropertySource(props))
         .build()
@@ -53,7 +53,7 @@ class AwsSecretsManagerResolverTest : FunSpec() {
     test("prefix pattern should be detected and used") {
       val props = Properties()
       props["a"] = "aws-secrets-manager://foo"
-      ConfigLoaderBuilder.create()
+      ConfigLoaderBuilder.newBuilder()
         .addResolver(AwsSecretsManagerContextResolvers { client })
         .addPropertySource(PropsPropertySource(props))
         .build()
@@ -64,7 +64,7 @@ class AwsSecretsManagerResolverTest : FunSpec() {
     test("unknown secret should return error and include key") {
       val props = Properties()
       props["a"] = "\${{ aws-secrets-manager:qwerty }}"
-      ConfigLoaderBuilder.create()
+      ConfigLoaderBuilder.newBuilder()
         .addResolver(AwsSecretsManagerContextResolvers { client })
         .addPropertySource(PropsPropertySource(props))
         .build()
@@ -76,7 +76,7 @@ class AwsSecretsManagerResolverTest : FunSpec() {
       val props = Properties()
       props["a"] = "\${{ aws-secrets-manager:bibblebobble }}"
       client.createSecret(CreateSecretRequest().withName("bibblebobble").withSecretString(""))
-      ConfigLoaderBuilder.create()
+      ConfigLoaderBuilder.newBuilder()
         .addResolver(AwsSecretsManagerContextResolvers { client })
         .addPropertySource(PropsPropertySource(props))
         .build()
@@ -87,7 +87,7 @@ class AwsSecretsManagerResolverTest : FunSpec() {
     test("unknown secret should return error and not include prefix") {
       val props = Properties()
       props["a"] = "\${{ aws-secrets-manager:unkunk }}"
-      ConfigLoaderBuilder.create()
+      ConfigLoaderBuilder.newBuilder()
         .addResolver(AwsSecretsManagerContextResolvers { client })
         .addPropertySource(PropsPropertySource(props))
         .build()
@@ -101,7 +101,7 @@ class AwsSecretsManagerResolverTest : FunSpec() {
       props["a"] = "\${{ aws-secrets-manager:foo.bar }}"
       props["b"] = "\${{ aws-secrets-manager:bar.baz }}"
       shouldThrow<ConfigException> {
-        ConfigLoaderBuilder.create()
+        ConfigLoaderBuilder.newBuilder()
           .addResolver(AwsSecretsManagerContextResolvers { client })
           .addPropertySource(PropsPropertySource(props))
           .build()
@@ -112,7 +112,7 @@ class AwsSecretsManagerResolverTest : FunSpec() {
     test("should support index keys") {
       val props = Properties()
       props["a"] = "\${{ aws-secrets-manager:bubble[f] }}"
-      ConfigLoaderBuilder.create()
+      ConfigLoaderBuilder.newBuilder()
         .addResolver(AwsSecretsManagerContextResolvers { client })
         .addPropertySource(PropsPropertySource(props))
         .build()

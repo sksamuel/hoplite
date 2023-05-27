@@ -16,7 +16,7 @@ class SealedClassDiscriminatorFieldTest : FunSpec({
   test("empty sealed type should error") {
     data class TestConfig(val database: Foo)
     shouldThrowAny {
-      ConfigLoaderBuilder.create()
+      ConfigLoaderBuilder.newBuilder()
         .withExplicitSealedTypes()
         .addPropertySource(
           YamlPropertySource(
@@ -36,7 +36,7 @@ database:
   test("sealed classes decoding using discriminator field for class subtype") {
     data class TestConfig(val database: Database)
 
-    val config = ConfigLoaderBuilder.create()
+    val config = ConfigLoaderBuilder.newBuilder()
       .withExplicitSealedTypes()
       .addPropertySource(
         YamlPropertySource(
@@ -57,7 +57,7 @@ database:
   test("sealed classes decoding using discriminator field for object subtype") {
     data class TestConfig(val database: Database)
 
-    val config = ConfigLoaderBuilder.create()
+    val config = ConfigLoaderBuilder.newBuilder()
       .withExplicitSealedTypes()
       .addPropertySource(
         YamlPropertySource(
@@ -75,7 +75,7 @@ database:
   test("sealed classes decoding using top level field for object subtype") {
     data class TestConfig(val database: Database)
 
-    val config = ConfigLoaderBuilder.create()
+    val config = ConfigLoaderBuilder.newBuilder()
       .withExplicitSealedTypes()
       .addPropertySource(
         YamlPropertySource(
@@ -93,7 +93,7 @@ database: InMemory
     data class TestConfig(val database: Database)
 
     shouldThrowAny {
-      ConfigLoaderBuilder.create()
+      ConfigLoaderBuilder.newBuilder()
         .withExplicitSealedTypes()
         .addPropertySource(
           YamlPropertySource(
@@ -111,7 +111,7 @@ database:
     data class TestConfig(val database: Database)
 
     shouldThrowAny {
-      ConfigLoaderBuilder.create()
+      ConfigLoaderBuilder.newBuilder()
         .withExplicitSealedTypes()
         .addPropertySource(
           YamlPropertySource(
@@ -132,7 +132,7 @@ database:
     data class TestConfig(val database: Database)
 
     shouldThrowAny {
-      ConfigLoaderBuilder.create()
+      ConfigLoaderBuilder.newBuilder()
         .withExplicitSealedTypes()
         .addPropertySource(
           YamlPropertySource(
@@ -152,7 +152,7 @@ database:
   test("list of sealed classes using discriminator field per entry") {
     data class TestConfig(val databases: List<Database>)
 
-    val config = ConfigLoaderBuilder.create()
+    val config = ConfigLoaderBuilder.newBuilder()
       .withExplicitSealedTypes()
       .addPropertySource(
         YamlPropertySource(
@@ -189,7 +189,7 @@ databases:
     data class TestConfig(val databases: List<Database>)
 
     shouldThrowAny {
-      ConfigLoaderBuilder.create()
+      ConfigLoaderBuilder.newBuilder()
         .withExplicitSealedTypes()
         .addPropertySource(
           YamlPropertySource(
@@ -217,7 +217,7 @@ databases:
   test("list of sealed classes mixing class and object implementations") {
     data class TestConfig(val databases: List<Database>)
 
-    val config = ConfigLoaderBuilder.create()
+    val config = ConfigLoaderBuilder.newBuilder()
       .withExplicitSealedTypes()
       .addPropertySource(
         YamlPropertySource(

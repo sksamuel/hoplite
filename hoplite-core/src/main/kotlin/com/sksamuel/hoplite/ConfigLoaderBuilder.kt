@@ -90,7 +90,7 @@ class ConfigLoaderBuilder private constructor() {
      * use [empty] to obtain an empty ConfigLoaderBuilder and call the various addDefault methods manually.
      */
     @ExperimentalHoplite
-    fun create(): ConfigLoaderBuilder {
+    fun newBuilder(): ConfigLoaderBuilder {
       return empty()
         .addDefaultDecoders()
         .addDefaultResolvers()

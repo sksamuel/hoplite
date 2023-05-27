@@ -1,12 +1,14 @@
 package com.sksamuel.hoplite.resolver
 
 import com.sksamuel.hoplite.ConfigLoaderBuilder
+import com.sksamuel.hoplite.ExperimentalHoplite
 import com.sksamuel.hoplite.parsers.PropsPropertySource
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.extensions.system.withSystemProperty
 import io.kotest.matchers.shouldBe
 import java.util.Properties
 
+@OptIn(ExperimentalHoplite::class)
 class RecursiveResolverTest : StringSpec() {
   init {
 
@@ -20,7 +22,7 @@ class RecursiveResolverTest : StringSpec() {
       props["baz"] = "oat"
       props["result"] = "b\${{ ref:b\${{ ref:b\${{ ref:foo }} }} }}ymcb\${{ ref:b\${{ ref:b\${{ ref:foo }} }} }}face"
 
-      val config = ConfigLoaderBuilder.create()
+      val config = ConfigLoaderBuilder.newBuilder()
         .addPropertySource(PropsPropertySource(props))
         .build()
         .loadConfigOrThrow<Config>()
@@ -35,7 +37,7 @@ class RecursiveResolverTest : StringSpec() {
       props["result"] = "boaty\${{ ref:foo }}boat\${{sysprop:bar}}"
 
       val config = withSystemProperty("bar", "face") {
-        ConfigLoaderBuilder.create()
+        ConfigLoaderBuilder.newBuilder()
           .addPropertySource(PropsPropertySource(props))
           .build()
           .loadConfigOrThrow<Config>()
