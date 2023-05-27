@@ -10,6 +10,7 @@ class EmptyDecoderRegistryTest : FunSpec() {
   init {
     test("empty decoder registry throws error") {
       data class Config(val a: String)
+
       val parsers = defaultParserRegistry()
       val sources = defaultPropertySources()
       val preprocessors = defaultPreprocessors()
@@ -21,7 +22,8 @@ class EmptyDecoderRegistryTest : FunSpec() {
         preprocessors,
         mappers,
         allowEmptyTree = false,
-        allowUnresolvedSubstitutions = false
+        allowUnresolvedSubstitutions = false,
+        sealedTypeDiscriminatorField = null,
       ).loadConfig<Config>()
       e as Validated.Invalid<ConfigFailure>
       e.error shouldBe ConfigFailure.EmptyDecoderRegistry

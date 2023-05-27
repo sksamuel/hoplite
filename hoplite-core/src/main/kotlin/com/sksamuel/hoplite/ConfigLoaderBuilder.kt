@@ -41,6 +41,7 @@ class ConfigLoaderBuilder private constructor() {
   private var cascadeMode: CascadeMode = CascadeMode.Merge
   private var allowEmptySources = false
   private var allowUnresolvedSubstitutions = false
+  private var sealedTypeDiscriminatorField: String? = null
   private var contextResolverMode = ContextResolverMode.Error
 
   private val propertySources = mutableListOf<PropertySource>()
@@ -200,6 +201,7 @@ class ConfigLoaderBuilder private constructor() {
     }
   }
 
+  @Deprecated("Replaced with resolvers")
   fun withPreprocessingIterations(iterations: Int): ConfigLoaderBuilder = apply {
     preprocessingIterations = iterations
   }
@@ -260,7 +262,7 @@ class ConfigLoaderBuilder private constructor() {
     allowUnresolvedSubstitutions = true
   }
 
-  fun withSubstitutionMode(mode: ContextResolverMode) = apply {
+  fun withContextResolverMode(mode: ContextResolverMode) = apply {
     contextResolverMode = mode
   }
 
@@ -308,6 +310,18 @@ class ConfigLoaderBuilder private constructor() {
   )
   fun report(reporter: Reporter) = apply { useReport = true }
 
+  /**
+   * Set a field name to be used as the discriminator field for sealed types.
+   *
+   * Then, Hoplite will use this field to pick amongst the sealed types instead of trying to
+   * infer the type from the available config values.
+   *
+   * This option will become the default in 3.0.
+   */
+  @ExperimentalHoplite
+  fun withExplicitSealedTypes(discriminatorFieldName: String = "_type"): ConfigLoaderBuilder =
+    apply { sealedTypeDiscriminatorField = discriminatorFieldName }
+
   fun build(): ConfigLoader {
     return ConfigLoader(
       decoderRegistry = DefaultDecoderRegistry(decoders),
@@ -327,7 +341,8 @@ class ConfigLoaderBuilder private constructor() {
       environment = environment,
       obfuscator = obfuscator,
       reportPrintFn = reportPrintFn,
-      flattenArraysToString = flattenArraysToString
+      flattenArraysToString = flattenArraysToString,
+      sealedTypeDiscriminatorField = sealedTypeDiscriminatorField,
     )
   }
 }
@@ -336,27 +351,27 @@ fun defaultPropertySources(): List<PropertySource> = listOfNotNull(
   EnvironmentVariableOverridePropertySource(true),
   SystemPropertiesPropertySource,
   UserSettingsPropertySource,
-  XdgConfigPropertySource
+  XdgConfigPropertySource,
 )
 
 fun defaultPreprocessors(): List<Preprocessor> = listOf(
   EnvOrSystemPropertyPreprocessor,
   RandomPreprocessor,
-  LookupPreprocessor
+  LookupPreprocessor,
 )
 
 fun defaultResolvers(): List<Resolver> = listOf(
   EnvVarContextResolver,
   SystemPropertyContextResolver,
   ReferenceContextResolver,
-  HopliteContextResolver
+  HopliteContextResolver,
 )
 
 fun defaultParamMappers(): List<ParameterMapper> = listOf(
   DefaultParamMapper,
   SnakeCaseParamMapper,
   KebabCaseParamMapper,
-  AliasAnnotationParamMapper
+  AliasAnnotationParamMapper,
 )
 
 val defaultDecoders = listOf(
@@ -409,5 +424,5 @@ val defaultDecoders = listOf(
   com.sksamuel.hoplite.decoder.SecondsDecoder(),
   com.sksamuel.hoplite.decoder.InlineClassDecoder(),
   com.sksamuel.hoplite.decoder.SealedClassDecoder(),
-  com.sksamuel.hoplite.decoder.DataClassDecoder()
+  com.sksamuel.hoplite.decoder.DataClassDecoder(),
 )

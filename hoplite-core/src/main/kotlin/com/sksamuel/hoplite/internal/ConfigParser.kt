@@ -41,7 +41,8 @@ class ConfigParser(
   private val useReport: Boolean,
   private val obfuscator: Obfuscator,
   private val reportPrintFn: Print,
-  private val environment: Environment?
+  private val environment: Environment?,
+  private val sealedTypeDiscriminatorField: String?,
 ) {
 
   private val loader = PropertySourceLoader(classpathResourceLoader, parserRegistry, allowEmptyTree)
@@ -55,7 +56,8 @@ class ConfigParser(
       paramMappers = paramMappers,
       config = DecoderConfig(flattenArraysToString),
       environment = environment,
-      resolvers = Resolving(resolvers, root)
+      resolvers = Resolving(resolvers, root),
+      sealedTypeDiscriminatorField = sealedTypeDiscriminatorField,
     )
   }
 
@@ -64,7 +66,7 @@ class ConfigParser(
     environment: Environment?,
     resourceOrFiles: List<String>,
     propertySources: List<PropertySource>,
-    configSources: List<ConfigSource>
+    configSources: List<ConfigSource>,
   ): ConfigResult<A> {
 
     if (decoderRegistry.size == 0)
@@ -79,11 +81,11 @@ class ConfigParser(
             val decoded = decoding.decode(kclass, preprocessed, decodeMode, context)
             val state = createDecodingState(preprocessed, context, secretsPolicy)
 
-        // always do report regardless of decoder result
-        if (useReport) {
-          Reporter(reportPrintFn, obfuscator, environment)
-            .printReport(propertySources, state, context.reports)
-        }
+            // always do report regardless of decoder result
+            if (useReport) {
+              Reporter(reportPrintFn, obfuscator, environment)
+                .printReport(propertySources, state, context.reports)
+            }
 
             decoded
           }
@@ -95,7 +97,7 @@ class ConfigParser(
   fun load(
     resourceOrFiles: List<String>,
     propertySources: List<PropertySource>,
-    configSources: List<ConfigSource>
+    configSources: List<ConfigSource>,
   ): ConfigResult<Node> {
     return loader.loadNodes(propertySources, configSources, resourceOrFiles).flatMap { nodes ->
       cascader.cascade(nodes).flatMap { node ->

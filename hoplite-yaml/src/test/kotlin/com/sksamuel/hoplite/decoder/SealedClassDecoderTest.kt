@@ -12,6 +12,7 @@ import io.kotest.matchers.shouldBe
 sealed class Database {
   data class Elasticsearch(val host: String, val port: Int, val index: String) : Database()
   data class Postgres(val host: String, val port: Int, val schema: String, val table: String) : Database()
+  object InMemory : Database() // used to test objects
 }
 
 sealed class Lonely
@@ -53,7 +54,7 @@ class SealedClassDecoderTest : FunSpec({
       "\n" +
       "    - Could not instantiate 'com.sksamuel.hoplite.decoder.`SealedClassDecoderTest\$1\$3\$TestConfig`' because:\n" +
       "\n" +
-      "        - 'lonely': Sealed class class com.sksamuel.hoplite.decoder.Lonely does not define any subclasses"
+      "        - 'lonely': Sealed class `com.sksamuel.hoplite.decoder.Lonely` does not define any subclasses"
   }
 
   test("object inside sealed class decoding") {

@@ -38,10 +38,22 @@ class ConfigLoader(
   val secretsPolicy: SecretsPolicy? = null,
   val environment: Environment? = null,
   val obfuscator: Obfuscator? = null,
-  val reportPrintFn: Print? = null,
+  val reportPrintFn: Print = { println(it) },
   val flattenArraysToString: Boolean = false,
-  val resolvers: List<Resolver> = emptyList()
+  val resolvers: List<Resolver> = emptyList(),
+  val sealedTypeDiscriminatorField: String? = null,
 ) {
+
+  init {
+    if (sealedTypeDiscriminatorField == null) {
+      reportPrintFn.invoke(
+        "Hoplite is configured to infer which sealed type to choose by inspecting the config values at runtime. " +
+          "This behaviour is now deprecated in favour of explicitly specifying the type through a discriminator field. " +
+          "In 3.0 this new behavior will become the default. " +
+          "To enable this behavior now (and disable this warning), invoke withExplicitSealedTypes() on the ConfigLoaderBuilder."
+      )
+    }
+  }
 
   companion object {
 
@@ -90,7 +102,7 @@ class ConfigLoader(
    */
   inline fun <reified A : Any> loadConfigOrThrow(
     resourceOrFiles: List<String>,
-    classpathResourceLoader: ClasspathResourceLoader = ConfigSource.Companion::class.java.toClasspathResourceLoader()
+    classpathResourceLoader: ClasspathResourceLoader = ConfigSource.Companion::class.java.toClasspathResourceLoader(),
   ): A = loadConfig<A>(resourceOrFiles, classpathResourceLoader).returnOrThrow()
 
   /**
@@ -111,7 +123,7 @@ class ConfigLoader(
    */
   inline fun <reified A : Any> loadConfig(
     vararg resourceOrFiles: String,
-    classpathResourceLoader: ClasspathResourceLoader = ConfigSource.Companion::class.java.toClasspathResourceLoader()
+    classpathResourceLoader: ClasspathResourceLoader = ConfigSource.Companion::class.java.toClasspathResourceLoader(),
   ): ConfigResult<A> = loadConfig(resourceOrFiles.toList(), classpathResourceLoader)
 
   /**
@@ -124,7 +136,7 @@ class ConfigLoader(
    */
   inline fun <reified A : Any> loadConfig(
     resourceOrFiles: List<String>,
-    classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader()
+    classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader(),
   ): ConfigResult<A> = loadConfig(A::class, emptyList(), resourceOrFiles, classpathResourceLoader)
 
   /**
@@ -159,9 +171,10 @@ class ConfigLoader(
       decodeMode = decodeMode,
       useReport = useReport,
       obfuscator = obfuscator ?: PrefixObfuscator(3),
-      reportPrintFn = reportPrintFn ?: { println(it) },
+      reportPrintFn = reportPrintFn,
       environment = environment,
-      resolvers = resolvers
+      resolvers = resolvers,
+      sealedTypeDiscriminatorField = sealedTypeDiscriminatorField,
     ).decode(kclass, environment, resourceOrFiles, propertySources, configSources)
   }
 
@@ -203,16 +216,17 @@ class ConfigLoader(
       preprocessors = preprocessors,
       preprocessingIterations = preprocessingIterations,
       decoderRegistry = decoderRegistry,
-      paramMappers = paramMappers,
-      flattenArraysToString = false, // not needed to load nodes
-      allowUnresolvedSubstitutions = allowUnresolvedSubstitutions,
-      secretsPolicy = null, // not used when loading nodes
+      paramMappers = paramMappers, // not needed to load nodes
+      flattenArraysToString = false,
+      allowUnresolvedSubstitutions = allowUnresolvedSubstitutions, // not used when loading nodes
+      secretsPolicy = null,  // not used when loading nodes
       decodeMode = DecodeMode.Lenient,  // not used when loading nodes
       useReport = false,  // not used when loading nodes
-      obfuscator = StrictObfuscator("*"),  // not used when loading nodes
-      reportPrintFn = reportPrintFn ?: { }, // not used when loading nodes
+      obfuscator = StrictObfuscator("*"), // not used when loading nodes
+      reportPrintFn = reportPrintFn ?: { },
       environment = environment,
-      resolvers = resolvers
+      resolvers = resolvers,
+      sealedTypeDiscriminatorField = sealedTypeDiscriminatorField,
     ).load(resourceOrFiles, propertySources, configSources)
   }
 

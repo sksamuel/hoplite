@@ -31,8 +31,10 @@ data class DecoderContext(
   val environment: Environment? = null,
   val resolvers: Resolving = Resolving.empty,
   // determines if we should error when a context resolver cannot find a substitution
-  val contextResolverMode: ContextResolverMode = ContextResolverMode.Error
+  val contextResolverMode: ContextResolverMode = ContextResolverMode.Error,
+  val sealedTypeDiscriminatorField: String? = null,
 ) {
+
 
   /**
    * Returns a [Decoder] for type [type].
