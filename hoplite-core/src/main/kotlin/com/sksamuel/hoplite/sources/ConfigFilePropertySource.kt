@@ -24,12 +24,12 @@ import java.nio.file.Path
  *                 if false, then a missing file will return an error.
  *                 Defaults to false.
  *
- * @param allowEmpty if true then the config file can beempty
+ * @param allowEmpty if true then the config file can be empty
  */
 class ConfigFilePropertySource(
   private val config: ConfigSource,
   private val optional: Boolean = false,
-  private val allowEmpty: Boolean
+  private val allowEmpty: Boolean,
 ) : PropertySource {
 
   /**
@@ -43,7 +43,7 @@ class ConfigFilePropertySource(
         when {
           input == null && optional -> Undefined.valid()
           input == null -> ConfigFailure.UnknownSource(config.describe()).invalid()
-          input.available() == 0 && allowEmpty -> Undefined.valid()
+          input.available() == 0 && (allowEmpty || context.allowEmptyConfigFiles) -> Undefined.valid()
           input.available() == 0 -> ConfigFailure.EmptyConfigSource(config).invalid()
           else -> runCatching {
             input.use { parser.load(it, config.describe()) }

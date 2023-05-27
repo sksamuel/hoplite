@@ -35,10 +35,7 @@ class PropertySourceLoader(
       .fromResourcesOrFiles(resourceOrFiles.toList(), classpathResourceLoader)
       .map { sources ->
         propertySources + (configSources + sources).map {
-          ConfigFilePropertySource(
-            it,
-            allowEmpty = allowEmptyPropertySources
-          )
+          ConfigFilePropertySource(it, allowEmpty = allowEmptyPropertySources)
         }
       }
       .flatMap { if (it.isEmpty()) ConfigFailure.NoSources.invalid() else it.valid() }
@@ -47,7 +44,7 @@ class PropertySourceLoader(
 
   private fun loadSources(sources: List<PropertySource>): ConfigResult<NonEmptyList<Node>> {
     return sources
-      .map { it.node(PropertySourceContext(parserRegistry)) }
+      .map { it.node(PropertySourceContext(parserRegistry, allowEmptyPropertySources)) }
       .sequence()
       .mapInvalid { ConfigFailure.MultipleFailures(it) }
       .flatMap { if (it.isEmpty()) ConfigFailure.NoSources.invalid() else NonEmptyList.unsafe(it).valid() }

@@ -39,7 +39,7 @@ class ConfigLoaderBuilder private constructor() {
 
   private var decodeMode: DecodeMode = DecodeMode.Lenient
   private var cascadeMode: CascadeMode = CascadeMode.Merge
-  private var allowEmptySources = false
+  private var allowEmptyConfigFiles = false
   private var allowNullOverride = false
   private var allowUnresolvedSubstitutions = false
   private var sealedTypeDiscriminatorField: String? = null
@@ -165,7 +165,11 @@ class ConfigLoaderBuilder private constructor() {
    * Adds the given [Resolver]s to the end of the resolvers list.
    */
   fun addResolvers(resolvers: Iterable<Resolver>): ConfigLoaderBuilder = apply {
-    require(preprocessors.isEmpty()) { "Preprocessors cannot be used alongside resolvers. Call removePreprocessors() before adding any resolver. Preprocessors will be removed in Hoplite 3.0" }
+    require(preprocessors.isEmpty()) {
+      "Preprocessors cannot be used alongside resolvers. " +
+        "Call removePreprocessors() before adding any resolver or create a ConfigLoaderBuilder using newBuilder() instead of default(). " +
+        "Preprocessors will be removed in Hoplite 3.0"
+    }
     this.resolvers.addAll(resolvers)
   }
 
@@ -248,16 +252,22 @@ class ConfigLoaderBuilder private constructor() {
   fun withCascadeMode(cascadeMode: CascadeMode) = apply { this.cascadeMode = cascadeMode }
 
   /**
-   * When enabled, allows a config loader to continue even if all the property sources provide no config.
+  When enabled, allows any [ConfigFilePropertySource] to be empty.
    */
-  @Deprecated("use allowEmptySources", ReplaceWith("allowEmptySources()"))
-  fun allowEmptyTree(): ConfigLoaderBuilder = allowEmptySources()
+  @Deprecated("use allowEmptyConfigFiles", ReplaceWith("allowEmptyConfigFiles()"))
+  fun allowEmptyTree(): ConfigLoaderBuilder = allowEmptyConfigFiles()
 
   /**
-   * When enabled, allows a config loader to continue even if all the property sources provide no config.
+  When enabled, allows any [ConfigFilePropertySource] to be empty.
    */
-  fun allowEmptySources(): ConfigLoaderBuilder = apply {
-    allowEmptySources = true
+  @Deprecated("use allowEmptyConfigFiles", ReplaceWith("allowEmptyConfigFiles()"))
+  fun allowEmptySources(): ConfigLoaderBuilder = allowEmptyConfigFiles()
+
+  /**
+   * When enabled, allows any [ConfigFilePropertySource] to be empty.
+   */
+  fun allowEmptyConfigFiles(): ConfigLoaderBuilder = apply {
+    allowEmptyConfigFiles = true
   }
 
   /**
@@ -346,7 +356,7 @@ class ConfigLoaderBuilder private constructor() {
       resolvers = resolvers,
       decodeMode = decodeMode,
       useReport = useReport,
-      allowEmptyTree = allowEmptySources,
+      allowEmptyTree = allowEmptyConfigFiles,
       allowNullOverride = allowNullOverride,
       allowUnresolvedSubstitutions = allowUnresolvedSubstitutions,
       preprocessingIterations = preprocessingIterations,

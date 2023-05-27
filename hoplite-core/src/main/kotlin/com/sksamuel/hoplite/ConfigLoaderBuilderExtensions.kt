@@ -38,7 +38,7 @@ fun ConfigLoaderBuilder.addFileSource(
 fun ConfigLoaderBuilder.addFileSource(
   file: File,
   optional: Boolean = false,
-  allowEmpty: Boolean = false
+  allowEmpty: Boolean = false,
 ) = addPathSource(file.toPath(), optional, allowEmpty)
 
 /**
@@ -50,7 +50,7 @@ fun ConfigLoaderBuilder.addFileSource(
 fun ConfigLoaderBuilder.addPathSource(
   path: Path,
   optional: Boolean = false,
-  allowEmpty: Boolean = false
+  allowEmpty: Boolean = false,
 ) = addPropertySource(ConfigFilePropertySource(ConfigSource.PathSource(path), optional = optional, allowEmpty))
 
 /**
@@ -64,7 +64,7 @@ fun ConfigLoaderBuilder.addPathSource(
 fun ConfigLoaderBuilder.addResourceOrFileSource(
   resourceOrFile: String,
   optional: Boolean = false,
-  allowEmpty: Boolean = false
+  allowEmpty: Boolean = false,
 ): ConfigLoaderBuilder {
   val path = Paths.get(resourceOrFile)
   return if (path.exists()) {
@@ -114,7 +114,7 @@ fun ConfigLoaderBuilder.addMapSource(map: Map<String, Any>) = addPropertySource(
 fun ConfigLoaderBuilder.addCommandLineSource(
   arguments: Array<String>,
   prefix: String = "--",
-  delimiter: String = "="
+  delimiter: String = "=",
 ) = addPropertySource(
   CommandLinePropertySource(arguments, prefix, delimiter)
 )
@@ -127,7 +127,7 @@ fun ConfigLoaderBuilder.addCommandLineSource(
  */
 fun ConfigLoaderBuilder.addEnvironmentSource(
   useUnderscoresAsSeparator: Boolean = true,
-  allowUppercaseNames: Boolean = true
+  allowUppercaseNames: Boolean = true,
 ) = addPropertySource(
   EnvironmentVariablesPropertySource(useUnderscoresAsSeparator, allowUppercaseNames)
 )

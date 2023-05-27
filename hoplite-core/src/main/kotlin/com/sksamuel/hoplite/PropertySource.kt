@@ -11,10 +11,11 @@ import java.io.InputStream
 import java.nio.file.Path
 
 data class PropertySourceContext(
-  val parsers: ParserRegistry
+  val parsers: ParserRegistry,
+  val allowEmptyConfigFiles: Boolean = false,
 ) {
   companion object {
-    val empty = PropertySourceContext(ParserRegistry.empty)
+    val empty = PropertySourceContext(ParserRegistry.empty, false)
   }
 }
 
