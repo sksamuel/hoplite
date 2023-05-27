@@ -11,7 +11,6 @@ import com.sksamuel.hoplite.decoder.toValidated
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -31,14 +30,3 @@ class LocalDateTimeDecoder : NonNullableLeafDecoder<LocalDateTime> {
   }
 }
 
-class LocalDateDecoder : NonNullableLeafDecoder<LocalDate> {
-  override fun supports(type: KType): Boolean = type.classifier == LocalDate::class
-  override fun safeLeafDecode(node: Node,
-                              type: KType,
-                              context: DecoderContext): ConfigResult<LocalDate> = when (node) {
-    is StringNode -> runCatching { LocalDate.parse(node.value) }.toValidated {
-      ConfigFailure.DecodeError(node, type)
-    }
-    else -> ConfigFailure.DecodeError(node, type).invalid()
-  }
-}
