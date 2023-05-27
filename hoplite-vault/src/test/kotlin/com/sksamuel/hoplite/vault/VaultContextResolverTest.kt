@@ -28,7 +28,7 @@ class VaultContextResolverTest : FunSpec({
   val ext = TestContainerExtension(container)
   install(ext)
 
-  test("placeholder should be detected and used") {
+  test("prefix pattern should be detected and used") {
 
     val props = Properties()
     props["foo"] = "vault://secret/testing secret1"
@@ -48,6 +48,28 @@ class VaultContextResolverTest : FunSpec({
 
     config.foo.shouldBe("topsecret!")
     config.bar.shouldBe("bottomsecret!")
+  }
+
+  test("context pattern should be detected and used") {
+
+    val props = Properties()
+    props["foo"] = "hello \${{ vault:secret/testing secret1}} world"
+    props["bar"] = "world \${{ vault:secret/testing/nested secret2 }} hello"
+
+    val endpoint = VaultEndpoint.create(container.host, container.firstMappedPort)
+    endpoint.scheme = "http" // test container doesn't use https
+
+    val template = VaultTemplate(endpoint, TokenAuthentication("my-token"))
+
+    val config = ConfigLoaderBuilder.default()
+      .removePreprocessors()
+      .addResolver(VaultContextResolver({ template }))
+      .addPropertySource(PropsPropertySource(props))
+      .build()
+      .loadConfigOrThrow<ConfigHolder>()
+
+    config.foo.shouldBe("hello topsecret! world")
+    config.bar.shouldBe("world bottomsecret! hello")
   }
 
   test("invalid vault placeholder error") {
