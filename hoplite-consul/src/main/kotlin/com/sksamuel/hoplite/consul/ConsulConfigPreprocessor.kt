@@ -51,8 +51,7 @@ class ConsulConfigPreprocessor(
             when (val v = it.orElseGet { null }) {
               null -> ConfigFailure.PreprocessorWarning("Unable to locate consul key '$key'").invalid()
               else -> {
-                if (report)
-                  context.report("Consul Lookups", mapOf("Key" to key))
+                if (report) context.reporter.report("Consul Lookups", mapOf("Key" to key))
                 node.copy(value = v).withMeta(CommonMetadata.UnprocessedValue, node.value).valid()
               }
             }

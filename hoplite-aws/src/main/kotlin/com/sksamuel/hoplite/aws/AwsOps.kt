@@ -27,7 +27,7 @@ class AwsOps(private val client: AWSSecretsManager) {
   }
 
   fun report(context: DecoderContext, result: GetSecretValueResult) {
-    context.report(
+    context.reporter.report(
       ReportSection,
       mapOf(
         "Name" to result.name,

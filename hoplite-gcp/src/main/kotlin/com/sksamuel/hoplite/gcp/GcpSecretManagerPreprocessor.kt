@@ -40,7 +40,7 @@ class GcpSecretManagerPreprocessor(
       val value = resp.payload.data.toStringUtf8()
 
       if (report)
-        context.report("GCP Secret Manager Lookups", mapOf("Key" to key))
+        context.reporter.report("GCP Secret Manager Lookups", mapOf("Key" to key))
 
       if (value.isNullOrBlank())
         ConfigFailure.PreprocessorWarning("Empty value for '$key' in GCP Secret Manager").invalid()

@@ -63,7 +63,7 @@ class AwsSecretsManagerPreprocessor(
       val value = client.getSecretValue(req)
 
       if (report)
-        context.report(
+        context.reporter.report(
           "AWS Secrets Manager Lookups",
           mapOf(
             "Name" to value.name,
@@ -78,7 +78,6 @@ class AwsSecretsManagerPreprocessor(
         ConfigFailure.PreprocessorWarning("Empty secret '$key' in AWS SecretsManager").invalid()
       else {
         if (index == null) {
-          context.addMetaData(CommonMetadata.RemoteLookup, value)
           node.copy(value = secret)
             .withMeta(CommonMetadata.Secret, true)
             .withMeta(CommonMetadata.UnprocessedValue, node.value)

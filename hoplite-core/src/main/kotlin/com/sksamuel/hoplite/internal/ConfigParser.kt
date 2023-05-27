@@ -84,7 +84,7 @@ class ConfigParser(
             // always do report regardless of decoder result
             if (useReport) {
               Reporter(reportPrintFn, obfuscator, environment)
-                .printReport(propertySources, state, context.reports)
+                .printReport(propertySources, state, context.reporter.getReport())
             }
 
             decoded

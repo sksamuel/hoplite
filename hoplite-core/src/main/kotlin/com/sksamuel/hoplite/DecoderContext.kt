@@ -21,12 +21,12 @@ import kotlin.reflect.KType
 data class DecoderContext(
   val decoders: DecoderRegistry,
   val paramMappers: List<ParameterMapper>,
+  val reporter: Reporter = Reporter(),
   // these are the dot paths for every config value - overrided or not, that was used
   val usedPaths: MutableSet<DotPath> = mutableSetOf(),
   // this tracks the types that a node was marshalled into
   val used: MutableSet<NodeState> = mutableSetOf(),
   val metadata: MutableMap<String, Any?> = mutableMapOf(),
-  val reports: MutableMap<String, List<Map<String, Any?>>> = mutableMapOf(),
   val config: DecoderConfig = DecoderConfig(false),
   val environment: Environment? = null,
   val resolvers: Resolving = Resolving.empty,
@@ -34,7 +34,6 @@ data class DecoderContext(
   val contextResolverMode: ContextResolverMode = ContextResolverMode.Error,
   val sealedTypeDiscriminatorField: String? = null,
 ) {
-
 
   /**
    * Returns a [Decoder] for type [type].
@@ -53,23 +52,14 @@ data class DecoderContext(
     this.used.add(NodeState(node, true, value, type))
   }
 
-  fun getMetaData(key: String): Any? = metadata[key]
-
-  fun addMetaData(key: String, value: Any?) {
-    metadata[key] = value
-  }
-
   /**
-   * Adds the given row to the named [section] in the report.
+   * Adds a [row] to the named [section] in the report.
    */
-  fun report(section: String, row: Map<String, Any?>) {
-    val rows = reports.getOrPut(section) { emptyList() }
-    reports[section] = (rows + row).distinct()
-  }
+  @Deprecated("Use reporter.report", ReplaceWith("reporter.report(section, row)"))
+  fun report(section: String, row: Map<String, Any?>) = reporter.report(section, row)
 
   companion object {
-    val zero =
-      DecoderContext(DecoderRegistry.zero, emptyList(), mutableSetOf(), resolvers = Resolving(emptyList(), Undefined))
+    val zero = DecoderContext(DecoderRegistry.zero, emptyList(), resolvers = Resolving(emptyList(), Undefined))
   }
 }
 

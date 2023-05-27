@@ -11,8 +11,8 @@ import com.sksamuel.hoplite.fp.valid
 
 class AzureOps(private val client: SecretClient) {
 
-  fun report(context: DecoderContext, secret: KeyVaultSecret) {
-    context.report(
+  private fun report(context: DecoderContext, secret: KeyVaultSecret) {
+    context.reporter.report(
       Section,
       mapOf(
         "Key" to secret.name,

@@ -61,7 +61,7 @@ class AwsSecretsManagerPreprocessor(
       val value = client.getSecretValue(valueRequest)
 
       if (report)
-        context.report(
+        context.reporter.report(
           "AWS Secrets Manager Lookups",
           mapOf(
             "Name" to value.name(),
