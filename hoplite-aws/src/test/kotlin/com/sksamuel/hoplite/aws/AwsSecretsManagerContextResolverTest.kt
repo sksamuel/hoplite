@@ -21,7 +21,7 @@ import org.testcontainers.utility.DockerImageName
 import java.util.Properties
 
 @OptIn(ExperimentalHoplite::class)
-class AwsSecretsManagerResolverTest : FunSpec() {
+class AwsSecretsManagerContextResolverTest : FunSpec() {
 
   private val localstack = LocalStackContainer(DockerImageName.parse("localstack/localstack:1.3.1"))
     .withServices(LocalStackContainer.Service.SECRETSMANAGER)
@@ -53,6 +53,39 @@ class AwsSecretsManagerResolverTest : FunSpec() {
     test("prefix pattern should be detected and used") {
       val props = Properties()
       props["a"] = "aws-secrets-manager://foo"
+      ConfigLoaderBuilder.newBuilder()
+        .addResolver(AwsSecretsManagerContextResolvers { client })
+        .addPropertySource(PropsPropertySource(props))
+        .build()
+        .loadConfigOrThrow<ConfigHolder>()
+        .a.shouldBe("secret!")
+    }
+
+    test("legacy1 prefix pattern should be detected and used") {
+      val props = Properties()
+      props["a"] = "awssm://foo"
+      ConfigLoaderBuilder.newBuilder()
+        .addResolver(AwsSecretsManagerContextResolvers { client })
+        .addPropertySource(PropsPropertySource(props))
+        .build()
+        .loadConfigOrThrow<ConfigHolder>()
+        .a.shouldBe("secret!")
+    }
+
+    test("legacy2 prefix pattern should be detected and used") {
+      val props = Properties()
+      props["a"] = "awssecret://foo"
+      ConfigLoaderBuilder.newBuilder()
+        .addResolver(AwsSecretsManagerContextResolvers { client })
+        .addPropertySource(PropsPropertySource(props))
+        .build()
+        .loadConfigOrThrow<ConfigHolder>()
+        .a.shouldBe("secret!")
+    }
+
+    test("legacy3 prefix pattern should be detected and used") {
+      val props = Properties()
+      props["a"] = "secretsmanager://foo"
       ConfigLoaderBuilder.newBuilder()
         .addResolver(AwsSecretsManagerContextResolvers { client })
         .addPropertySource(PropsPropertySource(props))
