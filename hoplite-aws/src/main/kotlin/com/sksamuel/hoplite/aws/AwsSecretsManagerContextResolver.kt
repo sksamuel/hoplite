@@ -15,30 +15,3 @@ class AwsSecretsManagerContextResolver(
   override val contextKey: String = "aws-secrets-manager"
   override val default: Boolean = false
 }
-
-@Deprecated("Included for backwards compatibility")
-class Legacy1AwsSecretsManagerContextResolver(
-  report: Boolean = false,
-  createClient: () -> AWSSecretsManager = { AWSSecretsManagerClientBuilder.standard().build() }
-) : AbstractAwsSecretsManagerContextResolver(report, createClient) {
-  override val contextKey: String = "awssm"
-  override val default: Boolean = false
-}
-
-@Deprecated("Included for backwards compatibility")
-class Legacy2AwsSecretsManagerContextResolver(
-  report: Boolean = false,
-  createClient: () -> AWSSecretsManager = { AWSSecretsManagerClientBuilder.standard().build() }
-) : AbstractAwsSecretsManagerContextResolver(report, createClient) {
-  override val contextKey: String = "secretsmanager"
-  override val default: Boolean = false
-}
-
-@Deprecated("Included for backwards compatibility")
-class Legacy3AwsSecretsManagerContextResolver(
-  report: Boolean = false,
-  createClient: () -> AWSSecretsManager = { AWSSecretsManagerClientBuilder.standard().build() }
-) : AbstractAwsSecretsManagerContextResolver(report, createClient) {
-  override val contextKey: String = "awssecret"
-  override val default: Boolean = false
-}
