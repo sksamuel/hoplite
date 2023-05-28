@@ -89,6 +89,9 @@ class ConfigLoaderBuilder private constructor() {
      *
      * If you wish to avoid adding defaults, for example to avoid certain decoders or sources, then
      * use [empty] to obtain an empty ConfigLoaderBuilder and call the various addDefault methods manually.
+     *
+     * Note: This new builder is experimental and may require breaking changes to your config files.
+     * This builder will become the default in 3.0
      */
     @ExperimentalHoplite
     fun newBuilder(): ConfigLoaderBuilder {

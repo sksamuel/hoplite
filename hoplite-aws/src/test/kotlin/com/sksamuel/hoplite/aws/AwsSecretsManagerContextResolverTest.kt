@@ -43,7 +43,7 @@ class AwsSecretsManagerContextResolverTest : FunSpec() {
       val props = Properties()
       props["a"] = "\${{ aws-secrets-manager:foo }}"
       ConfigLoaderBuilder.newBuilder()
-        .addResolver(AwsSecretsManagerContextResolvers { client })
+        .addResolver(AwsSecretsManagerContextResolver { client })
         .addPropertySource(PropsPropertySource(props))
         .build()
         .loadConfigOrThrow<ConfigHolder>()
@@ -54,40 +54,7 @@ class AwsSecretsManagerContextResolverTest : FunSpec() {
       val props = Properties()
       props["a"] = "aws-secrets-manager://foo"
       ConfigLoaderBuilder.newBuilder()
-        .addResolver(AwsSecretsManagerContextResolvers { client })
-        .addPropertySource(PropsPropertySource(props))
-        .build()
-        .loadConfigOrThrow<ConfigHolder>()
-        .a.shouldBe("secret!")
-    }
-
-    test("legacy1 prefix pattern should be detected and used") {
-      val props = Properties()
-      props["a"] = "awssm://foo"
-      ConfigLoaderBuilder.newBuilder()
-        .addResolver(AwsSecretsManagerContextResolvers { client })
-        .addPropertySource(PropsPropertySource(props))
-        .build()
-        .loadConfigOrThrow<ConfigHolder>()
-        .a.shouldBe("secret!")
-    }
-
-    test("legacy2 prefix pattern should be detected and used") {
-      val props = Properties()
-      props["a"] = "awssecret://foo"
-      ConfigLoaderBuilder.newBuilder()
-        .addResolver(AwsSecretsManagerContextResolvers { client })
-        .addPropertySource(PropsPropertySource(props))
-        .build()
-        .loadConfigOrThrow<ConfigHolder>()
-        .a.shouldBe("secret!")
-    }
-
-    test("legacy3 prefix pattern should be detected and used") {
-      val props = Properties()
-      props["a"] = "secretsmanager://foo"
-      ConfigLoaderBuilder.newBuilder()
-        .addResolver(AwsSecretsManagerContextResolvers { client })
+        .addResolver(AwsSecretsManagerContextResolver { client })
         .addPropertySource(PropsPropertySource(props))
         .build()
         .loadConfigOrThrow<ConfigHolder>()
@@ -98,7 +65,7 @@ class AwsSecretsManagerContextResolverTest : FunSpec() {
       val props = Properties()
       props["a"] = "\${{ aws-secrets-manager:qwerty }}"
       ConfigLoaderBuilder.newBuilder()
-        .addResolver(AwsSecretsManagerContextResolvers { client })
+        .addResolver(AwsSecretsManagerContextResolver { client })
         .addPropertySource(PropsPropertySource(props))
         .build()
         .loadConfig<ConfigHolder>()
@@ -110,7 +77,7 @@ class AwsSecretsManagerContextResolverTest : FunSpec() {
       props["a"] = "\${{ aws-secrets-manager:bibblebobble }}"
       client.createSecret(CreateSecretRequest().withName("bibblebobble").withSecretString(""))
       ConfigLoaderBuilder.newBuilder()
-        .addResolver(AwsSecretsManagerContextResolvers { client })
+        .addResolver(AwsSecretsManagerContextResolver { client })
         .addPropertySource(PropsPropertySource(props))
         .build()
         .loadConfig<ConfigHolder>()
@@ -121,7 +88,7 @@ class AwsSecretsManagerContextResolverTest : FunSpec() {
       val props = Properties()
       props["a"] = "\${{ aws-secrets-manager:unkunk }}"
       ConfigLoaderBuilder.newBuilder()
-        .addResolver(AwsSecretsManagerContextResolvers { client })
+        .addResolver(AwsSecretsManagerContextResolver { client })
         .addPropertySource(PropsPropertySource(props))
         .build()
         .loadConfig<ConfigHolder>()
@@ -135,7 +102,7 @@ class AwsSecretsManagerContextResolverTest : FunSpec() {
       props["b"] = "\${{ aws-secrets-manager:bar.baz }}"
       shouldThrow<ConfigException> {
         ConfigLoaderBuilder.newBuilder()
-          .addResolver(AwsSecretsManagerContextResolvers { client })
+          .addResolver(AwsSecretsManagerContextResolver { client })
           .addPropertySource(PropsPropertySource(props))
           .build()
           .loadConfigOrThrow<ConfigHolder2>()
@@ -146,7 +113,7 @@ class AwsSecretsManagerContextResolverTest : FunSpec() {
       val props = Properties()
       props["a"] = "\${{ aws-secrets-manager:bubble[f] }}"
       ConfigLoaderBuilder.newBuilder()
-        .addResolver(AwsSecretsManagerContextResolvers { client })
+        .addResolver(AwsSecretsManagerContextResolver { client })
         .addPropertySource(PropsPropertySource(props))
         .build()
         .loadConfigOrThrow<ConfigHolder>()
