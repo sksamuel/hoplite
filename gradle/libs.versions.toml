@@ -138,9 +138,7 @@ aws-java-sdk-secretsmanager = "com.amazonaws:aws-java-sdk-secretsmanager:1.12.47
 
 kotlin-serialization = { group = "org.jetbrains.kotlin", name = "kotlin-serialization", version.ref = "kotlin" }
 
-localstack = "org.testcontainers:localstack:1.17.6"
-##                                      ⬆ :1.18.0"
-##                                      ⬆ :1.18.1"
+localstack = "org.testcontainers:localstack:1.18.1"
 
 logback-classic = "ch.qos.logback:logback-classic:1.4.7"
 

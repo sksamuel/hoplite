@@ -1,5 +1,8 @@
 package com.sksamuel.hoplite.aws
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider
+import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.client.builder.AwsClientBuilder
 import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder
 import com.amazonaws.services.secretsmanager.model.CreateSecretRequest
 import com.sksamuel.hoplite.ConfigException
@@ -32,9 +35,17 @@ class AwsSecretsManagerContextResolverTest : FunSpec() {
     install(TestContainerExtension(localstack))
 
     val client = AWSSecretsManagerClientBuilder.standard()
-      .withEndpointConfiguration(localstack.getEndpointConfiguration(LocalStackContainer.Service.SECRETSMANAGER))
-      .withCredentials(localstack.defaultCredentialsProvider)
-      .build()
+      .withEndpointConfiguration(
+        AwsClientBuilder.EndpointConfiguration(
+          localstack.getEndpointOverride(LocalStackContainer.Service.SECRETSMANAGER).toString(),
+          localstack.region
+        )
+      )
+      .withCredentials(
+        AWSStaticCredentialsProvider(
+          BasicAWSCredentials(localstack.accessKey, localstack.secretKey)
+        )
+      ).build()
 
     client.createSecret(CreateSecretRequest().withName("foo").withSecretString("secret!"))
     client.createSecret(CreateSecretRequest().withName("bubble").withSecretString("""{"f": "1", "g": "2"}"""))
