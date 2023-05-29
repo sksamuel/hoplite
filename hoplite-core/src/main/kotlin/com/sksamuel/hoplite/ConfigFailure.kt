@@ -53,6 +53,10 @@ sealed interface ConfigFailure {
     override fun description(): String = "The applied config was empty"
   }
 
+  data class ValidationFailed(val message: String, val node: Node) : ConfigFailure {
+    override fun description(): String = "Validation failed: $message at ${node.pos.loc()}"
+  }
+
   data class NoSuchParser(
     val file: String,
     val map: Map<String, Parser>
@@ -126,7 +130,8 @@ sealed interface ConfigFailure {
   }
 
   data class InvalidDiscriminatorField(val kclass: KClass<*>, val field: String) : ConfigFailure {
-    override fun description(): String = "Invalid discriminator field to select sealed subtype. Must specify `$field` to be a valid subtype of `${kclass.java.name}`."
+    override fun description(): String =
+      "Invalid discriminator field to select sealed subtype. Must specify `$field` to be a valid subtype of `${kclass.java.name}`."
   }
 
   data class NoSealedClassObjectSubtype(val kclass: KClass<*>, val subtypeName: String) : ConfigFailure {

@@ -5,7 +5,7 @@ import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.decoder.DotPath
 import com.sksamuel.hoplite.env.Environment
 import com.sksamuel.hoplite.fp.Validated
-import com.sksamuel.hoplite.resolver.ContextResolverMode
+import com.sksamuel.hoplite.resolver.context.ContextResolverMode
 import com.sksamuel.hoplite.resolver.Resolving
 import kotlin.reflect.KParameter
 import kotlin.reflect.KType

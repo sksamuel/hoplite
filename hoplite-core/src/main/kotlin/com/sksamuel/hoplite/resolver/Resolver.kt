@@ -4,8 +4,6 @@ import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
-import com.sksamuel.hoplite.fp.flatMap
-import com.sksamuel.hoplite.fp.valid
 
 /**
  * A [Resolver] is used to modify a value before the value is applied to a field in a data config class.
@@ -30,14 +28,5 @@ interface Resolver {
    *
    * In the case of an error, an invalid [ConfigFailure] should be returned.
    */
-  suspend fun resolve(node: Node, root: Node, context: DecoderContext): ConfigResult<Node>
-}
-
-class CompositeResolver(private vararg val resolvers: Resolver) : Resolver {
-  override suspend fun resolve(node: Node, root: Node, context: DecoderContext): ConfigResult<Node> {
-    val initial: ConfigResult<Node> = node.valid()
-    return resolvers.fold(initial) { acc, resolver ->
-      acc.flatMap { resolver.resolve(it, root, context) }
-    }
-  }
+  suspend fun resolve(paramName: String?, node: Node, root: Node, context: DecoderContext): ConfigResult<Node>
 }

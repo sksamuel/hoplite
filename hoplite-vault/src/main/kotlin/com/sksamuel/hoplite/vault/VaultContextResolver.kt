@@ -8,7 +8,7 @@ import com.sksamuel.hoplite.Reporter
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
-import com.sksamuel.hoplite.resolver.ContextResolver
+import com.sksamuel.hoplite.resolver.context.ContextResolver
 import org.springframework.vault.core.VaultKeyValueOperationsSupport
 import org.springframework.vault.core.VaultTemplate
 

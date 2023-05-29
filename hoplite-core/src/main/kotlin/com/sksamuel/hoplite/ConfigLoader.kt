@@ -12,7 +12,7 @@ import com.sksamuel.hoplite.internal.DecodeMode
 import com.sksamuel.hoplite.parsers.ParserRegistry
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.report.Print
-import com.sksamuel.hoplite.resolver.ContextResolverMode
+import com.sksamuel.hoplite.resolver.context.ContextResolverMode
 import com.sksamuel.hoplite.resolver.Resolver
 import com.sksamuel.hoplite.secrets.Obfuscator
 import com.sksamuel.hoplite.secrets.PrefixObfuscator

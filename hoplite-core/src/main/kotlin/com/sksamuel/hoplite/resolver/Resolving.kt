@@ -20,13 +20,13 @@ class Resolving(
   private val root: Node
 ) {
 
-  suspend fun resolve(node: Node, context: DecoderContext): ConfigResult<Node> {
+  suspend fun resolve(node: Node, paramName: String, context: DecoderContext): ConfigResult<Node> {
     return resolvers.fold<Resolver, ConfigResult<Node>>(node.valid()) { accOrInvalid, resolver ->
       accOrInvalid.flatMap { acc ->
-        resolver.resolve(acc, root, context).flatMap { resolved ->
+        resolver.resolve(paramName, acc, root, context).flatMap { resolved ->
           // if the resolver actually made a change we should run the resolver again on the result to allow
           // for repeated invocations / nested expressions
-          if (resolved.valueOrNull() == acc.valueOrNull()) acc.valid() else resolve(resolved, context)
+          if (resolved.valueOrNull() == acc.valueOrNull()) acc.valid() else resolve(resolved, paramName, context)
         }
       }
     }

@@ -3,6 +3,7 @@ package com.sksamuel.hoplite.resolver
 import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.ExperimentalHoplite
 import com.sksamuel.hoplite.parsers.PropsPropertySource
+import com.sksamuel.hoplite.resolver.context.ContextResolverMode
 import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

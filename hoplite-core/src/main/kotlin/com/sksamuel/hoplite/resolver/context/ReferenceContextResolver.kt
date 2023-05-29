@@ -1,4 +1,4 @@
-package com.sksamuel.hoplite.resolver
+package com.sksamuel.hoplite.resolver.context
 
 import com.sksamuel.hoplite.BooleanNode
 import com.sksamuel.hoplite.ConfigResult

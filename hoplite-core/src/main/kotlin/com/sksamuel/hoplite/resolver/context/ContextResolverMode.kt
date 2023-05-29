@@ -1,4 +1,4 @@
-package com.sksamuel.hoplite.resolver
+package com.sksamuel.hoplite.resolver.context
 
 enum class ContextResolverMode {
 

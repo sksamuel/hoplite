@@ -1,6 +1,6 @@
 @file:Suppress("RegExpRedundantEscape")
 
-package com.sksamuel.hoplite.resolver
+package com.sksamuel.hoplite.resolver.context
 
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
@@ -10,6 +10,7 @@ import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
+import com.sksamuel.hoplite.resolver.Resolver
 
 /**
  * A [ContextResolver] applies substitutions to context patterns in a [StringNode]'s value.
@@ -55,7 +56,7 @@ abstract class ContextResolver : Resolver {
     context: DecoderContext
   ) = lookup(path, node, root, context).flatMap { it?.valid() ?: lookup(fallback, node, root, context) }
 
-  override suspend fun resolve(node: Node, root: Node, context: DecoderContext): ConfigResult<Node> {
+  override suspend fun resolve(paramName: String?, node: Node, root: Node, context: DecoderContext): ConfigResult<Node> {
     return when (node) {
       is StringNode -> resolve(node, root, context)
       else -> node.valid()

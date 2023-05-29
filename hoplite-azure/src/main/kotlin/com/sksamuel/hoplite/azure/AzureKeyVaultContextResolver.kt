@@ -7,7 +7,7 @@ import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
-import com.sksamuel.hoplite.resolver.ContextResolver
+import com.sksamuel.hoplite.resolver.context.ContextResolver
 
 class AzureKeyVaultContextResolver(
   private val report: Boolean = false,

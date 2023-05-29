@@ -7,7 +7,7 @@ import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.flatMap
-import com.sksamuel.hoplite.resolver.ContextResolver
+import com.sksamuel.hoplite.resolver.context.ContextResolver
 
 abstract class AbstractAwsSecretsManagerContextResolver(
   private val report: Boolean = false,

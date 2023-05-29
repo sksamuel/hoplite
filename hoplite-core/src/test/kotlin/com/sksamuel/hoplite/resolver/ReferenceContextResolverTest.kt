@@ -7,6 +7,7 @@ import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.decoder.DotPath
 import com.sksamuel.hoplite.parsers.PropsPropertySource
 import com.sksamuel.hoplite.parsers.defaultParserRegistry
+import com.sksamuel.hoplite.resolver.context.ReferenceContextResolver
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.util.Properties
@@ -21,7 +22,7 @@ class ReferenceContextResolverTest : FunSpec({
     props["bar"] = "mcboat"
     val root = PropsPropertySource(props).node(PropertySourceContext(defaultParserRegistry())).getUnsafe()
 
-    val config = ReferenceContextResolver.resolve(node, root, DecoderContext.zero)
+    val config = ReferenceContextResolver.resolve(null, node, root, DecoderContext.zero)
     (config.getUnsafe() as StringNode).value shouldBe "boatymcboatface"
   }
 
@@ -32,7 +33,7 @@ class ReferenceContextResolverTest : FunSpec({
     val root = PropsPropertySource(props).node(PropertySourceContext(defaultParserRegistry())).getUnsafe()
     val node = StringNode("boaty\${{  ref:bar}}face", Pos.NoPos, DotPath.root)
 
-    val config = ReferenceContextResolver.resolve(node, root, DecoderContext.zero)
+    val config = ReferenceContextResolver.resolve(null, node, root, DecoderContext.zero)
     (config.getUnsafe() as StringNode).value shouldBe "boatymcboatface"
   }
 
@@ -43,7 +44,7 @@ class ReferenceContextResolverTest : FunSpec({
     val root = PropsPropertySource(props).node(PropertySourceContext(defaultParserRegistry())).getUnsafe()
     val node = StringNode("boaty\${{  ref:bar    }}face", Pos.NoPos, DotPath.root)
 
-    val config = ReferenceContextResolver.resolve(node, root, DecoderContext.zero)
+    val config = ReferenceContextResolver.resolve(null, node, root, DecoderContext.zero)
     (config.getUnsafe() as StringNode).value shouldBe "boatymcboatface"
   }
 

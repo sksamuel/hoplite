@@ -13,7 +13,6 @@ import java.util.Properties
 @OptIn(ExperimentalHoplite::class)
 class SystemContextResolverTest : FunSpec({
 
-
   test("should support processors") {
 
     data class Config(val foo: String)

@@ -4,6 +4,7 @@ import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.decoder.DotPath
+import com.sksamuel.hoplite.resolver.context.SystemPropertyContextResolver
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.system.withSystemProperty
 import io.kotest.matchers.shouldBe
@@ -15,7 +16,7 @@ class SystemPropertyContextResolverTest : FunSpec({
     val node = StringNode("boaty\${{sysprop:bar}}face", Pos.NoPos, DotPath.root)
 
     val config = withSystemProperty(key = "bar", value = "mcboat") {
-      SystemPropertyContextResolver.resolve(node, node, DecoderContext.zero)
+      SystemPropertyContextResolver.resolve(null, node, node, DecoderContext.zero)
     }
 
     (config.getUnsafe() as StringNode).value shouldBe "boatymcboatface"
@@ -26,7 +27,7 @@ class SystemPropertyContextResolverTest : FunSpec({
     val node = StringNode("sysprop://bar", Pos.NoPos, DotPath.root)
 
     val config = withSystemProperty(key = "bar", value = "mcboat") {
-      SystemPropertyContextResolver.resolve(node, node, DecoderContext.zero)
+      SystemPropertyContextResolver.resolve(null, node, node, DecoderContext.zero)
     }
 
     (config.getUnsafe() as StringNode).value shouldBe "mcboat"
@@ -37,7 +38,7 @@ class SystemPropertyContextResolverTest : FunSpec({
     val node = StringNode("boaty\${{  sysprop:bar}}face", Pos.NoPos, DotPath.root)
 
     val config = withSystemProperty(key = "bar", value = "mcboat") {
-      SystemPropertyContextResolver.resolve(node, node, DecoderContext.zero)
+      SystemPropertyContextResolver.resolve(null, node, node, DecoderContext.zero)
     }
 
     (config.getUnsafe() as StringNode).value shouldBe "boatymcboatface"
@@ -48,7 +49,7 @@ class SystemPropertyContextResolverTest : FunSpec({
     val node = StringNode("boaty\${{  sysprop:bar    }}face", Pos.NoPos, DotPath.root)
 
     val config = withSystemProperty(key = "bar", value = "mcboat") {
-      SystemPropertyContextResolver.resolve(node, node, DecoderContext.zero)
+      SystemPropertyContextResolver.resolve(null, node, node, DecoderContext.zero)
     }
 
     (config.getUnsafe() as StringNode).value shouldBe "boatymcboatface"
