@@ -18,6 +18,7 @@ import com.sksamuel.hoplite.resolver.EnvVarContextResolver
 import com.sksamuel.hoplite.resolver.HopliteContextResolver
 import com.sksamuel.hoplite.resolver.ReferenceContextResolver
 import com.sksamuel.hoplite.resolver.Resolver
+import com.sksamuel.hoplite.resolver.SystemContextResolver
 import com.sksamuel.hoplite.resolver.SystemPropertyContextResolver
 import com.sksamuel.hoplite.secrets.AllStringNodesSecretsPolicy
 import com.sksamuel.hoplite.secrets.Obfuscator
@@ -393,6 +394,7 @@ fun defaultResolvers(): List<Resolver> = listOf(
   SystemPropertyContextResolver,
   ReferenceContextResolver,
   HopliteContextResolver,
+  SystemContextResolver,
 )
 
 fun defaultParamMappers(): List<ParameterMapper> = listOf(
