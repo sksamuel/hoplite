@@ -16,6 +16,7 @@ import com.sksamuel.hoplite.report.Reporter
 import com.sksamuel.hoplite.resolver.ContextResolverMode
 import com.sksamuel.hoplite.resolver.EnvVarContextResolver
 import com.sksamuel.hoplite.resolver.HopliteContextResolver
+import com.sksamuel.hoplite.resolver.ManifestContextResolver
 import com.sksamuel.hoplite.resolver.ReferenceContextResolver
 import com.sksamuel.hoplite.resolver.Resolver
 import com.sksamuel.hoplite.resolver.SystemContextResolver
@@ -395,6 +396,7 @@ fun defaultResolvers(): List<Resolver> = listOf(
   ReferenceContextResolver,
   HopliteContextResolver,
   SystemContextResolver,
+  ManifestContextResolver,
 )
 
 fun defaultParamMappers(): List<ParameterMapper> = listOf(
