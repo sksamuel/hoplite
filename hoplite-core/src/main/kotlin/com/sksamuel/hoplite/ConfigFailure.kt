@@ -54,7 +54,7 @@ sealed interface ConfigFailure {
   }
 
   data class ValidationFailed(val message: String, val node: Node) : ConfigFailure {
-    override fun description(): String = "Validation failed: $message at ${node.pos.loc()}"
+    override fun description(): String = "$message at ${node.pos.loc()}"
   }
 
   data class NoSuchParser(

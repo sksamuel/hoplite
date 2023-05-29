@@ -43,7 +43,7 @@ class JdbcHostnameValidatorTest : FunSpec({
         .addResolver(JdbcHostnameValidator())
         .build()
         .loadConfigOrThrow<Config>()
-    }.message shouldInclude "Validation failed: JDBC hostname `invalidhostname` not reachable at (props)"
+    }.message shouldInclude "JDBC hostname `invalidhostname` not reachable at (props)"
   }
 })
 
