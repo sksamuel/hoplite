@@ -34,6 +34,7 @@ object SystemContextResolver : ContextResolver() {
   override fun lookup(path: String, node: StringNode, root: Node, context: DecoderContext): ConfigResult<String?> {
     return when (path) {
       "processors" -> Runtime.getRuntime().availableProcessors().toString().valid()
+      "timestamp" -> System.currentTimeMillis().toString().valid()
       else -> ConfigFailure.ResolverFailure("Uknown system context path $path").invalid()
     }
   }
