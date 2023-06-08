@@ -327,16 +327,16 @@ elasticsearch:
 `application-prod.yaml`:
 ```yaml
 elasticsearch:
-  host: production-elasticsearch.mycompany.internal
-  port: 9202
+  host: prd-elasticsearch.scv
+  port: 8200
 ```
 
 And both were passed to the ConfigLoader like this: `ConfigLoader().loadConfigOrThrow<Config>("/application-prod.yaml", "/application.yaml")`, then lookups will be attempted in the order the files were declared.
 So in this case, the config would be resolved like this:
 ```
-elasticsearch.port = 9202 // the value in application-prod.yaml takes priority over the value in application.yaml
-elasticsearch.host = production-elasticsearch.mycompany.internal
-elasitcsearch.clusterName = product-search // not defined in application-prod.yaml so falls through to application.yaml
+elasticsearch.port = 8200 // the value in application-prod.yaml takes priority
+elasticsearch.host = prd-elasticsearch.scv // only defined in application-prod.yaml
+elasitcsearch.clusterName = product-search // only defined in application.yaml
 ```
 
 Let's see a more complicated example. In JSON this time.
