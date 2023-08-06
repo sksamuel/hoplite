@@ -1,6 +1,6 @@
 # Changelog
 
-### 2.7.6
+### 2.7.5
 
 * Use daemon threads in `FileWatcher` to enable clean shutdown.
 
