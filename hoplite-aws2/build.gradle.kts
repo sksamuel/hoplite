@@ -6,7 +6,7 @@ dependencies {
    api(projects.hopliteCore)
    api(libs.regions)
    api(libs.secretsmanager)
-//   implementation(KotlinX.serialization.json)
+   implementation(libs.kotlinx.serialization.json)
 }
 
 apply("../publish.gradle.kts")
