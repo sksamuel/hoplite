@@ -10,6 +10,7 @@ import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.resolver.Resolver
 import java.net.InetAddress
 import java.net.URI
+import kotlin.reflect.KClass
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -17,6 +18,7 @@ class JdbcHostnameValidator(private val timeout: Duration = 5.seconds) : Resolve
 
   override suspend fun resolve(
     paramName: String?,
+    kclass: KClass<*>,
     node: Node,
     root: Node,
     context: DecoderContext

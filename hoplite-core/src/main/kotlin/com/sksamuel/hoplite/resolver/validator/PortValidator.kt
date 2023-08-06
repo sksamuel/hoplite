@@ -8,10 +8,12 @@ import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.resolver.Resolver
 import com.sksamuel.hoplite.valueOrNull
+import kotlin.reflect.KClass
 
 class PortValidator : Resolver {
   override suspend fun resolve(
     paramName: String?,
+    kclass: KClass<*>,
     node: Node,
     root: Node,
     context: DecoderContext

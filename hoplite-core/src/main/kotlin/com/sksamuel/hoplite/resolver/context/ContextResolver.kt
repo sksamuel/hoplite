@@ -11,6 +11,7 @@ import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.resolver.Resolver
+import kotlin.reflect.KClass
 
 /**
  * A [ContextResolver] applies substitutions to context patterns in a [StringNode]'s value.
@@ -56,7 +57,7 @@ abstract class ContextResolver : Resolver {
     context: DecoderContext
   ) = lookup(path, node, root, context).flatMap { it?.valid() ?: lookup(fallback, node, root, context) }
 
-  override suspend fun resolve(paramName: String?, node: Node, root: Node, context: DecoderContext): ConfigResult<Node> {
+  override suspend fun resolve(paramName: String?, kclass: KClass<*>, node: Node, root: Node, context: DecoderContext): ConfigResult<Node> {
     return when (node) {
       is StringNode -> resolve(node, root, context)
       else -> node.valid()

@@ -19,6 +19,7 @@ import com.sksamuel.hoplite.resolver.context.HopliteContextResolver
 import com.sksamuel.hoplite.resolver.context.ManifestContextResolver
 import com.sksamuel.hoplite.resolver.context.ReferenceContextResolver
 import com.sksamuel.hoplite.resolver.Resolver
+import com.sksamuel.hoplite.resolver.context.RandomContextResolver
 import com.sksamuel.hoplite.resolver.context.SystemContextResolver
 import com.sksamuel.hoplite.resolver.context.SystemPropertyContextResolver
 import com.sksamuel.hoplite.secrets.AllStringNodesSecretsPolicy
@@ -105,11 +106,18 @@ class ConfigLoaderBuilder private constructor() {
         .addDefaultParsers()
     }
 
+    /**
+     * Returns a [ConfigLoaderBuilder] with no defaults applied.
+     */
     fun empty(): ConfigLoaderBuilder = ConfigLoaderBuilder()
 
-    fun empty(block: ConfigLoaderBuilder.() -> Unit): ConfigLoaderBuilder {
+    /**
+     * Returns a [ConfigLoaderBuilder] with no defaults applied and the given [configure]
+     * function applied to the builder.
+     */
+    fun empty(configure: ConfigLoaderBuilder.() -> Unit): ConfigLoaderBuilder {
       val builder = ConfigLoaderBuilder()
-      builder.block()
+      builder.configure()
       return builder
     }
   }
@@ -397,6 +405,7 @@ fun defaultResolvers(): List<Resolver> = listOf(
   HopliteContextResolver,
   SystemContextResolver,
   ManifestContextResolver,
+  RandomContextResolver,
 )
 
 fun defaultParamMappers(): List<ParameterMapper> = listOf(

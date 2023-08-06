@@ -9,6 +9,7 @@ import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.resolver.Resolver
 import java.net.InetAddress
+import kotlin.reflect.KClass
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -16,6 +17,7 @@ class HostnameValidator(private val timeout: Duration = 5.seconds) : Resolver {
 
   override suspend fun resolve(
     paramName: String?,
+    kclass: KClass<*>,
     node: Node,
     root: Node,
     context: DecoderContext

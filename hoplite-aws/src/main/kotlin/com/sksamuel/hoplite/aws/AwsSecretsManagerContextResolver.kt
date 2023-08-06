@@ -5,8 +5,9 @@ import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder
 
 /**
  * Replaces strings of the form ${{ aws-secrets-manager:path }} by looking up the path in AWS Secrets Manager.
- * The [AWSSecretsManager] client is created from the [createClient] function which by default
- * uses the default builder.
+ *
+ * The [AWSSecretsManager] client is created from the [createClient] argument which uses the
+ * standard [AWSSecretsManagerClientBuilder] by default.
  */
 class AwsSecretsManagerContextResolver(
   report: Boolean = false,

@@ -100,7 +100,7 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
           else ->
             context.decoder(param).flatMap { decoder ->
               runBlocking {
-                context.resolvers.resolve(n, param.name ?: "unknown", context).flatMap { resolvedNode ->
+                context.resolvers.resolve(n, param.name ?: "unknown", kclass, context).flatMap { resolvedNode ->
                   decoder.decode(resolvedNode, param.type, context).map { decoded ->
                     Arg(param, usedName, decoded, n)
                   }
