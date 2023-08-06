@@ -22,7 +22,7 @@ class ReferenceContextResolverTest : FunSpec({
     props["bar"] = "mcboat"
     val root = PropsPropertySource(props).node(PropertySourceContext(defaultParserRegistry())).getUnsafe()
 
-    val config = ReferenceContextResolver.resolve(null, kclass, node, root, DecoderContext.zero)
+    val config = ReferenceContextResolver.resolve(null, String::class, node, root, DecoderContext.zero)
     (config.getUnsafe() as StringNode).value shouldBe "boatymcboatface"
   }
 
@@ -33,7 +33,7 @@ class ReferenceContextResolverTest : FunSpec({
     val root = PropsPropertySource(props).node(PropertySourceContext(defaultParserRegistry())).getUnsafe()
     val node = StringNode("boaty\${{  ref:bar}}face", Pos.NoPos, DotPath.root)
 
-    val config = ReferenceContextResolver.resolve(null, kclass, node, root, DecoderContext.zero)
+    val config = ReferenceContextResolver.resolve(null, String::class, node, root, DecoderContext.zero)
     (config.getUnsafe() as StringNode).value shouldBe "boatymcboatface"
   }
 
@@ -44,7 +44,7 @@ class ReferenceContextResolverTest : FunSpec({
     val root = PropsPropertySource(props).node(PropertySourceContext(defaultParserRegistry())).getUnsafe()
     val node = StringNode("boaty\${{  ref:bar    }}face", Pos.NoPos, DotPath.root)
 
-    val config = ReferenceContextResolver.resolve(null, kclass, node, root, DecoderContext.zero)
+    val config = ReferenceContextResolver.resolve(null, String::class, node, root, DecoderContext.zero)
     (config.getUnsafe() as StringNode).value shouldBe "boatymcboatface"
   }
 
