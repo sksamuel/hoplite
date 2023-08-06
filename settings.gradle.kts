@@ -77,7 +77,7 @@ dependencyResolutionManagement {
          library("kotlinx-serialization-json", "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
          library("kotlinx-datetime", "org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
 
-         library("google-cloud-secretmanager", "com.google.cloud:google-cloud-secretmanager:2.22.0")
+         library("google-cloud-secretmanager", "com.google.cloud:google-cloud-secretmanager:2.20.0")
          library("hadoop-common", "org.apache.hadoop:hadoop-common:2.10.2")
          library("tomlj", "org.tomlj:tomlj:1.1.0")
          library("embedded-consul", "com.pszymczyk.consul:embedded-consul:2.2.1")
