@@ -1,5 +1,9 @@
 # Changelog
 
+### 2.7.6
+
+* Use daemon threads in `FileWatcher` to enable clean shutdown.
+
 ### 2.7.4
 
 * Add withPrintFn option to the config builder to support logging config with a user defined function
