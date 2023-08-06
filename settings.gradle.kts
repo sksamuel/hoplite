@@ -77,24 +77,30 @@ dependencyResolutionManagement {
          library("kotlinx-serialization-json", "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
          library("kotlinx-datetime", "org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
 
-         library("google-cloud-secretmanager", "com.google.cloud:google-cloud-secretmanager:2.20.0")
+         library("google-cloud-secretmanager", "com.google.cloud:google-cloud-secretmanager:2.22.0")
          library("hadoop-common", "org.apache.hadoop:hadoop-common:2.10.2")
          library("tomlj", "org.tomlj:tomlj:1.1.0")
          library("embedded-consul", "com.pszymczyk.consul:embedded-consul:2.2.1")
-         library("snakeyaml", "org.yaml:snakeyaml:2.0")
+         library("snakeyaml", "org.yaml:snakeyaml:2.1")
          library("kaml", "com.charleskorn.kaml:kaml:0.42.0")
 
          library("slf4j-api", "org.slf4j:slf4j-api:2.0.7")
-         library("regions", "software.amazon.awssdk:regions:2.20.98")
-         library("secretsmanager", "software.amazon.awssdk:secretsmanager:2.20.98")
-         library("postgresql", "org.postgresql:postgresql:42.6.0")
-         library("jackson-core", "com.fasterxml.jackson.core:jackson-core:2.15.2")
-         library("jackson-databind", "com.fasterxml.jackson.core:jackson-databind:2.15.2")
 
-         library("testcontainers-postgresql", "org.testcontainers:postgresql:1.18.3")
-         library("testcontainers-mysql", "org.testcontainers:mysql:1.18.3")
-         library("testcontainers-localstack", "org.testcontainers:localstack:1.18.3")
-         library("testcontainers-vault", "org.testcontainers:vault:1.18.3")
+         val aws2 = "2.20.98"
+         library("regions", "software.amazon.awssdk:regions:$aws2")
+         library("secretsmanager", "software.amazon.awssdk:secretsmanager:$aws2")
+
+         library("postgresql", "org.postgresql:postgresql:42.6.0")
+
+         val jackson = "2.15.2"
+         library("jackson-core", "com.fasterxml.jackson.core:jackson-core:$jackson")
+         library("jackson-databind", "com.fasterxml.jackson.core:jackson-databind:$jackson")
+
+         val testcontainers = "1.18.3"
+         library("testcontainers-postgresql", "org.testcontainers:postgresql:$testcontainers")
+         library("testcontainers-mysql", "org.testcontainers:mysql:$testcontainers")
+         library("testcontainers-localstack", "org.testcontainers:localstack:$testcontainers")
+         library("testcontainers-vault", "org.testcontainers:vault:$testcontainers")
 
          library("azure-identity", "com.azure:azure-identity:1.9.2")
          library("azure-security-keyvault-secrets", "com.azure:azure-security-keyvault-secrets:4.6.4")
