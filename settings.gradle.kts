@@ -94,7 +94,7 @@ dependencyResolutionManagement {
          library("testcontainers-localstack", "org.testcontainers:localstack:1.18.3")
          library("testcontainers-vault", "org.testcontainers:vault:1.18.3")
 
-         library("azure-identity", "com.azure:azure-identity:1.9.1")
+         library("azure-identity", "com.azure:azure-identity:1.9.2")
          library("azure-security-keyvault-secrets", "com.azure:azure-security-keyvault-secrets:4.6.4")
 
          library("consul-client", "com.orbitz.consul:consul-client:1.5.3")
