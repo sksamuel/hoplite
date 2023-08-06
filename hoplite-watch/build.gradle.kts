@@ -1,6 +1,6 @@
 dependencies {
    api(projects.hopliteCore)
-   implementation(KotlinX.coroutines.core)
+//   implementation(KotlinX.coroutines.core)
    testImplementation(projects.hopliteJson)
 }
 

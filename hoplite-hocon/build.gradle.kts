@@ -1,6 +1,6 @@
 dependencies {
    api(projects.hopliteCore)
-   implementation(libs.config)
+   implementation(libs.typesafe.config)
 }
 
 apply("../publish.gradle.kts")

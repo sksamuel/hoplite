@@ -13,17 +13,6 @@ pluginManagement {
    }
 }
 
-plugins {
-   id("de.fayard.refreshVersions") version "0.51.0"
-}
-
-refreshVersions {
-//   enableBuildSrcLibs()
-   rejectVersionIf {
-      candidate.stabilityLevel != de.fayard.refreshVersions.core.StabilityLevel.Stable
-   }
-}
-
 include(
    ":hoplite-core",
    ":hoplite-azure",
@@ -52,3 +41,39 @@ include(
 
 enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
+dependencyResolutionManagement {
+   versionCatalogs {
+      create("libs") {
+
+         val micrometer = "1.11.2"
+         library("micrometer-core", "io.micrometer:micrometer-core:$micrometer")
+         library("micrometer-datadog", "io.micrometer:micrometer-registry-datadog:$micrometer")
+
+         val coroutines = "1.6.4"
+         library("coroutines-core", "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines")
+         library("coroutines-jdk8", "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$coroutines")
+
+         library("typesafe-config", "com.typesafe:config:1.4.2")
+
+         library("arrow-core", "io.arrow-kt:arrow-core:1.1.3")
+
+         library("spring-vault-core", "org.springframework.vault:spring-vault-core:2.3.2")
+
+         library("vavr-kotlin", "io.vavr:vavr-kotlin:0.10.2")
+
+         val aws1 = "1.12.523"
+         library("aws-java-sdk-secretsmanager", "com.amazonaws:aws-java-sdk-secretsmanager:$aws1")
+
+         library("testcontainers-postgresql", "org.testcontainers:postgresql:1.18.3")
+         library("testcontainers-mysql", "org.testcontainers:mysql:1.18.3")
+         library("testcontainers-localstack", "org.testcontainers:localstack:1.18.3")
+         library("testcontainers-vault", "org.testcontainers:vault:1.18.3")
+
+         library("azure-identity", "com.azure:azure-identity:1.9.1")
+         library("azure-security-keyvault-secrets", "com.azure:azure-security-keyvault-secrets:4.6.4")
+
+         library("consul-client", "com.orbitz.consul:consul-client:1.5.3")
+      }
+   }
+}

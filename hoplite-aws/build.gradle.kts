@@ -4,14 +4,10 @@ plugins {
 
 dependencies {
    api(projects.hopliteCore)
-   api(libs.aws.java.sdk.core)
-   api(libs.aws.java.sdk.ssm)
    api(libs.aws.java.sdk.secretsmanager)
-   implementation(KotlinX.serialization.json)
-   testApi(Testing.kotest.extensions.testContainers)
-   testApi(libs.localstack)
-   testApi(libs.logback.classic)
-   testApi(libs.slf4j.api)
+//   implementation(KotlinX.serialization.json)
+   testApi("io.kotest.extensions:kotest-extensions-testcontainers:2.0.2")
+   testApi(libs.testcontainers.localstack)
 }
 
 apply("../publish.gradle.kts")

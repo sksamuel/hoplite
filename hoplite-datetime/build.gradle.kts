@@ -1,6 +1,6 @@
 dependencies {
    api(projects.hopliteCore)
-   implementation(KotlinX.datetime)
+//   implementation(KotlinX.datetime)
 }
 
 apply("../publish.gradle.kts")
