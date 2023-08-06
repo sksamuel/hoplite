@@ -48,7 +48,9 @@ dependencyResolutionManagement {
 
          val micrometer = "1.11.2"
          library("micrometer-core", "io.micrometer:micrometer-core:$micrometer")
-         library("micrometer-datadog", "io.micrometer:micrometer-registry-datadog:$micrometer")
+         library("micrometer-registry-datadog", "io.micrometer:micrometer-registry-datadog:$micrometer")
+         library("micrometer-registry-prometheus", "io.micrometer:micrometer-registry-prometheus:$micrometer")
+         library("micrometer-registry-statsd", "io.micrometer:micrometer-registry-statsd:$micrometer")
 
          val coroutines = "1.6.4"
          library("coroutines-core", "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines")
@@ -64,6 +66,25 @@ dependencyResolutionManagement {
 
          val aws1 = "1.12.523"
          library("aws-java-sdk-secretsmanager", "com.amazonaws:aws-java-sdk-secretsmanager:$aws1")
+         library("aws-java-sdk-ssm", "com.amazonaws:aws-java-sdk-ssm:$aws1")
+
+         library("cron-utils", "com.cronutils:cron-utils:9.2.1")
+
+         library("hikaricp", "com.zaxxer:HikariCP:5.0.1")
+
+         library("google-cloud-secretmanager", "com.google.cloud:google-cloud-secretmanager:2.20.0")
+         library("hadoop-common", "org.apache.hadoop:hadoop-common:2.10.2")
+         library("tomlj", "org.tomlj:tomlj:1.1.0")
+         library("embedded-consul", "com.pszymczyk.consul:embedded-consul:2.2.1")
+         library("snakeyaml", "org.yaml:snakeyaml:2.0")
+         library("kaml", "com.charleskorn.kaml:kaml:0.42.0")
+
+         library("slf4j-api", "org.slf4j:slf4j-api:2.0.7")
+         library("regions", "software.amazon.awssdk:regions:2.20.98")
+         library("secretsmanager", "software.amazon.awssdk:secretsmanager:2.20.98")
+         library("postgresql", "org.postgresql:postgresql:42.6.0")
+         library("jackson-core", "com.fasterxml.jackson.core:jackson-core:2.15.2")
+         library("jackson-databind", "com.fasterxml.jackson.core:jackson-databind:2.15.2")
 
          library("testcontainers-postgresql", "org.testcontainers:postgresql:1.18.3")
          library("testcontainers-mysql", "org.testcontainers:mysql:1.18.3")

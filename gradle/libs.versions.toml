@@ -24,40 +24,6 @@ kotest-runner-junit5-jvm = { group = "io.kotest", name = "kotest-runner-junit5-j
 
 kotlin-serialization = { group = "org.jetbrains.kotlin", name = "kotlin-serialization", version.ref = "kotlin" }
 
-slf4j-api = "org.slf4j:slf4j-api:2.0.7"
-
-regions = "software.amazon.awssdk:regions:2.20.98"
-
-secretsmanager = "software.amazon.awssdk:secretsmanager:2.20.98"
-
 kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
-
-cron-utils = "com.cronutils:cron-utils:9.2.1"
-
-google-cloud-secretmanager = "com.google.cloud:google-cloud-secretmanager:2.20.0"
-
-hadoop-common = "org.apache.hadoop:hadoop-common:2.10.2"
-
-hikaricp = "com.zaxxer:HikariCP:5.0.1"
-
-postgresql = "org.postgresql:postgresql:42.6.0"
-
-jackson-core = "com.fasterxml.jackson.core:jackson-core:2.15.2"
-
-jackson-databind = "com.fasterxml.jackson.core:jackson-databind:2.15.2"
-
-micrometer-registry-datadog = "io.micrometer:micrometer-registry-datadog:1.11.1"
-
-micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1.11.1"
-
-micrometer-registry-statsd = "io.micrometer:micrometer-registry-statsd:1.11.1"
-
-tomlj = "org.tomlj:tomlj:1.1.0"
-
-embedded-consul = "com.pszymczyk.consul:embedded-consul:2.2.1"
-
-snakeyaml = "org.yaml:snakeyaml:2.0"
-
-kaml = "com.charleskorn.kaml:kaml:0.42.0"
 
 kotest-extensions-testcontainers = { group = "io.kotest", name = "kotest-extensions-testcontainers", version.ref = "kotest" }
