@@ -27,7 +27,7 @@ class FileWatcher(private val dir: String) : Watchable {
       StandardWatchEventKinds.ENTRY_DELETE
     )
 
-    Executors.newSingleThreadExecutor().submit {
+    Executors.newSingleThreadExecutor { Thread(it).apply { isDaemon = true } }.submit {
       while (true) {
         try {
           val watchKey = watchService.take()
