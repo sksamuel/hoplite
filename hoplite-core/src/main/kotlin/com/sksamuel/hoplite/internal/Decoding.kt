@@ -30,7 +30,7 @@ class Decoding(
   }
 }
 
-fun createDecodingState(
+internal fun createDecodingState(
   root: Node,
   context: DecoderContext,
   secretsPolicy: SecretsPolicy?
@@ -48,7 +48,7 @@ private fun createNodeStates(
 ): List<NodeState> {
   return root.traverse().map { node ->
 
-    val state = context.used.find { it.node.path == node.path }
+    val state = context.used.entries.find { it.key == node.path }?.value
 
     val secret = secretsPolicy?.isSecret(node, state?.type) ?: false
 
