@@ -1,15 +1,15 @@
 package com.sksamuel.hoplite.decoder
 
-import com.sksamuel.hoplite.fp.invalid
-import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.BooleanNode
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.DoubleNode
 import com.sksamuel.hoplite.LongNode
-import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.fp.invalid
+import com.sksamuel.hoplite.fp.valid
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
@@ -26,7 +26,9 @@ class EnumDecoder<T : Any> : NullHandlingDecoder<T> {
     val klass = type.classifier as KClass<*>
 
     fun decode(value: String): ConfigResult<T> {
-      val t = klass.java.enumConstants.find { it.toString() == value }
+      val t = klass.java.enumConstants.find {
+        it.toString().contentEquals(other = value, ignoreCase = context.config.resolveTypesCaseInsensitive)
+      }
       return if (t == null)
         ConfigFailure.InvalidEnumConstant(node, type, value).invalid()
       else

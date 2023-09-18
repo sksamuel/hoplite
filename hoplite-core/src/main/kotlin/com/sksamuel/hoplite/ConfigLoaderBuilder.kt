@@ -13,13 +13,13 @@ import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.preprocessor.RandomPreprocessor
 import com.sksamuel.hoplite.report.Print
 import com.sksamuel.hoplite.report.Reporter
+import com.sksamuel.hoplite.resolver.Resolver
 import com.sksamuel.hoplite.resolver.context.ContextResolverMode
 import com.sksamuel.hoplite.resolver.context.EnvVarContextResolver
 import com.sksamuel.hoplite.resolver.context.HopliteContextResolver
 import com.sksamuel.hoplite.resolver.context.ManifestContextResolver
-import com.sksamuel.hoplite.resolver.context.ReferenceContextResolver
-import com.sksamuel.hoplite.resolver.Resolver
 import com.sksamuel.hoplite.resolver.context.RandomContextResolver
+import com.sksamuel.hoplite.resolver.context.ReferenceContextResolver
 import com.sksamuel.hoplite.resolver.context.SystemContextResolver
 import com.sksamuel.hoplite.resolver.context.SystemPropertyContextResolver
 import com.sksamuel.hoplite.secrets.AllStringNodesSecretsPolicy
@@ -45,6 +45,7 @@ class ConfigLoaderBuilder private constructor() {
   private var allowEmptyConfigFiles = false
   private var allowNullOverride = false
   private var allowUnresolvedSubstitutions = false
+  private var resolveTypesCaseInsensitive = false
   private var sealedTypeDiscriminatorField: String? = null
   private var contextResolverMode = ContextResolverMode.ErrorOnUnresolved
 
@@ -298,6 +299,13 @@ class ConfigLoaderBuilder private constructor() {
     allowUnresolvedSubstitutions = true
   }
 
+  /**
+   * When enabled, makes type/enum name resolution case-insensitive
+   */
+  fun withResolveTypesCaseInsensitive(): ConfigLoaderBuilder = apply {
+    resolveTypesCaseInsensitive = true
+  }
+
   fun withContextResolverMode(mode: ContextResolverMode) = apply {
     contextResolverMode = mode
   }
@@ -371,6 +379,7 @@ class ConfigLoaderBuilder private constructor() {
       useReport = useReport,
       allowEmptyTree = allowEmptyConfigFiles,
       allowNullOverride = allowNullOverride,
+      resolveTypesCaseInsensitive = resolveTypesCaseInsensitive,
       allowUnresolvedSubstitutions = allowUnresolvedSubstitutions,
       preprocessingIterations = preprocessingIterations,
       cascadeMode = cascadeMode,
