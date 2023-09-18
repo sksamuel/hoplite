@@ -25,7 +25,7 @@ data class DecoderContext(
   // these are the dot paths for every config value - overrided or not, that was used
   val usedPaths: MutableSet<DotPath> = mutableSetOf(),
   // this tracks the types that a node was marshalled into
-  val used: MutableSet<NodeState> = mutableSetOf(),
+  val used: MutableMap<DotPath, NodeState> = mutableMapOf(),
   val metadata: MutableMap<String, Any?> = mutableMapOf(),
   val config: DecoderConfig = DecoderConfig(false),
   val environment: Environment? = null,
@@ -49,7 +49,7 @@ data class DecoderContext(
    * Makes a node as marshalled into the given [type] with the resolved value [value].
    */
   fun used(node: Node, type: KType, value: Any?) {
-    this.used.add(NodeState(node, true, value, type))
+    this.used[node.path] = NodeState(node, true, value, type)
   }
 
   /**
