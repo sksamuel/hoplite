@@ -16,6 +16,8 @@ import kotlin.reflect.KType
 @Suppress("UNCHECKED_CAST")
 class EnumDecoder<T : Any>(private val ignoreCase: Boolean = false) : NullHandlingDecoder<T> {
 
+  override fun priority(): Int = super.priority().takeUnless { ignoreCase } ?: 0
+
   override fun supports(type: KType): Boolean = type.classifier is KClass<*> && (type.classifier as KClass<*>).java.isEnum
 
   override fun safeDecode(node: Node,

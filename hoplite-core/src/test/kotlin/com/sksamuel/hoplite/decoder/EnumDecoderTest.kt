@@ -56,6 +56,30 @@ class EnumDecoderTest : BehaviorSpec({
       }
     }
   }
+
+  given("an enum decoder ignoring case") {
+    val decoder = EnumDecoder<TestEnum>(ignoreCase = true)
+
+    `when`("checking it's priority") {
+      val actual = decoder.priority()
+
+      then("should return 0") {
+        actual shouldBe 0
+      }
+    }
+  }
+
+  given("an enum decoder respecting case") {
+    val decoder = EnumDecoder<TestEnum>(ignoreCase = false)
+
+    `when`("checking it's priority") {
+      val actual = decoder.priority()
+
+      then("should return -100") {
+        actual shouldBe -100
+      }
+    }
+  }
 }) {
   private companion object {
     fun <T : Any> EnumDecoder<T>.decode(node: PrimitiveNode) = decode(
