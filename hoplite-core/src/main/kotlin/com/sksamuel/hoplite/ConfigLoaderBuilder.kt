@@ -460,7 +460,6 @@ val defaultDecoders = listOf(
   com.sksamuel.hoplite.decoder.KClassDecoder(),
   com.sksamuel.hoplite.decoder.URIDecoder(),
   com.sksamuel.hoplite.decoder.SecretDecoder(),
-  com.sksamuel.hoplite.decoder.SecretDecoder(),
   com.sksamuel.hoplite.decoder.TripleDecoder(),
   com.sksamuel.hoplite.decoder.PairDecoder(),
   com.sksamuel.hoplite.decoder.YearDecoder(),
