@@ -12,8 +12,8 @@ import com.sksamuel.hoplite.internal.DecodeMode
 import com.sksamuel.hoplite.parsers.ParserRegistry
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.report.Print
-import com.sksamuel.hoplite.resolver.context.ContextResolverMode
 import com.sksamuel.hoplite.resolver.Resolver
+import com.sksamuel.hoplite.resolver.context.ContextResolverMode
 import com.sksamuel.hoplite.secrets.Obfuscator
 import com.sksamuel.hoplite.secrets.PrefixObfuscator
 import com.sksamuel.hoplite.secrets.SecretsPolicy
@@ -44,6 +44,7 @@ class ConfigLoader(
   val resolvers: List<Resolver> = emptyList(),
   val sealedTypeDiscriminatorField: String? = null,
   val allowNullOverride: Boolean = false,
+  val resolveTypesCaseInsensitive: Boolean = false,
   val contextResolverMode: ContextResolverMode = ContextResolverMode.ErrorOnUnresolved,
 ) {
 
@@ -164,6 +165,7 @@ class ConfigLoader(
       parserRegistry = parserRegistry,
       allowEmptyTree = allowEmptyTree,
       allowNullOverride = allowNullOverride,
+      resolveTypesCaseInsensitive = resolveTypesCaseInsensitive,
       cascadeMode = cascadeMode,
       preprocessors = preprocessors,
       preprocessingIterations = preprocessingIterations,
@@ -218,6 +220,7 @@ class ConfigLoader(
       parserRegistry = parserRegistry,
       allowEmptyTree = allowEmptyTree,
       allowNullOverride = allowNullOverride,
+      resolveTypesCaseInsensitive = resolveTypesCaseInsensitive,
       cascadeMode = cascadeMode,
       preprocessors = preprocessors,
       preprocessingIterations = preprocessingIterations,

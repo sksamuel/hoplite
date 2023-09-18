@@ -14,7 +14,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
 @Suppress("UNCHECKED_CAST")
-class EnumDecoder<T : Any>(private val ignoreCase: Boolean = false) : NullHandlingDecoder<T> {
+class EnumDecoder<T : Any> : NullHandlingDecoder<T> {
 
   override fun supports(type: KType): Boolean = type.classifier is KClass<*> && (type.classifier as KClass<*>).java.isEnum
 
@@ -26,7 +26,9 @@ class EnumDecoder<T : Any>(private val ignoreCase: Boolean = false) : NullHandli
     val klass = type.classifier as KClass<*>
 
     fun decode(value: String): ConfigResult<T> {
-      val t = klass.java.enumConstants.find { it.toString().contentEquals(value, ignoreCase) }
+      val t = klass.java.enumConstants.find {
+        it.toString().contentEquals(other = value, ignoreCase = context.config.resolveTypesCaseInsensitive)
+      }
       return if (t == null)
         ConfigFailure.InvalidEnumConstant(node, type, value).invalid()
       else

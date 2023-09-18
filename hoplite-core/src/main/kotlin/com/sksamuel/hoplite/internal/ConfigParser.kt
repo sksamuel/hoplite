@@ -18,9 +18,9 @@ import com.sksamuel.hoplite.parsers.ParserRegistry
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.report.Print
 import com.sksamuel.hoplite.report.Reporter
-import com.sksamuel.hoplite.resolver.context.ContextResolverMode
 import com.sksamuel.hoplite.resolver.Resolver
 import com.sksamuel.hoplite.resolver.Resolving
+import com.sksamuel.hoplite.resolver.context.ContextResolverMode
 import com.sksamuel.hoplite.secrets.Obfuscator
 import com.sksamuel.hoplite.secrets.SecretsPolicy
 import kotlin.reflect.KClass
@@ -37,6 +37,7 @@ class ConfigParser(
    private val decoderRegistry: DecoderRegistry,
    private val paramMappers: List<ParameterMapper>,
    private val flattenArraysToString: Boolean,
+   private val resolveTypesCaseInsensitive: Boolean,
    private val allowUnresolvedSubstitutions: Boolean,
    private val secretsPolicy: SecretsPolicy?,
    private val decodeMode: DecodeMode,
@@ -57,7 +58,7 @@ class ConfigParser(
     return DecoderContext(
       decoders = decoderRegistry,
       paramMappers = paramMappers,
-      config = DecoderConfig(flattenArraysToString),
+      config = DecoderConfig(flattenArraysToString, resolveTypesCaseInsensitive),
       environment = environment,
       resolvers = Resolving(resolvers, root),
       sealedTypeDiscriminatorField = sealedTypeDiscriminatorField,

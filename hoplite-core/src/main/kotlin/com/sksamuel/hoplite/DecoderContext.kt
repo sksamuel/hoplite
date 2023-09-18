@@ -5,8 +5,8 @@ import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.decoder.DotPath
 import com.sksamuel.hoplite.env.Environment
 import com.sksamuel.hoplite.fp.Validated
-import com.sksamuel.hoplite.resolver.context.ContextResolverMode
 import com.sksamuel.hoplite.resolver.Resolving
+import com.sksamuel.hoplite.resolver.context.ContextResolverMode
 import kotlin.reflect.KParameter
 import kotlin.reflect.KType
 
@@ -27,7 +27,7 @@ data class DecoderContext(
   // this tracks the types that a node was marshalled into
   val used: MutableMap<DotPath, NodeState> = mutableMapOf(),
   val metadata: MutableMap<String, Any?> = mutableMapOf(),
-  val config: DecoderConfig = DecoderConfig(false),
+  val config: DecoderConfig = DecoderConfig(flattenArraysToString = false, resolveTypesCaseInsensitive = false),
   val environment: Environment? = null,
   val resolvers: Resolving = Resolving.empty,
   // determines if we should error when a context resolver cannot find a substitution
@@ -72,5 +72,6 @@ data class NodeState(
 )
 
 data class DecoderConfig(
-  val flattenArraysToString: Boolean
+  val flattenArraysToString: Boolean,
+  val resolveTypesCaseInsensitive: Boolean,
 )

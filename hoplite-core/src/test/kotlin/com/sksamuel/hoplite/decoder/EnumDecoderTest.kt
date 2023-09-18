@@ -1,6 +1,7 @@
 package com.sksamuel.hoplite.decoder
 
 import com.sksamuel.hoplite.ConfigFailure
+import com.sksamuel.hoplite.DecoderConfig
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.PrimitiveNode
@@ -18,7 +19,7 @@ class EnumDecoderTest : BehaviorSpec({
     val node = StringNode("ONE", Pos.NoPos, DotPath.root)
 
     `when`("using case sensitive decoding") {
-      val actual = EnumDecoder<TestEnum>(ignoreCase = false).decode(node)
+      val actual = EnumDecoder<TestEnum>().decode(node, ignoreCase = false)
 
       then("should decode it") {
         actual.shouldBeInstanceOf<Validated.Valid<TestEnum>>()
@@ -27,7 +28,7 @@ class EnumDecoderTest : BehaviorSpec({
     }
 
     `when`("using case insensitive decoding") {
-      val actual = EnumDecoder<TestEnum>(ignoreCase = true).decode(node)
+      val actual = EnumDecoder<TestEnum>().decode(node, ignoreCase = true)
 
       then("should decode it") {
         actual.shouldBeInstanceOf<Validated.Valid<TestEnum>>()
@@ -40,7 +41,7 @@ class EnumDecoderTest : BehaviorSpec({
     val node = StringNode("Two", Pos.NoPos, DotPath.root)
 
     `when`("using case sensitive decoding") {
-      val actual = EnumDecoder<TestEnum>(ignoreCase = false).decode(node)
+      val actual = EnumDecoder<TestEnum>().decode(node, ignoreCase = false)
 
       then("should return error") {
         actual.shouldBeInstanceOf<Validated.Invalid<ConfigFailure>>()
@@ -48,7 +49,7 @@ class EnumDecoderTest : BehaviorSpec({
     }
 
     `when`("using case insensitive decoding") {
-      val actual = EnumDecoder<TestEnum>(ignoreCase = true).decode(node)
+      val actual = EnumDecoder<TestEnum>().decode(node, ignoreCase = true)
 
       then("should decode it") {
         actual.shouldBeInstanceOf<Validated.Valid<TestEnum>>()
@@ -58,10 +59,14 @@ class EnumDecoderTest : BehaviorSpec({
   }
 }) {
   private companion object {
-    fun <T : Any> EnumDecoder<T>.decode(node: PrimitiveNode) = decode(
+    fun <T : Any> EnumDecoder<T>.decode(node: PrimitiveNode, ignoreCase: Boolean) = decode(
       node,
       TestEnum::class.createType(),
-      DecoderContext(defaultDecoderRegistry(), defaultParamMappers())
+      DecoderContext(
+        decoders = defaultDecoderRegistry(),
+        paramMappers = defaultParamMappers(),
+        config = DecoderConfig(flattenArraysToString = false, resolveTypesCaseInsensitive = ignoreCase)
+      )
     )
 
     enum class TestEnum {
