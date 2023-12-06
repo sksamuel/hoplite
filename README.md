@@ -12,7 +12,7 @@ into the required type will cause the config to fail with detailed error message
 ## Features
 
 - **Multiple formats:** Write your configuration in [several formats](#supported-formats): Yaml, JSON, Toml, Hocon, or
-  Java .properties files or even mix and match formats in the same system.
+  Java .props files or even mix and match formats in the same system.
 - **Property Sources:** Per-system overrides are possible from JVM system properties,
   environment variables, JNDI or a per-user local config file.
 - **Batteries included:** Support for many [standard types](#decoders) such as primitives, enums, dates, collection
