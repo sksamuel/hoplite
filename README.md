@@ -234,7 +234,7 @@ There are convenience methods on `ConfigLoaderBuilder` to construct `ConfigFileP
 For example, the following are equivalent:
 
 ```kotlin
-ConfigLoader().loadConfigOrThrow<MyConfig>("config.json")
+ConfigLoader().loadConfigOrThrow<MyConfig>("/config.json")
 ```
 
 and
