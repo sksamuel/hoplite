@@ -80,7 +80,7 @@ object SnakeCaseParamMapper : ParameterMapper {
  * A [ParameterMapper] that will transform a parameter name into
  * the kebab case equivalent.
  *
- * For example, camelCasePilsen will become kebab_case_pilsen.
+ * For example, camelCasePilsen will become kebab-case-pilsen.
  */
 object KebabCaseParamMapper : ParameterMapper {
 
