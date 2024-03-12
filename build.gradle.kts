@@ -51,6 +51,11 @@ allprojects {
       }
    }
 
+   tasks.compileJava {
+      targetCompatibility = "1.8"
+      sourceCompatibility = "1.8"
+   }
+
    repositories {
       mavenLocal()
       mavenCentral()
