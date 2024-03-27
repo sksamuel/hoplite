@@ -231,7 +231,7 @@ sealed interface ConfigFailure {
   }
 
   data class MissingConfigValue(val type: KType) : ConfigFailure {
-    override fun description(): String = "Missing from config"
+    override fun description(): String = "Missing ${type.simpleName} from config"
   }
 
   data class Generic(val msg: String) : ConfigFailure {
