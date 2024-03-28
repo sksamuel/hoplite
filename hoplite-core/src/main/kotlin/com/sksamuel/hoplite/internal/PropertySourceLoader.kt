@@ -1,5 +1,6 @@
 package com.sksamuel.hoplite.internal
 
+import com.sksamuel.hoplite.filter
 import com.sksamuel.hoplite.ClasspathResourceLoader
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
@@ -19,6 +20,7 @@ import com.sksamuel.hoplite.sources.ConfigFilePropertySource
  * Loads [Node]s from [PropertySource]s, [ConfigSource]s, files and classpath resources.
  */
 class PropertySourceLoader(
+  private val prefix: String?,
   private val classpathResourceLoader: ClasspathResourceLoader,
   private val parserRegistry: ParserRegistry,
   private val allowEmptyPropertySources: Boolean
@@ -47,6 +49,15 @@ class PropertySourceLoader(
       .map { it.node(PropertySourceContext(parserRegistry, allowEmptyPropertySources)) }
       .sequence()
       .mapInvalid { ConfigFailure.MultipleFailures(it) }
-      .flatMap { if (it.isEmpty()) ConfigFailure.NoSources.invalid() else NonEmptyList.unsafe(it).valid() }
+      .flatMap {
+        if (it.isEmpty()) {
+          ConfigFailure.NoSources.invalid()
+        } else {
+          NonEmptyList.unsafe(it.map { n -> n.filter(::parentNodeOrMatchesPrefix)}).valid()
+        }
+      }
   }
+
+  private fun parentNodeOrMatchesPrefix(node: Node) =
+    prefix == null || node.path.keys.isEmpty() || node.path.keys[0] == prefix
 }
