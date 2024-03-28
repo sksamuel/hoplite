@@ -107,6 +107,15 @@ fun Node.paths(): Set<Pair<DotPath, Pos>> = setOf(this.path to this.pos) + when 
   else -> emptySet()
 }
 
+/**
+ * Return all nodes in this tree, recursively filtering per the given filter function.
+ */
+fun Node.filter(filter: (Node) -> Boolean): Node = if (!filter(this)) Undefined else when (this) {
+  is ArrayNode -> copy(elements = this.elements.filter(filter))
+  is MapNode -> copy(map = this.map.filterValues(filter))
+  else -> this
+}
+
 sealed class ContainerNode : Node
 
 data class MapNode(
