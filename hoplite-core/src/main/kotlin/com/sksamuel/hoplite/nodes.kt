@@ -107,6 +107,18 @@ fun Node.paths(): Set<Pair<DotPath, Pos>> = setOf(this.path to this.pos) + when 
   else -> emptySet()
 }
 
+/**
+ * Return all nodes in this tree, recursively transformed per the given transformer function.
+ */
+fun Node.transform(transformer: (Node) -> Node): Node = when (val transformed = transformer(this)) {
+  is ArrayNode -> transformed.copy(elements = transformed.elements.map { it.transform(transformer) })
+  is MapNode -> transformed.copy(
+    map = transformed.map.mapValues { it.value.transform(transformer) },
+    value = transformed.value.transform(transformer)
+  )
+  else -> transformed
+}
+
 sealed class ContainerNode : Node
 
 data class MapNode(

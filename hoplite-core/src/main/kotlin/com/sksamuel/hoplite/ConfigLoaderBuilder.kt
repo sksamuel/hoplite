@@ -5,6 +5,7 @@ import com.sksamuel.hoplite.decoder.DefaultDecoderRegistry
 import com.sksamuel.hoplite.env.Environment
 import com.sksamuel.hoplite.internal.CascadeMode
 import com.sksamuel.hoplite.internal.DecodeMode
+import com.sksamuel.hoplite.transformer.NodeTransformer
 import com.sksamuel.hoplite.parsers.DefaultParserRegistry
 import com.sksamuel.hoplite.parsers.Parser
 import com.sksamuel.hoplite.preprocessor.EnvOrSystemPropertyPreprocessor
@@ -51,6 +52,7 @@ class ConfigLoaderBuilder private constructor() {
 
   private val propertySources = mutableListOf<PropertySource>()
   private val preprocessors = mutableListOf<Preprocessor>()
+  private val nodeTransformers = mutableListOf<NodeTransformer>()
   private val resolvers = mutableListOf<Resolver>()
   private val paramMappers = mutableListOf<ParameterMapper>()
   private val parsers = mutableMapOf<String, Parser>()
@@ -70,8 +72,8 @@ class ConfigLoaderBuilder private constructor() {
     /**
      * Returns a [ConfigLoaderBuilder] with all defaults applied.
      *
-     * This means that the default [Decoder]s, [Preprocessor]s, [ParameterMapper]s, [PropertySource]s,
-     * and [Parser]s are all registered.
+     * This means that the default [Decoder]s, [Preprocessor]s, [NodeTransformer]s, [ParameterMapper]s,
+     * [PropertySource]s, and [Parser]s are all registered.
      *
      * If you wish to avoid adding defaults, for example to avoid certain decoders or sources, then
      * use [empty] to obtain an empty ConfigLoaderBuilder and call the various addDefault methods manually.
@@ -80,6 +82,7 @@ class ConfigLoaderBuilder private constructor() {
       return empty()
         .addDefaultDecoders()
         .addDefaultPreprocessors()
+        .addDefaultNodeTransformers()
         .addDefaultParamMappers()
         .addDefaultPropertySources()
         .addDefaultParsers()
@@ -88,7 +91,7 @@ class ConfigLoaderBuilder private constructor() {
     /**
      * Returns a [ConfigLoaderBuilder] with all defaults applied, using resolvers in place of preprocessors.
      *
-     * This means that the default [Decoder]s, [Resolver]s, [ParameterMapper]s, [PropertySource]s,
+     * This means that the default [Decoder]s, [Resolver]s, [NodeTransformer]s, [ParameterMapper]s, [PropertySource]s,
      * and [Parser]s are all registered.
      *
      * If you wish to avoid adding defaults, for example to avoid certain decoders or sources, then
@@ -102,6 +105,7 @@ class ConfigLoaderBuilder private constructor() {
       return empty()
         .addDefaultDecoders()
         .addDefaultResolvers()
+        .addDefaultNodeTransformers()
         .addDefaultParamMappers()
         .addDefaultPropertySources()
         .addDefaultParsers()
@@ -205,6 +209,16 @@ class ConfigLoaderBuilder private constructor() {
 
   fun addDefaultPreprocessors() = addPreprocessors(defaultPreprocessors())
 
+  fun addNodeTransformer(nodeTransformer: NodeTransformer): ConfigLoaderBuilder = apply {
+    this.nodeTransformers.add(nodeTransformer)
+  }
+
+  fun addNodeTransformers(nodeTransformers: Iterable<NodeTransformer>): ConfigLoaderBuilder = apply {
+    this.nodeTransformers.addAll(nodeTransformers)
+  }
+
+  fun addDefaultNodeTransformers() = addNodeTransformers(defaultNodeTransformers())
+
   fun addParser(ext: String, parser: Parser) = addFileExtensionMapping(ext, parser)
   fun addParsers(map: Map<String, Parser>) = addFileExtensionMappings(map)
 
@@ -249,6 +263,7 @@ class ConfigLoaderBuilder private constructor() {
     return addDefaultDecoders()
       .addDefaultParsers()
       .addDefaultPreprocessors()
+      .addDefaultNodeTransformers()
       .addDefaultParamMappers()
       .addDefaultPropertySources()
   }
@@ -372,6 +387,7 @@ class ConfigLoaderBuilder private constructor() {
       propertySources = propertySources.toList(),
       parserRegistry = DefaultParserRegistry(parsers),
       preprocessors = preprocessors.toList(),
+      nodeTransformers = nodeTransformers.toList(),
       paramMappers = paramMappers.toList(),
       onFailure = failureCallbacks.toList(),
       resolvers = resolvers,
@@ -407,6 +423,8 @@ fun defaultPreprocessors(): List<Preprocessor> = listOf(
   LookupPreprocessor,
 )
 
+fun defaultNodeTransformers(): List<NodeTransformer> = emptyList()
+
 fun defaultResolvers(): List<Resolver> = listOf(
   EnvVarContextResolver,
   SystemPropertyContextResolver,
@@ -419,6 +437,7 @@ fun defaultResolvers(): List<Resolver> = listOf(
 
 fun defaultParamMappers(): List<ParameterMapper> = listOf(
   DefaultParamMapper,
+  LowercaseParamMapper,
   SnakeCaseParamMapper,
   KebabCaseParamMapper,
   AliasAnnotationParamMapper,

@@ -34,6 +34,11 @@ object DefaultParamMapper : ParameterMapper {
     setOfNotNull(param.name)
 }
 
+object LowercaseParamMapper : ParameterMapper {
+  override fun map(param: KParameter, constructor: KFunction<Any>, kclass: KClass<*>): Set<String> =
+    setOfNotNull(param.name?.lowercase())
+}
+
 /**
  * Disabled by default so that common ENVVAR PARAMS don't override your lower case
  * names unexpectedly.
