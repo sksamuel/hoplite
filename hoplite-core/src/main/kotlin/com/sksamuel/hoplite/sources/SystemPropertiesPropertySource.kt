@@ -23,13 +23,10 @@ open class SystemPropertiesPropertySource(
   override fun source(): String = "System Properties"
 
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
-    val props = Properties()
-    systemPropertiesMap().let { systemPropertiesMap ->
-      systemPropertiesMap.keys
-        .filter { it.startsWith(prefix) }
-        .forEach { props[it.removePrefix(prefix)] = systemPropertiesMap[it] }
-    }
-    return if (props.isEmpty) Undefined.valid() else props.toNode("sysprops").valid()
+    val map = systemPropertiesMap().filter { it.key.startsWith(prefix) }
+    return if (map.isEmpty()) Undefined.valid() else map.toNode("sysprops") {
+      it.removePrefix(prefix)
+    }.valid()
   }
 
   companion object : SystemPropertiesPropertySource() {

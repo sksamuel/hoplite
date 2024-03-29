@@ -10,7 +10,6 @@ import com.sksamuel.hoplite.PropertySource
 import com.sksamuel.hoplite.PropertySourceContext
 import com.sksamuel.hoplite.decoder.toValidated
 import com.sksamuel.hoplite.parsers.toNode
-import java.util.Properties
 
 /**
  * Provides all keys under a prefix path as config values.
@@ -47,12 +46,9 @@ class ParameterStorePathPropertySource(
 
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
     return fetchParameterStoreValues().map { params ->
-      val props = Properties()
-      params.forEach {
-        val name = if (stripPath) it.name.removePrefix(prefix) else it.name
-        props[name.removePrefix("/")] = it.value
+      params.associate { it.name to it.value }.toNode("aws_parameter_store at $prefix", "/") {
+        (if (stripPath) it.removePrefix(prefix) else it).removePrefix("/")
       }
-      props.toNode("aws_parameter_store at $prefix", "/")
     }.toValidated {
       ConfigFailure.PropertySourceFailure("Could not fetch data from AWS parameter store: ${it.message}", it)
     }
