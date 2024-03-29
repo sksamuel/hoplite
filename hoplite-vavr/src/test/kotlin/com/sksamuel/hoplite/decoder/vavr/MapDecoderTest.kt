@@ -20,6 +20,7 @@ class MapDecoderTest : FunSpec({
       ConfigLoader {
         addPropertySource(EnvironmentVariablesPropertySource(
           useUnderscoresAsSeparator = true,
+          useSingleUnderscoresAsSeparator = false,
           allowUppercaseNames = true,
           environmentVariableMap = {
             mapOf(
@@ -39,6 +40,7 @@ class MapDecoderTest : FunSpec({
       ConfigLoader {
         addPropertySource(EnvironmentVariablesPropertySource(
           useUnderscoresAsSeparator = false,
+          useSingleUnderscoresAsSeparator = false,
           allowUppercaseNames = true,
           environmentVariableMap = {
             mapOf(

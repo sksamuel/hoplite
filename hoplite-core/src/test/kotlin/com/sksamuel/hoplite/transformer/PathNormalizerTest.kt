@@ -14,6 +14,7 @@ class PathNormalizerTest : FunSpec({
     val node = EnvironmentVariablesPropertySource(
       useUnderscoresAsSeparator = false,
       allowUppercaseNames = false,
+      useSingleUnderscoresAsSeparator = false,
       environmentVariableMap = { mapOf("A" to "a", "A.B" to "ab", "A.B.CD" to "abcd") },
     ).node(PropertySourceContext.empty).getUnsafe()
 
