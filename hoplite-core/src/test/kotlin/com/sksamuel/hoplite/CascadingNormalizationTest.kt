@@ -22,6 +22,7 @@ class CascadingNormalizationTest : FunSpec() {
           EnvironmentVariablesPropertySource(
             useUnderscoresAsSeparator = false,
             allowUppercaseNames = false,
+            useSingleUnderscoresAsSeparator = false,
             environmentVariableMap = { mapOf("section.subSection.someValue" to "3") }
           )
         )

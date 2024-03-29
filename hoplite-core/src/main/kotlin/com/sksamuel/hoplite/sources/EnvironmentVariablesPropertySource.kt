@@ -9,6 +9,7 @@ import com.sksamuel.hoplite.parsers.toNode
 
 class EnvironmentVariablesPropertySource(
   private val useUnderscoresAsSeparator: Boolean,
+  private val useSingleUnderscoresAsSeparator: Boolean,
   private val allowUppercaseNames: Boolean,
   private val environmentVariableMap: () -> Map<String, String> = { System.getenv() },
   private val prefix: String? = null, // optional prefix to strip from the vars
@@ -24,6 +25,7 @@ class EnvironmentVariablesPropertySource(
       key
         .let { if (prefix == null) it else it.removePrefix(prefix) }
         .let { if (useUnderscoresAsSeparator) it.replace("__", ".") else it }
+        .let { if (useSingleUnderscoresAsSeparator) it.replace("_", ".") else it }
         .let {
           if (allowUppercaseNames && Character.isUpperCase(it.codePointAt(0))) {
             it.split(".").joinToString(separator = ".") { value ->
