@@ -27,7 +27,7 @@ class CollectionErrorTests : StringSpec({
 
                     - Could not instantiate 'com.sksamuel.hoplite.yaml.Parser' because:
 
-                        - 'id': Missing from config
+                        - 'id': Missing String from config
 
             - Could not instantiate 'com.sksamuel.hoplite.yaml.Supplier' because:
 
@@ -35,7 +35,7 @@ class CollectionErrorTests : StringSpec({
 
                     - Could not instantiate 'com.sksamuel.hoplite.yaml.Parser' because:
 
-                        - 'id': Missing from config
+                        - 'id': Missing String from config
 
             - Could not instantiate 'com.sksamuel.hoplite.yaml.Supplier' because:
 
@@ -43,6 +43,6 @@ class CollectionErrorTests : StringSpec({
 
                     - Could not instantiate 'com.sksamuel.hoplite.yaml.Parser' because:
 
-                        - 'id': Missing from config"""
+                        - 'id': Missing String from config"""
   }
 })
