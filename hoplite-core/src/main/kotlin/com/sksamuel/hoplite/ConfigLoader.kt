@@ -104,18 +104,29 @@ class ConfigLoader(
    * This function implements fallback, such that the first resource is scanned first, and the second
    * resource is scanned if the first does not contain a given path, and so on.
    */
+  inline fun <reified A : Any> loadConfigOrThrow(prefix: String? = null): A =
+    loadConfigOrThrow(emptyList(), prefix = prefix)
+
+  /**
+   * Attempts to load config from the specified resources either on the class path or as files on the
+   * file system, and returns the successfully created instance A, or throws an error.
+   *
+   * This function implements fallback, such that the first resource is scanned first, and the second
+   * resource is scanned if the first does not contain a given path, and so on.
+   */
   inline fun <reified A : Any> loadConfigOrThrow(
     resourceOrFiles: List<String>,
     classpathResourceLoader: ClasspathResourceLoader = ConfigSource.Companion::class.java.toClasspathResourceLoader(),
-  ): A = loadConfig<A>(resourceOrFiles, classpathResourceLoader).returnOrThrow()
+    prefix: String? = null,
+  ): A = loadConfig<A>(resourceOrFiles, classpathResourceLoader, prefix).returnOrThrow()
 
   /**
    * Attempts to load config from the registered property sources marshalled as an instance of A.
    * If any properties are missing, or cannot be converted into the applicable types, then this
    * function will throw.
    */
-  fun <A : Any> loadConfigOrThrow(klass: KClass<A>, inputs: List<ConfigSource>): A =
-    loadConfig(klass, inputs, emptyList()).returnOrThrow()
+  fun <A : Any> loadConfigOrThrow(klass: KClass<A>, inputs: List<ConfigSource>, prefix: String? = null): A =
+    loadConfig(klass, inputs, emptyList(), prefix).returnOrThrow()
 
   /**
    * Attempts to load config from the specified resources either on the class path or as files on the
@@ -128,7 +139,8 @@ class ConfigLoader(
   inline fun <reified A : Any> loadConfig(
     vararg resourceOrFiles: String,
     classpathResourceLoader: ClasspathResourceLoader = ConfigSource.Companion::class.java.toClasspathResourceLoader(),
-  ): ConfigResult<A> = loadConfig(resourceOrFiles.toList(), classpathResourceLoader)
+    prefix: String? = null,
+  ): ConfigResult<A> = loadConfig(resourceOrFiles.toList(), classpathResourceLoader, prefix)
 
   /**
    * Attempts to load config from the specified resources either on the class path or as files on the
@@ -141,14 +153,28 @@ class ConfigLoader(
   inline fun <reified A : Any> loadConfig(
     resourceOrFiles: List<String>,
     classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader(),
-  ): ConfigResult<A> = loadConfig(A::class, emptyList(), resourceOrFiles, classpathResourceLoader)
+    prefix: String? = null,
+  ): ConfigResult<A> = loadConfig(A::class, emptyList(), resourceOrFiles, prefix, classpathResourceLoader)
+
+  /**
+   * Attempts to load config from the specified resources either on the class path or as files on the
+   * file system, and returns a [ConfigResult] with either the errors during load, or the successfully
+   * created instance A.
+   *
+   * This function implements fallback, such that the first resource is scanned first, and the second
+   * resource is scanned if the first does not contain a given path, and so on.
+   */
+  inline fun <reified A : Any> loadConfig(
+    classpathResourceLoader: ClasspathResourceLoader = ConfigSource.Companion::class.java.toClasspathResourceLoader(),
+    prefix: String? = null,
+  ): ConfigResult<A> = loadConfig(emptyList(), classpathResourceLoader, prefix)
 
   /**
    * Attempts to load config from the registered property sources marshalled as an instance of A.
    * If any properties are missing, or cannot be converted into the applicable types, then this
    * function will return an invalid [ConfigFailure].
    */
-  inline fun <reified A : Any> loadConfig(): ConfigResult<A> = loadConfig(A::class, emptyList(), emptyList())
+  inline fun <reified A : Any> loadConfig(): ConfigResult<A> = loadConfig(A::class, emptyList(), emptyList(), null)
 
   // This is where the actual processing takes place for marshalled config.
   // All other loadConfig or loadConfigOrThrow methods ultimately end up in this method.
@@ -157,6 +183,7 @@ class ConfigLoader(
     kclass: KClass<A>,
     configSources: List<ConfigSource>,
     resourceOrFiles: List<String>,
+    prefix: String?,
     classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader()
   ): ConfigResult<A> {
     require(kclass.isData) { "Can only decode into data classes [was ${kclass}]" }
@@ -165,13 +192,15 @@ class ConfigLoader(
       parserRegistry = parserRegistry,
       allowEmptyTree = allowEmptyTree,
       allowNullOverride = allowNullOverride,
-      resolveTypesCaseInsensitive = resolveTypesCaseInsensitive,
       cascadeMode = cascadeMode,
       preprocessors = preprocessors,
       preprocessingIterations = preprocessingIterations,
+      prefix = prefix,
+      resolvers = resolvers,
       decoderRegistry = decoderRegistry,
       paramMappers = paramMappers,
       flattenArraysToString = flattenArraysToString,
+      resolveTypesCaseInsensitive = resolveTypesCaseInsensitive,
       allowUnresolvedSubstitutions = allowUnresolvedSubstitutions,
       secretsPolicy = secretsPolicy,
       decodeMode = decodeMode,
@@ -179,7 +208,6 @@ class ConfigLoader(
       obfuscator = obfuscator ?: PrefixObfuscator(3),
       reportPrintFn = reportPrintFn,
       environment = environment,
-      resolvers = resolvers,
       sealedTypeDiscriminatorField = sealedTypeDiscriminatorField,
       contextResolverMode = contextResolverMode,
     ).decode(kclass, environment, resourceOrFiles, propertySources, configSources)
@@ -220,14 +248,15 @@ class ConfigLoader(
       parserRegistry = parserRegistry,
       allowEmptyTree = allowEmptyTree,
       allowNullOverride = allowNullOverride,
-      resolveTypesCaseInsensitive = resolveTypesCaseInsensitive,
       cascadeMode = cascadeMode,
       preprocessors = preprocessors,
       preprocessingIterations = preprocessingIterations,
+      prefix = null,
       resolvers = resolvers,
-      decoderRegistry = decoderRegistry, // not needed to load nodes
-      paramMappers = paramMappers,
-      flattenArraysToString = false, // not used when loading nodes
+      decoderRegistry = decoderRegistry,
+      paramMappers = paramMappers, // not needed to load nodes
+      flattenArraysToString = false,
+      resolveTypesCaseInsensitive = resolveTypesCaseInsensitive, // not used when loading nodes
       allowUnresolvedSubstitutions = allowUnresolvedSubstitutions,  // not used when loading nodes
       secretsPolicy = null,  // not used when loading nodes
       decodeMode = DecodeMode.Lenient,  // not used when loading nodes
@@ -250,4 +279,3 @@ class ConfigLoader(
 
 @Deprecated("Moved package. Use com.sksamuel.hoplite.sources.MapPropertySource")
 typealias MapPropertySource = com.sksamuel.hoplite.sources.MapPropertySource
-

@@ -34,7 +34,7 @@ class ErrorTests : StringSpec({
 
         - 'wrongType': Required type Boolean could not be decoded from a Long value: 123 (classpath:/error1.json:2:19)
 
-        - 'whereAmI': Missing from config
+        - 'whereAmI': Missing String from config
 
         - 'notnull': Type defined as not-null but null was loaded from config (classpath:/error1.json:6:18)
 

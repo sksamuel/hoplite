@@ -33,6 +33,7 @@ class ConfigParser(
    cascadeMode: CascadeMode,
    preprocessors: List<Preprocessor>,
    preprocessingIterations: Int,
+   private val prefix: String?,
    private val resolvers: List<Resolver>,
    private val decoderRegistry: DecoderRegistry,
    private val paramMappers: List<ParameterMapper>,
@@ -81,10 +82,10 @@ class ConfigParser(
       cascader.cascade(nodes).flatMap { node ->
         val context = context(node)
         preprocessing.preprocess(node, context).flatMap { preprocessed ->
-          check(preprocessed).flatMap {
+          check(preprocessed.let { if (prefix == null) it else it.atPath(prefix) }).flatMap {
 
-            val decoded = decoding.decode(kclass, preprocessed, decodeMode, context)
-            val state = createDecodingState(preprocessed, context, secretsPolicy)
+            val decoded = decoding.decode(kclass, it, decodeMode, context)
+            val state = createDecodingState(it, context, secretsPolicy)
 
             // always do report regardless of decoder result
             if (useReport) {
