@@ -15,21 +15,38 @@ import com.sksamuel.hoplite.*
  *
  * Path normalization does the following for all node keys and each element of each node's path:
  * * Removes dashes
+ * * Removes underscores
  * * Converts to lower-case
+ *
+ * It does NOT normalize the sealed type discriminator field for map nodes.
  */
 object PathNormalizer : NodeTransformer {
-  fun normalizePathElement(element: String): String = element.replace("-", "").lowercase()
+  fun normalizePathElement(element: String): String = element
+    .replace("-", "")
+    .replace("_", "")
+    .lowercase()
 
-  override fun transform(node: Node): Node = node
+  override fun transform(node: Node, sealedTypeDiscriminatorField: String?): Node = node
     .transform {
       val normalizedPathNode = it.withPath(
         it.path.copy(keys = it.path.keys.map { key ->
-          normalizePathElement(key)
+          if (it is MapNode) normalizePathElementExceptDiscriminator(key, sealedTypeDiscriminatorField)
+          else normalizePathElement(key)
         })
       )
       when (normalizedPathNode){
-        is MapNode -> normalizedPathNode.copy(map = normalizedPathNode.map.mapKeys { (key, _) -> normalizePathElement(key) })
+        is MapNode -> normalizedPathNode.copy(map = normalizedPathNode.map.mapKeys { (key, _) ->
+          normalizePathElementExceptDiscriminator(key, sealedTypeDiscriminatorField)
+        })
         else -> normalizedPathNode
       }
     }
+
+  private fun normalizePathElementExceptDiscriminator(element: String, sealedTypeDiscriminatorField: String?): String {
+    return if (sealedTypeDiscriminatorField != null && element == sealedTypeDiscriminatorField) element
+    else element
+      .replace("-", "")
+      .replace("_", "")
+      .lowercase()
+  }
 }

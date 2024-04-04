@@ -7,5 +7,5 @@ import com.sksamuel.hoplite.*
  * be applied at configuration loading time.
  */
 interface NodeTransformer {
-  fun transform(node: Node): Node
+  fun transform(node: Node, sealedTypeDiscriminatorField: String?): Node
 }

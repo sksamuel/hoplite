@@ -16,7 +16,7 @@ sealed interface Node {
 
   /**
    * The original source key of this node without any normalization.
-   * Useful for reporting.
+   * Useful for reporting or potentially for custom decoders.
    */
   val sourceKey: String?
 
@@ -110,6 +110,15 @@ fun <T : Node> T.withMeta(key: String, value: Any?): T = when (this) {
 fun Node.paths(): Set<Pair<DotPath, Pos>> = setOf(this.path to this.pos) + when (this) {
   is ArrayNode -> this.elements.flatMap { it.paths() }
   is MapNode -> this.map.map { it.value.paths() }.flatten()
+  else -> emptySet()
+}
+
+/**
+ * Return all decoded paths recursively in this tree.
+ */
+fun Node.decodedPaths(): Set<DecodedPath> = setOf(DecodedPath(this.path, this.sourceKey, this.pos)) + when (this) {
+  is ArrayNode -> this.elements.flatMap { it.decodedPaths() }
+  is MapNode -> this.map.map { it.value.decodedPaths() }.flatten()
   else -> emptySet()
 }
 

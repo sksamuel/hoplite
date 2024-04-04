@@ -53,7 +53,7 @@ class ConfigParser(
   private val contextResolverMode: ContextResolverMode,
 ) {
 
-  private val loader = PropertySourceLoader(nodeTransformers, classpathResourceLoader, parserRegistry, allowEmptyTree)
+  private val loader = PropertySourceLoader(nodeTransformers, sealedTypeDiscriminatorField, classpathResourceLoader, parserRegistry, allowEmptyTree)
   private val cascader = Cascader(cascadeMode, allowEmptyTree, allowNullOverride)
   private val preprocessing = Preprocessing(preprocessors, preprocessingIterations)
   private val decoding = Decoding(decoderRegistry, secretsPolicy)

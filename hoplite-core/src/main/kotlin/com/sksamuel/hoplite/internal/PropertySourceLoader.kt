@@ -22,6 +22,7 @@ import com.sksamuel.hoplite.transformer.NodeTransformer
  */
 class PropertySourceLoader(
   private val nodeTransformers: List<NodeTransformer>,
+  private val sealedTypeDiscriminatorField: String?,
   private val classpathResourceLoader: ClasspathResourceLoader,
   private val parserRegistry: ParserRegistry,
   private val allowEmptyPropertySources: Boolean
@@ -49,7 +50,7 @@ class PropertySourceLoader(
       .map { it.node(PropertySourceContext(parserRegistry, allowEmptyPropertySources)) }
       .map { configResult ->
         configResult.flatMap { node ->
-          nodeTransformers.fold(node) { acc, normalizer -> acc.transform { normalizer.transform(it) } }.valid()
+          nodeTransformers.fold(node) { acc, normalizer -> acc.transform { normalizer.transform(it, sealedTypeDiscriminatorField) } }.valid()
         }
       }
       .sequence()

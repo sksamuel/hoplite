@@ -1,7 +1,6 @@
 package com.sksamuel.hoplite
 
 import com.sksamuel.hoplite.decoder.Decoder
-import com.sksamuel.hoplite.decoder.DotPath
 import com.sksamuel.hoplite.fp.NonEmptyList
 import com.sksamuel.hoplite.internal.OverridePath
 import com.sksamuel.hoplite.parsers.Parser
@@ -30,9 +29,9 @@ sealed interface ConfigFailure {
    */
   fun description(): String
 
-  data class UnusedPath(val path: DotPath, val pos: Pos) : ConfigFailure {
+  data class UnusedPath(val decodedPath: DecodedPath) : ConfigFailure {
     override fun description(): String {
-      return "Config value '${path.flatten()}' at ${pos.loc()} was unused"
+      return "Config value '${decodedPath.sourceKey ?: decodedPath.path.flatten()}' at ${decodedPath.pos.loc()} was unused"
     }
   }
 

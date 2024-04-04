@@ -17,7 +17,7 @@ class PathNormalizerTest : FunSpec({
       environmentVariableMap = { mapOf("A" to "a", "A.B" to "ab", "A.B.CD" to "abcd") },
     ).node(PropertySourceContext.empty).getUnsafe()
 
-    PathNormalizer.transform(node) shouldBe MapNode(
+    PathNormalizer.transform(node, null) shouldBe MapNode(
       map = mapOf(
         "a" to MapNode(
           map = mapOf(

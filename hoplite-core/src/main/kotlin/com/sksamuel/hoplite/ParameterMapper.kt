@@ -62,6 +62,8 @@ object AliasAnnotationParamMapper : ParameterMapper {
  * the snake case equivalent.
  *
  * For example, camelCasePilsen will become snake_case_pilsen.
+ *
+ * When using the [PathNormalizer] (which is enabled by default), this mapper is unnecessary.
  */
 object SnakeCaseParamMapper : ParameterMapper {
 
@@ -86,6 +88,8 @@ object SnakeCaseParamMapper : ParameterMapper {
  * the kebab case equivalent.
  *
  * For example, camelCasePilsen will become kebab-case-pilsen.
+ *
+ * When using the [PathNormalizer] (which is enabled by default), this mapper is unnecessary.
  */
 object KebabCaseParamMapper : ParameterMapper {
 

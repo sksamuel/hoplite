@@ -31,6 +31,7 @@ import com.sksamuel.hoplite.sources.EnvironmentVariableOverridePropertySource
 import com.sksamuel.hoplite.sources.SystemPropertiesPropertySource
 import com.sksamuel.hoplite.sources.UserSettingsPropertySource
 import com.sksamuel.hoplite.sources.XdgConfigPropertySource
+import com.sksamuel.hoplite.transformer.PathNormalizer
 import java.util.ServiceLoader
 
 class ConfigLoaderBuilder private constructor() {
@@ -423,7 +424,9 @@ fun defaultPreprocessors(): List<Preprocessor> = listOf(
   LookupPreprocessor,
 )
 
-fun defaultNodeTransformers(): List<NodeTransformer> = emptyList()
+fun defaultNodeTransformers(): List<NodeTransformer> = listOf(
+  PathNormalizer,
+)
 
 fun defaultResolvers(): List<Resolver> = listOf(
   EnvVarContextResolver,
@@ -438,8 +441,6 @@ fun defaultResolvers(): List<Resolver> = listOf(
 fun defaultParamMappers(): List<ParameterMapper> = listOf(
   DefaultParamMapper,
   LowercaseParamMapper,
-  SnakeCaseParamMapper,
-  KebabCaseParamMapper,
   AliasAnnotationParamMapper,
 )
 
