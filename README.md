@@ -171,7 +171,9 @@ like this:
 
 `ConfigLoaderBuilder.default().addParser("data", YamlParser).build()`
 
+### Note: fatJar/shadowJar
 
+If attempting to build a "fat Jar" while using multiple file type modules, it is essential to use [the shadowJar plugin](https://imperceptiblethoughts.com/shadow/) and to add the directive `mergeServiceFiles()` in the shadowJar Gradle task. [More info](https://imperceptiblethoughts.com/shadow/configuration/merging/#merging-service-descriptor-files)
 
 ## Property Sources
 
