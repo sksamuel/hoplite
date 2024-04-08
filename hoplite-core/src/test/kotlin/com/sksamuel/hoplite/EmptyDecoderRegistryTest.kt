@@ -14,12 +14,14 @@ class EmptyDecoderRegistryTest : FunSpec() {
       val parsers = defaultParserRegistry()
       val sources = defaultPropertySources()
       val preprocessors = defaultPreprocessors()
+      val nodeTransformers = defaultNodeTransformers()
       val mappers = defaultParamMappers()
       val e = ConfigLoader(
         DecoderRegistry.zero,
         sources,
         parsers,
         preprocessors,
+        nodeTransformers,
         mappers,
         allowEmptyTree = false,
         allowUnresolvedSubstitutions = false,

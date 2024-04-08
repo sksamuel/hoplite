@@ -17,6 +17,7 @@ class EnvPropertySourceUppercaseTest : DescribeSpec({
           addPropertySource(
             EnvironmentVariablesPropertySource(
               useUnderscoresAsSeparator = true,
+              useSingleUnderscoresAsSeparator = false,
               allowUppercaseNames = true,
               environmentVariableMap = {
                 mapOf(
@@ -37,6 +38,7 @@ class EnvPropertySourceUppercaseTest : DescribeSpec({
           addPropertySource(
             EnvironmentVariablesPropertySource(
               useUnderscoresAsSeparator = true,
+              useSingleUnderscoresAsSeparator = false,
               allowUppercaseNames = true,
               environmentVariableMap = {
                 mapOf(
@@ -56,6 +58,7 @@ class EnvPropertySourceUppercaseTest : DescribeSpec({
         ConfigLoader {
           addPropertySource(EnvironmentVariablesPropertySource(
             useUnderscoresAsSeparator = true,
+            useSingleUnderscoresAsSeparator = false,
             allowUppercaseNames = true,
             environmentVariableMap = {
               mapOf(
@@ -75,6 +78,7 @@ class EnvPropertySourceUppercaseTest : DescribeSpec({
           addPropertySource(
             EnvironmentVariablesPropertySource(
               useUnderscoresAsSeparator = true,
+              useSingleUnderscoresAsSeparator = false,
               allowUppercaseNames = true,
               environmentVariableMap = {
                 mapOf(

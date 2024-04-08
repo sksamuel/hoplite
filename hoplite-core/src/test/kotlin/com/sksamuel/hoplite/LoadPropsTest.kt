@@ -21,33 +21,37 @@ class LoadPropsTest : FunSpec({
           mapOf(
             "b" to MapNode(
               mapOf(
-                "c" to StringNode("wibble", pos = Pos.SourcePos(source = "source"), DotPath("a", "b", "c")),
-                "d" to StringNode("123", pos = Pos.SourcePos(source = "source"), DotPath("a", "b", "d"))
+                "c" to StringNode("wibble", pos = Pos.SourcePos(source = "source"), DotPath("a", "b", "c"), sourceKey = "a.b.c"),
+                "d" to StringNode("123", pos = Pos.SourcePos(source = "source"), DotPath("a", "b", "d"), sourceKey = "a.b.d")
               ),
               pos = Pos.SourcePos(source = "source"),
               DotPath("a", "b"),
-              value = Undefined
+              value = Undefined,
+              sourceKey = null
             ),
-            "d" to StringNode("true", pos = Pos.SourcePos(source = "source"), DotPath("a", "d"))
+            "d" to StringNode("true", pos = Pos.SourcePos(source = "source"), DotPath("a", "d"), sourceKey = "a.d")
           ),
           pos = Pos.SourcePos(source = "source"),
           DotPath("a"),
-          value = StringNode("foo", Pos.SourcePos(source = "source"), DotPath("a"))
+          value = StringNode("foo", Pos.SourcePos(source = "source"), DotPath("a"), sourceKey = "a"),
+          sourceKey = "a"
         ),
         "e" to MapNode(
           mapOf(
             "f" to MapNode(
               mapOf(
-                "g" to StringNode("goo", pos = Pos.SourcePos(source = "source"), DotPath("e", "f", "g"))
+                "g" to StringNode("goo", pos = Pos.SourcePos(source = "source"), DotPath("e", "f", "g"), sourceKey = "e.f.g")
               ),
               pos = Pos.SourcePos(source = "source"),
               DotPath("e", "f"),
-              value = StringNode("6", Pos.SourcePos(source = "source"), DotPath("e", "f"))
+              value = StringNode("6", Pos.SourcePos(source = "source"), DotPath("e", "f"), sourceKey = "e.f"),
+              sourceKey = "e.f"
             )
           ),
           pos = Pos.SourcePos(source = "source"),
           DotPath("e"),
-          value = StringNode("5.5", Pos.SourcePos(source = "source"), DotPath("e"))
+          value = StringNode("5.5", Pos.SourcePos(source = "source"), DotPath("e"), sourceKey = "e"),
+          sourceKey = "e"
         )
       ),
       pos = Pos.SourcePos(source = "source"),

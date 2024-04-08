@@ -15,15 +15,13 @@ import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.starProjectedType
 import kotlin.reflect.full.withNullability
 
-class MapDecoder : NullHandlingDecoder<Map<*, *>> {
+class MapDecoder : AbstractUnnormalizedKeysDecoder<Map<*, *>>() {
 
   override fun supports(type: KType): Boolean =
     type.isSubtypeOf(Map::class.starProjectedType) ||
       type.isSubtypeOf(Map::class.starProjectedType.withNullability(true))
 
-  override fun safeDecode(node: Node,
-                          type: KType,
-                          context: DecoderContext): ConfigResult<Map<*, *>> {
+  override fun safeDecodeUnnormalized(node: Node, type: KType, context: DecoderContext): ConfigResult<Map<*, *>> {
     require(type.arguments.size == 2)
 
     val kType = type.arguments[0].type!!

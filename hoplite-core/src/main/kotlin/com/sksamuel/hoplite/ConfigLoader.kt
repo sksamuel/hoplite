@@ -9,6 +9,7 @@ import com.sksamuel.hoplite.fp.getOrElse
 import com.sksamuel.hoplite.internal.CascadeMode
 import com.sksamuel.hoplite.internal.ConfigParser
 import com.sksamuel.hoplite.internal.DecodeMode
+import com.sksamuel.hoplite.transformer.NodeTransformer
 import com.sksamuel.hoplite.parsers.ParserRegistry
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.report.Print
@@ -27,6 +28,7 @@ class ConfigLoader(
   val propertySources: List<PropertySource>,
   val parserRegistry: ParserRegistry,
   val preprocessors: List<Preprocessor>,
+  val nodeTransformers: List<NodeTransformer>,
   val paramMappers: List<ParameterMapper>,
   val onFailure: List<(Throwable) -> Unit> = emptyList(),
   val decodeMode: DecodeMode = DecodeMode.Lenient,
@@ -195,6 +197,7 @@ class ConfigLoader(
       cascadeMode = cascadeMode,
       preprocessors = preprocessors,
       preprocessingIterations = preprocessingIterations,
+      nodeTransformers = nodeTransformers,
       prefix = prefix,
       resolvers = resolvers,
       decoderRegistry = decoderRegistry,
@@ -251,6 +254,7 @@ class ConfigLoader(
       cascadeMode = cascadeMode,
       preprocessors = preprocessors,
       preprocessingIterations = preprocessingIterations,
+      nodeTransformers = nodeTransformers,
       prefix = null,
       resolvers = resolvers,
       decoderRegistry = decoderRegistry,

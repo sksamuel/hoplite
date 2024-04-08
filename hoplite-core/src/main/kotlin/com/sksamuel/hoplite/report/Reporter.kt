@@ -44,6 +44,7 @@ class Reporter(
   object Titles {
     const val Key = "Key"
     const val Source = "Source"
+    const val SourceKey = "Source Key"
     const val Value = "Value"
   }
 
@@ -107,19 +108,22 @@ class Reporter(
           value = value ?: "<null>",
           pos = state.node.pos,
           path = state.node.path,
-          meta = state.node.meta
+          meta = state.node.meta,
+          sourceKey = state.node.sourceKey,
         )
       )
     }
 
     val keyPadded = max(Titles.Key.length, nodes.maxOf { it.node.path.flatten().length })
     val sourcePadded = nodes.maxOf { max(it.node.pos.source()?.length ?: 0, Titles.Source.length) }
+    val sourceKeyPadded = max(Titles.SourceKey.length, nodes.maxOf { it.node.sourceKey.orEmpty().length })
     val valuePadded = max(Titles.Value.length, obfuscated.maxOf { (it.node as StringNode).value.length })
 
     val rows = obfuscated.map {
       listOfNotNull(
         it.node.path.flatten().padEnd(keyPadded, ' '),
         (it.node.pos.source() ?: "").padEnd(sourcePadded, ' '),
+        it.node.sourceKey.orEmpty().padEnd(sourceKeyPadded, ' '),
         (it.node as StringNode).value.padEnd(valuePadded, ' ')
       ).joinToString(" | ", "| ", " |")
     }
@@ -129,12 +133,14 @@ class Reporter(
     val bar = listOfNotNull(
       "".padEnd(keyPadded + 2, '-'),
       "".padEnd(sourcePadded + 2, '-'),
+      "".padEnd(sourceKeyPadded + 2, '-'),
       "".padEnd(valuePadded + 2, '-')
     ).joinToString("+", "+", "+")
 
     val titles = listOfNotNull(
       Titles.Key.padEnd(keyPadded, ' '),
       Titles.Source.padEnd(sourcePadded, ' '),
+      Titles.SourceKey.padEnd(sourceKeyPadded, ' '),
       Titles.Value.padEnd(valuePadded, ' ')
     ).joinToString(" | ", "| ", " |")
 
