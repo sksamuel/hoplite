@@ -40,14 +40,14 @@ class ReporterTest : FunSpec({
     }.shouldContain(
       """
 Used keys: 4
-+----------+---------------------+----------+
-| Key      | Source              | Value    |
-+----------+---------------------+----------+
-| host     | props string source | loc***** |
-| name     | props string source | my ***** |
-| password | props string source | ssm***** |
-| port     | props string source | 3306     |
-+----------+---------------------+----------+
++----------+---------------------+------------+----------+
+| Key      | Source              | Source Key | Value    |
++----------+---------------------+------------+----------+
+| host     | props string source | host       | loc***** |
+| name     | props string source | name       | my ***** |
+| password | props string source | password   | ssm***** |
+| port     | props string source | port       | 3306     |
++----------+---------------------+------------+----------+
 """
     )
 
@@ -98,14 +98,14 @@ Property sources (highest to lowest priority):
     }.shouldContain(
       """
 Used keys: 4
-+----------+---------------------+----------+
-| Key      | Source              | Value    |
-+----------+---------------------+----------+
-| host     | props string source | lr*****  |
-| name     | props string source | my ***** |
-| password | props string source | ssm***** |
-| port     | props string source | 3306     |
-+----------+---------------------+----------+
++----------+---------------------+------------+----------+
+| Key      | Source              | Source Key | Value    |
++----------+---------------------+------------+----------+
+| host     | props string source | host       | lr*****  |
+| name     | props string source | name       | my ***** |
+| password | props string source | password   | ssm***** |
+| port     | props string source | port       | 3306     |
++----------+---------------------+------------+----------+
 """
     )
 
@@ -131,12 +131,12 @@ Used keys: 4
     }
 
     out shouldContain """
-+---------------+---------------------+----------+
-| Key           | Source              | Value    |
-+---------------+---------------------+----------+
-| database.name | props string source | my ***** |
-| database.port | props string source | 3306     |
-+---------------+---------------------+----------+
++---------------+---------------------+---------------+----------+
+| Key           | Source              | Source Key    | Value    |
++---------------+---------------------+---------------+----------+
+| database.name | props string source | database.name | my ***** |
+| database.port | props string source | database.port | 3306     |
++---------------+---------------------+---------------+----------+
 """.trim()
 
   }
@@ -177,14 +177,14 @@ Used keys: 4
     }.shouldContain(
       """
 Used keys: 4
-+----------+---------------------+-------------+
-| Key      | Source              | Value       |
-+----------+---------------------+-------------+
-| host     | props string source | localhost   |
-| name     | props string source | my database |
-| password | props string source | gcp*****    |
-| port     | props string source | 3306        |
-+----------+---------------------+-------------+
++----------+---------------------+------------+-------------+
+| Key      | Source              | Source Key | Value       |
++----------+---------------------+------------+-------------+
+| host     | props string source | host       | localhost   |
+| name     | props string source | name       | my database |
+| password | props string source | password   | gcp*****    |
+| port     | props string source | port       | 3306        |
++----------+---------------------+------------+-------------+
 
 """
     )

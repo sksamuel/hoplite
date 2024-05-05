@@ -30,7 +30,7 @@ class ReporterBuilder {
   @Deprecated("Specify secretsPolicy through ConfigBuilderLoader", level = DeprecationLevel.ERROR)
   fun withSecretsPolicy(secretsPolicy: SecretsPolicy): ReporterBuilder = TODO("Unsupported")
 
-  fun build(): Reporter = Reporter(print, obfuscator, null)
+  fun build(): Reporter = Reporter(print, obfuscator, null, null)
 }
 
 typealias Print = (String) -> Unit
@@ -38,12 +38,14 @@ typealias Print = (String) -> Unit
 class Reporter(
   private val print: Print,
   private val obfuscator: Obfuscator,
-  private val environment: Environment?
+  private val environment: Environment?,
+  private val prefix: String?
 ) {
 
   object Titles {
     const val Key = "Key"
     const val Source = "Source"
+    const val SourceKey = "Source Key"
     const val Value = "Value"
   }
 
@@ -59,10 +61,12 @@ class Reporter(
 
     val r = buildString {
       appendLine()
-      appendLine("--Start Hoplite Config Report---")
+      appendLine("--Start Hoplite Config Report${if (prefix != null) " @ Prefix $prefix" else ""}---")
       appendLine()
-      environment?.let { appendLine("Environment: ${it.name}") }
-      appendLine()
+      environment?.let {
+        appendLine("Environment: ${it.name}")
+        appendLine()
+      }
       appendLine(report(sources))
       appendLine()
 
@@ -107,19 +111,22 @@ class Reporter(
           value = value ?: "<null>",
           pos = state.node.pos,
           path = state.node.path,
-          meta = state.node.meta
+          meta = state.node.meta,
+          sourceKey = state.node.sourceKey,
         )
       )
     }
 
     val keyPadded = max(Titles.Key.length, nodes.maxOf { it.node.path.flatten().length })
     val sourcePadded = nodes.maxOf { max(it.node.pos.source()?.length ?: 0, Titles.Source.length) }
+    val sourceKeyPadded = max(Titles.SourceKey.length, nodes.maxOf { it.node.sourceKey.orEmpty().length })
     val valuePadded = max(Titles.Value.length, obfuscated.maxOf { (it.node as StringNode).value.length })
 
     val rows = obfuscated.map {
       listOfNotNull(
         it.node.path.flatten().padEnd(keyPadded, ' '),
         (it.node.pos.source() ?: "").padEnd(sourcePadded, ' '),
+        it.node.sourceKey.orEmpty().padEnd(sourceKeyPadded, ' '),
         (it.node as StringNode).value.padEnd(valuePadded, ' ')
       ).joinToString(" | ", "| ", " |")
     }
@@ -129,12 +136,14 @@ class Reporter(
     val bar = listOfNotNull(
       "".padEnd(keyPadded + 2, '-'),
       "".padEnd(sourcePadded + 2, '-'),
+      "".padEnd(sourceKeyPadded + 2, '-'),
       "".padEnd(valuePadded + 2, '-')
     ).joinToString("+", "+", "+")
 
     val titles = listOfNotNull(
       Titles.Key.padEnd(keyPadded, ' '),
       Titles.Source.padEnd(sourcePadded, ' '),
+      Titles.SourceKey.padEnd(sourceKeyPadded, ' '),
       Titles.Value.padEnd(valuePadded, ' ')
     ).joinToString(" | ", "| ", " |")
 

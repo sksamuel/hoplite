@@ -1,7 +1,8 @@
 package com.sksamuel.hoplite
 
 import com.zaxxer.hikari.HikariDataSource
-import io.kotest.assertions.throwables.shouldThrowAny
+import com.zaxxer.hikari.pool.HikariPool
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.string.shouldContain
 
@@ -10,7 +11,7 @@ class HikariDataSourceTest : StringSpec() {
     "hikari datasource decoder" {
       data class Config(val db: HikariDataSource)
 
-      shouldThrowAny {
+      shouldThrow<HikariPool.PoolInitializationException> {
         ConfigLoader().loadConfigOrThrow<Config>("/hikari.yaml").db
       }.cause?.cause?.message shouldContain "serverhost"
     }

@@ -15,6 +15,12 @@ sealed interface Node {
   val path: DotPath
 
   /**
+   * The original source key of this node without any normalization.
+   * Useful for reporting or potentially for custom decoders.
+   */
+  val sourceKey: String?
+
+  /**
    * Returns the [PrimitiveNode] at the given key.
    * If this node is not a [MapNode] or the node contained at the
    * given key is not a primitive, or the node does not contain
@@ -107,6 +113,27 @@ fun Node.paths(): Set<Pair<DotPath, Pos>> = setOf(this.path to this.pos) + when 
   else -> emptySet()
 }
 
+/**
+ * Return all decoded paths recursively in this tree.
+ */
+fun Node.decodedPaths(): Set<DecodedPath> = setOf(DecodedPath(this.path, this.sourceKey, this.pos)) + when (this) {
+  is ArrayNode -> this.elements.flatMap { it.decodedPaths() }
+  is MapNode -> this.map.map { it.value.decodedPaths() }.flatten()
+  else -> emptySet()
+}
+
+/**
+ * Return all nodes in this tree, recursively transformed per the given transformer function.
+ */
+fun Node.transform(transformer: (Node) -> Node): Node = when (val transformed = transformer(this)) {
+  is ArrayNode -> transformed.copy(elements = transformed.elements.map { it.transform(transformer) })
+  is MapNode -> transformed.copy(
+    map = transformed.map.mapValues { it.value.transform(transformer) },
+    value = transformed.value.transform(transformer)
+  )
+  else -> transformed
+}
+
 sealed class ContainerNode : Node
 
 data class MapNode(
@@ -114,7 +141,8 @@ data class MapNode(
   override val pos: Pos,
   override val path: DotPath,
   val value: Node = Undefined,
-  override val meta: Map<String, Any?> = emptyMap()
+  override val meta: Map<String, Any?> = emptyMap(),
+  override val sourceKey: String? = if (path == DotPath.root) null else path.flatten(),
 ) : ContainerNode() {
   override val simpleName: String = "Map"
   override fun atKey(key: String): Node = map[key] ?: Undefined
@@ -126,7 +154,8 @@ data class ArrayNode(
   val elements: List<Node>,
   override val pos: Pos,
   override val path: DotPath,
-  override val meta: Map<String, Any?> = emptyMap()
+  override val meta: Map<String, Any?> = emptyMap(),
+  override val sourceKey: String? = if (path == DotPath.root) null else path.flatten(),
 ) : ContainerNode() {
   override val simpleName: String = "List"
   override fun atKey(key: String): Node = Undefined
@@ -145,7 +174,8 @@ data class StringNode(
   override val value: String,
   override val pos: Pos,
   override val path: DotPath,
-  override val meta: Map<String, Any?> = emptyMap()
+  override val meta: Map<String, Any?> = emptyMap(),
+  override val sourceKey: String? = if (path == DotPath.root) null else path.flatten(),
 ) : PrimitiveNode() {
   override val simpleName: String = "String"
 }
@@ -154,7 +184,8 @@ data class BooleanNode(
   override val value: Boolean,
   override val pos: Pos,
   override val path: DotPath,
-  override val meta: Map<String, Any?> = emptyMap()
+  override val meta: Map<String, Any?> = emptyMap(),
+  override val sourceKey: String? = if (path == DotPath.root) null else path.flatten(),
 ) : PrimitiveNode() {
   override val simpleName: String = "Boolean"
 }
@@ -165,7 +196,8 @@ data class LongNode(
   override val value: Long,
   override val pos: Pos,
   override val path: DotPath,
-  override val meta: Map<String, Any?> = emptyMap()
+  override val meta: Map<String, Any?> = emptyMap(),
+  override val sourceKey: String? = if (path == DotPath.root) null else path.flatten(),
 ) : NumberNode() {
   override val simpleName: String = "Long"
 }
@@ -174,7 +206,8 @@ data class DoubleNode(
   override val value: Double,
   override val pos: Pos,
   override val path: DotPath,
-  override val meta: Map<String, Any?> = emptyMap()
+  override val meta: Map<String, Any?> = emptyMap(),
+  override val sourceKey: String? = if (path == DotPath.root) null else path.flatten(),
 ) : NumberNode() {
   override val simpleName: String = "Double"
 }
@@ -182,7 +215,8 @@ data class DoubleNode(
 data class NullNode(
   override val pos: Pos,
   override val path: DotPath,
-  override val meta: Map<String, Any?> = emptyMap()
+  override val meta: Map<String, Any?> = emptyMap(),
+  override val sourceKey: String? = if (path == DotPath.root) null else path.flatten(),
 ) : PrimitiveNode() {
   override val simpleName: String = "null"
   override val value: Any? = null
@@ -192,6 +226,7 @@ object Undefined : Node {
   override val simpleName: String = "Undefined"
   override val pos: Pos = Pos.NoPos
   override val path = DotPath.root
+  override val sourceKey: String? = null
   override fun atKey(key: String): Node = this
   override fun atIndex(index: Int): Node = this
   override val size: Int = 0
