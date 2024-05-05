@@ -1,14 +1,14 @@
 package com.sksamuel.hoplite.internal
 
 import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.DecodedPath
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.NodeState
-import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.decoder.DotPath
 import com.sksamuel.hoplite.fp.flatMap
-import com.sksamuel.hoplite.paths
+import com.sksamuel.hoplite.decodedPaths
 import com.sksamuel.hoplite.secrets.SecretsPolicy
 import com.sksamuel.hoplite.traverse
 import kotlin.reflect.KClass
@@ -35,9 +35,9 @@ internal fun createDecodingState(
   context: DecoderContext,
   secretsPolicy: SecretsPolicy?
 ): DecodingState {
-  val (used, unused) = root.paths()
-    .filterNot { it.first == DotPath.root }
-    .partition { context.usedPaths.contains(it.first) }
+  val (used, unused) = root.decodedPaths()
+    .filterNot { it.path == DotPath.root }
+    .partition { context.usedPaths.contains(it.path) }
   return DecodingState(root, used, unused, createNodeStates(root, context, secretsPolicy))
 }
 
@@ -64,7 +64,7 @@ private fun createNodeStates(
 
 data class DecodingState(
   val root: Node,
-  val used: List<Pair<DotPath, Pos>>,
-  val unused: List<Pair<DotPath, Pos>>,
+  val used: List<DecodedPath>,
+  val unused: List<DecodedPath>,
   val states: List<NodeState>
 )

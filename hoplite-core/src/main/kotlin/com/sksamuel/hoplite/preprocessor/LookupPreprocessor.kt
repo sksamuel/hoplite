@@ -49,9 +49,9 @@ object LookupPreprocessor : Preprocessor {
     fun handle(n: Node): Node = when (n) {
       is MapNode -> {
         val value = if (n.value is StringNode) replace(replace(n.value, regex1), regex2) else n.value
-        MapNode(n.map.map { (k, v) -> k to handle(v) }.toMap(), n.pos, n.path, value)
+        MapNode(n.map.map { (k, v) -> k to handle(v) }.toMap(), n.pos, n.path, value, sourceKey = n.sourceKey)
       }
-      is ArrayNode -> ArrayNode(n.elements.map { handle(it) }, n.pos, n.path)
+      is ArrayNode -> ArrayNode(n.elements.map { handle(it) }, n.pos, n.path, sourceKey = n.sourceKey)
       is StringNode -> replace(replace(n, regex1), regex2)
       else -> n
     }

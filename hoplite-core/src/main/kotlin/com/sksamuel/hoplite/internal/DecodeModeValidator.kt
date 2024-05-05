@@ -20,7 +20,7 @@ class DecodeModeValidator(private val mode: DecodeMode) {
 
   private fun ensureAllUsed(result: DecodingState): ConfigResult<DecodingState> {
     return if (result.unused.isEmpty()) result.valid() else {
-      val errors = NonEmptyList.unsafe(result.unused.map { ConfigFailure.UnusedPath(it.first, it.second) })
+      val errors = NonEmptyList.unsafe(result.unused.map { ConfigFailure.UnusedPath(it) })
       ConfigFailure.MultipleFailures(errors).invalid()
     }
   }

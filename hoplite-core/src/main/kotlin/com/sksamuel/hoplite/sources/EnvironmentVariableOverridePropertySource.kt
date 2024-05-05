@@ -25,13 +25,13 @@ class EnvironmentVariableOverridePropertySource(
   override fun source(): String = "Env Var Overrides"
 
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
-    val props = Properties()
     val vars = environmentVariableMap()
       .mapKeys { if (useUnderscoresAsSeparator) it.key.replace("__", ".") else it.key }
       .filter { it.key.startsWith(Prefix) }
     return if (vars.isEmpty()) Undefined.valid() else {
-      vars.forEach { props[it.key.removePrefix(Prefix)] = it.value }
-      props.toNode("Env Var Overrides").valid()
+      vars.toNode("Env Var Overrides") {
+        it.removePrefix(Prefix)
+      }.valid()
     }
   }
 }

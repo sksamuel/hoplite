@@ -17,12 +17,13 @@ class EnvironmentVariablesPropertySourceTest : FunSpec({
     ).getUnsafe() shouldBe MapNode(
       mapOf(
         "a" to MapNode(
-          value = StringNode("foo", Pos.env, DotPath("a")),
-          map = mapOf("b" to StringNode("bar", Pos.env, DotPath("a", "b"))),
+          value = StringNode("foo", Pos.env, DotPath("a"), sourceKey = "a"),
+          map = mapOf("b" to StringNode("bar", Pos.env, DotPath("a", "b"), sourceKey = "a.b")),
           pos = Pos.SourcePos("env"),
-          path = DotPath("a")
+          path = DotPath("a"),
+          sourceKey = "a"
         ),
-        "c" to StringNode("baz", Pos.env, DotPath("c"))
+        "c" to StringNode("baz", Pos.env, DotPath("c"), sourceKey = "c"),
       ),
       pos = Pos.env,
       DotPath.root
