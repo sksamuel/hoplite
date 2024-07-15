@@ -48,7 +48,7 @@ dependencyResolutionManagement {
 
          library("kotlin-reflect", "org.jetbrains.kotlin:kotlin-reflect:1.6.21")
 
-         val micrometer = "1.13.2"
+         val micrometer = "1.12.8"
          library("micrometer-core", "io.micrometer:micrometer-core:$micrometer")
          library("micrometer-registry-datadog", "io.micrometer:micrometer-registry-datadog:$micrometer")
          library("micrometer-registry-prometheus", "io.micrometer:micrometer-registry-prometheus:$micrometer")
