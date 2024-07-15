@@ -72,7 +72,7 @@ dependencyResolutionManagement {
 
          library("cron-utils", "com.cronutils:cron-utils:9.2.1")
 
-         library("hikaricp", "com.zaxxer:HikariCP:5.0.1")
+         library("hikaricp", "com.zaxxer:HikariCP:5.1.0")
 
          library("kotlinx-serialization-json", "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
          library("kotlinx-datetime", "org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
