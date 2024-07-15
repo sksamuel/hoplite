@@ -96,7 +96,7 @@ dependencyResolutionManagement {
          library("jackson-core", "com.fasterxml.jackson.core:jackson-core:$jackson")
          library("jackson-databind", "com.fasterxml.jackson.core:jackson-databind:$jackson")
 
-         val testcontainers = "1.18.3"
+         val testcontainers = "1.19.8"
          library("testcontainers-postgresql", "org.testcontainers:postgresql:$testcontainers")
          library("testcontainers-mysql", "org.testcontainers:mysql:$testcontainers")
          library("testcontainers-localstack", "org.testcontainers:localstack:$testcontainers")
