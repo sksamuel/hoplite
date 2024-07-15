@@ -75,3 +75,9 @@ data class DecoderConfig(
   val flattenArraysToString: Boolean,
   val resolveTypesCaseInsensitive: Boolean,
 )
+
+data class DecodedPath(
+  val path: DotPath,
+  val sourceKey: String?,
+  val pos: Pos,
+)

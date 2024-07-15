@@ -6,7 +6,6 @@ import com.sksamuel.hoplite.PropertySource
 import com.sksamuel.hoplite.PropertySourceContext
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.parsers.toNode
-import java.util.Properties
 
 class EnvironmentVariablesPropertySource(
   private val useUnderscoresAsSeparator: Boolean,
@@ -18,29 +17,28 @@ class EnvironmentVariablesPropertySource(
   override fun source(): String = "Env Var"
 
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
-    val props = Properties()
-    environmentVariableMap()
+    val map = environmentVariableMap()
       .mapKeys { if (prefix == null) it.key else it.key.removePrefix(prefix) }
-      .forEach {
-        val key = it.key
-          .let { key -> if (useUnderscoresAsSeparator) key.replace("__", ".") else key }
-          .let { key ->
-            if (allowUppercaseNames && Character.isUpperCase(key.codePointAt(0))) {
-              key.split(".").joinToString(separator = ".") { value ->
-                value.fold("") { acc, char ->
-                  when {
-                    acc.isEmpty() -> acc + char.lowercaseChar()
-                    acc.last() == '_' -> acc.dropLast(1) + char.uppercaseChar()
-                    else -> acc + char.lowercaseChar()
-                  }
+
+    return map.toNode("env") { key ->
+      key
+        .let { if (prefix == null) it else it.removePrefix(prefix) }
+        .let { if (useUnderscoresAsSeparator) it.replace("__", ".") else it }
+        .let {
+          if (allowUppercaseNames && Character.isUpperCase(it.codePointAt(0))) {
+            it.split(".").joinToString(separator = ".") { value ->
+              value.fold("") { acc, char ->
+                when {
+                  acc.isEmpty() -> acc + char.lowercaseChar()
+                  acc.last() == '_' -> acc.dropLast(1) + char.uppercaseChar()
+                  else -> acc + char.lowercaseChar()
                 }
               }
-            } else {
-              key
             }
+          } else {
+            it
           }
-        props[key] = it.value
-      }
-    return props.toNode("env").valid()
+        }
+    }.valid()
   }
 }

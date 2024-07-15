@@ -14,6 +14,7 @@ import com.sksamuel.hoplite.env.Environment
 import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
+import com.sksamuel.hoplite.transformer.NodeTransformer
 import com.sksamuel.hoplite.parsers.ParserRegistry
 import com.sksamuel.hoplite.preprocessor.Preprocessor
 import com.sksamuel.hoplite.report.Print
@@ -23,34 +24,36 @@ import com.sksamuel.hoplite.resolver.Resolving
 import com.sksamuel.hoplite.resolver.context.ContextResolverMode
 import com.sksamuel.hoplite.secrets.Obfuscator
 import com.sksamuel.hoplite.secrets.SecretsPolicy
+import com.sksamuel.hoplite.transformer.PathNormalizer
 import kotlin.reflect.KClass
 
 class ConfigParser(
-   classpathResourceLoader: ClasspathResourceLoader,
-   parserRegistry: ParserRegistry,
-   allowEmptyTree: Boolean,
-   allowNullOverride: Boolean,
-   cascadeMode: CascadeMode,
-   preprocessors: List<Preprocessor>,
-   preprocessingIterations: Int,
-   private val prefix: String?,
-   private val resolvers: List<Resolver>,
-   private val decoderRegistry: DecoderRegistry,
-   private val paramMappers: List<ParameterMapper>,
-   private val flattenArraysToString: Boolean,
-   private val resolveTypesCaseInsensitive: Boolean,
-   private val allowUnresolvedSubstitutions: Boolean,
-   private val secretsPolicy: SecretsPolicy?,
-   private val decodeMode: DecodeMode,
-   private val useReport: Boolean,
-   private val obfuscator: Obfuscator,
-   private val reportPrintFn: Print,
-   private val environment: Environment?,
-   private val sealedTypeDiscriminatorField: String?,
-   private val contextResolverMode: ContextResolverMode,
+  classpathResourceLoader: ClasspathResourceLoader,
+  parserRegistry: ParserRegistry,
+  allowEmptyTree: Boolean,
+  allowNullOverride: Boolean,
+  cascadeMode: CascadeMode,
+  preprocessors: List<Preprocessor>,
+  preprocessingIterations: Int,
+  private val nodeTransformers: List<NodeTransformer>,
+  private val prefix: String?,
+  private val resolvers: List<Resolver>,
+  private val decoderRegistry: DecoderRegistry,
+  private val paramMappers: List<ParameterMapper>,
+  private val flattenArraysToString: Boolean,
+  private val resolveTypesCaseInsensitive: Boolean,
+  private val allowUnresolvedSubstitutions: Boolean,
+  private val secretsPolicy: SecretsPolicy?,
+  private val decodeMode: DecodeMode,
+  private val useReport: Boolean,
+  private val obfuscator: Obfuscator,
+  private val reportPrintFn: Print,
+  private val environment: Environment?,
+  private val sealedTypeDiscriminatorField: String?,
+  private val contextResolverMode: ContextResolverMode,
 ) {
 
-  private val loader = PropertySourceLoader(classpathResourceLoader, parserRegistry, allowEmptyTree)
+  private val loader = PropertySourceLoader(nodeTransformers, sealedTypeDiscriminatorField, classpathResourceLoader, parserRegistry, allowEmptyTree)
   private val cascader = Cascader(cascadeMode, allowEmptyTree, allowNullOverride)
   private val preprocessing = Preprocessing(preprocessors, preprocessingIterations)
   private val decoding = Decoding(decoderRegistry, secretsPolicy)
@@ -82,8 +85,7 @@ class ConfigParser(
       cascader.cascade(nodes).flatMap { node ->
         val context = context(node)
         preprocessing.preprocess(node, context).flatMap { preprocessed ->
-          check(preprocessed.let { if (prefix == null) it else it.atPath(prefix) }).flatMap {
-
+          check(preprocessed.prefixedNode()).flatMap {
             val decoded = decoding.decode(kclass, it, decodeMode, context)
             val state = createDecodingState(it, context, secretsPolicy)
 
@@ -121,5 +123,11 @@ class ConfigParser(
       node.valid()
     else
       UnresolvedSubstitutionChecker.process(node)
+  }
+
+  private fun Node.prefixedNode() = when {
+    prefix == null -> this
+    nodeTransformers.contains(PathNormalizer) -> atPath(PathNormalizer.normalizePathElement(prefix))
+    else -> atPath(prefix)
   }
 }

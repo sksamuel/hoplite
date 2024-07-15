@@ -34,6 +34,11 @@ object DefaultParamMapper : ParameterMapper {
     setOfNotNull(param.name)
 }
 
+object LowercaseParamMapper : ParameterMapper {
+  override fun map(param: KParameter, constructor: KFunction<Any>, kclass: KClass<*>): Set<String> =
+    setOfNotNull(param.name?.lowercase())
+}
+
 /**
  * Disabled by default so that common ENVVAR PARAMS don't override your lower case
  * names unexpectedly.
@@ -57,6 +62,8 @@ object AliasAnnotationParamMapper : ParameterMapper {
  * the snake case equivalent.
  *
  * For example, camelCasePilsen will become snake_case_pilsen.
+ *
+ * When using the [PathNormalizer] (which is enabled by default), this mapper is unnecessary.
  */
 object SnakeCaseParamMapper : ParameterMapper {
 
@@ -81,6 +88,8 @@ object SnakeCaseParamMapper : ParameterMapper {
  * the kebab case equivalent.
  *
  * For example, camelCasePilsen will become kebab-case-pilsen.
+ *
+ * When using the [PathNormalizer] (which is enabled by default), this mapper is unnecessary.
  */
 object KebabCaseParamMapper : ParameterMapper {
 

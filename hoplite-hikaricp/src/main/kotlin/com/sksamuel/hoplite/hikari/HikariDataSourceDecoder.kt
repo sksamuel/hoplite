@@ -6,7 +6,7 @@ import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PrimitiveNode
-import com.sksamuel.hoplite.decoder.Decoder
+import com.sksamuel.hoplite.decoder.AbstractUnnormalizedKeysDecoder
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import com.zaxxer.hikari.HikariConfig
@@ -14,11 +14,11 @@ import com.zaxxer.hikari.HikariDataSource
 import java.util.Properties
 import kotlin.reflect.KType
 
-class HikariDataSourceDecoder : Decoder<HikariDataSource> {
+class HikariDataSourceDecoder : AbstractUnnormalizedKeysDecoder<HikariDataSource>() {
 
   override fun supports(type: KType): Boolean = type.classifier == HikariDataSource::class
 
-  override fun decode(node: Node, type: KType, context: DecoderContext): ConfigResult<HikariDataSource> {
+  override fun safeDecodeUnnormalized(node: Node, type: KType, context: DecoderContext): ConfigResult<HikariDataSource> {
 
     val props = Properties()
 

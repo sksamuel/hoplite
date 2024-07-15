@@ -5,6 +5,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.instanceOf
+import io.kotest.matchers.types.shouldBeInstanceOf
 
 class WithoutDefaultsRegistryTest : FunSpec() {
   init {
@@ -13,7 +14,7 @@ class WithoutDefaultsRegistryTest : FunSpec() {
         addMapSource(mapOf("custom_value" to "\${PATH}", "PATH" to "\${PATH}"))
       }
       val e = loader.loadConfig<Config>()
-      e as Validated.Valid<Config>
+      e.shouldBeInstanceOf<Validated.Valid<Config>>()
       e.value.customValue shouldNotBe "\${path}"
     }
 
