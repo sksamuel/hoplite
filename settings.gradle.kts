@@ -82,7 +82,6 @@ dependencyResolutionManagement {
          library("tomlj", "org.tomlj:tomlj:1.1.1")
          library("embedded-consul", "com.pszymczyk.consul:embedded-consul:2.2.1")
          library("snakeyaml", "org.yaml:snakeyaml:2.2")
-         library("kaml", "com.charleskorn.kaml:kaml:0.42.0")
 
          library("slf4j-api", "org.slf4j:slf4j-api:2.0.9")
 
