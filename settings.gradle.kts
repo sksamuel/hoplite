@@ -79,7 +79,7 @@ dependencyResolutionManagement {
 
          library("google-cloud-secretmanager", "com.google.cloud:google-cloud-secretmanager:2.28.0")
          library("hadoop-common", "org.apache.hadoop:hadoop-common:2.10.2")
-         library("tomlj", "org.tomlj:tomlj:1.1.0")
+         library("tomlj", "org.tomlj:tomlj:1.1.1")
          library("embedded-consul", "com.pszymczyk.consul:embedded-consul:2.2.1")
          library("snakeyaml", "org.yaml:snakeyaml:2.2")
          library("kaml", "com.charleskorn.kaml:kaml:0.42.0")
