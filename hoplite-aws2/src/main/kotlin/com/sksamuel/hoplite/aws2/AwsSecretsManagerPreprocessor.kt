@@ -27,6 +27,10 @@ import software.amazon.awssdk.services.secretsmanager.model.SecretsManagerExcept
  */
 class AwsSecretsManagerPreprocessor(
   private val report: Boolean = false,
+  private val json: Json =
+    Json {
+      isLenient = true
+    },
   private val createClient: () -> SecretsManagerClient = { SecretsManagerClient.create() }
 ) : TraversingPrimitivePreprocessor() {
 
@@ -82,7 +86,7 @@ class AwsSecretsManagerPreprocessor(
             .withMeta(CommonMetadata.RemoteLookup, "AWS '$key'")
             .valid()
         } else {
-          val map = runCatching { Json.Default.decodeFromString<Map<String, String>>(secret) }.getOrElse { emptyMap() }
+          val map = runCatching { json.decodeFromString<Map<String, String>>(secret) }.getOrElse { emptyMap() }
           val indexedValue = map[index]
           if (indexedValue == null)
             ConfigFailure.PreprocessorWarning(

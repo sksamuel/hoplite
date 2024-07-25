@@ -27,9 +27,6 @@ class AwsSecretsManagerPreprocessorTest : FunSpec() {
       .build()
 
     test("should support secret with unquoted number") {
-      data class PortHolder(val port: Int)
-
-      // This is unquoted (5432) and does not work
       client.createSecret {
         it.name("unquoted")
         it.secretString("""{"port": 5432}""")
@@ -45,9 +42,6 @@ class AwsSecretsManagerPreprocessorTest : FunSpec() {
     }
 
     test("should support secret with quoted number") {
-      data class PortHolder(val port: Int)
-
-      // This is quoted ("5432") and does work
       client.createSecret {
         it.name("quoted")
         it.secretString("""{"port": "5432"}""")
@@ -62,4 +56,6 @@ class AwsSecretsManagerPreprocessorTest : FunSpec() {
         .port.shouldBe(5432)
     }
   }
+
+  data class PortHolder(val port: Int)
 }
