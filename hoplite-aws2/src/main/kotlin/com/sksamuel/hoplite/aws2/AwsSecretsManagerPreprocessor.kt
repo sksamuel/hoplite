@@ -27,10 +27,7 @@ import software.amazon.awssdk.services.secretsmanager.model.SecretsManagerExcept
  */
 class AwsSecretsManagerPreprocessor(
   private val report: Boolean = false,
-  private val json: Json =
-    Json {
-      isLenient = true
-    },
+  private val json: Json = Json.Default,
   private val createClient: () -> SecretsManagerClient = { SecretsManagerClient.create() }
 ) : TraversingPrimitivePreprocessor() {
 
