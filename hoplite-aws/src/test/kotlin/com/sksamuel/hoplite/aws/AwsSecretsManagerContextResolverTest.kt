@@ -26,7 +26,7 @@ import java.util.Properties
 @OptIn(ExperimentalHoplite::class)
 class AwsSecretsManagerContextResolverTest : FunSpec() {
 
-  private val localstack = LocalStackContainer(DockerImageName.parse("localstack/localstack:1.3.1"))
+  private val localstack = LocalStackContainer(DockerImageName.parse("localstack/localstack:3.6.0"))
     .withServices(LocalStackContainer.Service.SECRETSMANAGER)
     .withEnv("SKIP_SSL_CERT_DOWNLOAD", "true")
 
@@ -83,10 +83,10 @@ class AwsSecretsManagerContextResolverTest : FunSpec() {
         .shouldBeInstanceOf<Validated.Invalid<ConfigFailure>>().error.description().shouldContain("qwerty")
     }
 
-    test("empty secret should return error and include empty secret message") {
+    test("blank secret should return error and include empty secret message") {
       val props = Properties()
       props["a"] = "\${{ aws-secrets-manager:bibblebobble }}"
-      client.createSecret(CreateSecretRequest().withName("bibblebobble").withSecretString(""))
+      client.createSecret(CreateSecretRequest().withName("bibblebobble").withSecretString(" "))
       ConfigLoaderBuilder.newBuilder()
         .addResolver(AwsSecretsManagerContextResolver { client })
         .addPropertySource(PropsPropertySource(props))

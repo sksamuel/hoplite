@@ -14,7 +14,7 @@ import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient
 import java.util.Properties
 
 class AwsSecretsManagerPreprocessorTest : FunSpec() {
-  private val localstack = LocalStackContainer(DockerImageName.parse("localstack/localstack:1.3.1"))
+  private val localstack = LocalStackContainer(DockerImageName.parse("localstack/localstack:3.6.0"))
     .withServices(LocalStackContainer.Service.SECRETSMANAGER)
     .withEnv("SKIP_SSL_CERT_DOWNLOAD", "true")
 
