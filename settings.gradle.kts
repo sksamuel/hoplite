@@ -46,8 +46,9 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 dependencyResolutionManagement {
    versionCatalogs {
       create("libs") {
-
-         library("kotlin-reflect", "org.jetbrains.kotlin:kotlin-reflect:1.6.21")
+         val kotlin = "1.6.21"
+         plugin("kotlin-serialization","org.jetbrains.kotlin.plugin.serialization").version(kotlin)
+         library("kotlin-reflect", "org.jetbrains.kotlin:kotlin-reflect:$kotlin")
 
          val micrometer = "1.12.8"
          library("micrometer-core", "io.micrometer:micrometer-core:$micrometer")
@@ -97,10 +98,13 @@ dependencyResolutionManagement {
          library("jackson-databind", "com.fasterxml.jackson.core:jackson-databind:$jackson")
 
          val testcontainers = "1.19.8"
+         library("testcontainers", "org.testcontainers:testcontainers:$testcontainers")
          library("testcontainers-postgresql", "org.testcontainers:postgresql:$testcontainers")
          library("testcontainers-mysql", "org.testcontainers:mysql:$testcontainers")
          library("testcontainers-localstack", "org.testcontainers:localstack:$testcontainers")
          library("testcontainers-vault", "org.testcontainers:vault:$testcontainers")
+
+         library("kotest-extensions-testcontainers", "io.kotest.extensions:kotest-extensions-testcontainers:2.0.2")
 
          library("azure-identity", "com.azure:azure-identity:1.13.2")
          library("azure-security-keyvault-secrets", "com.azure:azure-security-keyvault-secrets:4.8.5")

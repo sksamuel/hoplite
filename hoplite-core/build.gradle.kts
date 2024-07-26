@@ -3,8 +3,8 @@ dependencies {
    testImplementation(libs.postgresql)
    api(libs.coroutines.core)
    api(libs.coroutines.jdk8)
-   testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:1.3.4")
-   testImplementation("org.testcontainers:testcontainers:1.18.1")
+   testImplementation(libs.kotest.extensions.testcontainers)
+   testImplementation(libs.testcontainers)
    testImplementation(libs.testcontainers.postgresql)
 }
 
