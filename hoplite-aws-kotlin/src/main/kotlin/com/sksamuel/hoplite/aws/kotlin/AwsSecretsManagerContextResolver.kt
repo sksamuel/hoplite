@@ -6,8 +6,8 @@ import kotlinx.coroutines.runBlocking
 /**
  * Replaces strings of the form ${{ aws-secrets-manager:path }} by looking up the path in AWS Secrets Manager.
  *
- * The [AWSSecretsManager] client is created from the [createClient] argument which uses the
- * standard [AWSSecretsManagerClientBuilder] by default.
+ * The [SecretsManagerClient] client is created from the [createClient] argument which uses the
+ * standard [SecretsManagerClient.fromEnvironment()] by default.
  */
 class AwsSecretsManagerContextResolver(
   report: Boolean = false,
