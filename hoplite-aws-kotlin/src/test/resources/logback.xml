@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+   <property name="LOG_PATTERN"
+             value="[%date] %-5level [%thread]: %message%n"/>
+   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+      <encoder>
+         <pattern>${LOG_PATTERN}</pattern>
+      </encoder>
+   </appender>
+   <root level="INFO">
+      <appender-ref ref="CONSOLE"/>
+   </root>
+   <logger name="com.github.dockerjava" level="WARN"/>
+</configuration>

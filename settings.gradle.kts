@@ -18,6 +18,7 @@ include(
    ":hoplite-azure",
    ":hoplite-aws",
    ":hoplite-aws2",
+   ":hoplite-aws-kotlin",
    ":hoplite-arrow",
    ":hoplite-consul",
    ":hoplite-cronutils",
