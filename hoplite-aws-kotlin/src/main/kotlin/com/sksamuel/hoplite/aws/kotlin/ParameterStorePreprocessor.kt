@@ -1,26 +1,31 @@
-package com.sksamuel.hoplite.aws
+package com.sksamuel.hoplite.aws.kotlin
 
-import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClientBuilder
-import com.amazonaws.services.simplesystemsmanagement.model.GetParameterRequest
+import aws.sdk.kotlin.services.ssm.SsmClient
+import aws.sdk.kotlin.services.ssm.getParameter
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
-import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.preprocessor.TraversingPrimitivePreprocessor
+import kotlinx.coroutines.runBlocking
 
 object ParameterStorePreprocessor : TraversingPrimitivePreprocessor() {
 
-  private val client by lazy { AWSSimpleSystemsManagementClientBuilder.defaultClient() }
+  private val client by lazy { runBlocking { SsmClient.fromEnvironment() } }
   private val regex1 = "\\$\\{ssm:(.+?)}".toRegex()
   private val regex2 = "paramstore://(.+?)".toRegex()
 
   private fun fetchParameterStoreValue(key: String): Result<String> = runCatching {
-    val req = GetParameterRequest().withName(key).withWithDecryption(true)
-    client.getParameter(req).parameter.value
+    runBlocking {
+      client.getParameter {
+        name = key
+        withDecryption = true
+      }.parameter?.value ?: throw RuntimeException("Parameter with key: $key not found")
+    }
   }
 
   override fun handle(node: PrimitiveNode, context: DecoderContext): ConfigResult<Node> = when (node) {

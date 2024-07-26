@@ -1,17 +1,17 @@
-package com.sksamuel.hoplite.aws
+package com.sksamuel.hoplite.aws.kotlin
 
-import com.amazonaws.services.secretsmanager.AWSSecretsManager
-import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder
+import aws.sdk.kotlin.services.secretsmanager.SecretsManagerClient
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.resolver.context.ContextResolver
+import kotlinx.coroutines.runBlocking
 
 abstract class AbstractAwsSecretsManagerContextResolver(
   private val report: Boolean = false,
-  createClient: () -> AWSSecretsManager = { AWSSecretsManagerClientBuilder.standard().build() }
+  createClient: () -> SecretsManagerClient = { runBlocking { SecretsManagerClient.fromEnvironment() } }
 ) : ContextResolver() {
 
   // should stay lazy so still be added to config even when not used, eg locally

@@ -18,7 +18,7 @@ plugins {
    id("java-library")
    id("maven-publish")
    id("signing")
-   kotlin("jvm").version("1.6.21")
+   alias(libs.plugins.kotlin.jvm)
 }
 
 allprojects {
@@ -41,19 +41,8 @@ allprojects {
       }
    }
 
-   tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-      kotlinOptions.jvmTarget = "1.8"
-   }
-
-   java {
-      toolchain {
-         languageVersion.set(JavaLanguageVersion.of(11))
-      }
-   }
-
-   tasks.compileJava {
-      targetCompatibility = "1.8"
-      sourceCompatibility = "1.8"
+   kotlin.jvmToolchain {
+      languageVersion.set(JavaLanguageVersion.of(11))
    }
 
    repositories {

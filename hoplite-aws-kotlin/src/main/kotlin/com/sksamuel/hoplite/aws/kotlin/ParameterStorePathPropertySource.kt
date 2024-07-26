@@ -1,8 +1,8 @@
-package com.sksamuel.hoplite.aws
+package com.sksamuel.hoplite.aws.kotlin
 
-import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClientBuilder
-import com.amazonaws.services.simplesystemsmanagement.model.GetParametersByPathRequest
-import com.amazonaws.services.simplesystemsmanagement.model.Parameter
+import aws.sdk.kotlin.services.ssm.SsmClient
+import aws.sdk.kotlin.services.ssm.model.GetParametersByPathRequest
+import aws.sdk.kotlin.services.ssm.model.Parameter
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Node
@@ -10,6 +10,7 @@ import com.sksamuel.hoplite.PropertySource
 import com.sksamuel.hoplite.PropertySourceContext
 import com.sksamuel.hoplite.decoder.toValidated
 import com.sksamuel.hoplite.parsers.toNode
+import kotlinx.coroutines.runBlocking
 
 /**
  * Provides all keys under a prefix path as config values.
@@ -24,29 +25,35 @@ import com.sksamuel.hoplite.parsers.toNode
 class ParameterStorePathPropertySource(
   private val prefix: String,
   private val stripPath: Boolean = true,
-  private val configure: GetParametersByPathRequest.() -> Unit
+  private val configure: GetParametersByPathRequest.Builder.() -> kotlin.Unit
 ) : PropertySource {
 
   override fun source(): String = "AWS SSM Parameter Store"
 
-  private val client by lazy { AWSSimpleSystemsManagementClientBuilder.defaultClient() }
+  private val client by lazy { runBlocking { SsmClient.fromEnvironment() } }
 
   private fun fetchParameterStoreValues(): Result<List<Parameter>> = runCatching {
-    val req = GetParametersByPathRequest().withPath(prefix).apply(configure)
+    val req = GetParametersByPathRequest {
+      path = prefix
+      configure()
+    }
     val params = mutableListOf<Parameter>()
     tailrec fun go(request: GetParametersByPathRequest, parameters: MutableList<Parameter>): List<Parameter> {
-      val result = client.getParametersByPath(request)
+      val result = runBlocking { client.getParametersByPath(request) }
+      val resultParams = result.parameters ?: emptyList()
       return if (result.nextToken != null) {
-        request.nextToken = result.nextToken
-        go(request, (parameters + result.parameters).toMutableList())
-      } else result.parameters + parameters
+        val nextReq = req.copy {
+          nextToken = result.nextToken
+        }
+        go(nextReq, (parameters + resultParams).toMutableList())
+      } else resultParams + parameters
     }
     go(req, params)
   }
 
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
     return fetchParameterStoreValues().map { params ->
-      params.associate { it.name to it.value }.toNode("aws_parameter_store at $prefix", "/") {
+      params.associate { it.name!! to it.value }.toNode("aws_parameter_store at $prefix", "/") {
         (if (stripPath) it.removePrefix(prefix) else it).removePrefix("/")
       }
     }.toValidated {

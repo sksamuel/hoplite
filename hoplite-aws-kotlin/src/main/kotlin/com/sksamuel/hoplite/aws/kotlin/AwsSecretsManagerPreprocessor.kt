@@ -1,14 +1,13 @@
-package com.sksamuel.hoplite.aws
+package com.sksamuel.hoplite.aws.kotlin
 
-import com.amazonaws.AmazonClientException
-import com.amazonaws.AmazonServiceException
-import com.amazonaws.services.secretsmanager.AWSSecretsManager
-import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder
-import com.amazonaws.services.secretsmanager.model.DecryptionFailureException
-import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest
-import com.amazonaws.services.secretsmanager.model.InvalidParameterException
-import com.amazonaws.services.secretsmanager.model.LimitExceededException
-import com.amazonaws.services.secretsmanager.model.ResourceNotFoundException
+import aws.sdk.kotlin.runtime.AwsServiceException
+import aws.sdk.kotlin.runtime.ClientException
+import aws.sdk.kotlin.services.secretsmanager.SecretsManagerClient
+import aws.sdk.kotlin.services.secretsmanager.getSecretValue
+import aws.sdk.kotlin.services.secretsmanager.model.DecryptionFailure
+import aws.sdk.kotlin.services.secretsmanager.model.InvalidParameterException
+import aws.sdk.kotlin.services.secretsmanager.model.LimitExceededException
+import aws.sdk.kotlin.services.secretsmanager.model.ResourceNotFoundException
 import com.sksamuel.hoplite.CommonMetadata
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
@@ -20,6 +19,7 @@ import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.preprocessor.TraversingPrimitivePreprocessor
 import com.sksamuel.hoplite.withMeta
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
@@ -29,7 +29,7 @@ import kotlinx.serialization.json.Json
  */
 class AwsSecretsManagerPreprocessor(
   private val report: Boolean = false,
-  private val createClient: () -> AWSSecretsManager = { AWSSecretsManagerClientBuilder.standard().build() }
+  createClient: () -> SecretsManagerClient = { runBlocking { SecretsManagerClient.fromEnvironment() } }
 ) : TraversingPrimitivePreprocessor() {
 
   private val client by lazy { createClient() }
@@ -59,8 +59,11 @@ class AwsSecretsManagerPreprocessor(
   private fun fetchSecret(key: String, index: String?, node: StringNode, context: DecoderContext): ConfigResult<Node> {
     return try {
 
-      val req = GetSecretValueRequest().withSecretId(key)
-      val value = client.getSecretValue(req)
+      val value = runBlocking {
+        client.getSecretValue {
+          secretId = key
+        }
+      }
 
       if (report)
         context.reporter.report(
@@ -104,15 +107,15 @@ class AwsSecretsManagerPreprocessor(
       }
     } catch (e: ResourceNotFoundException) {
       ConfigFailure.PreprocessorWarning("Could not locate resource '$key' in AWS SecretsManager").invalid()
-    } catch (e: DecryptionFailureException) {
+    } catch (e: DecryptionFailure) {
       ConfigFailure.PreprocessorWarning("Could not decrypt resource '$key' in AWS SecretsManager").invalid()
     } catch (e: LimitExceededException) {
       ConfigFailure.PreprocessorWarning("Could not load resource '$key' due to limits exceeded").invalid()
     } catch (e: InvalidParameterException) {
       ConfigFailure.PreprocessorWarning("Invalid parameter name '$key' in AWS SecretsManager").invalid()
-    } catch (e: AmazonServiceException) {
+    } catch (e: AwsServiceException) {
       ConfigFailure.PreprocessorFailure("Failed loading secret '$key' from AWS SecretsManager", e).invalid()
-    } catch (e: AmazonClientException) {
+    } catch (e: ClientException) {
       ConfigFailure.PreprocessorFailure("Failed loading secret '$key' from AWS SecretsManager", e).invalid()
     } catch (e: Exception) {
       ConfigFailure.PreprocessorFailure("Failed loading secret '$key' from AWS SecretsManager", e).invalid()

@@ -1,23 +1,24 @@
-package com.sksamuel.hoplite.aws
+package com.sksamuel.hoplite.aws.kotlin
 
-import com.amazonaws.AmazonClientException
-import com.amazonaws.AmazonServiceException
-import com.amazonaws.services.secretsmanager.AWSSecretsManager
-import com.amazonaws.services.secretsmanager.model.DecryptionFailureException
-import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest
-import com.amazonaws.services.secretsmanager.model.GetSecretValueResult
-import com.amazonaws.services.secretsmanager.model.InvalidParameterException
-import com.amazonaws.services.secretsmanager.model.LimitExceededException
-import com.amazonaws.services.secretsmanager.model.ResourceNotFoundException
+import aws.sdk.kotlin.runtime.AwsServiceException
+import aws.sdk.kotlin.runtime.ClientException
+import aws.sdk.kotlin.services.secretsmanager.SecretsManagerClient
+import aws.sdk.kotlin.services.secretsmanager.getSecretValue
+import aws.sdk.kotlin.services.secretsmanager.model.DecryptionFailure
+import aws.sdk.kotlin.services.secretsmanager.model.GetSecretValueResponse
+import aws.sdk.kotlin.services.secretsmanager.model.InvalidParameterException
+import aws.sdk.kotlin.services.secretsmanager.model.LimitExceededException
+import aws.sdk.kotlin.services.secretsmanager.model.ResourceNotFoundException
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
-class AwsOps(private val client: AWSSecretsManager) {
+class AwsOps(private val client: SecretsManagerClient) {
 
   companion object {
     const val ReportSection = "AWS Secrets Manager Lookups"
@@ -26,7 +27,7 @@ class AwsOps(private val client: AWSSecretsManager) {
     val keyRegex = "(.+)\\[(.+)]".toRegex()
   }
 
-  fun report(context: DecoderContext, result: GetSecretValueResult) {
+  fun report(context: DecoderContext, result: GetSecretValueResponse) {
     context.reporter.report(
       ReportSection,
       mapOf(
@@ -46,7 +47,7 @@ class AwsOps(private val client: AWSSecretsManager) {
       Pair(keyMatch.groupValues[1], keyMatch.groupValues[2])
   }
 
-  fun parseSecret(result: GetSecretValueResult, index: String?): ConfigResult<String> {
+  fun parseSecret(result: GetSecretValueResponse, index: String?): ConfigResult<String> {
 
     val secret = result.secretString
     return if (secret.isNullOrBlank())
@@ -64,21 +65,24 @@ class AwsOps(private val client: AWSSecretsManager) {
     }
   }
 
-  fun fetchSecret(key: String): ConfigResult<GetSecretValueResult> {
+  fun fetchSecret(key: String): ConfigResult<GetSecretValueResponse> {
     return try {
-      val req = GetSecretValueRequest().withSecretId(key)
-      client.getSecretValue(req).valid()
+      runBlocking {
+        client.getSecretValue {
+          secretId = key
+        }
+      }.valid()
     } catch (e: ResourceNotFoundException) {
       ConfigFailure.PreprocessorWarning("Could not locate resource '$key' in AWS SecretsManager").invalid()
-    } catch (e: DecryptionFailureException) {
+    } catch (e: DecryptionFailure) {
       ConfigFailure.PreprocessorWarning("Could not decrypt resource '$key' in AWS SecretsManager").invalid()
     } catch (e: LimitExceededException) {
       ConfigFailure.PreprocessorWarning("Could not load resource '$key' due to limits exceeded").invalid()
     } catch (e: InvalidParameterException) {
       ConfigFailure.PreprocessorWarning("Invalid parameter name '$key' in AWS SecretsManager").invalid()
-    } catch (e: AmazonServiceException) {
+    } catch (e: AwsServiceException) {
       ConfigFailure.PreprocessorFailure("Failed loading secret '$key' from AWS SecretsManager", e).invalid()
-    } catch (e: AmazonClientException) {
+    } catch (e: ClientException) {
       ConfigFailure.PreprocessorFailure("Failed loading secret '$key' from AWS SecretsManager", e).invalid()
     } catch (e: Exception) {
       ConfigFailure.PreprocessorFailure("Failed loading secret '$key' from AWS SecretsManager", e).invalid()
