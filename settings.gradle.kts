@@ -119,7 +119,6 @@ dependencyResolutionManagement {
          library("azure-security-keyvault-secrets", "com.azure:azure-security-keyvault-secrets:4.7.0")
 
          library("consul-client", "com.orbitz.consul:consul-client:1.5.3")
-
       }
    }
 }
