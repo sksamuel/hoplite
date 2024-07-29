@@ -1,4 +1,5 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 buildscript {
    repositories {
@@ -41,8 +42,21 @@ allprojects {
       }
    }
 
-   kotlin.jvmToolchain {
-      languageVersion.set(JavaLanguageVersion.of(11))
+   kotlin {
+      jvmToolchain(11)
+      compilerOptions.jvmTarget = JvmTarget.JVM_1_8
+   }
+
+   tasks.compileJava {
+      options.release = 8
+   }
+
+   tasks.compileTestKotlin {
+      compilerOptions.jvmTarget = JvmTarget.JVM_11
+   }
+
+   tasks.compileTestJava {
+      options.release = 11
    }
 
    repositories {
