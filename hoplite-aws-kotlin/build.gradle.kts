@@ -4,8 +4,9 @@ plugins {
 
 dependencies {
    api(projects.hopliteCore)
-   api(libs.aws.java.sdk.secretsmanager)
-   api(libs.aws.java.sdk.ssm)
+   api(libs.aws.kotlin.secretsmanager)
+   api(libs.aws.kotlin.ssm)
+   api(libs.regions)
    implementation(libs.kotlinx.serialization.json)
    testApi(libs.kotest.extensions.testcontainers)
    testApi(libs.testcontainers.localstack)
