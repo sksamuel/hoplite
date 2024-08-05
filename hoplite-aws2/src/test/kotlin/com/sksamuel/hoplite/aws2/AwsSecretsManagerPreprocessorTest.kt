@@ -10,6 +10,7 @@ import kotlinx.serialization.json.Json
 import org.testcontainers.containers.localstack.LocalStackContainer
 import org.testcontainers.utility.DockerImageName
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
+import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient
 import java.util.Properties
 
@@ -23,6 +24,7 @@ class AwsSecretsManagerPreprocessorTest : FunSpec() {
     install(ContainerExtension(localstack))
 
     val client = SecretsManagerClient.builder()
+      .region(Region.US_EAST_1)
       .endpointOverride(localstack.getEndpointOverride(LocalStackContainer.Service.SECRETSMANAGER))
       .credentialsProvider { AwsBasicCredentials.create(localstack.accessKey, localstack.secretKey) }
       .build()
