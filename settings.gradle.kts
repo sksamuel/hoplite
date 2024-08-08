@@ -46,7 +46,7 @@ dependencyResolutionManagement {
    versionCatalogs {
       create("libs") {
 
-         library("kotlin-reflect", "org.jetbrains.kotlin:kotlin-reflect:1.6.21")
+         library("kotlin-reflect", "org.jetbrains.kotlin:kotlin-reflect:1.9.25")
 
          val micrometer = "1.12.8"
          library("micrometer-core", "io.micrometer:micrometer-core:$micrometer")
