@@ -83,7 +83,7 @@ dependencyResolutionManagement {
          library("embedded-consul", "com.pszymczyk.consul:embedded-consul:2.2.1")
          library("snakeyaml", "org.yaml:snakeyaml:2.2")
 
-         library("slf4j-api", "org.slf4j:slf4j-api:2.0.9")
+         library("slf4j-api", "org.slf4j:slf4j-api:2.0.14")
 
          val aws2 = "2.27.0"
          library("regions", "software.amazon.awssdk:regions:$aws2")
