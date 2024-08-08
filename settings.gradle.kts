@@ -58,7 +58,7 @@ dependencyResolutionManagement {
          library("coroutines-core", "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines")
          library("coroutines-jdk8", "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$coroutines")
 
-         library("typesafe-config", "com.typesafe:config:1.4.2")
+         library("typesafe-config", "com.typesafe:config:1.4.3")
 
          library("arrow-core", "io.arrow-kt:arrow-core:1.1.3")
 
