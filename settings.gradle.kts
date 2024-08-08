@@ -60,7 +60,7 @@ dependencyResolutionManagement {
 
          library("typesafe-config", "com.typesafe:config:1.4.3")
 
-         library("arrow-core", "io.arrow-kt:arrow-core:1.1.3")
+         library("arrow-core", "io.arrow-kt:arrow-core:1.2.4")
 
          library("spring-vault-core", "org.springframework.vault:spring-vault-core:2.3.4")
 
