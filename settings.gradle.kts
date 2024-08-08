@@ -91,7 +91,7 @@ dependencyResolutionManagement {
 
          library("postgresql", "org.postgresql:postgresql:42.6.0")
 
-         val jackson = "2.15.3"
+         val jackson = "2.17.2"
          library("jackson-core", "com.fasterxml.jackson.core:jackson-core:$jackson")
          library("jackson-databind", "com.fasterxml.jackson.core:jackson-databind:$jackson")
 
