@@ -18,7 +18,7 @@ plugins {
    id("java-library")
    id("maven-publish")
    id("signing")
-   kotlin("jvm").version("1.6.21")
+   kotlin("jvm").version("1.9.25")
 }
 
 allprojects {
