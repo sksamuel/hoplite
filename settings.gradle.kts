@@ -89,7 +89,7 @@ dependencyResolutionManagement {
          library("regions", "software.amazon.awssdk:regions:$aws2")
          library("secretsmanager", "software.amazon.awssdk:secretsmanager:$aws2")
 
-         library("postgresql", "org.postgresql:postgresql:42.6.0")
+         library("postgresql", "org.postgresql:postgresql:42.7.3")
 
          val jackson = "2.17.2"
          library("jackson-core", "com.fasterxml.jackson.core:jackson-core:$jackson")
