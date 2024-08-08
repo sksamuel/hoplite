@@ -66,7 +66,7 @@ dependencyResolutionManagement {
 
          library("vavr-kotlin", "io.vavr:vavr-kotlin:0.10.2")
 
-         val aws1 = "1.12.566"
+         val aws1 = "1.12.767"
          library("aws-java-sdk-secretsmanager", "com.amazonaws:aws-java-sdk-secretsmanager:$aws1")
          library("aws-java-sdk-ssm", "com.amazonaws:aws-java-sdk-ssm:$aws1")
 
