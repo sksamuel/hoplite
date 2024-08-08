@@ -85,7 +85,7 @@ dependencyResolutionManagement {
 
          library("slf4j-api", "org.slf4j:slf4j-api:2.0.9")
 
-         val aws2 = "2.21.0"
+         val aws2 = "2.27.0"
          library("regions", "software.amazon.awssdk:regions:$aws2")
          library("secretsmanager", "software.amazon.awssdk:secretsmanager:$aws2")
 
