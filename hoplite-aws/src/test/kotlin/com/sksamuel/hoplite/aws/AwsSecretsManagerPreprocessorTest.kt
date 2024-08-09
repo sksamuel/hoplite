@@ -31,7 +31,7 @@ import java.util.Properties
 
 class AwsSecretsManagerPreprocessorTest : FunSpec() {
 
-  private val localstack = LocalStackContainer(DockerImageName.parse("localstack/localstack:1.3.1"))
+  private val localstack = LocalStackContainer(DockerImageName.parse("localstack/localstack:3.6.0"))
     .withServices(LocalStackContainer.Service.SECRETSMANAGER)
     .withEnv("SKIP_SSL_CERT_DOWNLOAD", "true")
 
@@ -95,8 +95,8 @@ class AwsSecretsManagerPreprocessorTest : FunSpec() {
       ).shouldBeInstanceOf<Validated.Invalid<ConfigFailure>>().error.description().shouldContain("unkunk")
     }
 
-    test("empty secret should return error and include key") {
-      client.createSecret(CreateSecretRequest().withName("bibblebobble").withSecretString(""))
+    test("blank secret should return error and include key") {
+      client.createSecret(CreateSecretRequest().withName("bibblebobble").withSecretString(" "))
       AwsSecretsManagerPreprocessor { client }.process(
         StringNode(
           "secretsmanager://bibblebobble",
