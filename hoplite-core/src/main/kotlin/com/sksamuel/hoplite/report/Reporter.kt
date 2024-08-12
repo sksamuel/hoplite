@@ -30,7 +30,7 @@ class ReporterBuilder {
   @Deprecated("Specify secretsPolicy through ConfigBuilderLoader", level = DeprecationLevel.ERROR)
   fun withSecretsPolicy(secretsPolicy: SecretsPolicy): ReporterBuilder = TODO("Unsupported")
 
-  fun build(): Reporter = Reporter(print, obfuscator, null)
+  fun build(): Reporter = Reporter(print, obfuscator, null, null)
 }
 
 typealias Print = (String) -> Unit
@@ -38,7 +38,8 @@ typealias Print = (String) -> Unit
 class Reporter(
   private val print: Print,
   private val obfuscator: Obfuscator,
-  private val environment: Environment?
+  private val environment: Environment?,
+  private val prefix: String?
 ) {
 
   object Titles {
@@ -60,10 +61,12 @@ class Reporter(
 
     val r = buildString {
       appendLine()
-      appendLine("--Start Hoplite Config Report---")
+      appendLine("--Start Hoplite Config Report${if (prefix != null) " @ Prefix $prefix" else ""}---")
       appendLine()
-      environment?.let { appendLine("Environment: ${it.name}") }
-      appendLine()
+      environment?.let {
+        appendLine("Environment: ${it.name}")
+        appendLine()
+      }
       appendLine(report(sources))
       appendLine()
 
