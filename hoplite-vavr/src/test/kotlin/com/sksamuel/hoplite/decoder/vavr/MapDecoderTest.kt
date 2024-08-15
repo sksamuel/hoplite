@@ -12,7 +12,7 @@ class MapDecoderTest : FunSpec({
     data class Test(val map: Map<String, String>)
 
     val config = ConfigLoader().loadConfigOrThrow<Test>("/test_map.yml")
-    config shouldBe Test(linkedHashMap("key1" to "test1", "key2" to "test2"))
+    config shouldBe Test(linkedHashMap("key1" to "test1", "key2" to "test2", "key-3" to "test3", "Key4" to "test4"))
   }
 
 })

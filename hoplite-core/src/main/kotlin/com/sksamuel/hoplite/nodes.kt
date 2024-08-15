@@ -134,6 +134,19 @@ fun Node.transform(transformer: (Node) -> Node): Node = when (val transformed = 
   else -> transformed
 }
 
+/**
+ * Denormalizes a node, restoring its original key from the source. This is not recursive -- it only transforms
+ * the given node, not its children.
+ */
+fun <T : Node> T.denormalize(): T {
+  return when (this) {
+    is MapNode -> copy(map = map.mapKeys { (k, v) ->
+      (v.sourceKey ?: k).removePrefix("$sourceKey.")
+    })
+    else -> this
+  } as T
+}
+
 sealed class ContainerNode : Node
 
 data class MapNode(
