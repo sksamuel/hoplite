@@ -32,7 +32,7 @@ class PropsParserTest : StringSpec() {
               ),
               pos = Pos.SourcePos(source = "a.props"),
               DotPath("a"),
-              sourceKey = null
+              sourceKey = "a"
             ),
             "e" to StringNode(value = "5.5", pos = Pos.SourcePos(source = "a.props"), DotPath("e"), sourceKey = "e")
           ),
