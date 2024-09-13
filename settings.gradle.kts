@@ -54,7 +54,7 @@ dependencyResolutionManagement {
          library("micrometer-registry-prometheus", "io.micrometer:micrometer-registry-prometheus:$micrometer")
          library("micrometer-registry-statsd", "io.micrometer:micrometer-registry-statsd:$micrometer")
 
-         val coroutines = "1.6.4"
+         val coroutines = "1.9.0"
          library("coroutines-core", "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines")
          library("coroutines-jdk8", "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$coroutines")
 
