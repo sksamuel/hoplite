@@ -131,7 +131,7 @@ class ConfigParser(
 
   private fun check(node: Node): ConfigResult<Node> {
     // if resolvers is not empty, we don't use allowUnresolvedSubstitutions, but instead the resolver mode setting
-    return if (allowUnresolvedSubstitutions || resolvers.isNotEmpty())
+    return if (resolvers.isNotEmpty() || allowUnresolvedSubstitutions || contextResolverMode == ContextResolverMode.SkipUnresolved)
       node.valid()
     else
       UnresolvedSubstitutionChecker.process(node)
