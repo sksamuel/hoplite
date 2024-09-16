@@ -6,25 +6,26 @@ import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PrimitiveNode
-import com.sksamuel.hoplite.decoder.AbstractUnnormalizedKeysDecoder
+import com.sksamuel.hoplite.decoder.Decoder
+import com.sksamuel.hoplite.denormalize
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import java.util.Properties
+import java.util.*
 import kotlin.reflect.KType
 
-class HikariDataSourceDecoder : AbstractUnnormalizedKeysDecoder<HikariDataSource>() {
+class HikariDataSourceDecoder : Decoder<HikariDataSource> {
 
   override fun supports(type: KType): Boolean = type.classifier == HikariDataSource::class
 
-  override fun safeDecodeUnnormalized(node: Node, type: KType, context: DecoderContext): ConfigResult<HikariDataSource> {
+  override fun decode(node: Node, type: KType, context: DecoderContext): ConfigResult<HikariDataSource> {
 
     val props = Properties()
 
     fun populate(node: Node, prefix: String) {
       when (node) {
-        is MapNode -> node.map.forEach { (k, v) -> populate(v, if (prefix == "") k else "$prefix.$k") }
+        is MapNode -> node.denormalize().map.forEach { (k, v) -> populate(v, if (prefix == "") k else "$prefix.$k") }
         is PrimitiveNode -> props[prefix] = node.value
         else -> {
         }

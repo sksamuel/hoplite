@@ -1,27 +1,28 @@
 package com.sksamuel.hoplite.decoder
 
 import com.sksamuel.hoplite.ArrayNode
-import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.MapNode
-import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.denormalize
 import com.sksamuel.hoplite.fp.flatMap
+import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.sequence
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.starProjectedType
 import kotlin.reflect.full.withNullability
 
-class MapDecoder : AbstractUnnormalizedKeysDecoder<Map<*, *>>() {
+class MapDecoder : NullHandlingDecoder<Map<*, *>> {
 
   override fun supports(type: KType): Boolean =
     type.isSubtypeOf(Map::class.starProjectedType) ||
       type.isSubtypeOf(Map::class.starProjectedType.withNullability(true))
 
-  override fun safeDecodeUnnormalized(node: Node, type: KType, context: DecoderContext): ConfigResult<Map<*, *>> {
+  override fun safeDecode(node: Node, type: KType, context: DecoderContext): ConfigResult<Map<*, *>> {
     require(type.arguments.size == 2)
 
     val kType = type.arguments[0].type!!
@@ -32,7 +33,7 @@ class MapDecoder : AbstractUnnormalizedKeysDecoder<Map<*, *>>() {
                              vdecoder: Decoder<V>,
                              context: DecoderContext): ConfigResult<Map<*, *>> {
 
-      return node.map.entries.map { (k, v) ->
+      return node.denormalize().map.entries.map { (k, v) ->
         kdecoder.decode(StringNode(k, node.pos, node.path, emptyMap()), kType, context).flatMap { kk ->
           vdecoder.decode(v, vType, context).map { vv ->
             context.usedPaths.add(v.path)

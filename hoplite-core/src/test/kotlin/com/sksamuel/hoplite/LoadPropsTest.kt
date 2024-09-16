@@ -27,7 +27,7 @@ class LoadPropsTest : FunSpec({
               pos = Pos.SourcePos(source = "source"),
               DotPath("a", "b"),
               value = Undefined,
-              sourceKey = null
+              sourceKey = "a.b"
             ),
             "d" to StringNode("true", pos = Pos.SourcePos(source = "source"), DotPath("a", "d"), sourceKey = "a.d")
           ),
