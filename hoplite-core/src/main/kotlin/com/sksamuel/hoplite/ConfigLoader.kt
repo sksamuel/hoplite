@@ -18,7 +18,6 @@ import com.sksamuel.hoplite.resolver.context.ContextResolverMode
 import com.sksamuel.hoplite.secrets.Obfuscator
 import com.sksamuel.hoplite.secrets.PrefixObfuscator
 import com.sksamuel.hoplite.secrets.SecretsPolicy
-import com.sksamuel.hoplite.secrets.StrictObfuscator
 import kotlin.reflect.KClass
 
 class ConfigException(msg: String, val t: Throwable? = null) : java.lang.RuntimeException(msg, t)
@@ -178,6 +177,30 @@ class ConfigLoader(
    */
   inline fun <reified A : Any> loadConfig(): ConfigResult<A> = loadConfig(A::class, emptyList(), emptyList(), null)
 
+  /**
+   * Create a [ConfigBinder] which can be used to bind instances of config classes using the same parsed
+   * configuration.
+   */
+  fun configBinder(
+    resourceOrFiles: List<String> = emptyList(),
+    configSources: List<ConfigSource> = emptyList(),
+    classpathResourceLoader: ClasspathResourceLoader = ConfigLoader::class.java.toClasspathResourceLoader()
+  ): ConfigBinder {
+    val configParser = createConfigParser(classpathResourceLoader, resourceOrFiles, configSources)
+    return ConfigBinder(configParser, environment)
+  }
+
+  // This is where the actual processing takes place for marshalled config.
+  // All other loadConfig or loadConfigOrThrow methods ultimately end up in this method.
+  fun <A : Any> bindConfig(
+    parser: ConfigParser,
+    kclass: KClass<A>,
+    prefix: String?,
+  ): ConfigResult<A> {
+    require(kclass.isData) { "Can only decode into data classes [was ${kclass}]" }
+    return parser.decode(kclass, environment, prefix)
+  }
+
   // This is where the actual processing takes place for marshalled config.
   // All other loadConfig or loadConfigOrThrow methods ultimately end up in this method.
   @PublishedApi
@@ -189,31 +212,12 @@ class ConfigLoader(
     classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader()
   ): ConfigResult<A> {
     require(kclass.isData) { "Can only decode into data classes [was ${kclass}]" }
-    return ConfigParser(
+    val configParser = createConfigParser(
+      resourceOrFiles = resourceOrFiles,
+      configSources = configSources,
       classpathResourceLoader = classpathResourceLoader,
-      parserRegistry = parserRegistry,
-      allowEmptyTree = allowEmptyTree,
-      allowNullOverride = allowNullOverride,
-      cascadeMode = cascadeMode,
-      preprocessors = preprocessors,
-      preprocessingIterations = preprocessingIterations,
-      nodeTransformers = nodeTransformers,
-      prefix = prefix,
-      resolvers = resolvers,
-      decoderRegistry = decoderRegistry,
-      paramMappers = paramMappers,
-      flattenArraysToString = flattenArraysToString,
-      resolveTypesCaseInsensitive = resolveTypesCaseInsensitive,
-      allowUnresolvedSubstitutions = allowUnresolvedSubstitutions,
-      secretsPolicy = secretsPolicy,
-      decodeMode = decodeMode,
-      useReport = useReport,
-      obfuscator = obfuscator ?: PrefixObfuscator(3),
-      reportPrintFn = reportPrintFn,
-      environment = environment,
-      sealedTypeDiscriminatorField = sealedTypeDiscriminatorField,
-      contextResolverMode = contextResolverMode,
-    ).decode(kclass, environment, resourceOrFiles, propertySources, configSources)
+    )
+    return configParser.decode(kclass, environment, prefix)
   }
 
   /**
@@ -246,40 +250,56 @@ class ConfigLoader(
     configSources: List<ConfigSource> = emptyList(),
     classpathResourceLoader: ClasspathResourceLoader = ConfigLoader::class.java.toClasspathResourceLoader()
   ): ConfigResult<Node> {
-    return ConfigParser(
+    val configParser = createConfigParser(
+      resourceOrFiles = resourceOrFiles,
+      configSources = configSources,
       classpathResourceLoader = classpathResourceLoader,
-      parserRegistry = parserRegistry,
-      allowEmptyTree = allowEmptyTree,
-      allowNullOverride = allowNullOverride,
-      cascadeMode = cascadeMode,
-      preprocessors = preprocessors,
-      preprocessingIterations = preprocessingIterations,
-      nodeTransformers = nodeTransformers,
-      prefix = null,
-      resolvers = resolvers,
-      decoderRegistry = decoderRegistry,
-      paramMappers = paramMappers, // not needed to load nodes
-      flattenArraysToString = false,
-      resolveTypesCaseInsensitive = resolveTypesCaseInsensitive, // not used when loading nodes
-      allowUnresolvedSubstitutions = allowUnresolvedSubstitutions,  // not used when loading nodes
-      secretsPolicy = null,  // not used when loading nodes
-      decodeMode = DecodeMode.Lenient,  // not used when loading nodes
-      useReport = false, // not used when loading nodes
-      obfuscator = StrictObfuscator("*"),
-      reportPrintFn = reportPrintFn ?: { },
-      environment = environment,
-      sealedTypeDiscriminatorField = sealedTypeDiscriminatorField,
-      contextResolverMode = contextResolverMode,
-    ).load(resourceOrFiles, propertySources, configSources)
+    )
+    return configParser.load()
   }
 
   @PublishedApi
-  internal fun <A : Any> ConfigResult<A>.returnOrThrow(): A = this.getOrElse { failure ->
-    val err = "Error loading config because:\n\n" + failure.description().indent(Constants.indent)
-    onFailure.forEach { it(ConfigException(err)) }
-    throw ConfigException(err)
-  }
+  internal fun <A : Any> ConfigResult<A>.returnOrThrow(): A = returnOrThrow(onFailure)
+
+  private fun createConfigParser(
+    classpathResourceLoader: ClasspathResourceLoader,
+    resourceOrFiles: List<String>,
+    configSources: List<ConfigSource>,
+  ): ConfigParser = ConfigParser(
+    classpathResourceLoader = classpathResourceLoader,
+    parserRegistry = parserRegistry,
+    allowEmptyTree = allowEmptyTree,
+    allowNullOverride = allowNullOverride,
+    cascadeMode = cascadeMode,
+    preprocessors = preprocessors,
+    preprocessingIterations = preprocessingIterations,
+    nodeTransformers = nodeTransformers,
+    resolvers = resolvers,
+    decoderRegistry = decoderRegistry,
+    paramMappers = paramMappers,
+    flattenArraysToString = flattenArraysToString,
+    resolveTypesCaseInsensitive = resolveTypesCaseInsensitive,
+    allowUnresolvedSubstitutions = allowUnresolvedSubstitutions,
+    secretsPolicy = secretsPolicy,
+    decodeMode = decodeMode,
+    useReport = useReport,
+    obfuscator = obfuscator ?: PrefixObfuscator(3),
+    reportPrintFn = reportPrintFn,
+    environment = environment,
+    sealedTypeDiscriminatorField = sealedTypeDiscriminatorField,
+    contextResolverMode = contextResolverMode,
+    resourceOrFiles = resourceOrFiles,
+    propertySources = propertySources,
+    configSources = configSources,
+  )
 }
 
 @Deprecated("Moved package. Use com.sksamuel.hoplite.sources.MapPropertySource")
 typealias MapPropertySource = com.sksamuel.hoplite.sources.MapPropertySource
+
+@PublishedApi
+internal fun <A : Any> ConfigResult<A>.returnOrThrow(onFailure: List<(Throwable) -> Unit>): A = this.getOrElse { failure ->
+  val err = "Error loading config because:\n\n" + failure.description().indent(Constants.indent)
+  onFailure.forEach { it(ConfigException(err)) }
+  throw ConfigException(err)
+}

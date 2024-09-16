@@ -36,7 +36,6 @@ class ConfigParser(
   preprocessors: List<Preprocessor>,
   preprocessingIterations: Int,
   private val nodeTransformers: List<NodeTransformer>,
-  private val prefix: String?,
   private val resolvers: List<Resolver>,
   private val decoderRegistry: DecoderRegistry,
   private val paramMappers: List<ParameterMapper>,
@@ -51,12 +50,21 @@ class ConfigParser(
   private val environment: Environment?,
   private val sealedTypeDiscriminatorField: String?,
   private val contextResolverMode: ContextResolverMode,
+  private val resourceOrFiles: List<String>,
+  private val propertySources: List<PropertySource>,
+  private val configSources: List<ConfigSource>,
 ) {
 
   private val loader = PropertySourceLoader(nodeTransformers, sealedTypeDiscriminatorField, classpathResourceLoader, parserRegistry, allowEmptyTree)
   private val cascader = Cascader(cascadeMode, allowEmptyTree, allowNullOverride)
   private val preprocessing = Preprocessing(preprocessors, preprocessingIterations)
   private val decoding = Decoding(decoderRegistry, secretsPolicy)
+  private lateinit var configResult: ConfigResult<Node>
+  private lateinit var context: DecoderContext
+
+  init {
+    loadResultAndContext()
+  }
 
   private fun context(root: Node): DecoderContext {
     return DecoderContext(
@@ -73,47 +81,51 @@ class ConfigParser(
   fun <A : Any> decode(
     kclass: KClass<A>,
     environment: Environment?,
-    resourceOrFiles: List<String>,
-    propertySources: List<PropertySource>,
-    configSources: List<ConfigSource>,
+    prefix: String? = null,
   ): ConfigResult<A> {
 
-    if (decoderRegistry.size == 0)
-      return ConfigFailure.EmptyDecoderRegistry.invalid()
-
-    return loader.loadNodes(propertySources, configSources, resourceOrFiles).flatMap { nodes ->
-      cascader.cascade(nodes).flatMap { node ->
-        val context = context(node)
-        preprocessing.preprocess(node, context).flatMap { preprocessed ->
-          check(preprocessed.prefixedNode()).flatMap {
-            val decoded = decoding.decode(kclass, it, decodeMode, context)
-            val state = createDecodingState(it, context, secretsPolicy)
-
-            // always do report regardless of decoder result
-            if (useReport) {
-              Reporter(reportPrintFn, obfuscator, environment)
-                .printReport(propertySources, state, context.reporter.getReport())
-            }
-
-            decoded
-          }
-        }
-      }
+    if (configResult.isInvalid()) {
+      return configResult.getInvalidUnsafe().invalid()
     }
+
+    return configResult
+      .map { it.prefixedNode(prefix) }
+      .flatMap {
+        val decoded = decoding.decode(kclass, it, decodeMode, context)
+        val state = createDecodingState(it, context, secretsPolicy)
+
+        // always do report regardless of decoder result
+        if (useReport) {
+          Reporter(reportPrintFn, obfuscator, environment, prefix)
+            .printReport(propertySources, state, context.reporter.getReport())
+        }
+
+        decoded
+      }
   }
 
-  fun load(
-    resourceOrFiles: List<String>,
-    propertySources: List<PropertySource>,
-    configSources: List<ConfigSource>,
-  ): ConfigResult<Node> {
-    return loader.loadNodes(propertySources, configSources, resourceOrFiles).flatMap { nodes ->
+  fun load(): ConfigResult<Node> = configResult
+
+  private fun loadResultAndContext() {
+    if (decoderRegistry.size == 0) {
+      configResult = ConfigFailure.EmptyDecoderRegistry.invalid()
+      return
+    }
+
+    loader.loadNodes(propertySources, configSources, resourceOrFiles).flatMap { nodes ->
       cascader.cascade(nodes).flatMap { node ->
         val context = context(node)
         preprocessing.preprocess(node, context).flatMap { preprocessed ->
-          if (allowUnresolvedSubstitutions) preprocessed.valid() else UnresolvedSubstitutionChecker.process(preprocessed)
+          check(preprocessed)
+        }.map {
+          it to context
         }
       }
+    }.onSuccess { result ->
+      configResult = result.first.valid()
+      context = result.second
+    }.onFailure { result ->
+      configResult = result.invalid()
     }
   }
 
@@ -125,7 +137,7 @@ class ConfigParser(
       UnresolvedSubstitutionChecker.process(node)
   }
 
-  private fun Node.prefixedNode() = when {
+  private fun Node.prefixedNode(prefix: String?) = when {
     prefix == null -> this
     nodeTransformers.contains(PathNormalizer) -> atPath(PathNormalizer.normalizePathElement(prefix))
     else -> atPath(prefix)
