@@ -29,8 +29,14 @@ import kotlinx.serialization.json.Json
  */
 class AwsSecretsManagerPreprocessor(
   private val report: Boolean = false,
+  private val json: Json,
   private val createClient: () -> AWSSecretsManager = { AWSSecretsManagerClientBuilder.standard().build() }
 ) : TraversingPrimitivePreprocessor() {
+
+  constructor(
+    report: Boolean = false,
+    createClient: () -> AWSSecretsManager = { AWSSecretsManagerClientBuilder.standard().build() }
+  ) : this(report, Json.Default, createClient)
 
   private val client by lazy { createClient() }
   private val regex1 = "\\$\\{awssecret:(.+?)}".toRegex()
@@ -84,7 +90,7 @@ class AwsSecretsManagerPreprocessor(
             .withMeta(CommonMetadata.RemoteLookup, "AWS '$key'")
             .valid()
         } else {
-          val map = runCatching { Json.Default.decodeFromString<Map<String, String>>(secret) }.getOrElse { emptyMap() }
+          val map = runCatching { json.decodeFromString<Map<String, String>>(secret) }.getOrElse { emptyMap() }
           val indexedValue = map[index]
           if (indexedValue == null)
             ConfigFailure.PreprocessorWarning(
