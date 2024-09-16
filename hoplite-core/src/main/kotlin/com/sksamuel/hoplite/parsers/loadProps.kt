@@ -74,7 +74,6 @@ private fun <T, K> Iterable<T>.toNode(
         pos = pos,
         path = path,
         value = value?.transform(path, sourceKey) ?: Undefined,
-        sourceKey = this.sourceKey,
       )
     }
     is Array<*> -> ArrayNode(

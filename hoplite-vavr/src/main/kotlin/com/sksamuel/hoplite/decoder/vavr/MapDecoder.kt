@@ -32,7 +32,7 @@ class MapDecoder : NullHandlingDecoder<Map<*, *>> {
                              kdecoder: Decoder<K>,
                              vdecoder: Decoder<V>,
                              context: DecoderContext): ConfigResult<Map<*, *>> =
-      node.map.entries.map { (k, v) ->
+      node.denormalize().map.entries.map { (k, v) ->
         kdecoder.decode(StringNode(k, node.pos, node.path, emptyMap()), kType, context).flatMap { kk ->
           vdecoder.decode(v, vType, context).map { vv ->
             kk to vv
