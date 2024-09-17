@@ -144,4 +144,24 @@ class DenormalizedMapKeysTest : FunSpec({
       )
     }
   }
+
+  test("should set denormalized map keys from command line arguments with the CLI case") {
+    val config = ConfigLoaderBuilder.default()
+      .addCommandLineSource(
+        arrayOf(
+          "--m.Dc1.x-val=20",
+          "--m.Dc2.x-val=30",
+        ),
+      )
+      .addResourceOrFileSource("/test_data_class_in_map.yaml")
+      .build()
+      .loadConfigOrThrow<MapContainer>()
+
+    config shouldBe MapContainer(
+      m = mapOf(
+        "Dc1" to Foo("20"),
+        "Dc2" to Foo("30"),
+      )
+    )
+  }
 })
