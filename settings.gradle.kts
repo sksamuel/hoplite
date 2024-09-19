@@ -74,7 +74,7 @@ dependencyResolutionManagement {
 
          library("hikaricp", "com.zaxxer:HikariCP:5.1.0")
 
-         library("kotlinx-serialization-json", "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
+         library("kotlinx-serialization-json", "org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
          library("kotlinx-datetime", "org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
 
          library("google-cloud-secretmanager", "com.google.cloud:google-cloud-secretmanager:2.47.0")
