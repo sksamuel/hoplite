@@ -310,7 +310,7 @@ class ConfigLoaderBuilder private constructor() {
   /**
    * When enabled, allows placeholder substitutions like ${foo} not to cause an error if they are not resolvable.
    */
-  @Deprecated("Use SubstitutionMode")
+  @Deprecated("Use ContextResolverMode", ReplaceWith("withContextResolverMode(ContextResolverMode.SkipUnresolved)"))
   fun allowUnresolvedSubstitutions(): ConfigLoaderBuilder = apply {
     allowUnresolvedSubstitutions = true
   }

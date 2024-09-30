@@ -6,7 +6,7 @@ import com.sksamuel.hoplite.parsers.PropsPropertySource
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.extensions.install
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.extensions.testcontainers.TestContainerExtension
+import io.kotest.extensions.testcontainers.ContainerExtension
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import org.springframework.vault.authentication.TokenAuthentication
@@ -25,7 +25,7 @@ class VaultSecretPreprocessorTest : FunSpec({
     .withSecretInVault("secret/testing", "secret1=topsecret!")
     .withSecretInVault("secret/testing/nested", "secret2=bottomsecret!")
 
-  val ext = TestContainerExtension(container)
+  val ext = ContainerExtension(container)
   install(ext)
 
   test("placeholder should be detected and used") {

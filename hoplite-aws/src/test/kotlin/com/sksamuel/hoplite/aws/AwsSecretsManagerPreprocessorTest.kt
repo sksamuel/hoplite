@@ -19,7 +19,7 @@ import com.sksamuel.hoplite.traverse
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.extensions.install
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.extensions.testcontainers.TestContainerExtension
+import io.kotest.extensions.testcontainers.ContainerExtension
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -37,7 +37,7 @@ class AwsSecretsManagerPreprocessorTest : FunSpec() {
 
   init {
 
-    install(TestContainerExtension(localstack))
+    install(ContainerExtension(localstack))
 
     val client = AWSSecretsManagerClientBuilder.standard()
       .withEndpointConfiguration(
