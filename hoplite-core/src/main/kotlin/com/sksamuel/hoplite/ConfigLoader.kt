@@ -190,6 +190,16 @@ class ConfigLoader(
     return ConfigBinder(configParser, environment)
   }
 
+  @PublishedApi
+  internal fun <A : Any> loadConfig(
+    kclass: KClass<A>,
+    configSources: List<ConfigSource>,
+    resourceOrFiles: List<String>,
+    classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader(),
+  ): ConfigResult<A> {
+    return loadConfig(kclass, configSources, resourceOrFiles, null, classpathResourceLoader)
+  }
+
   // This is where the actual processing takes place for marshalled config.
   // All other loadConfig or loadConfigOrThrow methods ultimately end up in this method.
   fun <A : Any> bindConfig(
@@ -200,6 +210,7 @@ class ConfigLoader(
     require(kclass.isData) { "Can only decode into data classes [was ${kclass}]" }
     return parser.decode(kclass, environment, prefix)
   }
+
 
   // This is where the actual processing takes place for marshalled config.
   // All other loadConfig or loadConfigOrThrow methods ultimately end up in this method.
