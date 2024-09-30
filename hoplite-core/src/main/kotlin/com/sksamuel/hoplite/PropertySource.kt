@@ -93,11 +93,32 @@ interface PropertySource {
       CommandLinePropertySource(arguments, prefix, delimiter)
 
     /**
-     * Returns a [PropertySource] that will read the environment settings.
+     * Returns a [PropertySource] that will read the environment settings, by default with the classic
+     * parsing mechanism using double-underscore as a path separator, and converting uppercase names with
+     * underscores to camel case.
      */
-    fun environment(useUnderscoresAsSeparator: Boolean = true, allowUppercaseNames: Boolean = true) =
-      EnvironmentVariablesPropertySource(useUnderscoresAsSeparator, allowUppercaseNames)
+    fun environment(
+      useUnderscoresAsSeparator: Boolean = true,
+      allowUppercaseNames: Boolean = true,
+      useSingleUnderscoresAsSeparator: Boolean = false,
+    ) =
+      EnvironmentVariablesPropertySource(
+        useUnderscoresAsSeparator,
+        useSingleUnderscoresAsSeparator,
+        allowUppercaseNames
+      )
 
+    /**
+     * Returns a [PropertySource] that will read the environment settings, supporting idiomatic environment
+     * names. Underscores are used as path separators, and "-" are removed/ignored. We recommend this be used
+     * along with a [PathNormalizer].
+     */
+    fun idiomaticEnvironment() =
+      EnvironmentVariablesPropertySource(
+        useUnderscoresAsSeparator = false,
+        useSingleUnderscoresAsSeparator = true,
+        allowUppercaseNames = false
+      )
 
     /**
      * Returns a [PropertySource] that will read from the specified string.
