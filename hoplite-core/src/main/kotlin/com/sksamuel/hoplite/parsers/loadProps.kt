@@ -37,6 +37,7 @@ data class Element(
   val values: MutableMap<String, Element> = hashMapOf(),
   var value: Any? = null,
   var sourceKey: String? = null,
+  var delimiter: String = ".",
 )
 
 private fun <T, K> Iterable<T>.toNode(
@@ -59,6 +60,7 @@ private fun <T, K> Iterable<T>.toNode(
         if (index == segments.size - 1) {
           it.value = value
           it.sourceKey = sourceKey.toString()
+          it.delimiter = delimiter
         }
       }
     }
@@ -74,6 +76,7 @@ private fun <T, K> Iterable<T>.toNode(
         pos = pos,
         path = path,
         value = value?.transform(path, sourceKey) ?: Undefined,
+        delimiter = delimiter,
       )
     }
     is Array<*> -> ArrayNode(
@@ -81,12 +84,14 @@ private fun <T, K> Iterable<T>.toNode(
       pos = pos,
       path = path,
       sourceKey = parentSourceKey,
+      delimiter = delimiter,
     )
     is Collection<*> -> ArrayNode(
       elements = mapNotNull { it?.transform(path, parentSourceKey) },
       pos = pos,
       path = path,
       sourceKey = parentSourceKey,
+      delimiter = delimiter,
     )
     is Map<*, *> -> MapNode(
       map = takeUnless { it.isEmpty() }?.mapNotNull { entry ->
@@ -95,8 +100,9 @@ private fun <T, K> Iterable<T>.toNode(
       pos = pos,
       path = path,
       sourceKey = parentSourceKey,
+      delimiter = delimiter,
     )
-    else -> StringNode(this.toString(), pos, path = path, emptyMap(), parentSourceKey)
+    else -> StringNode(this.toString(), pos, path = path, emptyMap(), delimiter, parentSourceKey)
   }
 
   return map.transform(DotPath.root)

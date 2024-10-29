@@ -71,7 +71,7 @@ class Cascader(
               val overrides = merges.values.toList().flatMap { it.overrides }
               val elements = merges.mapValues { it.value.node }
               CascadeResult(
-                MapNode(elements, a.pos, a.path, cascade(a.value, b.value).node, a.meta, a.sourceKey),
+                MapNode(elements, a.pos, a.path, cascade(a.value, b.value).node, a.meta, a.delimiter, a.sourceKey),
                 overrides
               )
             }

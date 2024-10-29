@@ -20,13 +20,15 @@ class EnvironmentVariablesPropertySource(
     val map = environmentVariableMap()
       .mapKeys { if (prefix == null) it.key else it.key.removePrefix(prefix) }
 
-    return map.toNode("env") { key ->
+    // at the moment the delimiter is either `__` or `.` -- it can't be mixed
+    val delimiter = if (useUnderscoresAsSeparator) "__" else "."
+
+    return map.toNode("env", delimiter) { key ->
       key
         .let { if (prefix == null) it else it.removePrefix(prefix) }
-        .let { if (useUnderscoresAsSeparator) it.replace("__", ".") else it }
         .let {
           if (allowUppercaseNames && Character.isUpperCase(it.codePointAt(0))) {
-            it.split(".").joinToString(separator = ".") { value ->
+            it.split(delimiter).joinToString(separator = delimiter) { value ->
               value.fold("") { acc, char ->
                 when {
                   acc.isEmpty() -> acc + char.lowercaseChar()

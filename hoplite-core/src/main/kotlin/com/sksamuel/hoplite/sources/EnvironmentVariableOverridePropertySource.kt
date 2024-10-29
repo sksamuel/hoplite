@@ -25,11 +25,13 @@ class EnvironmentVariableOverridePropertySource(
   override fun source(): String = "Env Var Overrides"
 
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
+    // at the moment the delimiter is either `__` or `.` -- it can't be mixed
+    val delimiter = if (useUnderscoresAsSeparator) "__" else "."
+
     val vars = environmentVariableMap()
-      .mapKeys { if (useUnderscoresAsSeparator) it.key.replace("__", ".") else it.key }
       .filter { it.key.startsWith(Prefix) }
     return if (vars.isEmpty()) Undefined.valid() else {
-      vars.toNode("Env Var Overrides") {
+      vars.toNode("Env Var Overrides", delimiter) {
         it.removePrefix(Prefix)
       }.valid()
     }
