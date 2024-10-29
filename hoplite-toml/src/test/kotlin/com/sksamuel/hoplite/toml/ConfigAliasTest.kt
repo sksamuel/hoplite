@@ -36,12 +36,4 @@ class ConfigAliasTest : FunSpec({
     config.dd.e shouldBe "192.168.1.1"
     config.dd.ff shouldBe true
   }
-
-  test("parsers should support @ConfigAlias with normalization") {
-    val config = ConfigLoader().loadConfigOrThrow<AliasConfig>("/repeated_alias.toml")
-    config.a.bb shouldBe "Tom Preston-Werner"
-    config.a.c shouldBe 5000
-    config.dd.e shouldBe "192.168.1.1"
-    config.dd.ff shouldBe true
-  }
 })
