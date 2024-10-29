@@ -81,15 +81,23 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
         // use parameter mappers to retrieve alternative names, then try each one in turn
         // until we find one that is defined
         val names = context.paramMappers.flatMap { it.map(param, constructor, kclass) }
+
+        fun nameLookup(name: String): Node {
+          var atKey = node.atKey(name)
+          // we also check the source key, as parameter mappers may (and probably are) referring to the source name
+          if (atKey is Undefined) atKey = node.atSourceKey(name)
+          return atKey
+        }
+
         // every alternative name is marked as used so strict can detect that overrides were 'used' too.
         names.forEach {
-          context.usedPaths.add(node.atKey(it).path)
+          context.usedPaths.add(nameLookup(it).path)
         }
 
         val n = names.fold<String, Node>(Undefined) { n, name ->
           if (n.isDefined) n else {
             usedName = name
-            node.atKey(name)
+            nameLookup(name)
           }
         }
 
