@@ -30,7 +30,7 @@ class EnvPropertySourceTest : FunSpec({
     data class Bar(val s: Long, val t: Long)
     data class Foo(val bar: Bar)
     data class TestConfig(val foo: Foo)
-    withEnvironment(mapOf("foo.bar.s" to "1")) {
+    withEnvironment(mapOf("foo__bar__s" to "1")) {
       ConfigLoader.builder()
         .addEnvironmentSource()
         .build()
@@ -42,7 +42,7 @@ class EnvPropertySourceTest : FunSpec({
     data class Foo(val bar: Bar)
     data class TestConfig(val foo: Foo)
     // the sys prop foo is a parent of our bar.s but since Foo maps to a data class, the prop should never be used
-    withEnvironment(mapOf("foo.bar.s" to "x", "foo" to "y")) {
+    withEnvironment(mapOf("foo__bar__s" to "x", "foo" to "y")) {
       ConfigLoader.builder()
         .addEnvironmentSource()
         .build()
@@ -54,7 +54,7 @@ class EnvPropertySourceTest : FunSpec({
     data class Foo(val bar: Bar)
     data class TestConfig(val foo: Foo)
     // the sysprop foo.bar.s has a child foo.bar.s.u which is not required, but the parent value should still be used
-    withEnvironment(mapOf("foo.bar.s" to "x", "foo.bar.s.u" to "y")) {
+    withEnvironment(mapOf("foo__bar__s" to "x", "foo__bar__s__u" to "y")) {
       ConfigLoader.builder()
         .addEnvironmentSource()
         .build()

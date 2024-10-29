@@ -54,6 +54,7 @@ data class DotPath(val keys: List<String>) {
 
   fun with(name: String): DotPath = DotPath(keys + name)
   fun flatten() = keys.joinToString(".")
+  fun flatten(delimiter: String) = keys.joinToString(delimiter)
 }
 
 inline fun <T, reified U> Decoder<T>.map(crossinline f: (T) -> U): Decoder<U> = object : Decoder<U> {

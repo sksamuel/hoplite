@@ -77,8 +77,8 @@ class DenormalizedMapKeysTest : FunSpec({
   test("should set denormalized map keys from environment variables") {
     withEnvironment(
       mapOf(
-        "m.DC1.x-val" to "15",
-        "m.DC2.x-val" to "25"
+        "m__DC1__x-val" to "15",
+        "m__DC2__x-val" to "25"
       )
     ) {
       val config = ConfigLoaderBuilder.default()
@@ -98,8 +98,8 @@ class DenormalizedMapKeysTest : FunSpec({
   test("should set denormalized map keys from environment variables, overriding a property source") {
     withEnvironment(
       mapOf(
-        "m.DC1.x-val" to "15",
-        "m.DC2.x-val" to "25"
+        "m__DC1__x-val" to "15",
+        "m__DC2__x-val" to "25"
       )
     ) {
       val config = ConfigLoaderBuilder.default()
@@ -120,8 +120,8 @@ class DenormalizedMapKeysTest : FunSpec({
   test("should set denormalized map keys from command line arguments, overriding environment variables and property sources") {
     withEnvironment(
       mapOf(
-        "m.DC1.x-val" to "15",
-        "m.DC2.x-val" to "25"
+        "m__DC1__x-val" to "15",
+        "m__DC2__x-val" to "25"
       )
     ) {
       val config = ConfigLoaderBuilder.default()

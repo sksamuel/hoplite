@@ -20,8 +20,8 @@ class EnvPropertySourceUppercaseTest : DescribeSpec({
               allowUppercaseNames = true,
               environmentVariableMap = {
                 mapOf(
-                  "CREDS.USERNAME" to "a",
-                  "CREDS.PASSWORD" to "c",
+                  "CREDS__USERNAME" to "a",
+                  "CREDS__PASSWORD" to "c",
                   "SOME_CAMEL_SETTING" to "c"
                 )
               }
@@ -78,8 +78,8 @@ class EnvPropertySourceUppercaseTest : DescribeSpec({
               allowUppercaseNames = true,
               environmentVariableMap = {
                 mapOf(
-                  "WIBBLE_CREDS.USERNAME" to "a",
-                  "WIBBLE_CREDS.PASSWORD" to "c",
+                  "WIBBLE_CREDS__USERNAME" to "a",
+                  "WIBBLE_CREDS__PASSWORD" to "c",
                   "WIBBLE_SOME_CAMEL_SETTING" to "c"
                 )
               },
