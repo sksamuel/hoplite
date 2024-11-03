@@ -6,6 +6,7 @@ import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.defaultNodeTransformers
 import com.sksamuel.hoplite.defaultParamMappers
 import com.sksamuel.hoplite.fp.Validated
 import io.kotest.core.spec.style.BehaviorSpec
@@ -65,6 +66,7 @@ class EnumDecoderTest : BehaviorSpec({
       DecoderContext(
         decoders = defaultDecoderRegistry(),
         paramMappers = defaultParamMappers(),
+        nodeTransformers = defaultNodeTransformers(),
         config = DecoderConfig(flattenArraysToString = false, resolveTypesCaseInsensitive = ignoreCase)
       )
     )

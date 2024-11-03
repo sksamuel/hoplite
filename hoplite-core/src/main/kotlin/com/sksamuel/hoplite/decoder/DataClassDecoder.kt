@@ -84,7 +84,11 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
 
         fun nameLookup(name: String): Node {
           var atKey = node.atKey(name)
-          // we also check the source key, as parameter mappers may (and probably are) referring to the source name
+          // check if the node has a key matching a transformed path element
+          if (atKey is Undefined) atKey = node.atKey(
+            context.nodeTransformers.fold(name) { n, transformer -> transformer.transformPathElement(n) }
+          )
+          // also check the source key, as parameter mappers may be referring to the source name
           if (atKey is Undefined) atKey = node.atSourceKey(name)
           return atKey
         }
