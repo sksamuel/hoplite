@@ -70,6 +70,7 @@ class ConfigParser(
     return DecoderContext(
       decoders = decoderRegistry,
       paramMappers = paramMappers,
+      nodeTransformers = nodeTransformers,
       config = DecoderConfig(flattenArraysToString, resolveTypesCaseInsensitive),
       environment = environment,
       resolvers = Resolving(resolvers, root),
@@ -139,7 +140,7 @@ class ConfigParser(
 
   private fun Node.prefixedNode(prefix: String?) = when {
     prefix == null -> this
-    nodeTransformers.contains(PathNormalizer) -> atPath(PathNormalizer.normalizePathElement(prefix))
+    nodeTransformers.contains(PathNormalizer) -> atPath(PathNormalizer.transformPathElement(prefix))
     else -> atPath(prefix)
   }
 }

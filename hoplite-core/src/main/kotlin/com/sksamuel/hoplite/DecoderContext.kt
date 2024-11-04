@@ -7,6 +7,7 @@ import com.sksamuel.hoplite.env.Environment
 import com.sksamuel.hoplite.fp.Validated
 import com.sksamuel.hoplite.resolver.Resolving
 import com.sksamuel.hoplite.resolver.context.ContextResolverMode
+import com.sksamuel.hoplite.transformer.NodeTransformer
 import kotlin.reflect.KParameter
 import kotlin.reflect.KType
 
@@ -21,6 +22,7 @@ import kotlin.reflect.KType
 data class DecoderContext(
   val decoders: DecoderRegistry,
   val paramMappers: List<ParameterMapper>,
+  val nodeTransformers: List<NodeTransformer>,
   val reporter: Reporter = Reporter(),
   // these are the dot paths for every config value - overrided or not, that was used
   val usedPaths: MutableSet<DotPath> = mutableSetOf(),
@@ -59,7 +61,7 @@ data class DecoderContext(
   fun report(section: String, row: Map<String, Any?>) = reporter.report(section, row)
 
   companion object {
-    val zero = DecoderContext(DecoderRegistry.zero, emptyList(), resolvers = Resolving(emptyList(), Undefined))
+    val zero = DecoderContext(DecoderRegistry.zero, emptyList(), emptyList(), resolvers = Resolving(emptyList(), Undefined))
   }
 }
 

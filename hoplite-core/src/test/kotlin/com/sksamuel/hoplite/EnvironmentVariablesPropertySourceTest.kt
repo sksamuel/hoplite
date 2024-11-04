@@ -30,4 +30,22 @@ class EnvironmentVariablesPropertySourceTest : FunSpec({
     )
   }
 
+  test("env var source should respect config aliases that need to be normalized to match") {
+    data class TestConfig(@ConfigAlias("fooBar") val bazBar: String)
+
+    val config = ConfigLoader {
+      addPropertySource(
+        EnvironmentVariablesPropertySource(
+          useUnderscoresAsSeparator = false,
+          allowUppercaseNames = true,
+          environmentVariableMap = {
+            mapOf("FOO_BAR" to "fooValue")
+          },
+        )
+      )
+    }.loadConfigOrThrow<TestConfig>()
+
+    config shouldBe TestConfig("fooValue")
+  }
+
 })
