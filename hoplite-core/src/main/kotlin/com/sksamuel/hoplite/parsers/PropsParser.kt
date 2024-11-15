@@ -6,13 +6,15 @@ import com.sksamuel.hoplite.PropertySource
 import com.sksamuel.hoplite.PropertySourceContext
 import com.sksamuel.hoplite.fp.valid
 import java.io.InputStream
+import java.io.InputStreamReader
+import java.nio.charset.Charset
 import java.util.Properties
 
 class PropsParser : Parser {
 
   override fun load(input: InputStream, source: String): Node {
     val props = Properties()
-    props.load(input)
+    props.load(InputStreamReader(input, Charset.forName("UTF-8")))
     return props.toNode(source)
   }
 
