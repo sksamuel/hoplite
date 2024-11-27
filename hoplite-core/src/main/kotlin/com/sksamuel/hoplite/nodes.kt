@@ -28,6 +28,14 @@ sealed interface Node {
    */
   fun atKey(key: String): Node
 
+  /**
+   * Returns the [PrimitiveNode] at the given source key.
+   * If this node is not a [MapNode] or the node contained at the
+   * given key is not a primitive, or the node does not contain
+   * the key at all, then this will return [Undefined].
+   */
+  fun atSourceKey(key: String): Node
+
   operator fun get(key: String): Node = atKey(key)
 
   /**
@@ -159,6 +167,7 @@ data class MapNode(
 ) : ContainerNode() {
   override val simpleName: String = "Map"
   override fun atKey(key: String): Node = map[key] ?: Undefined
+  override fun atSourceKey(key: String): Node = map.values.firstOrNull { it.sourceKey == key }  ?: Undefined
   override fun atIndex(index: Int): Node = Undefined
   override val size: Int = map.size
 }
@@ -172,12 +181,14 @@ data class ArrayNode(
 ) : ContainerNode() {
   override val simpleName: String = "List"
   override fun atKey(key: String): Node = Undefined
+  override fun atSourceKey(key: String): Node = Undefined
   override fun atIndex(index: Int): Node = elements.getOrElse(index) { Undefined }
   override val size: Int = elements.size
 }
 
 sealed class PrimitiveNode : Node {
   override fun atKey(key: String): Node = Undefined
+  override fun atSourceKey(key: String): Node = Undefined
   override fun atIndex(index: Int): Node = Undefined
   override val size: Int = 0
   abstract val value: Any?
@@ -241,6 +252,7 @@ object Undefined : Node {
   override val path = DotPath.root
   override val sourceKey: String? = null
   override fun atKey(key: String): Node = this
+  override fun atSourceKey(key: String): Node = this
   override fun atIndex(index: Int): Node = this
   override val size: Int = 0
   override val meta: Map<String, Any?> = emptyMap()
