@@ -41,6 +41,7 @@ class ParameterStorePathPreprocessor(
         null -> node.valid()
         else -> {
           val key = match.groupValues[1]
+          context.reportPrintFn("[WARN] Use of the hoplite-aws module is deprecated. Please use the hoplite-aws2 module instead.")
           fetchParameterStoreValues().fold(
             { values ->
               when (val value = values.firstOrNull { it.name == key }) {

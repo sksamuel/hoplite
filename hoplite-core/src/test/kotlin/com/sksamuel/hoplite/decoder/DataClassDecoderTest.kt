@@ -97,9 +97,10 @@ class DataClassDecoderTest : StringSpec() {
         Pos.NoPos,
         DotPath.root
       )
-      DataClassDecoder().decode(node,
-        Foo::class.createType(),
-        DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), defaultNodeTransformers())
+      DataClassDecoder().decode(
+        node = node,
+        type = Foo::class.createType(),
+        context = DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), defaultNodeTransformers())
       ) shouldBe Foo(Year.of(1991), expectedDate, YearMonth.parse("2007-12"), expectedSqlTimestamp).valid()
     }
 

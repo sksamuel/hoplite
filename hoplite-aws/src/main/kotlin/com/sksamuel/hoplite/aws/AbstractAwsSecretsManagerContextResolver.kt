@@ -20,6 +20,7 @@ abstract class AbstractAwsSecretsManagerContextResolver(
 
   override fun lookup(path: String, node: StringNode, root: Node, context: DecoderContext): ConfigResult<String?> {
     val (key, index) = ops.extractIndex(path)
+    context.reportPrintFn("[WARN] Use of the hoplite-aws module is deprecated. Please use the hoplite-aws2 module instead.")
     return ops.fetchSecret(key)
       .onSuccess { if (report) ops.report(context, it) }
       .flatMap { ops.parseSecret(it, index) }
