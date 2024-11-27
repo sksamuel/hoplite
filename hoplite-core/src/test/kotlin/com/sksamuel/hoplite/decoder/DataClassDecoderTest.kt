@@ -7,6 +7,7 @@ import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.defaultNodeTransformers
 import com.sksamuel.hoplite.defaultParamMappers
 import com.sksamuel.hoplite.fp.valid
 import io.kotest.core.spec.style.StringSpec
@@ -35,7 +36,7 @@ class DataClassDecoderTest : StringSpec() {
       DataClassDecoder().decode(
         node,
         Foo::class.createType(),
-        DecoderContext(defaultDecoderRegistry(), defaultParamMappers())
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), defaultNodeTransformers())
       ) shouldBe Foo("hello", 123, true).valid()
     }
 
@@ -54,7 +55,7 @@ class DataClassDecoderTest : StringSpec() {
       DataClassDecoder().decode(
         node,
         Foo::class.createType(),
-        DecoderContext(defaultDecoderRegistry(), defaultParamMappers())
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), defaultNodeTransformers())
       ) shouldBe Foo(null, null, null).valid()
     }
 
@@ -73,7 +74,7 @@ class DataClassDecoderTest : StringSpec() {
       DataClassDecoder().decode(
         node,
         Foo::class.createType(),
-        DecoderContext(defaultDecoderRegistry(), defaultParamMappers())
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), defaultNodeTransformers())
       ) shouldBe Foo("hello", 123, true).valid()
     }
 
@@ -98,7 +99,7 @@ class DataClassDecoderTest : StringSpec() {
       )
       DataClassDecoder().decode(node,
         Foo::class.createType(),
-        DecoderContext(defaultDecoderRegistry(), defaultParamMappers())
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), defaultNodeTransformers())
       ) shouldBe Foo(Year.of(1991), expectedDate, YearMonth.parse("2007-12"), expectedSqlTimestamp).valid()
     }
 
@@ -117,7 +118,7 @@ class DataClassDecoderTest : StringSpec() {
       DataClassDecoder().decode(
         node,
         Foo::class.createType(),
-        DecoderContext(defaultDecoderRegistry(), defaultParamMappers())
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), defaultNodeTransformers())
       ) shouldBe Foo(IntRange(1, 4), LongRange(50, 60), CharRange('d', 'g')).valid()
     }
 
@@ -135,7 +136,7 @@ class DataClassDecoderTest : StringSpec() {
       DataClassDecoder().decode(
         node,
         Foo::class.createType(),
-        DecoderContext(defaultDecoderRegistry(), defaultParamMappers())
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), defaultNodeTransformers())
       ) shouldBe Foo("value", "default b", false).valid()
     }
 
@@ -147,7 +148,7 @@ class DataClassDecoderTest : StringSpec() {
       DataClassDecoder().decode(
         node,
         Foo::class.createType(),
-        DecoderContext(defaultDecoderRegistry(), defaultParamMappers())
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), defaultNodeTransformers())
       ) shouldBe Foo(FooEnum.SECOND).valid()
     }
 
@@ -161,7 +162,7 @@ class DataClassDecoderTest : StringSpec() {
       DataClassDecoder().decode(
         node,
         Foo::class.createType(),
-        DecoderContext(defaultDecoderRegistry(), defaultParamMappers())
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), defaultNodeTransformers())
       ) shouldBe Foo(FooEnum.THIRD).valid()
     }
 
@@ -183,7 +184,7 @@ class DataClassDecoderTest : StringSpec() {
       DataClassDecoder().decode(
         node,
         Foo::class.createType(),
-        DecoderContext(defaultDecoderRegistry(), defaultParamMappers())
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), defaultNodeTransformers())
       ) shouldBe Foo(FooEnum.FIRST, "MultiParamCallExpected", false).valid()
     }
 
@@ -205,7 +206,7 @@ class DataClassDecoderTest : StringSpec() {
       DataClassDecoder().decode(
         node,
         Foo::class.createType(),
-        DecoderContext(defaultDecoderRegistry(), defaultParamMappers())
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), defaultNodeTransformers())
       ) shouldBe Foo(FooEnum.THIRD, true).valid()
     }
   }

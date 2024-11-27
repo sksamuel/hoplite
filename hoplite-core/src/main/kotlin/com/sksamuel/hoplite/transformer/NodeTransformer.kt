@@ -7,5 +7,8 @@ import com.sksamuel.hoplite.*
  * be applied at configuration loading time.
  */
 interface NodeTransformer {
+  /** Used for one of path element transformations equivalent to the node transformation. */
+  fun transformPathElement(element: String): String
+
   fun transform(node: Node, sealedTypeDiscriminatorField: String?): Node
 }

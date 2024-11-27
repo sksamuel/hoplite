@@ -21,7 +21,7 @@ import com.sksamuel.hoplite.*
  * It does NOT normalize the sealed type discriminator field for map nodes.
  */
 object PathNormalizer : NodeTransformer {
-  fun normalizePathElement(element: String): String = element
+  override fun transformPathElement(element: String): String = element
     .replace("-", "")
     .replace("_", "")
     .lowercase()
@@ -31,7 +31,7 @@ object PathNormalizer : NodeTransformer {
       val normalizedPathNode = it.withPath(
         it.path.copy(keys = it.path.keys.map { key ->
           if (it is MapNode) normalizePathElementExceptDiscriminator(key, sealedTypeDiscriminatorField)
-          else normalizePathElement(key)
+          else transformPathElement(key)
         })
       )
       when (normalizedPathNode){
