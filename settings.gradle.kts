@@ -55,7 +55,7 @@ dependencyResolutionManagement {
          plugin("kotlin-serialization","org.jetbrains.kotlin.plugin.serialization").version(kotlin)
          library("kotlin-reflect", "org.jetbrains.kotlin:kotlin-reflect:$kotlin")
 
-         val micrometer = "1.12.8"
+         val micrometer = "1.14.1"
          library("micrometer-core", "io.micrometer:micrometer-core:$micrometer")
          library("micrometer-registry-datadog", "io.micrometer:micrometer-registry-datadog:$micrometer")
          library("micrometer-registry-prometheus", "io.micrometer:micrometer-registry-prometheus:$micrometer")
