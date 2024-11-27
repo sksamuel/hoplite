@@ -44,14 +44,14 @@ abstract class TraversingPrimitivePreprocessor : Preprocessor {
         .map { it.toMap() }.flatMap { map ->
           val value = if (node.value is PrimitiveNode) handle(node.value, context) else node.value.valid()
           value.map { v ->
-            MapNode(map, node.pos, node.path, v, sourceKey = node.sourceKey)
+            MapNode(map, node.pos, node.path, v, sourceKey = node.sourceKey, delimiter = node.delimiter)
           }
         }
     }
     is ArrayNode -> {
       node.elements.map { process(it, context) }.sequence()
         .mapInvalid { ConfigFailure.MultipleFailures(it) }
-        .map { ArrayNode(it, node.pos, node.path, sourceKey = node.sourceKey) }
+        .map { ArrayNode(it, node.pos, node.path, sourceKey = node.sourceKey, delimiter = node.delimiter) }
     }
     is PrimitiveNode -> handle(node, context)
     else -> node.valid()
