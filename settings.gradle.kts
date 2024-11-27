@@ -116,7 +116,7 @@ dependencyResolutionManagement {
          library("kotest-extensions-testcontainers", "io.kotest.extensions:kotest-extensions-testcontainers:2.0.2")
 
          library("azure-identity", "com.azure:azure-identity:1.13.2")
-         library("azure-security-keyvault-secrets", "com.azure:azure-security-keyvault-secrets:4.8.5")
+         library("azure-security-keyvault-secrets", "com.azure:azure-security-keyvault-secrets:4.9.0")
 
          library("consul-client", "com.orbitz.consul:consul-client:1.5.3")
       }
