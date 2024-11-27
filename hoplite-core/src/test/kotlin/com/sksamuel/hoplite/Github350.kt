@@ -17,8 +17,6 @@ class Github350 : FunSpec() {
         .build()
         .loadConfigOrThrow()
 
-      println("actual: $config")
-
       val expected = Config(
         GoogleCredentials(".env.properties", ".env.properties"),
         Database("a1.properties", "a1.properties")

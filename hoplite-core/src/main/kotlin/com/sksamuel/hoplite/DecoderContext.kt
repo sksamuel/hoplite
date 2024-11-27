@@ -5,6 +5,7 @@ import com.sksamuel.hoplite.decoder.DecoderRegistry
 import com.sksamuel.hoplite.decoder.DotPath
 import com.sksamuel.hoplite.env.Environment
 import com.sksamuel.hoplite.fp.Validated
+import com.sksamuel.hoplite.report.Print
 import com.sksamuel.hoplite.resolver.Resolving
 import com.sksamuel.hoplite.resolver.context.ContextResolverMode
 import com.sksamuel.hoplite.transformer.NodeTransformer
@@ -35,6 +36,7 @@ data class DecoderContext(
   // determines if we should error when a context resolver cannot find a substitution
   val contextResolverMode: ContextResolverMode = ContextResolverMode.ErrorOnUnresolved,
   val sealedTypeDiscriminatorField: String? = null,
+  val reportPrintFn: Print = { println(it) }, // provides access to print warnings etc
 ) {
 
   /**

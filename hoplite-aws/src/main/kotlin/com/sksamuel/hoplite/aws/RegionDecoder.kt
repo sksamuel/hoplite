@@ -19,9 +19,12 @@ class RegionDecoder : NullHandlingDecoder<Region> {
   override fun safeDecode(node: Node,
                           type: KType,
                           context: DecoderContext): ConfigResult<Region> {
-    fun regionFromName(name: String): ConfigResult<Region> =
-      runCatching { Region.getRegion(Regions.fromName(name)) }
-          .toValidated { ConfigFailure.Generic("Cannot create region from $name") }
+
+    fun regionFromName(name: String): ConfigResult<Region> {
+      context.reportPrintFn("[WARN] Use of the hoplite-aws module is deprecated. Please use the hoplite-aws2 module instead.")
+      return runCatching { Region.getRegion(Regions.fromName(name)) }
+        .toValidated { ConfigFailure.Generic("Cannot create region from $name") }
+    }
 
     return when (node) {
       is StringNode -> regionFromName(node.value)

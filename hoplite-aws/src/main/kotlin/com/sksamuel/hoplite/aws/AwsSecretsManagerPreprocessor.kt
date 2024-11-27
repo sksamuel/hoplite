@@ -55,6 +55,7 @@ class AwsSecretsManagerPreprocessor(
           val keyMatch = keyRegex.matchEntire(value)
           val (key, index) = if (keyMatch == null) Pair(value, null) else
             Pair(keyMatch.groupValues[1], keyMatch.groupValues[2])
+          context.reportPrintFn("[WARN] Use of the hoplite-aws module is deprecated. Please use the hoplite-aws2 module instead.")
           fetchSecret(key, index, node, context)
         }
       }
