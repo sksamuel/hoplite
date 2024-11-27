@@ -13,11 +13,16 @@ pluginManagement {
    }
 }
 
+plugins {
+   id("org.gradle.toolchains.foojay-resolver-convention") version("0.8.0")
+}
+
 include(
    ":hoplite-core",
    ":hoplite-azure",
    ":hoplite-aws",
    ":hoplite-aws2",
+   ":hoplite-aws-kotlin",
    ":hoplite-arrow",
    ":hoplite-consul",
    ":hoplite-cronutils",
@@ -45,8 +50,10 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 dependencyResolutionManagement {
    versionCatalogs {
       create("libs") {
-
-         library("kotlin-reflect", "org.jetbrains.kotlin:kotlin-reflect:1.6.21")
+         val kotlin = "1.9.25"
+         plugin("kotlin-jvm", "org.jetbrains.kotlin.jvm").version(kotlin)
+         plugin("kotlin-serialization","org.jetbrains.kotlin.plugin.serialization").version(kotlin)
+         library("kotlin-reflect", "org.jetbrains.kotlin:kotlin-reflect:$kotlin")
 
          val micrometer = "1.12.8"
          library("micrometer-core", "io.micrometer:micrometer-core:$micrometer")
@@ -66,10 +73,6 @@ dependencyResolutionManagement {
 
          library("vavr-kotlin", "io.vavr:vavr-kotlin:0.10.2")
 
-         val aws1 = "1.12.767"
-         library("aws-java-sdk-secretsmanager", "com.amazonaws:aws-java-sdk-secretsmanager:$aws1")
-         library("aws-java-sdk-ssm", "com.amazonaws:aws-java-sdk-ssm:$aws1")
-
          library("cron-utils", "com.cronutils:cron-utils:9.2.1")
 
          library("hikaricp", "com.zaxxer:HikariCP:5.1.0")
@@ -85,9 +88,17 @@ dependencyResolutionManagement {
 
          library("slf4j-api", "org.slf4j:slf4j-api:2.0.14")
 
+         val aws1 = "1.12.767"
+         library("aws-java-sdk-secretsmanager", "com.amazonaws:aws-java-sdk-secretsmanager:$aws1")
+         library("aws-java-sdk-ssm", "com.amazonaws:aws-java-sdk-ssm:$aws1")
+
          val aws2 = "2.27.0"
          library("regions", "software.amazon.awssdk:regions:$aws2")
          library("secretsmanager", "software.amazon.awssdk:secretsmanager:$aws2")
+
+         val awsKotlin = "1.3.54"
+         library("aws-kotlin-ssm", "aws.sdk.kotlin:ssm:$awsKotlin")
+         library("aws-kotlin-secretsmanager", "aws.sdk.kotlin:secretsmanager:$awsKotlin")
 
          library("postgresql", "org.postgresql:postgresql:42.7.3")
 
@@ -96,10 +107,13 @@ dependencyResolutionManagement {
          library("jackson-databind", "com.fasterxml.jackson.core:jackson-databind:$jackson")
 
          val testcontainers = "1.19.8"
+         library("testcontainers", "org.testcontainers:testcontainers:$testcontainers")
          library("testcontainers-postgresql", "org.testcontainers:postgresql:$testcontainers")
          library("testcontainers-mysql", "org.testcontainers:mysql:$testcontainers")
          library("testcontainers-localstack", "org.testcontainers:localstack:$testcontainers")
          library("testcontainers-vault", "org.testcontainers:vault:$testcontainers")
+
+         library("kotest-extensions-testcontainers", "io.kotest.extensions:kotest-extensions-testcontainers:2.0.2")
 
          library("azure-identity", "com.azure:azure-identity:1.13.2")
          library("azure-security-keyvault-secrets", "com.azure:azure-security-keyvault-secrets:4.8.5")

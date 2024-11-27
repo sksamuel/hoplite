@@ -1,4 +1,5 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 buildscript {
    repositories {
@@ -18,7 +19,7 @@ plugins {
    id("java-library")
    id("maven-publish")
    id("signing")
-   kotlin("jvm").version("1.6.21")
+   alias(libs.plugins.kotlin.jvm)
 }
 
 allprojects {
@@ -41,19 +42,21 @@ allprojects {
       }
    }
 
-   tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-      kotlinOptions.jvmTarget = "1.8"
-   }
-
-   java {
-      toolchain {
-         languageVersion.set(JavaLanguageVersion.of(11))
-      }
+   kotlin {
+      jvmToolchain(11)
+      compilerOptions.jvmTarget = JvmTarget.JVM_1_8
    }
 
    tasks.compileJava {
-      targetCompatibility = "1.8"
-      sourceCompatibility = "1.8"
+      options.release = 8
+   }
+
+   tasks.compileTestKotlin {
+      compilerOptions.jvmTarget = JvmTarget.JVM_11
+   }
+
+   tasks.compileTestJava {
+      options.release = 11
    }
 
    repositories {

@@ -4,10 +4,11 @@ plugins {
 
 dependencies {
    api(projects.hopliteCore)
+   api(libs.aws.kotlin.secretsmanager)
+   api(libs.aws.kotlin.ssm)
    api(libs.regions)
-   api(libs.secretsmanager)
    implementation(libs.kotlinx.serialization.json)
-   testApi("io.kotest.extensions:kotest-extensions-testcontainers:2.0.2")
+   testApi(libs.kotest.extensions.testcontainers)
    testApi(libs.testcontainers.localstack)
 }
 

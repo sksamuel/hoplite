@@ -1,10 +1,10 @@
 package com.sksamuel.hoplite.toml
 
 import com.sksamuel.hoplite.ConfigLoader
-import io.kotest.matchers.shouldBe
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.shouldBe
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.ExperimentalTime
-import kotlin.time.milliseconds
 
 @OptIn(ExperimentalTime::class)
 class DurationTest : StringSpec() {
