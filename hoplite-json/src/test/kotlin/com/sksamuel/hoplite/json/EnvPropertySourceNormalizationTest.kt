@@ -18,36 +18,11 @@ class EnvPropertySourceNormalizationTest : DescribeSpec({
           addNodeTransformer(PathNormalizer)
           addPropertySource(
             EnvironmentVariablesPropertySource(
-              useUnderscoresAsSeparator = true,
-              useSingleUnderscoresAsSeparator = false,
-              allowUppercaseNames = false,
               environmentVariableMap = {
                 mapOf(
-                  "CREDS__USERNAME" to "a",
-                  "CREDS__PASSWORD" to "c",
+                  "CREDS_USERNAME" to "a",
+                  "CREDS_PASSWORD" to "c",
                   "SOMECAMELSETTING" to "c"
-                )
-              }
-            )
-          )
-        }.loadConfigOrThrow<Config>()
-      } shouldBe Config(Creds("a", "c"), "c")
-    }
-
-    it("with path normalizer and kebab case underscore separator") {
-      run {
-        ConfigLoader {
-          addNodeTransformer(PathNormalizer)
-          addPropertySource(
-            EnvironmentVariablesPropertySource(
-              useUnderscoresAsSeparator = true,
-              useSingleUnderscoresAsSeparator = false,
-              allowUppercaseNames = false,
-              environmentVariableMap = {
-                mapOf(
-                  "CREDS__USERNAME" to "a",
-                  "CREDS__PASSWORD" to "c",
-                  "SOME_CAMEL_SETTING" to "c"
                 )
               }
             )
@@ -62,9 +37,6 @@ class EnvPropertySourceNormalizationTest : DescribeSpec({
           addNodeTransformer(PathNormalizer)
           addPropertySource(
             EnvironmentVariablesPropertySource(
-              useUnderscoresAsSeparator = false,
-              useSingleUnderscoresAsSeparator = true,
-              allowUppercaseNames = true,
               environmentVariableMap = {
                 mapOf(
                   "CREDS_USERNAME" to "a",
@@ -83,9 +55,6 @@ class EnvPropertySourceNormalizationTest : DescribeSpec({
         ConfigLoader {
           addNodeTransformer(PathNormalizer)
           addPropertySource(EnvironmentVariablesPropertySource(
-            useUnderscoresAsSeparator = false,
-            useSingleUnderscoresAsSeparator = true,
-            allowUppercaseNames = false,
             environmentVariableMap = {
               mapOf(
                 "creds_username" to "a",
@@ -104,9 +73,6 @@ class EnvPropertySourceNormalizationTest : DescribeSpec({
           addNodeTransformer(PathNormalizer)
           addPropertySource(
             EnvironmentVariablesPropertySource(
-              useUnderscoresAsSeparator = false,
-              useSingleUnderscoresAsSeparator = true,
-              allowUppercaseNames = false,
               environmentVariableMap = {
                 mapOf(
                   "WIBBLE_CREDS_USERNAME" to "a",

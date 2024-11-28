@@ -1,37 +1,33 @@
 package com.sksamuel.hoplite.json
 
-import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.sources.EnvironmentVariablesPropertySource
-import com.sksamuel.hoplite.transformer.PathNormalizer
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 
 class AmbiguousPropertyNameTest : DescribeSpec({
 
-  data class Ambiguous(val someCamelSetting: String, val somecamelsetting: String)
+  data class Ambiguous(val someCamelSetting: String, val somecamelsetting: String, val SOMECAMELSETTING: String)
 
   describe("loading property differing in case from envs") {
-    it("with path normalizer cannot disambiguate") {
+    it("with path normalizer can disambiguate") {
       run {
-        ConfigLoader {
-          withReport()
-          addPropertySource(
+        ConfigLoaderBuilder.defaultWithoutPropertySources()
+          .withReport()
+          .addPropertySource(
             EnvironmentVariablesPropertySource(
-              useUnderscoresAsSeparator = true,
-              useSingleUnderscoresAsSeparator = false,
-              allowUppercaseNames = false,
               environmentVariableMap = {
                 mapOf(
-                  "someCamelSetting" to "a",
-                  "somecamelsetting" to "b",
                   "SOMECAMELSETTING" to "c",
+                  "somecamelsetting" to "b",
+                  "someCamelSetting" to "a",
                 )
               }
             )
           )
-        }.loadConfigOrThrow<Ambiguous>()
-      } shouldBe Ambiguous("c", "c")
+          .build()
+          .loadConfigOrThrow<Ambiguous>()
+      } shouldBe Ambiguous("a", "b", "c")
     }
 
     it("without path normalizer") {
@@ -45,21 +41,18 @@ class AmbiguousPropertyNameTest : DescribeSpec({
           .withReport()
           .addPropertySource(
             EnvironmentVariablesPropertySource(
-              useUnderscoresAsSeparator = true,
-              useSingleUnderscoresAsSeparator = false,
-              allowUppercaseNames = false,
               environmentVariableMap = {
                 mapOf(
-                  "someCamelSetting" to "a",
-                  "somecamelsetting" to "b",
                   "SOMECAMELSETTING" to "c",
+                  "somecamelsetting" to "b",
+                  "someCamelSetting" to "a",
                 )
               }
             )
           )
         .build()
         .loadConfigOrThrow<Ambiguous>()
-      } shouldBe Ambiguous("a", "b")
+      } shouldBe Ambiguous("a", "b", "c")
     }
   }
 })

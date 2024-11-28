@@ -2,11 +2,9 @@ package com.sksamuel.hoplite
 
 import com.sksamuel.hoplite.sources.EnvironmentVariablesPropertySource
 import com.sksamuel.hoplite.sources.MapPropertySource
-import com.sksamuel.hoplite.transformer.PathNormalizer
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-@OptIn(ExperimentalHoplite::class)
 class CascadingNormalizationTest : FunSpec() {
   init {
     test("Parameter normalization works with cascading") {
@@ -16,14 +14,10 @@ class CascadingNormalizationTest : FunSpec() {
 
       val configInputs = mapOf("section" to mapOf("test" to 1, "sub-section" to mapOf("some-value" to 2)))
 
-      val config = ConfigLoaderBuilder.newBuilder()
-        .addNodeTransformer(PathNormalizer)
+      val config = ConfigLoaderBuilder.defaultWithoutPropertySources()
         .addPropertySource(
           EnvironmentVariablesPropertySource(
-            useUnderscoresAsSeparator = false,
-            allowUppercaseNames = false,
-            useSingleUnderscoresAsSeparator = false,
-            environmentVariableMap = { mapOf("section.subSection.someValue" to "3") }
+            environmentVariableMap = { mapOf("SECTION_SUBSECTION_SOMEVALUE" to "3") }
           )
         )
         .addPropertySource(MapPropertySource(configInputs))

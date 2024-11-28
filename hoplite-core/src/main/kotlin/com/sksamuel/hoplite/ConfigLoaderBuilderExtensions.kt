@@ -121,35 +121,9 @@ fun ConfigLoaderBuilder.addCommandLineSource(
 
 /**
  * Adds a [PropertySource] that will read the environment settings.
- *
- * @param useUnderscoresAsSeparator if true, use double underscore instead of period to separate keys in nested config
- * @param allowUppercaseNames if true, allow uppercase-only names
- * @param useSingleUnderscoresAsSeparator if true, allows single underscores as separators, to conform with
- * idiomatic environment variable names
  */
-fun ConfigLoaderBuilder.addEnvironmentSource(
-  useUnderscoresAsSeparator: Boolean = true,
-  allowUppercaseNames: Boolean = true,
-  useSingleUnderscoresAsSeparator: Boolean = false,
-) = addPropertySource(
-  EnvironmentVariablesPropertySource(useUnderscoresAsSeparator, useSingleUnderscoresAsSeparator, allowUppercaseNames)
-)
-
-/**
- * Adds a [PropertySource] that will read the environment settings.
- *
- * With this source, environment variables are expected to be idiomatic i.e. uppercase, with underscores as
- * separators for path elements. Dashes are removed.
- *
- * Generally a [PathNormalizer] should be added to the [ConfigLoaderBuilder] to normalize paths when this source
- * is used.
- */
-fun ConfigLoaderBuilder.addIdiomaticEnvironmentSource() = addPropertySource(
-  EnvironmentVariablesPropertySource(
-    useUnderscoresAsSeparator = false,
-    useSingleUnderscoresAsSeparator = true,
-    allowUppercaseNames = false
-  )
+fun ConfigLoaderBuilder.addEnvironmentSource() = addPropertySource(
+  EnvironmentVariablesPropertySource()
 )
 
 /**

@@ -15,39 +15,16 @@ class MapDecoderTest : FunSpec({
     config shouldBe Test(linkedHashMap("key1" to "test1", "key2" to "test2", "key-3" to "test3", "Key4" to "test4"))
   }
 
-  test("Map<String, String> decoded from environment with underscores") {
-    run {
-      ConfigLoader {
-        addPropertySource(EnvironmentVariablesPropertySource(
-          useUnderscoresAsSeparator = true,
-          useSingleUnderscoresAsSeparator = false,
-          allowUppercaseNames = true,
-          environmentVariableMap = {
-            mapOf(
-              "map__key1" to "test1",
-              "map__key2" to "test2",
-              "map__key-3" to "test3",
-              "map__Key4" to "test4",
-            )
-          }
-        ))
-      }.loadConfigOrThrow<Test>()
-    } shouldBe Test(linkedHashMap("key1" to "test1", "key2" to "test2", "key-3" to "test3", "Key4" to "test4"))
-  }
-
   test("Map<String, String> decoded from environment") {
     run {
       ConfigLoader {
         addPropertySource(EnvironmentVariablesPropertySource(
-          useUnderscoresAsSeparator = false,
-          useSingleUnderscoresAsSeparator = false,
-          allowUppercaseNames = true,
           environmentVariableMap = {
             mapOf(
-              "map.key1" to "test1",
-              "map.key2" to "test2",
-              "map.key-3" to "test3",
-              "map.Key4" to "test4",
+              "map_key1" to "test1",
+              "map_key2" to "test2",
+              "map_key-3" to "test3",
+              "map_Key4" to "test4",
             )
           }
         ))
