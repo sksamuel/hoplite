@@ -97,6 +97,87 @@ class EnvironmentVariablesPropertySourceTest : FunSpec({
     ))
   }
 
+  test("build env source can create lists") {
+    data class TestConfig(val listProp: List<String>)
+
+    val config = ConfigLoaderBuilder
+      .defaultWithoutPropertySources()
+      .addPropertySource(
+        EnvironmentVariablesPropertySource(
+          environmentVariableMap = {
+            mapOf(
+              "LISTPROP_0" to "value_a",
+              "LISTPROP_1" to "value_A",
+              "LISTPROP_2" to "value_abc",
+            )
+          },
+        )
+      )
+      .build()
+      .loadConfigOrThrow<TestConfig>()
+
+    config shouldBe TestConfig(listOf(
+      "value_a",
+      "value_A",
+      "value_abc",
+    ))
+  }
+
+  test("build env source can create intermediate lists") {
+    data class ListEntry(val foo: String)
+    data class TestConfig(val listProp: List<ListEntry>)
+
+    val config = ConfigLoaderBuilder
+      .defaultWithoutPropertySources()
+      .addPropertySource(
+        EnvironmentVariablesPropertySource(
+          environmentVariableMap = {
+            mapOf(
+              "LISTPROP_0_FOO" to "value_a",
+              "LISTPROP_1_FOO" to "value_A",
+              "LISTPROP_2_FOO" to "value_abc",
+            )
+          },
+        )
+      )
+      .build()
+      .loadConfigOrThrow<TestConfig>()
+
+    config shouldBe TestConfig(listOf(
+      ListEntry("value_a"),
+      ListEntry("value_A"),
+      ListEntry("value_abc"),
+    ))
+  }
+
+
+  test("build env source can skip missing list indices") {
+    // this is handy to easily comment out env vars without breaking the functionality
+
+    data class ListEntry(val foo: String)
+    data class TestConfig(val listProp: List<ListEntry>)
+
+    val config = ConfigLoaderBuilder
+      .defaultWithoutPropertySources()
+      .addPropertySource(
+        EnvironmentVariablesPropertySource(
+          environmentVariableMap = {
+            mapOf(
+              "LISTPROP_0_FOO" to "value_a",
+              "LISTPROP_2_FOO" to "value_abc",
+            )
+          },
+        )
+      )
+      .build()
+      .loadConfigOrThrow<TestConfig>()
+
+    config shouldBe TestConfig(listOf(
+      ListEntry("value_a"),
+      ListEntry("value_abc"),
+    ))
+  }
+
   test("env var source should respect config aliases that need to be normalized to match") {
     data class TestConfig(@ConfigAlias("fooBar") val bazBar: String)
 

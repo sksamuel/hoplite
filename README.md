@@ -197,6 +197,8 @@ Hoplite maps env vars as follows:
 
 * Underscores are separators for nested config. For example `TOPIC_NAME` would override a property `name` located in a `topic` parent.
 
+* To bind env vars to arrays or lists, postfix with an index e.g. set env vars `TOPIC_NAME_0` and `TOPIC_NAME_1` to set two values for the `name` list property. Missing indices are ignored, which is useful for commenting out values without renumbering subsequent ones.
+
 * To bind env vars to maps, the key is part of the nested config e.g. `TOPIC_NAME_FOO` and `TOPIC_NAME_BAR` would set the "foo" and "bar"
 keys for the `name` map property. Note that keys are one exception to the idiomatic uppercase rule -- the env var name determines the
 case of the map key.

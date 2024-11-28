@@ -1,11 +1,14 @@
 package com.sksamuel.hoplite.sources
 
+import com.sksamuel.hoplite.ArrayNode
 import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PropertySource
 import com.sksamuel.hoplite.PropertySourceContext
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.parsers.toNode
+import com.sksamuel.hoplite.transform
 
 class EnvironmentVariablesPropertySource(
   private val environmentVariableMap: () -> Map<String, String> = { System.getenv() },
@@ -23,6 +26,13 @@ class EnvironmentVariablesPropertySource(
       .filterKeys { if (prefix == null) true else it.startsWith(prefix) }
       .mapKeys { if (prefix == null) it.key else it.key.removePrefix(prefix) }
 
-    return map.toNode("env", DELIMITER).valid()
+    return map.toNode("env", DELIMITER).transform { node ->
+      if (node is MapNode && node.map.keys.all { it.toIntOrNull() != null }) {
+        // all they map keys are ints, so lets transform the MapNode into an ArrayNode
+        ArrayNode(node.map.values.toList(), node.pos, node.path, node.meta, node.delimiter, node.sourceKey)
+      } else {
+        node
+      }
+    }.valid()
   }
 }
