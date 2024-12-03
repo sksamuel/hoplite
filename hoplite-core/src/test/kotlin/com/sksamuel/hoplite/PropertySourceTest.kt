@@ -90,10 +90,9 @@ class PropertySourceTest : FunSpec() {
           "--other=Value2"
         )
 
-        val config = ConfigLoaderBuilder.default()
+        val config = ConfigLoaderBuilder.defaultWithoutPropertySources()
           .addPropertySource(PropertySource.commandLine(arguments))
           .addDefaultPropertySources()
-          .addEnvironmentSource()
           .build()
           .loadConfigOrThrow<TestConfig>()
 
@@ -114,7 +113,6 @@ class PropertySourceTest : FunSpec() {
         )
 
         val config = ConfigLoaderBuilder.default()
-          .addEnvironmentSource()
           .addDefaultPropertySources()
           .addPropertySource(PropertySource.commandLine(arguments))
           .build()

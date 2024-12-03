@@ -1,6 +1,6 @@
 package com.sksamuel.hoplite.yaml
 
-import com.sksamuel.hoplite.ConfigLoader
+import com.sksamuel.hoplite.ConfigLoaderBuilder
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
@@ -20,9 +20,10 @@ class LookupPreprocessorTest : FunSpec() {
   )
 
   init {
+    val basicConfigLoader = ConfigLoaderBuilder.defaultWithoutPropertySources().build()
 
     test("lookup preprocessor") {
-      ConfigLoader().loadConfigOrThrow<Test>("/test_lookup.yml") shouldBe
+      basicConfigLoader.loadConfigOrThrow<Test>("/test_lookup.yml") shouldBe
         Test(
           a = "foo",
           b = "bfoo",
@@ -33,7 +34,7 @@ class LookupPreprocessorTest : FunSpec() {
     }
 
     test("lookup preprocessor with react syntax") {
-      ConfigLoader().loadConfigOrThrow<Test>("/test_lookup_react.yml") shouldBe
+      basicConfigLoader.loadConfigOrThrow<Test>("/test_lookup_react.yml") shouldBe
         Test(
           a = "foo",
           b = "bfoo",
@@ -44,7 +45,7 @@ class LookupPreprocessorTest : FunSpec() {
     }
 
     test("lookup preprocessor across multiple files") {
-      ConfigLoader().loadConfigOrThrow<Test2>("/test_lookup1.yml", "/test_lookup2.yml") shouldBe
+      basicConfigLoader.loadConfigOrThrow<Test2>("/test_lookup1.yml", "/test_lookup2.yml") shouldBe
         Test2(
           env = "PROD",
           hostname = "wibble.PROD"

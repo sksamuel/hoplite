@@ -112,7 +112,6 @@ class PrefixTest : FunSpec() {
         val config = ConfigLoaderBuilder.default()
           .addPropertySource(PropertySource.commandLine(arguments))
           .addDefaultPropertySources()
-          .addEnvironmentSource()
           .build()
           .loadConfigOrThrow<TestConfig>(prefix = "foo")
 
@@ -123,7 +122,7 @@ class PrefixTest : FunSpec() {
     test("reads from default source before specified at a given prefix") {
       data class TestConfig(val a: String, val b: Int, val other: List<String>)
 
-      withEnvironment(mapOf("foo__b" to "91", "foo__other" to "Random13")) {
+      withEnvironment(mapOf("FOO_B" to "91", "FOO_OTHER" to "Random13")) {
         val arguments = arrayOf(
           "--foo.a=A value",
           "--foo.b=42",
@@ -138,8 +137,7 @@ class PrefixTest : FunSpec() {
           "--other=Value2o"
         )
 
-        val config = ConfigLoaderBuilder.default()
-          .addEnvironmentSource()
+        val config = ConfigLoaderBuilder.defaultWithoutPropertySources()
           .addDefaultPropertySources()
           .addPropertySource(PropertySource.commandLine(arguments))
           .build()

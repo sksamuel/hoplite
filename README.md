@@ -181,33 +181,34 @@ The `PropertySource` interface is how Hoplite reads configuration values.
 
 Hoplite supports several built in property source implementations, and you can write your own if required.
 
-The `EnvironmentVariableOverridePropertySource`, `SystemPropertiesPropertySource` and `UserSettingsPropertySource` sources are automatically registered,
-with precedence in that order. Other property sources can be passed to the config loader builder as required.
+The `EnvironmentVariablesPropertySource`, `SystemPropertiesPropertySource`, `UserSettingsPropertySource`, and `XdgConfigPropertySource`
+sources are automatically registered, with precedence in that order. Other property sources can be passed to the config loader builder
+as required.
 
 
 
 ### EnvironmentVariablesPropertySource
 
-The `EnvironmentVariablesPropertySource` reads config from environment variables. It does not map cases. So, `HOSTNAME` does *not* provide a value for a field with the name `hostname`.
+The `EnvironmentVariablesPropertySource` reads config from environment variables.
+This property source maps environment variable names to config properties via idiomatic conventions for environment variables.
+Env vars are idiomatically UPPERCASE and [contain only](https://pubs.opengroup.org/onlinepubs/000095399/basedefs/xbd_chap08.html) letters (`A` to `Z`), digits (`0` to `9`), and the underscore (`_`) character.
 
-For nested config, use a period to separate keys, for example `topic.name` would override `name` located in a `topic` parent.
-Alternatively, in some environments a `.` is not supported in ENV names, so you can also use double underscore `__`. Eg `topic__name` would be translated to `topic.name`.
+Hoplite maps env vars as follows:
 
-Optionally you can also create a `EnvironmentVariablesPropertySource` with `allowUppercaseNames` set to `true` to allow for uppercase-only names.
+* Underscores are separators for nested config. For example `TOPIC_NAME` would override a property `name` located in a `topic` parent.
 
+* To bind env vars to arrays or lists, postfix with an index e.g. set env vars `TOPIC_NAME_0` and `TOPIC_NAME_1` to set two values for the `name` list property. Missing indices are ignored, which is useful for commenting out values without renumbering subsequent ones.
 
+* To bind env vars to maps, the key is part of the nested config e.g. `TOPIC_NAME_FOO` and `TOPIC_NAME_BAR` would set the "foo" and "bar"
+keys for the `name` map property. Note that keys are one exception to the idiomatic uppercase rule -- the env var name determines the
+case of the map key.
 
-### EnvironmentVariableOverridePropertySource
+If the optional (not specified by default) `prefix` setting is provided, then only env vars that begin with the prefix are considered,
+and the prefix is stripped from the env var before processing.
 
-The `EnvironmentVariableOverridePropertySource` reads config from environment variables like the `EnvironmentVariablesPropertySource`.
-However, unlike that latter source, it is registered by default _and_ only looks for env vars
-with a special `config.override.` prefix. This prefix is stripped from the variable before being applied. This can be useful to apply changes
-at runtime without requiring a build.
-
-For example, given a config key of `database.host`, if an env variable exists with the key `config.override.database.host`, then the
-value in the env var would override.
-
-In some environments a . is not supported in ENV names, so you can also use double underscore __. Eg `topic__name` would be translated to `topic.name`.
+As of Hoplite 3, the `EnvironmentVariablesPropertySource` is applied by default and may be used to override other config properties
+directly. There is no longer any built-in support for the `config.override.` prefix. However, the optional `prefix` setting can still
+be used for the same purpose.
 
 
 ### SystemPropertiesPropertySource

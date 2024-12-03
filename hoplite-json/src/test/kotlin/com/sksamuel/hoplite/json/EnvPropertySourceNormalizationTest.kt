@@ -2,18 +2,20 @@ package com.sksamuel.hoplite.json
 
 import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.sources.EnvironmentVariablesPropertySource
+import com.sksamuel.hoplite.transformer.PathNormalizer
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 
-class EnvPropertySourceUppercaseTest : DescribeSpec({
+class EnvPropertySourceNormalizationTest : DescribeSpec({
 
   data class Creds(val username: String, val password: String)
   data class Config(val creds: Creds, val someCamelSetting: String)
 
   describe("loading from envs") {
-    it("with default options") {
+    it("with path normalizer") {
       run {
         ConfigLoader {
+          addNodeTransformer(PathNormalizer)
           addPropertySource(
             EnvironmentVariablesPropertySource(
               environmentVariableMap = {
@@ -29,9 +31,10 @@ class EnvPropertySourceUppercaseTest : DescribeSpec({
       } shouldBe Config(Creds("a", "c"), "c")
     }
 
-    it("with underscore separator") {
+    it("with path normalizer and underscore separator") {
       run {
         ConfigLoader {
+          addNodeTransformer(PathNormalizer)
           addPropertySource(
             EnvironmentVariablesPropertySource(
               environmentVariableMap = {
@@ -47,15 +50,16 @@ class EnvPropertySourceUppercaseTest : DescribeSpec({
       } shouldBe Config(Creds("a", "b"), "c")
     }
 
-    it("with lowercase names") {
+    it("with path normalizer and lowercase names") {
       run {
         ConfigLoader {
+          addNodeTransformer(PathNormalizer)
           addPropertySource(EnvironmentVariablesPropertySource(
             environmentVariableMap = {
               mapOf(
                 "creds_username" to "a",
                 "creds_password" to "d",
-                "someCamelSetting" to "e"
+                "somecamelsetting" to "e"
               )
             }
           ))
@@ -63,14 +67,14 @@ class EnvPropertySourceUppercaseTest : DescribeSpec({
       } shouldBe Config(Creds("a", "d"), "e")
     }
 
-    it("with prefix") {
+    it("with path normalizer and prefix") {
       run {
         ConfigLoader {
+          addNodeTransformer(PathNormalizer)
           addPropertySource(
             EnvironmentVariablesPropertySource(
               environmentVariableMap = {
                 mapOf(
-                  "OTHER_CREDS_USERNAME" to "z",
                   "WIBBLE_CREDS_USERNAME" to "a",
                   "WIBBLE_CREDS_PASSWORD" to "c",
                   "WIBBLE_SOMECAMELSETTING" to "c"

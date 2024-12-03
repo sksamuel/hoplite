@@ -10,27 +10,32 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 class WithoutDefaultsRegistryTest : FunSpec() {
   init {
     test("default registry throws no error") {
-      val loader = ConfigLoader {
-        addMapSource(mapOf("custom_value" to "\${PATH}", "PATH" to "\${PATH}"))
-      }
+      val loader = ConfigLoaderBuilder
+        .defaultWithoutPropertySources()
+        .addMapSource(mapOf("custom_value" to "\${PATH}", "PATH" to "\${PATH}"))
+        .build()
+
       val e = loader.loadConfig<Config>()
       e.shouldBeInstanceOf<Validated.Valid<Config>>()
       e.value.customValue shouldNotBe "\${path}"
     }
 
     test("empty sources registry throws error") {
-      val loader = ConfigLoader {
-        addMapSource(mapOf("custom_value" to "\${PATH}"))
-      }
+      val loader = ConfigLoaderBuilder
+        .defaultWithoutPropertySources()
+        .addMapSource(mapOf("custom_value" to "\${PATH}"))
+        .build()
+
       val e = loader.loadConfig<Config>()
       e as Validated.Invalid<ConfigFailure>
       e.error shouldBe instanceOf(ConfigFailure.DataClassFieldErrors::class)
     }
 
     test("empty param mappers registry throws error") {
-      val loader = ConfigLoader {
-        addMapSource(mapOf("custom_value" to "\${PATH}"))
-      }
+      val loader = ConfigLoaderBuilder
+        .defaultWithoutPropertySources()
+        .addMapSource(mapOf("custom_value" to "\${PATH}"))
+        .build()
 
       val e = loader.loadConfig<Config>()
       e as Validated.Invalid<ConfigFailure>
