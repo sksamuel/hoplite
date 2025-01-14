@@ -42,7 +42,7 @@ class PropertySourceTest : FunSpec() {
     }
 
     test("reads config from map") {
-      data class TestConfig(val a: String, val b: Int, val other: List<String>, val nested: Map<String,String>)
+      data class TestConfig(val a: String, val b: Int, val other: List<String>, val nested: Map<String, String>)
 
       val arguments = mapOf(
         "a" to "A value",
