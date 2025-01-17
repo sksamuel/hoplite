@@ -1,18 +1,19 @@
 package com.sksamuel.hoplite.decoder
 
-import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
+import com.sksamuel.hoplite.denormalize
+import com.sksamuel.hoplite.fp.flatMap
+import com.sksamuel.hoplite.fp.invalid
+import com.sksamuel.hoplite.fp.sequence
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
-import com.sksamuel.hoplite.fp.flatMap
-import com.sksamuel.hoplite.fp.sequence
-import kotlin.reflect.KType
 import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.starProjectedType
 import kotlin.reflect.full.withNullability
+import kotlin.reflect.KType
 
 class LinkedHashMapDecoder : NullHandlingDecoder<LinkedHashMap<*, *>> {
 
@@ -33,7 +34,7 @@ class LinkedHashMapDecoder : NullHandlingDecoder<LinkedHashMap<*, *>> {
                       vdecoder: Decoder<V>,
                       context: DecoderContext): ConfigResult<LinkedHashMap<K, V>> {
 
-      return node.map.entries.map { (k, v) ->
+      return node.denormalize().map.entries.map { (k, v) ->
         kdecoder.decode(StringNode(k, node.pos, node.path, emptyMap()), kType, context).flatMap { kk ->
           vdecoder.decode(v, vType, context).map { vv ->
             kk to vv
