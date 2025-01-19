@@ -1,5 +1,6 @@
 package com.sksamuel.hoplite.yaml
 
+import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.addCommandLineSource
 import com.sksamuel.hoplite.addEnvironmentSource
@@ -77,13 +78,11 @@ class DenormalizedMapKeysTest : FunSpec({
   test("should set denormalized map keys from environment variables") {
     withEnvironment(
       mapOf(
-        "m__DC1__x-val" to "15",
-        "m__DC2__x-val" to "25"
+        "m_DC1_x-val" to "15",
+        "m_DC2_x-val" to "25"
       )
     ) {
-      val config = ConfigLoaderBuilder.default()
-        .addEnvironmentSource()
-        .build()
+      val config = ConfigLoader()
         .loadConfigOrThrow<MapContainer>()
 
       config shouldBe MapContainer(
@@ -98,15 +97,12 @@ class DenormalizedMapKeysTest : FunSpec({
   test("should set denormalized map keys from environment variables, overriding a property source") {
     withEnvironment(
       mapOf(
-        "m__DC1__x-val" to "15",
-        "m__DC2__x-val" to "25"
+        "m_DC1_x-val" to "15",
+        "m_DC2_x-val" to "25"
       )
     ) {
-      val config = ConfigLoaderBuilder.default()
-        .addEnvironmentSource()
-        .addResourceOrFileSource("/test_data_class_in_map.yaml")
-        .build()
-        .loadConfigOrThrow<MapContainer>()
+      val config = ConfigLoader()
+        .loadConfigOrThrow<MapContainer>("/test_data_class_in_map.yaml")
 
       config shouldBe MapContainer(
         m = mapOf(
@@ -120,11 +116,11 @@ class DenormalizedMapKeysTest : FunSpec({
   test("should set denormalized map keys from command line arguments, overriding environment variables and property sources") {
     withEnvironment(
       mapOf(
-        "m__DC1__x-val" to "15",
-        "m__DC2__x-val" to "25"
+        "m_DC1_x-val" to "15",
+        "m_DC2_x-val" to "25"
       )
     ) {
-      val config = ConfigLoaderBuilder.default()
+      val config = ConfigLoaderBuilder.defaultWithoutPropertySources()
         .addCommandLineSource(
           arrayOf(
             "--m.DC1.x-val=20",

@@ -36,7 +36,10 @@ object PathNormalizer : NodeTransformer {
       )
       when (normalizedPathNode){
         is MapNode -> normalizedPathNode.copy(map = normalizedPathNode.map.mapKeys { (key, _) ->
-          normalizePathElementExceptDiscriminator(key, sealedTypeDiscriminatorField)
+          val normalizedKey = normalizePathElementExceptDiscriminator(key, sealedTypeDiscriminatorField)
+          // if normalization would cause overwriting an existing key, then don't normalize it
+          // this can be relevant for writing config into Maps
+          if (normalizedPathNode.map.containsKey(normalizedKey)) key else normalizedKey
         })
         else -> normalizedPathNode
       }

@@ -1,5 +1,14 @@
 # Changelog
 
+### 3.0.0
+
+* Breaking: the `EnvironmentVariablesPropertySource` now uses idiomatic environment variable format i.e. upper case (though lower
+case is still accepted), letters, and digits. **Single underscores** now separate path hierarchies.
+* Breaking: The `EnvironmentVariableOverridePropertySource` has been removed. The standard `EnvironmentVariablesPropertySource` is now
+loaded by default, and takes precedence over other default sources just like the `EnvironmentVariableOverridePropertySource`
+did. To maintain similar behavior, configure it with a filtering `prefix`.
+* Add the ability to load a series of environment variables into arrays/lists via the `_n` syntax.
+
 ### 2.7.5
 
 * Use daemon threads in `FileWatcher` to enable clean shutdown.

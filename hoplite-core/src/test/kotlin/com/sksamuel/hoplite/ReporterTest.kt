@@ -57,16 +57,14 @@ Used keys: 4
     val xdg = "\$XDG_CONFIG_HOME"
     Reporter.default().report(
       ConfigLoaderBuilder.default()
-        .addEnvironmentSource()
         .build()
         .propertySources
     ).trim() shouldBe """
 Property sources (highest to lowest priority):
-  - Env Var Overrides
+  - Env Var
   - System Properties
   - ${System.getProperty("user.home")}/.userconfig.<ext>
   - $xdg/hoplite.<ext>
-  - Env Var
 """.trimIndent().trim()
 
   }
@@ -116,7 +114,7 @@ Used keys: 4
     data class Config(val name: String, val host: String, val port: Int)
 
     val out = captureStandardOut {
-      ConfigLoaderBuilder.default()
+      ConfigLoaderBuilder.defaultWithoutPropertySources()
         .addPropertySource(
           PropertySource.string(
             """
