@@ -42,7 +42,7 @@ class PropertySourceTest : FunSpec() {
     }
 
     test("reads config from map") {
-      data class TestConfig(val a: String, val b: Int, val other: List<String>, val nested: Map<String,String>)
+      data class TestConfig(val a: String, val b: Int, val other: List<String>, val nested: Map<String, String>)
 
       val arguments = mapOf(
         "a" to "A value",
@@ -61,14 +61,16 @@ class PropertySourceTest : FunSpec() {
     }
 
     test("reads config from command line") {
-      data class TestConfig(val a: String, val b: Int, val other: List<String>)
+      data class TestConfig(val a: String, val b: Int, val other: List<String>, val nested: Map<String, String>)
 
       val arguments = arrayOf(
         "--a=A value",
         "--b=42",
         "some other value",
         "--other=Value1",
-        "--other=Value2"
+        "--other=Value2",
+        "--nested.foo=bar",
+        "--nested.john=doe"
       )
 
       val config = ConfigLoaderBuilder.default()
@@ -76,7 +78,7 @@ class PropertySourceTest : FunSpec() {
         .build()
         .loadConfigOrThrow<TestConfig>()
 
-      config shouldBe TestConfig("A value", 42, listOf("Value1", "Value2"))
+      config shouldBe TestConfig("A value", 42, listOf("Value1", "Value2"), mapOf("foo" to "bar", "john" to "doe"))
     }
 
     test("reads from added source before default sources") {
