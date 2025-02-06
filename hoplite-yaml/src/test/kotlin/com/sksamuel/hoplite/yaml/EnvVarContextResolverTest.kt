@@ -1,6 +1,5 @@
 package com.sksamuel.hoplite.yaml
 
-import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.ExperimentalHoplite
 import io.kotest.assertions.throwables.shouldThrowAny
