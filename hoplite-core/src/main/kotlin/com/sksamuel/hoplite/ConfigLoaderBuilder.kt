@@ -27,7 +27,7 @@ import com.sksamuel.hoplite.secrets.AllStringNodesSecretsPolicy
 import com.sksamuel.hoplite.secrets.Obfuscator
 import com.sksamuel.hoplite.secrets.PrefixObfuscator
 import com.sksamuel.hoplite.secrets.SecretsPolicy
-import com.sksamuel.hoplite.sources.EnvironmentVariableOverridePropertySource
+import com.sksamuel.hoplite.sources.EnvironmentVariablesPropertySource
 import com.sksamuel.hoplite.sources.SystemPropertiesPropertySource
 import com.sksamuel.hoplite.sources.UserSettingsPropertySource
 import com.sksamuel.hoplite.sources.XdgConfigPropertySource
@@ -80,13 +80,27 @@ class ConfigLoaderBuilder private constructor() {
      * use [empty] to obtain an empty ConfigLoaderBuilder and call the various addDefault methods manually.
      */
     fun default(): ConfigLoaderBuilder {
+      return defaultWithoutPropertySources()
+        .addDefaultPropertySources()
+    }
+
+    /**
+     * Returns a [ConfigLoaderBuilder] with all defaults applied, except for [PropertySource]s.
+     *
+     * This means that the default [Decoder]s, [Preprocessor]s, [NodeTransformer]s, [ParameterMapper]s,
+     * and [Parser]s are all registered.
+     *
+     * If you wish to avoid adding defaults, for example to avoid certain decoders or sources, then
+     * use [empty] to obtain an empty ConfigLoaderBuilder and call the various addDefault methods manually.
+     */
+    fun defaultWithoutPropertySources(configure: ConfigLoaderBuilder.() -> Unit = { }): ConfigLoaderBuilder {
       return empty()
         .addDefaultDecoders()
         .addDefaultPreprocessors()
         .addDefaultNodeTransformers()
         .addDefaultParamMappers()
-        .addDefaultPropertySources()
         .addDefaultParsers()
+        .apply(configure)
     }
 
     /**
@@ -103,12 +117,29 @@ class ConfigLoaderBuilder private constructor() {
      */
     @ExperimentalHoplite
     fun newBuilder(): ConfigLoaderBuilder {
+      return newBuilderWithoutPropertySources().addDefaultPropertySources()
+    }
+
+    /**
+     * Returns a [ConfigLoaderBuilder] with all defaults applied, using resolvers in place of preprocessors,
+     * but without any [PropertySource]s.
+     *
+     * This means that the default [Decoder]s, [Resolver]s, [NodeTransformer]s, [ParameterMapper]s,
+     * and [Parser]s are all registered.
+     *
+     * If you wish to avoid adding defaults, for example to avoid certain decoders or sources, then
+     * use [empty] to obtain an empty ConfigLoaderBuilder and call the various addDefault methods manually.
+     *
+     * Note: This new builder is experimental and may require breaking changes to your config files.
+     * This builder will become the default in 3.0
+     */
+    @ExperimentalHoplite
+    fun newBuilderWithoutPropertySources(): ConfigLoaderBuilder {
       return empty()
         .addDefaultDecoders()
         .addDefaultResolvers()
         .addDefaultNodeTransformers()
         .addDefaultParamMappers()
-        .addDefaultPropertySources()
         .addDefaultParsers()
     }
 
@@ -412,7 +443,13 @@ class ConfigLoaderBuilder private constructor() {
 }
 
 fun defaultPropertySources(): List<PropertySource> = listOfNotNull(
-  EnvironmentVariableOverridePropertySource(true),
+  EnvironmentVariablesPropertySource(),
+  SystemPropertiesPropertySource,
+  UserSettingsPropertySource,
+  XdgConfigPropertySource,
+)
+
+fun emptyByDefaultPropertySources(): List<PropertySource> = listOfNotNull(
   SystemPropertiesPropertySource,
   UserSettingsPropertySource,
   XdgConfigPropertySource,

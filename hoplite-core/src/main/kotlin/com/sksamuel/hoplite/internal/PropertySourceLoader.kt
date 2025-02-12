@@ -32,7 +32,9 @@ class PropertySourceLoader(
     configSources: List<ConfigSource>,
     resourceOrFiles: List<String>
   ): ConfigResult<NonEmptyList<Node>> {
-    require(propertySources.isNotEmpty() || configSources.isNotEmpty() || resourceOrFiles.isNotEmpty())
+    require(propertySources.isNotEmpty() || configSources.isNotEmpty() || resourceOrFiles.isNotEmpty()) {
+      "There must be at least one property source, config source, or resource/file defined"
+    }
 
     return ConfigSource
       .fromResourcesOrFiles(resourceOrFiles.toList(), classpathResourceLoader)

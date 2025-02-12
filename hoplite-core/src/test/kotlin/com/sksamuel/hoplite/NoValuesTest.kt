@@ -6,14 +6,18 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 
 class NoValuesTest : FunSpec({
+  val emptyConfigLoader = ConfigLoaderBuilder
+    .defaultWithoutPropertySources()
+    .addPropertySources(emptyByDefaultPropertySources())
+    .build()
 
   test("ConfigLoader should return NoValues if all sources returned Undefined") {
-    ConfigLoader().loadNode().getInvalidUnsafe() shouldBe ConfigFailure.UndefinedTree
+    emptyConfigLoader.loadNode().getInvalidUnsafe() shouldBe ConfigFailure.UndefinedTree
   }
 
   test("ConfigLoader should return meaningful error if no sources return a value") {
     shouldThrowAny {
-      ConfigLoader().loadNodeOrThrow()
+      emptyConfigLoader.loadNodeOrThrow()
     }.message shouldContain "The applied config was empty"
   }
 

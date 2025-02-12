@@ -22,7 +22,7 @@ class HostnameValidatorTest : FunSpec({
     val props = Properties()
     props["hostname"] = postgreSQLContainer.host
 
-    val config = ConfigLoaderBuilder.newBuilder()
+    val config = ConfigLoaderBuilder.newBuilderWithoutPropertySources()
       .addPropertySource(PropsPropertySource(props))
       .addResolver(HostnameValidator())
       .build()
@@ -37,7 +37,7 @@ class HostnameValidatorTest : FunSpec({
     props["hostname"] = "invalidhostname"
 
     shouldThrowAny {
-      ConfigLoaderBuilder.newBuilder()
+      ConfigLoaderBuilder.newBuilderWithoutPropertySources()
         .addPropertySource(PropsPropertySource(props))
         .addResolver(HostnameValidator())
         .build()
