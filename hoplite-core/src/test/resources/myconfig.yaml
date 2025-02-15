@@ -1,0 +1,2 @@
+a: im a config
+b: ${secretB}
