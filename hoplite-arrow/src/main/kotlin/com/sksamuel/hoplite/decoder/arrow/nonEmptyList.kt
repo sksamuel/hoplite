@@ -1,6 +1,8 @@
 package com.sksamuel.hoplite.decoder.arrow
 
 import arrow.core.NonEmptyList
+import arrow.core.toNonEmptyListOrNone
+import arrow.core.toNonEmptyListOrNull
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.ConfigFailure
@@ -34,14 +36,14 @@ class NonEmptyListDecoder : NullHandlingDecoder<NonEmptyList<*>> {
       return node.value.split(",").map { it.trim() }
         .map { decoder.decode(StringNode(it, node.pos, node.path, emptyMap()), type, context) }.sequence()
         .mapInvalid { ConfigFailure.CollectionElementErrors(node, it) }
-        .map { NonEmptyList.fromListUnsafe(it) }
+        .map { it.toNonEmptyListOrNull() ?: throw IndexOutOfBoundsException("Empty list doesn't contain element at index 0.") }
     }
 
     fun <T> decode(node: ArrayNode, decoder: Decoder<T>): ConfigResult<NonEmptyList<T>> {
       return node.elements.map { decoder.decode(it, type, context) }.sequence()
         .mapInvalid { ConfigFailure.CollectionElementErrors(node, it) }
         .flatMap { ts ->
-          NonEmptyList.fromList(ts).fold(
+          ts.toNonEmptyListOrNone().fold(
             { ConfigFailure.DecodeError(node, type).invalid() },
             { it.valid() }
           )
