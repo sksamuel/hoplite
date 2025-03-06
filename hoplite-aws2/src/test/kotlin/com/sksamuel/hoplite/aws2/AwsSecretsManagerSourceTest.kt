@@ -43,14 +43,17 @@ class AwsSecretsManagerSourceTest : FunSpec() {
         .addMapSource(AwsSecretsManagerSource(json = json) { client }.fetchSecretAsMap("unquoted"))
         .addPropertySource(PropsPropertySource(props))
         .build()
-        .loadConfigOrThrow<PortHolder>()
-        .key1.shouldBe(222)
+        .loadConfigOrThrow<PortHolder>().apply {
+          key1.shouldBe(222)
+          key2.shouldBe("override2")
+        }
+
     }
 
     test("should support secret with quoted number for default") {
       client.createSecret {
         it.name("quoted")
-        it.secretString("""{"key1": "222", "key2": "override1"}""")
+        it.secretString("""{"key1": "222", "key2": "override2"}""")
       }
       val props = Properties()
       props["key2"] = "original2"
@@ -58,8 +61,10 @@ class AwsSecretsManagerSourceTest : FunSpec() {
         .addMapSource(AwsSecretsManagerSource { client }.fetchSecretAsMap("quoted"))
         .addPropertySource(PropsPropertySource(props))
         .build()
-        .loadConfigOrThrow<PortHolder>()
-        .key1.shouldBe(222)
+        .loadConfigOrThrow<PortHolder>().apply {
+          key1.shouldBe(222)
+          key2.shouldBe("override2")
+        }
     }
   }
 
