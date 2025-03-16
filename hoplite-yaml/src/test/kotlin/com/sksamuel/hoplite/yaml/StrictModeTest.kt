@@ -9,6 +9,7 @@ import io.kotest.matchers.string.shouldNotContain
 
 class StrictModeTest : FunSpec() {
   init {
+    val basicStrictConfigLoaderBuilder = ConfigLoaderBuilder.defaultWithoutPropertySources().strict()
 
     test("strict mode should error when unused config remains") {
 
@@ -18,10 +19,7 @@ class StrictModeTest : FunSpec() {
       )
 
       shouldThrowAny {
-        ConfigLoaderBuilder
-          .default()
-          .strict()
-          .build()
+        basicStrictConfigLoaderBuilder.build()
           .loadConfigOrThrow<Foo>("/snake_case.yml")
       }.message
         .shouldContain("Config value 'dripDrop' at (classpath:/snake_case.yml:0:10) was unused")
@@ -37,10 +35,7 @@ class StrictModeTest : FunSpec() {
         val wibbleWobble: Double
       )
 
-      ConfigLoaderBuilder
-        .default()
-        .strict()
-        .build()
+      basicStrictConfigLoaderBuilder.build()
         .loadConfigOrThrow<Foo>("/snake_case.yml")
     }
 
@@ -56,10 +51,7 @@ class StrictModeTest : FunSpec() {
       )
 
       shouldThrowAny {
-        ConfigLoaderBuilder
-          .default()
-          .strict()
-          .build()
+        basicStrictConfigLoaderBuilder.build()
           .loadConfigOrThrow<Foo>("/linked_hash_map.yml")
       }.message
         .shouldContain("Config value 'a.z' at (classpath:/linked_hash_map.yml:2:5) was unused")
@@ -72,7 +64,7 @@ class StrictModeTest : FunSpec() {
     test("strict mode should take into account param mappers") {
       data class Foo(val bubbleBobble: String)
       ConfigLoaderBuilder
-        .default()
+        .defaultWithoutPropertySources()
         .strict()
         .addSource(YamlPropertySource("bubble_bobble: xyz"))
         .addSource(YamlPropertySource("bubbleBobble: xyz"))
@@ -89,10 +81,7 @@ class StrictModeTest : FunSpec() {
         val counting: Map<String, NumberDescription>
       )
 
-      ConfigLoaderBuilder
-        .default()
-        .strict()
-        .build()
+      basicStrictConfigLoaderBuilder.build()
         .loadConfigOrThrow<NumberMapContainer>("/numbers_map.yml")
     }
   }
