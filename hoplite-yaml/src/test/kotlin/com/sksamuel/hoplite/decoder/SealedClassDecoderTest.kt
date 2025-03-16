@@ -2,8 +2,6 @@ package com.sksamuel.hoplite.decoder
 
 import com.sksamuel.hoplite.ConfigException
 import com.sksamuel.hoplite.ConfigLoader
-import com.sksamuel.hoplite.ConfigLoaderBuilder
-import com.sksamuel.hoplite.addEnvironmentSource
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.system.withEnvironment
@@ -82,13 +80,11 @@ class SealedClassDecoderTest : FunSpec({
       "        - 'poolingStrategy': Could not find appropriate subclass of class com.sksamuel.hoplite.decoder.PoolingStrategy: Tried com.sksamuel.hoplite.decoder.PoolingStrategy\$ABI, com.sksamuel.hoplite.decoder.PoolingStrategy\$Combo, com.sksamuel.hoplite.decoder.PoolingStrategy\$Omni, com.sksamuel.hoplite.decoder.PoolingStrategy\$OsVersion (classpath:/sealed_class_with_object_invalid_value.yaml:0:17)"
   }
 
-  test("env source should support case insenstivity when overriding sealed class") {
+  test("env source should support case insensitivity when overriding sealed class") {
     data class TestConfig(val database: Database)
 
-    withEnvironment("DATABASE__PORT", "9345") {
-      val config = ConfigLoaderBuilder.default()
-        .addEnvironmentSource()
-        .build()
+    withEnvironment("DATABASE_PORT", "9345") {
+      val config = ConfigLoader()
         .loadConfigOrThrow<TestConfig>("/sealed_class.yml")
       config shouldBe TestConfig(database = Database.Elasticsearch("localhost", 9345, "foo"))
     }

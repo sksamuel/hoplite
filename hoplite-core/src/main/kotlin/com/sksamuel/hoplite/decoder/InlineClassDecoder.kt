@@ -8,7 +8,11 @@ import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.fp.flatMap
+import java.lang.IllegalArgumentException
+import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
+import kotlin.reflect.KParameter
 import kotlin.reflect.KType
 import kotlin.reflect.full.primaryConstructor
 
@@ -36,8 +40,22 @@ class InlineClassDecoder : NullHandlingDecoder<Any> {
         context.decoder(param)
           .flatMap { it.decode(node, param.type, context) }
           .mapInvalid { ConfigFailure.IncompatibleInlineType(param.type, node) }
-          .map { constr.call(it) }
+          .flatMap { construct(type, constr, mapOf(param to it)) }
       }
+    }
+  }
+
+  private fun <A> construct(
+    type: KType,
+    constructor: KFunction<A>,
+    args: Map<KParameter, Any?>
+  ): ConfigResult<A> {
+    return try {
+      constructor.callBy(args).valid()
+    } catch (e: InvocationTargetException) {
+      ConfigFailure.InvalidConstructorParameters(type, constructor, args, e.cause ?: e).invalid()
+    } catch (e: IllegalArgumentException) {
+      ConfigFailure.InvalidConstructorParameters(type, constructor, args, e.cause ?: e).invalid()
     }
   }
 }
