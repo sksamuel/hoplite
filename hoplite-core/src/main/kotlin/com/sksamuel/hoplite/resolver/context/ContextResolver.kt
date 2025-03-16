@@ -53,7 +53,7 @@ abstract class ContextResolver : Resolver {
     node: StringNode,
     root: Node,
     context: DecoderContext
-  ) = lookup(path, node, root, context).flatMap { it?.valid() ?: fallback.valid() }
+  ) = lookup(path, node, root, context).flatMap { it?.valid() ?: lookup(fallback, node, root, context) }
 
   override suspend fun resolve(paramName: String?, kclass: KClass<*>, node: Node, root: Node, context: DecoderContext): ConfigResult<Node> {
     return when (node) {
