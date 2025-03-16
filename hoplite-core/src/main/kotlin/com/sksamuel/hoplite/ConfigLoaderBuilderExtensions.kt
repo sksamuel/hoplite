@@ -121,15 +121,9 @@ fun ConfigLoaderBuilder.addCommandLineSource(
 
 /**
  * Adds a [PropertySource] that will read the environment settings.
- *
- * @param useUnderscoresAsSeparator if true, use double underscore instead of period to separate keys in nested config
- * @param allowUppercaseNames if true, allow uppercase-only names
  */
-fun ConfigLoaderBuilder.addEnvironmentSource(
-  useUnderscoresAsSeparator: Boolean = true,
-  allowUppercaseNames: Boolean = true,
-) = addPropertySource(
-  EnvironmentVariablesPropertySource(useUnderscoresAsSeparator, allowUppercaseNames)
+fun ConfigLoaderBuilder.addEnvironmentSource() = addPropertySource(
+  EnvironmentVariablesPropertySource()
 )
 
 /**
