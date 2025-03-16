@@ -1,5 +1,3 @@
-@file:Suppress("RegExpRedundantEscape")
-
 package com.sksamuel.hoplite.resolver.context
 
 import com.sksamuel.hoplite.ConfigFailure
