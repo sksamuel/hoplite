@@ -19,14 +19,14 @@ class EnvVarContextResolverTest : FunSpec() {
 
   init {
     test("replace env vars") {
-      withEnvironment(mapOf("FOO" to "bar", "BAR" to "bar")) {
+      withEnvironment(mapOf("FOO" to "foo", "BAR" to "bar")) {
         val config = ConfigLoaderBuilder.newBuilder()
           .build()
           .loadConfigOrThrow<Config>("/test_env_replacement3.yml")
 
         config shouldBe Config(
-          foo = "bar",
-          bar = "baz",
+          foo = "foo",
+          bar = "bar",
           baz = "foobarbaz",
           blopp = "foobarblopp"
         )
