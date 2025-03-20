@@ -4,6 +4,7 @@ import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Undefined
@@ -35,6 +36,14 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
       false -> false
     }
   }
+
+  override fun decode(
+    node: Node,
+    type: KType,
+    context: DecoderContext,
+  ): ConfigResult<Any> =
+    // unlike most NullHandlingDecoders, we defer null handling to see if constructors with default args apply
+    safeDecode(node, type, context)
 
   override fun safeDecode(node: Node, type: KType, context: DecoderContext): ConfigResult<Any> {
 
@@ -131,8 +140,14 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
       .find { it is Validated.Valid } ?: constructors.last { it is Validated.Invalid }
 
     return firstValidOrLastInvalidArgs.fold(
-      // if invalid, we wrap in an error containing each individual error
-      { ConfigFailure.DataClassFieldErrors(it, type, node.pos).invalid() },
+      {
+        when (node) {
+          // for Undefined and NullNode, fall back to the NullHandlingDecoder errors
+          is Undefined, is NullNode -> super.decode(node, type, context)
+          // otherwise, wrap in an error containing each individual error
+          else -> ConfigFailure.DataClassFieldErrors(it, type, node.pos).invalid()
+        }
+      },
       { constructor ->
         construct(
           type = type,
