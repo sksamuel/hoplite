@@ -96,7 +96,7 @@ dependencyResolutionManagement {
          library("regions", "software.amazon.awssdk:regions:$aws2")
          library("secretsmanager", "software.amazon.awssdk:secretsmanager:$aws2")
 
-         val awsKotlin = "1.3.54"
+         val awsKotlin = "1.4.44"
          library("aws-kotlin-ssm", "aws.sdk.kotlin:ssm:$awsKotlin")
          library("aws-kotlin-secretsmanager", "aws.sdk.kotlin:secretsmanager:$awsKotlin")
 
