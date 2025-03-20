@@ -1,0 +1,4 @@
+foo: ${{ env:FOO }}
+bar: ${{ env:BAR }}
+baz: foo${{ env:BAR }}baz
+blopp: foo${{ env:NOTHING :- ${{ env:NONE :- ${{ env:BAR }}}} }}blopp
