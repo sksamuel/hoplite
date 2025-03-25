@@ -28,6 +28,8 @@ into the required type will cause the config to fail with detailed error message
   replace placeholders with values resolved from external configs, such as AWS Secrets Manager, Azure KeyVault and so on.
 - **Reloadable config:** Trigger config [reloads](#reloadable-config) on a fixed interval or in response to external
   events such as consul value changes.
+- **Prefix Binding:** Optionally, load configuration sources once, and then [bind individual prefix](#prefix-binding)
+  paths into independent config types.
 
 ## Changelog
 
@@ -113,6 +115,49 @@ monad via the `loadConfig<T>` function if you want to handle errors manually.
 For most cases, when you are resolving config at application startup, the exception based approach is better. This is
 because you typically want any errors in config to abort application bootstrapping, dumping errors immediately to the console.
 
+### Prefix Binding
+
+Prefixes can be used to bind selected config to independent data classes. This is useful for modular config loading.
+For example, independent modules or plugins load their own config from a common set of configuration sources.
+
+For example a yaml source containing
+
+```yaml
+module1:
+  foo: bar
+
+module2:
+  baz: qux
+```
+
+can be bound to:
+
+```kotlin
+data class Module1Config(val foo: String)
+
+data class Module2Config(val baz: String)
+```
+
+The best way to do this is to obtain a `ConfigBinder` from `ConfigLoader`, for example:
+
+```kotlin
+val configBinder = ConfigLoaderBuilder.default()
+  .addResourceSource("/application-prod.yml")
+  .addResourceSource("/reference.json")
+  .build()
+  .configBinder()
+
+// generally a ConfigBinder will be provided via DI, and these calls will be in their own modules!
+val module1Config = configBinder.bindOrThrow<Module1Config>()
+val module2Config = configBinder.bindOrThrow<Module2Config>()
+```
+
+With this approach, the configuration sources will only be read and parsed a single time, but can be bound to independent
+data classes as many times as is necessary.
+
+A `prefix` can also be provided directly to `loadConfig` and its variants if only one prefix needs to be loaded.
+
+The `prefix` value does not have to refer only to root properties -- a prefix of `foo.bar` will access config at the `foo.bar` node in the config tree that `ConfigLoader` creates.
 
 
 ## Beautiful Errors

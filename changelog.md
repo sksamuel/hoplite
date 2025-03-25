@@ -9,6 +9,10 @@ loaded by default, and takes precedence over other default sources just like the
 did. To maintain similar behavior, configure it with a filtering `prefix`.
 * Add the ability to load a series of environment variables into arrays/lists via the `_n` syntax.
 
+### 2.8.0
+
+* `ConfigBinder` and prefix-based binding #422
+
 ### 2.7.5
 
 * Use daemon threads in `FileWatcher` to enable clean shutdown.
