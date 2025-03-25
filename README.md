@@ -148,8 +148,8 @@ val configBinder = ConfigLoaderBuilder.default()
   .configBinder()
 
 // generally a ConfigBinder will be provided via DI, and these calls will be in their own modules!
-val module1Config = configBinder.bindOrThrow<Module1Config>()
-val module2Config = configBinder.bindOrThrow<Module2Config>()
+val module1Config = configBinder.bindOrThrow<Module1Config>("module1")
+val module2Config = configBinder.bindOrThrow<Module2Config>("module2")
 ```
 
 With this approach, the configuration sources will only be read and parsed a single time, but can be bound to independent
