@@ -104,6 +104,12 @@ class ConfigLoader(
    *
    * This function implements fallback, such that the first resource is scanned first, and the second
    * resource is scanned if the first does not contain a given path, and so on.
+   *
+   * A subtree of the loaded config can be bound using the `prefix` parameter. However, consider instead
+   * using the [configBinder] method to load the configuration just once, and then use the resulting
+   * [ConfigBinder] to bind prefixes to types via [ConfigBinder.bindOrThrow]. Calling this method multiple
+   * times with the same sources but different prefix values will unnecessarily load the same config multiple
+   * times.
    */
   inline fun <reified A : Any> loadConfigOrThrow(prefix: String? = null): A =
     loadConfigOrThrow(emptyList(), prefix = prefix)
@@ -114,6 +120,12 @@ class ConfigLoader(
    *
    * This function implements fallback, such that the first resource is scanned first, and the second
    * resource is scanned if the first does not contain a given path, and so on.
+   *
+   * A subtree of the loaded config can be bound using the `prefix` parameter. However, consider instead
+   * using the [configBinder] method to load the configuration just once, and then use the resulting
+   * [ConfigBinder] to bind prefixes to types via [ConfigBinder.bindOrThrow]. Calling this method multiple
+   * times with the same sources but different prefix values will unnecessarily load the same config multiple
+   * times.
    */
   inline fun <reified A : Any> loadConfigOrThrow(
     resourceOrFiles: List<String>,
@@ -125,6 +137,12 @@ class ConfigLoader(
    * Attempts to load config from the registered property sources marshalled as an instance of A.
    * If any properties are missing, or cannot be converted into the applicable types, then this
    * function will throw.
+   *
+   * A subtree of the loaded config can be bound using the `prefix` parameter. However, consider instead
+   * using the [configBinder] method to load the configuration just once, and then use the resulting
+   * [ConfigBinder] to bind prefixes to types via [ConfigBinder.bindOrThrow]. Calling this method multiple
+   * times with the same sources but different prefix values will unnecessarily load the same config multiple
+   * times.
    */
   fun <A : Any> loadConfigOrThrow(klass: KClass<A>, inputs: List<ConfigSource>, prefix: String? = null): A =
     loadConfig(klass, inputs, emptyList(), prefix).returnOrThrow()
@@ -136,6 +154,12 @@ class ConfigLoader(
    *
    * This function implements fallback, such that the first resource is scanned first, and the second
    * resource is scanned if the first does not contain a given path, and so on.
+   *
+   * A subtree of the loaded config can be bound using the `prefix` parameter. However, consider instead
+   * using the [configBinder] method to load the configuration just once, and then use the resulting
+   * [ConfigBinder] to bind prefixes to types via [ConfigBinder.bindOrThrow]. Calling this method multiple
+   * times with the same sources but different prefix values will unnecessarily load the same config multiple
+   * times.
    */
   inline fun <reified A : Any> loadConfig(
     vararg resourceOrFiles: String,
@@ -150,6 +174,12 @@ class ConfigLoader(
    *
    * This function implements fallback, such that the first resource is scanned first, and the second
    * resource is scanned if the first does not contain a given path, and so on.
+   *
+   * A subtree of the loaded config can be bound using the `prefix` parameter. However, consider instead
+   * using the [configBinder] method to load the configuration just once, and then use the resulting
+   * [ConfigBinder] to bind prefixes to types via [ConfigBinder.bindOrThrow]. Calling this method multiple
+   * times with the same sources but different prefix values will unnecessarily load the same config multiple
+   * times.
    */
   inline fun <reified A : Any> loadConfig(
     resourceOrFiles: List<String>,
@@ -164,6 +194,12 @@ class ConfigLoader(
    *
    * This function implements fallback, such that the first resource is scanned first, and the second
    * resource is scanned if the first does not contain a given path, and so on.
+   *
+   * A subtree of the loaded config can be bound using the `prefix` parameter. However, consider instead
+   * using the [configBinder] method to load the configuration just once, and then use the resulting
+   * [ConfigBinder] to bind prefixes to types via [ConfigBinder.bindOrThrow]. Calling this method multiple
+   * times with the same sources but different prefix values will unnecessarily load the same config multiple
+   * times.
    */
   inline fun <reified A : Any> loadConfig(
     classpathResourceLoader: ClasspathResourceLoader = ConfigSource.Companion::class.java.toClasspathResourceLoader(),
@@ -180,6 +216,9 @@ class ConfigLoader(
   /**
    * Create a [ConfigBinder] which can be used to bind instances of config classes using the same parsed
    * configuration.
+   *
+   * It would be common for a system to create a [ConfigBinder] once and inject that [ConfigBinder] into independent
+   * modules that each require their own config binding. See [ConfigBinder.bindOrThrow].
    */
   fun configBinder(
     resourceOrFiles: List<String> = emptyList(),
