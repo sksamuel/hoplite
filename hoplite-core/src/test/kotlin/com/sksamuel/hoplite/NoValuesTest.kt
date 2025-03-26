@@ -11,7 +11,7 @@ class NoValuesTest : FunSpec({
     .addPropertySources(emptyByDefaultPropertySources())
     .build()
 
-  test("ConfigLoader should return NoValues if all sources returned Undefined") {
+  test("ConfigLoader should return UndefinedTree if all sources were Invalid") {
     emptyConfigLoader.loadNode().getInvalidUnsafe() shouldBe ConfigFailure.UndefinedTree
   }
 
