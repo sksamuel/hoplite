@@ -22,7 +22,6 @@ class NoValuesTest : FunSpec({
   }
 
   test("ConfigLoader should ignore no values when option is enabled") {
-
     data class NestedConfig(
       val nums: List<Int> = emptyList()
     )
