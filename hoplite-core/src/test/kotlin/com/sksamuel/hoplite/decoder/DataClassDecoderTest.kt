@@ -1,14 +1,19 @@
 package com.sksamuel.hoplite.decoder
 
 import com.sksamuel.hoplite.BooleanNode
+import com.sksamuel.hoplite.ConfigFailure
+import com.sksamuel.hoplite.ConfigFailure.NullValueForNonNullField
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.defaultNodeTransformers
 import com.sksamuel.hoplite.defaultParamMappers
+import com.sksamuel.hoplite.fp.Validated
+import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -209,6 +214,54 @@ class DataClassDecoderTest : StringSpec() {
         Foo::class.createType(),
         DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), defaultNodeTransformers())
       ) shouldBe Foo(FooEnum.THIRD, true).valid()
+    }
+
+    "null input without default values results in NullValueForNonNullField" {
+      data class Foo(val a: String)
+
+      val node = NullNode(Pos.NoPos, DotPath.root)
+
+      DataClassDecoder().decode(
+        node,
+        Foo::class.createType(),
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), defaultNodeTransformers())
+      ) shouldBe NullValueForNonNullField(node).invalid()
+    }
+
+    "undefined input without default values results in MissingConfigValue" {
+      data class Foo(val a: String)
+
+      val node = Undefined
+
+      DataClassDecoder().decode(
+        node,
+        Foo::class.createType(),
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), defaultNodeTransformers())
+      ) shouldBe ConfigFailure.MissingConfigValue(Foo::class.createType()).invalid()
+    }
+
+    "supports null input with default values" {
+      data class Foo(val a: String = "abc")
+
+      val node = NullNode(Pos.NoPos, DotPath.root)
+
+      DataClassDecoder().decode(
+        node,
+        Foo::class.createType(),
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), defaultNodeTransformers())
+      ) shouldBe Foo("abc").valid()
+    }
+
+    "supports undefined input with default values" {
+      data class Foo(val a: String = "abc")
+
+      val node = Undefined
+
+      DataClassDecoder().decode(
+        node,
+        Foo::class.createType(),
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), defaultNodeTransformers())
+      ) shouldBe Foo("abc").valid()
     }
   }
 }
