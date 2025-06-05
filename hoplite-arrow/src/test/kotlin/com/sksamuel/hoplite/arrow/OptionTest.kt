@@ -3,10 +3,10 @@ package com.sksamuel.hoplite.arrow
 import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
-import com.sksamuel.hoplite.ConfigLoader
+import com.sksamuel.hoplite.ConfigLoaderBuilder
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import java.util.*
+import java.util.UUID
 
 class OptionTest : FunSpec({
 
@@ -17,7 +17,7 @@ class OptionTest : FunSpec({
                    val d: Option<Long>,
                    val e: Option<UUID>)
 
-    val foo = ConfigLoader().loadConfigOrThrow<Foo>("/options.yml")
+    val foo = ConfigLoaderBuilder.default().build().loadConfigOrThrow<Foo>("/options.yml")
     foo.a shouldBe None
     foo.b shouldBe None
     foo.c shouldBe Some("hello")

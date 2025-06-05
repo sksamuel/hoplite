@@ -122,7 +122,7 @@ class PrefixTest : FunSpec() {
     test("reads from default source before specified at a given prefix") {
       data class TestConfig(val a: String, val b: Int, val other: List<String>)
 
-      withEnvironment(mapOf("FOO_B" to "91", "FOO_OTHER" to "Random13")) {
+      withEnvironment(mapOf("HOPLITE_FOO_B" to "91", "HOPLITE_FOO_OTHER" to "Random13")) {
         val arguments = arrayOf(
           "--foo.a=A value",
           "--foo.b=42",

@@ -1,11 +1,11 @@
 package com.sksamuel.hoplite
 
+import com.sksamuel.hoplite.ConfigLoaderBuilder.Companion.empty
 import com.sksamuel.hoplite.decoder.Decoder
 import com.sksamuel.hoplite.decoder.DefaultDecoderRegistry
 import com.sksamuel.hoplite.env.Environment
 import com.sksamuel.hoplite.internal.CascadeMode
 import com.sksamuel.hoplite.internal.DecodeMode
-import com.sksamuel.hoplite.transformer.NodeTransformer
 import com.sksamuel.hoplite.parsers.DefaultParserRegistry
 import com.sksamuel.hoplite.parsers.Parser
 import com.sksamuel.hoplite.preprocessor.EnvOrSystemPropertyPreprocessor
@@ -31,6 +31,7 @@ import com.sksamuel.hoplite.sources.EnvironmentVariablesPropertySource
 import com.sksamuel.hoplite.sources.SystemPropertiesPropertySource
 import com.sksamuel.hoplite.sources.UserSettingsPropertySource
 import com.sksamuel.hoplite.sources.XdgConfigPropertySource
+import com.sksamuel.hoplite.transformer.NodeTransformer
 import com.sksamuel.hoplite.transformer.PathNormalizer
 import java.util.ServiceLoader
 
@@ -76,7 +77,7 @@ class ConfigLoaderBuilder private constructor() {
      * This means that the default [Decoder]s, [Preprocessor]s, [NodeTransformer]s, [ParameterMapper]s,
      * [PropertySource]s, and [Parser]s are all registered.
      *
-     * If you wish to avoid adding defaults, for example to avoid certain decoders or sources, then
+     * If you wish to avoid adding defaults, for example, to avoid certain decoders or sources, then
      * use [empty] to obtain an empty ConfigLoaderBuilder and call the various addDefault methods manually.
      */
     fun default(): ConfigLoaderBuilder {
@@ -443,7 +444,7 @@ class ConfigLoaderBuilder private constructor() {
 }
 
 fun defaultPropertySources(): List<PropertySource> = listOfNotNull(
-  EnvironmentVariablesPropertySource(),
+  EnvironmentVariablesPropertySource.hoplite(),
   SystemPropertiesPropertySource,
   UserSettingsPropertySource,
   XdgConfigPropertySource,

@@ -1,5 +1,6 @@
 package com.sksamuel.hoplite
 
+import com.sksamuel.hoplite.sources.EnvironmentVariablesPropertySource
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.system.withEnvironment
 import io.kotest.matchers.shouldBe
@@ -104,10 +105,10 @@ class PropertySourceTest : FunSpec() {
       }
     }
 
-    test("reads from default source before specified") {
+    test("reads from default env source before specified") {
       data class TestConfig(val a: String, val b: Int, val other: List<String>)
 
-      withEnvironment(mapOf("b" to "91", "other" to "Random13")) {
+      withEnvironment(mapOf("HOPLITE_b" to "91", "HOPLITE_other" to "Random13")) {
         val arguments = arrayOf(
           "--a=A value",
           "--b=42",
