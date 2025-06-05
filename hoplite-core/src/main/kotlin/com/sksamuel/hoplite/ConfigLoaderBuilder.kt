@@ -443,7 +443,6 @@ class ConfigLoaderBuilder private constructor() {
 }
 
 fun defaultPropertySources(): List<PropertySource> = listOfNotNull(
-  EnvironmentVariablesPropertySource(),
   SystemPropertiesPropertySource,
   UserSettingsPropertySource,
   XdgConfigPropertySource,
