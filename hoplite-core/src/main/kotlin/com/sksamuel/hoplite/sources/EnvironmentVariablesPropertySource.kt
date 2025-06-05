@@ -6,7 +6,6 @@ import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PropertySource
 import com.sksamuel.hoplite.PropertySourceContext
-import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.parsers.toNode
 import com.sksamuel.hoplite.transform
@@ -16,21 +15,16 @@ class EnvironmentVariablesPropertySource(
   /** Optional prefix to limit env var selection. It is stripped before processing. */
   private val prefix: String? = null,
 ) : PropertySource {
-
   companion object {
     const val DELIMITER = "_"
-    fun hoplite(): EnvironmentVariablesPropertySource = EnvironmentVariablesPropertySource(prefix = "HOPLITE_")
   }
 
   override fun source(): String = "Env Var"
 
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
-
     val map = environmentVariableMap()
       .filterKeys { if (prefix == null) true else it.startsWith(prefix) }
       .mapKeys { if (prefix == null) it.key else it.key.removePrefix(prefix) }
-
-    if (map.isEmpty()) return Undefined.valid()
 
     return map.toNode("env", DELIMITER).transform { node ->
       if (node is MapNode && node.map.keys.all { it.toIntOrNull() != null }) {
