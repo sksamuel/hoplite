@@ -15,6 +15,9 @@ class EnvironmentVariablesPropertySource(
   /** Optional prefix to limit env var selection. It is stripped before processing. */
   private val prefix: String? = null,
 ) : PropertySource {
+
+  constructor(prefix: String) : this(System::getenv, prefix)
+
   companion object {
     const val DELIMITER = "_"
   }

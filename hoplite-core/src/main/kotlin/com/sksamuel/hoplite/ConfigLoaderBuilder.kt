@@ -443,6 +443,7 @@ class ConfigLoaderBuilder private constructor() {
 }
 
 fun defaultPropertySources(): List<PropertySource> = listOfNotNull(
+  EnvironmentVariablesPropertySource("HOPLITE_"),
   SystemPropertiesPropertySource,
   UserSettingsPropertySource,
   XdgConfigPropertySource,
