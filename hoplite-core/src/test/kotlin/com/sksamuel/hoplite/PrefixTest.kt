@@ -146,5 +146,17 @@ class PrefixTest : FunSpec() {
         config shouldBe TestConfig("A value", 91, listOf("Random13"))
       }
     }
+
+    test("handles defaults with prefixes against an empty config") {
+      data class TestConfig(val a: String = "1")
+
+      val config = ConfigLoaderBuilder.defaultWithoutPropertySources()
+        .addPropertySource(PropertySource.map(emptyMap<String, String>()))
+        .allowEmptyConfigFiles()
+        .build()
+        .loadConfigOrThrow<TestConfig>(prefix = "foo")
+
+      config shouldBe TestConfig("1")
+    }
   }
 }
