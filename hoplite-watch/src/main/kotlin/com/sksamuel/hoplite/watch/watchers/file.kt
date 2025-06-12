@@ -18,6 +18,7 @@ class FileWatcher(private val dir: String) : Watchable {
 
   private fun start() {
     val watchService = FileSystems.getDefault().newWatchService()
+    // we don't use toRealPath() here, because we *want* to watch the symlinked parent the file is in, not the file's real parent
     val pathToWatch = Paths.get(dir).toAbsolutePath()
 
     pathToWatch.register(
@@ -33,7 +34,7 @@ class FileWatcher(private val dir: String) : Watchable {
           val watchKey = watchService.take()
           if (watchKey != null) {
             val events = watchKey.pollEvents()
-            if (events.size > 0) {
+            if (events.isNotEmpty()) {
               cb()
             }
 
