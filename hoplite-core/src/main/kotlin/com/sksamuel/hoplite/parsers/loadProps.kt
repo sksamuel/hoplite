@@ -90,7 +90,8 @@ private fun <T, K> Iterable<T>.toNode(
     )
     is Map<*, *> -> MapNode(
       map = takeUnless { it.isEmpty() }?.mapNotNull { entry ->
-        entry.value?.let { entry.key.toString() to it.transform(path.with(entry.key.toString()), parentSourceKey) }
+        val key = entry.key.toString()
+        entry.value?.let { key to it.transform(path.with(key), key) }
       }?.toMap().orEmpty(),
       pos = pos,
       path = path,

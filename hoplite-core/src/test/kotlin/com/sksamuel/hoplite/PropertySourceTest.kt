@@ -123,5 +123,32 @@ class PropertySourceTest : FunSpec() {
         config shouldBe TestConfig("A value", 91, listOf("Random13"))
       }
     }
+
+    test("reads config from nested maps") {
+      data class Foo(
+        val bars: Map<String, String>,
+      )
+
+      data class SomeConfig(
+        val someMap: Map<String, Foo>,
+      )
+
+      val propertySource = PropertySource.map(mapOf(
+        "someMap" to mapOf(
+          "foo" to mapOf(
+            "bars" to mapOf(
+              "bar" to "baz"
+            )
+          )
+        )
+      ))
+
+      val config = ConfigLoaderBuilder.default()
+        .addPropertySource(propertySource)
+        .build()
+        .loadConfigOrThrow<SomeConfig>()
+
+      config shouldBe SomeConfig(someMap = mapOf("foo" to Foo(mapOf("bar" to "baz"))))
+    }
   }
 }
