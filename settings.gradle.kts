@@ -50,7 +50,7 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 dependencyResolutionManagement {
    versionCatalogs {
       create("libs") {
-         val kotlin = "2.1.0"
+         val kotlin = "2.2.0"
          plugin("kotlin-jvm", "org.jetbrains.kotlin.jvm").version(kotlin)
          plugin("kotlin-serialization","org.jetbrains.kotlin.plugin.serialization").version(kotlin)
          library("kotlin-reflect", "org.jetbrains.kotlin:kotlin-reflect:$kotlin")

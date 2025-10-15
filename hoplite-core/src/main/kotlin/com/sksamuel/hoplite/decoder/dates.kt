@@ -28,6 +28,7 @@ import java.time.LocalTime
 import java.time.MonthDay
 import java.time.Period
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.ExperimentalTime
 
 class LocalDateTimeDecoder : NonNullableLeafDecoder<LocalDateTime> {
   override fun supports(type: KType): Boolean = type.classifier == LocalDateTime::class
@@ -103,6 +104,25 @@ class InstantDecoder : NonNullableLeafDecoder<Instant> {
       ConfigFailure.DecodeError(node, type)
     }
     is LongNode -> Instant.ofEpochMilli(node.value).valid()
+    else -> ConfigFailure.DecodeError(node, type).invalid()
+  }
+}
+
+@ExperimentalTime
+class KotlinInstantDecoder : NonNullableLeafDecoder<kotlin.time.Instant> {
+  override fun supports(type: KType): Boolean = type.classifier == kotlin.time.Instant::class
+  override fun safeLeafDecode(
+    node: Node,
+    type: KType,
+    context: DecoderContext
+  ): ConfigResult<kotlin.time.Instant> = when (node) {
+    is StringNode -> runCatching { kotlin.time.Instant.fromEpochMilliseconds(node.value.toLong()) }
+        .recoverCatching { kotlin.time.Instant.parse(node.value) }
+        .toValidated {
+          ConfigFailure.DecodeError(node, type)
+        }
+
+    is LongNode -> kotlin.time.Instant.fromEpochMilliseconds(node.value).valid()
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }
