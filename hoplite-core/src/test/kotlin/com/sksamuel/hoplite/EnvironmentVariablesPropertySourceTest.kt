@@ -196,4 +196,25 @@ class EnvironmentVariablesPropertySourceTest : FunSpec({
     config shouldBe TestConfig("fooValue")
   }
 
+  test("env var source with prefix and no matching env vars should not break other property sources") {
+    data class TestConfig(val prop1: String, val prop2: String)
+
+    val config = ConfigLoaderBuilder
+      .defaultWithoutPropertySources()
+      .addPropertySource(
+        EnvironmentVariablesPropertySource(
+          environmentVariableMap = { emptyMap() },
+          prefix = "MY_APP_"
+        )
+      )
+      .addSource(PropertySource.string("""
+        prop1=a
+        prop2=b
+      """.trimIndent(), "props"))
+      .build()
+      .loadConfigOrThrow<TestConfig>()
+
+    config shouldBe TestConfig("a", "b")
+  }
+
 })

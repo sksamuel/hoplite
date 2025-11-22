@@ -27,7 +27,7 @@ class EnvironmentVariablesPropertySource(
       .mapKeys { if (prefix == null) it.key else it.key.removePrefix(prefix) }
 
     return map.toNode("env", DELIMITER).transform { node ->
-      if (node is MapNode && node.map.keys.all { it.toIntOrNull() != null }) {
+      if (node is MapNode && node.map.isNotEmpty() && node.map.keys.all { it.toIntOrNull() != null }) {
         // all they map keys are ints, so lets transform the MapNode into an ArrayNode
         ArrayNode(node.map.values.toList(), node.pos, node.path, node.meta, node.delimiter, node.sourceKey)
       } else {
