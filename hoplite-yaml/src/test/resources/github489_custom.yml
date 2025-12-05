@@ -1,0 +1,4 @@
+list:
+  - VariantA
+  - desc: VariantB
+    value: 100
