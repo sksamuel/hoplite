@@ -20,7 +20,7 @@ class PortValidator : Resolver {
   ): ConfigResult<Node> {
     return if (paramName == "port") {
       val port = node.valueOrNull()?.toLongOrNull() ?: 0L
-      return if (port > 0 && port < Short.MAX_VALUE) node.valid() else
+      return if (port > 0 && port <= UShort.MAX_VALUE.toLong()) node.valid() else
         ConfigFailure.ValidationFailed("Invalid port: $port", node).invalid()
     } else node.valid()
   }

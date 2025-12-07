@@ -109,7 +109,7 @@ sealed interface ConfigFailure {
   }
 
   data class ErrorOpeningPath(val path: Path) : ConfigFailure {
-    override fun description(): String = "Could open $path"
+    override fun description(): String = "Could not open $path"
   }
 
   data class EmptyConfigSource(val source: ConfigSource) : ConfigFailure {

@@ -2,7 +2,6 @@ package com.sksamuel.hoplite.json
 
 import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.Secret
-import com.sksamuel.hoplite.addEnvironmentSource
 import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.system.withEnvironment
@@ -12,12 +11,9 @@ import io.kotest.matchers.string.shouldContain
 class SealedClassTest : FunSpec({
 
   test("override sealed class attribute with env var") {
-    withEnvironment("database__pass", "letmein") {
+    withEnvironment("database_pass", "letmein") {
       val expected = Database.Mysql("foo.local", 1234, "sammy", Secret("letmein"))
-      val actual = ConfigLoader
-        .builder()
-        .addEnvironmentSource()
-        .build()
+      val actual = ConfigLoader()
         .loadConfigOrThrow<Config>("/sealed_test_1.json").database
       actual shouldBe expected
     }

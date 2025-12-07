@@ -50,7 +50,7 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 dependencyResolutionManagement {
    versionCatalogs {
       create("libs") {
-         val kotlin = "1.9.25"
+         val kotlin = "2.2.0"
          plugin("kotlin-jvm", "org.jetbrains.kotlin.jvm").version(kotlin)
          plugin("kotlin-serialization","org.jetbrains.kotlin.plugin.serialization").version(kotlin)
          library("kotlin-reflect", "org.jetbrains.kotlin:kotlin-reflect:$kotlin")
@@ -67,7 +67,7 @@ dependencyResolutionManagement {
 
          library("typesafe-config", "com.typesafe:config:1.4.3")
 
-         library("arrow-core", "io.arrow-kt:arrow-core:1.1.3")
+         library("arrow-core", "io.arrow-kt:arrow-core:2.0.1")
 
          library("spring-vault-core", "org.springframework.vault:spring-vault-core:2.3.4")
 
@@ -96,7 +96,7 @@ dependencyResolutionManagement {
          library("regions", "software.amazon.awssdk:regions:$aws2")
          library("secretsmanager", "software.amazon.awssdk:secretsmanager:$aws2")
 
-         val awsKotlin = "1.3.54"
+         val awsKotlin = "1.4.44"
          library("aws-kotlin-ssm", "aws.sdk.kotlin:ssm:$awsKotlin")
          library("aws-kotlin-secretsmanager", "aws.sdk.kotlin:secretsmanager:$awsKotlin")
 

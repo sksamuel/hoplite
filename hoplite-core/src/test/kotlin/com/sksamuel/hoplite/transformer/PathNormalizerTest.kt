@@ -12,9 +12,7 @@ import io.kotest.matchers.shouldBe
 class PathNormalizerTest : FunSpec({
   test("normalizes paths") {
     val node = EnvironmentVariablesPropertySource(
-      useUnderscoresAsSeparator = false,
-      allowUppercaseNames = false,
-      environmentVariableMap = { mapOf("A" to "a", "A.B" to "ab", "A.B.CD" to "abcd") },
+      environmentVariableMap = { mapOf("A" to "a", "A_B" to "ab", "A_B_CD" to "abcd") },
     ).node(PropertySourceContext.empty).getUnsafe()
 
     PathNormalizer.transform(node, null) shouldBe MapNode(
@@ -23,22 +21,25 @@ class PathNormalizerTest : FunSpec({
           map = mapOf(
             "b" to MapNode(
               map = mapOf(
-                "cd" to StringNode("abcd", Pos.env, DotPath("a", "b", "cd"), sourceKey = "A.B.CD"),
+                "cd" to StringNode("abcd", Pos.env, DotPath("a", "b", "cd"), sourceKey = "A_B_CD", delimiter = "_"),
               ),
               Pos.env,
               DotPath("a", "b"),
-              value = StringNode("ab", Pos.env, DotPath("a", "b"), sourceKey = "A.B"),
-              sourceKey = "A.B"
+              value = StringNode("ab", Pos.env, DotPath("a", "b"), sourceKey = "A_B", delimiter = "_"),
+              sourceKey = "A_B",
+              delimiter = "_",
             ),
           ),
           Pos.env,
           DotPath("a"),
-          value = StringNode("a", Pos.env, DotPath("a"), sourceKey = "A"),
-          sourceKey = "A"
+          value = StringNode("a", Pos.env, DotPath("a"), sourceKey = "A", delimiter = "_"),
+          sourceKey = "A",
+          delimiter = "_",
         ),
       ),
       Pos.env,
       DotPath.root,
+      delimiter = "_",
     )
   }
 })

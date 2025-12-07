@@ -41,53 +41,53 @@ class TomlParserTest : StringSpec({
       map = mapOf(
         "owner" to MapNode(
           mapOf(
-            "dob" to StringNode("1979-05-27T07:32-08:00", Pos.LineColPos(6, 1, "toml"), DotPath("owner", "dob")),
-            "name" to StringNode("Tom Preston-Werner", Pos.LineColPos(5, 1, "toml"), DotPath("owner", "name"))
+            "dob" to StringNode("1979-05-27T07:32-08:00", Pos.LineColPos(5, 1, "toml"), DotPath("owner", "dob")),
+            "name" to StringNode("Tom Preston-Werner", Pos.LineColPos(4, 1, "toml"), DotPath("owner", "name"))
           ),
-          Pos.LineColPos(4, 1, "toml"),
+          Pos.LineColPos(3, 1, "toml"),
           DotPath("owner")
         ),
         "database" to MapNode(
           mapOf(
-            "server" to StringNode("192.168.1.1", Pos.LineColPos(9, 1, "toml"), DotPath("database", "server")),
-            "connection_max" to LongNode(5000, Pos.LineColPos(11, 1, "toml"), DotPath("database", "connection_max")),
+            "server" to StringNode("192.168.1.1", Pos.LineColPos(8, 1, "toml"), DotPath("database", "server")),
+            "connection_max" to LongNode(5000, Pos.LineColPos(10, 1, "toml"), DotPath("database", "connection_max")),
             "ports" to ArrayNode(
               listOf(
-                LongNode(8001, Pos.LineColPos(line = 10, col = 1, source = "toml"), DotPath("database", "ports")),
-                LongNode(8001, Pos.LineColPos(line = 10, col = 1, source = "toml"), DotPath("database", "ports")),
-                LongNode(8002, Pos.LineColPos(line = 10, col = 1, source = "toml"), DotPath("database", "ports"))
+                LongNode(8001, Pos.LineColPos(line = 9, col = 1, source = "toml"), DotPath("database", "ports")),
+                LongNode(8001, Pos.LineColPos(line = 9, col = 1, source = "toml"), DotPath("database", "ports")),
+                LongNode(8002, Pos.LineColPos(line = 9, col = 1, source = "toml"), DotPath("database", "ports"))
               ),
-              Pos.LineColPos(10, 1, "toml"),
+              Pos.LineColPos(9, 1, "toml"),
               DotPath("database", "ports")
             ),
-            "enabled" to BooleanNode(true, Pos.LineColPos(12, 1, "toml"), DotPath("database", "enabled"))
+            "enabled" to BooleanNode(true, Pos.LineColPos(11, 1, "toml"), DotPath("database", "enabled"))
           ),
-          Pos.LineColPos(8, 1, "toml"),
+          Pos.LineColPos(7, 1, "toml"),
           DotPath("database")
         ),
         "servers" to MapNode(
           mapOf(
             "alpha" to MapNode(
               mapOf(
-                "ip" to StringNode("10.0.0.1", Pos.LineColPos(18, 1, "toml"), DotPath("servers", "alpha", "ip")),
-                "dc" to StringNode("eqdc10", Pos.LineColPos(19, 1, "toml"), DotPath("servers", "alpha", "dc"))
+                "ip" to StringNode("10.0.0.1", Pos.LineColPos(17, 1, "toml"), DotPath("servers", "alpha", "ip")),
+                "dc" to StringNode("eqdc10", Pos.LineColPos(18, 1, "toml"), DotPath("servers", "alpha", "dc"))
               ),
-              Pos.LineColPos(17, 1, "toml"),
+              Pos.LineColPos(16, 1, "toml"),
               DotPath("servers", "alpha")
             ),
             "beta" to MapNode(
               mapOf(
-                "ip" to StringNode("10.0.0.2", Pos.LineColPos(22, 1, "toml"), DotPath("servers", "beta", "ip")),
-                "dc" to StringNode("eqdc10", Pos.LineColPos(23, 1, "toml"), DotPath("servers", "beta", "dc"))
+                "ip" to StringNode("10.0.0.2", Pos.LineColPos(21, 1, "toml"), DotPath("servers", "beta", "ip")),
+                "dc" to StringNode("eqdc10", Pos.LineColPos(22, 1, "toml"), DotPath("servers", "beta", "dc"))
               ),
-              Pos.LineColPos(21, 1, "toml"),
+              Pos.LineColPos(20, 1, "toml"),
               DotPath("servers", "beta")
             )
           ),
-          Pos.LineColPos(14, 1, "toml"),
+          Pos.LineColPos(13, 1, "toml"),
           DotPath("servers")
         ),
-        "title" to StringNode("TOML Example", Pos.LineColPos(2, 1, "toml"), DotPath("title"))
+        "title" to StringNode("TOML Example", Pos.LineColPos(1, 1, "toml"), DotPath("title"))
       ),
       pos = Pos.SourcePos("toml"),
       DotPath.root
