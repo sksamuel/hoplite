@@ -21,7 +21,7 @@ class Github489 : BehaviorSpec({
 
     `when`("when deserializing the config with strict") {
       val config =
-        ConfigLoaderBuilder.default()
+        ConfigLoaderBuilder.newBuilderWithoutPropertySources()
           .strict()
           .withExplicitSealedTypes()
           .build()
@@ -47,7 +47,7 @@ class Github489 : BehaviorSpec({
 
     `when`("when deserializing the config with strict") {
       val config =
-        ConfigLoaderBuilder.default()
+        ConfigLoaderBuilder.newBuilderWithoutPropertySources()
           .strict()
           .withExplicitSealedTypes("desc")
           .build()
