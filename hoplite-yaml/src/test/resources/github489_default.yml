@@ -1,0 +1,4 @@
+list:
+  - VariantA
+  - _type: VariantB
+    value: 100

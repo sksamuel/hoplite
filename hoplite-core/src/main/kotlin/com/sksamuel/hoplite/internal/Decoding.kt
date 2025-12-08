@@ -37,8 +37,16 @@ internal fun createDecodingState(
 ): DecodingState {
   val (used, unused) = root.decodedPaths()
     .filterNot { it.path == DotPath.root }
-    .partition { context.usedPaths.contains(it.path) }
+    .partition { context.usedPaths.contains(it.path) || it.isClassDiscriminator(context) }
   return DecodingState(root, used, unused, createNodeStates(root, context, secretsPolicy))
+}
+
+internal fun DecodedPath.isClassDiscriminator(context: DecoderContext) : Boolean {
+  return if(sourceKey != null && context.sealedTypeDiscriminatorField != null) {
+    sourceKey.endsWith(".${context.sealedTypeDiscriminatorField}")
+  } else {
+    false
+  }
 }
 
 private fun createNodeStates(
