@@ -16,11 +16,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout the repo
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ github.event.inputs.branch }}
+
+      - uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
 
       - name: Setup JDK
         uses: actions/setup-java@v1
