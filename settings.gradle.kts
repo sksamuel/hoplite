@@ -4,17 +4,12 @@ pluginManagement {
    repositories {
       mavenLocal()
       mavenCentral()
-      maven {
-         url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
-      }
-      maven {
-         url = uri("https://plugins.gradle.org/m2/")
-      }
+      gradlePluginPortal()
    }
 }
 
 plugins {
-   id("org.gradle.toolchains.foojay-resolver-convention") version("0.8.0")
+   id("org.gradle.toolchains.foojay-resolver-convention") version ("0.8.0")
 }
 
 include(
@@ -48,11 +43,16 @@ enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 dependencyResolutionManagement {
+   repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
+   repositories {
+      mavenCentral()
+      mavenLocal()
+   }
    versionCatalogs {
       create("libs") {
-         val kotlin = "2.2.0"
+         val kotlin = "2.2.21"
          plugin("kotlin-jvm", "org.jetbrains.kotlin.jvm").version(kotlin)
-         plugin("kotlin-serialization","org.jetbrains.kotlin.plugin.serialization").version(kotlin)
+         plugin("kotlin-serialization", "org.jetbrains.kotlin.plugin.serialization").version(kotlin)
          library("kotlin-reflect", "org.jetbrains.kotlin:kotlin-reflect:$kotlin")
 
          val micrometer = "1.14.1"
@@ -107,13 +107,11 @@ dependencyResolutionManagement {
          library("jackson-databind", "com.fasterxml.jackson.core:jackson-databind:$jackson")
 
          val testcontainers = "1.19.8"
-         library("testcontainers", "org.testcontainers:testcontainers:$testcontainers")
+         library("testcontainers-base", "org.testcontainers:testcontainers:$testcontainers")
          library("testcontainers-postgresql", "org.testcontainers:postgresql:$testcontainers")
          library("testcontainers-mysql", "org.testcontainers:mysql:$testcontainers")
          library("testcontainers-localstack", "org.testcontainers:localstack:$testcontainers")
          library("testcontainers-vault", "org.testcontainers:vault:$testcontainers")
-
-         library("kotest-extensions-testcontainers", "io.kotest.extensions:kotest-extensions-testcontainers:2.0.2")
 
          library("azure-identity", "com.azure:azure-identity:1.13.2")
          library("azure-security-keyvault-secrets", "com.azure:azure-security-keyvault-secrets:4.9.0")

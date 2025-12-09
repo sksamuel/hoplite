@@ -1,6 +1,9 @@
+plugins {
+   id("kotlin-conventions")
+   id("publishing-conventions")
+}
+
 dependencies {
    api(projects.hopliteCore)
    implementation(libs.micrometer.registry.prometheus)
 }
-
-apply("../publish.gradle.kts")
