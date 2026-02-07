@@ -13,19 +13,16 @@ class ConfigLoaderTest : AnnotationSpec() {
   @Test
   fun `customClassloader application-properties`() {
     val c = loadUsingCustomClassLoader<Config>(listOf("gh511-application.properties"))
-    println(c)
   }
 
   @Test
   fun `customClassloader envfile`() {
     val c = loadUsingCustomClassLoader<Config>(listOf(".gh511-envfile"))
-    println(c)
   }
 
   @Test
   fun `customClassloader nested-application-properties`() {
     val c = loadUsingCustomClassLoader<Config>(listOf("nested/gh511-nested-application.properties"))
-    println(c)
   }
 
   // /**
@@ -40,13 +37,11 @@ class ConfigLoaderTest : AnnotationSpec() {
   @Test
   fun `hopliteClassloader application-properties ❌`() {
     val c = loadUsingHopliteClassloader<Config>(listOf("gh511-application.properties"))
-    println(c)
   }
 
   @Test
   fun `hopliteClassloader application-properties ✅ `() {
     val c = loadUsingHopliteClassloader<Config>(listOf("/gh511-application.properties"))
-    println(c)
   }
 
   /**
@@ -57,12 +52,21 @@ class ConfigLoaderTest : AnnotationSpec() {
   @Test
   fun `hopliteClassloader envfile`() {
     val c = loadUsingHopliteClassloader<Config>(listOf(".gh511-envfile"))
-    println(c)
   }
 
   @Test
   fun `hopliteClassloader nested-application-properties`() {
     val c = loadUsingHopliteClassloader<Config>(listOf("/nested/gh511-nested-application.properties"))
-    println(c)
+  }
+
+
+  @Test
+  fun `expected should support both slash and no slash in all cases`() {
+    loadUsingHopliteClassloader<Config>(listOf("gh511-application.properties"))
+    loadUsingHopliteClassloader<Config>(listOf("/gh511-application.properties"))
+    loadUsingHopliteClassloader<Config>(listOf(".gh511-envfile"))
+    loadUsingHopliteClassloader<Config>(listOf("/.gh511-envfile"))
+    loadUsingHopliteClassloader<Config>(listOf("/nested/gh511-nested-application.properties"))
+    loadUsingHopliteClassloader<Config>(listOf("nested/gh511-nested-application.properties"))
   }
 }
