@@ -4,13 +4,10 @@ import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.ExperimentalHoplite
 import com.sksamuel.hoplite.addResourceOrFileSource
 import com.sksamuel.hoplite.parsers.PropsParser
-import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.style.AnnotationSpec
-import org.testcontainers.shaded.com.github.dockerjava.core.DockerConfigFile.loadConfig
 
-@Suppress("NonAsciiCharacters")
-class ConfigLoaderTest : AnnotationSpec() {
+class SmarterPathAndClasspathLoadingTest : AnnotationSpec() {
 
   data class Database(val dbJdbcUrl: String, val username: String)
   data class Config(val gh511Database: Database, val gh511Env: String)
