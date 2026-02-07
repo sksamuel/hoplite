@@ -17,8 +17,8 @@ class ConfigLoaderTest : AnnotationSpec() {
   }
 
   @Test
-  fun `customClassloader env`() {
-    val c = loadUsingCustomClassLoader<Config>(listOf(".env"))
+  fun `customClassloader envfile`() {
+    val c = loadUsingCustomClassLoader<Config>(listOf(".gh511-envfile"))
     println(c)
   }
 
@@ -35,7 +35,7 @@ class ConfigLoaderTest : AnnotationSpec() {
   //  * Why this duality?
   //  * Can hoplite be fixed?
   //  *
-  //  * In my opinion, both `.env` and `application.properties` should be found without the `/`, as they're top level resources.
+  //  * In my opinion, both `.envfile` and `application.properties` should be found without the `/`, as they're top level resources.
   //  */
   @Test
   fun `hopliteClassloader application-properties ❌`() {
@@ -45,7 +45,7 @@ class ConfigLoaderTest : AnnotationSpec() {
 
   @Test
   fun `hopliteClassloader application-properties ✅ `() {
-    val c = loadUsingHopliteClassloader<Config>(listOf("/application.properties"))
+    val c = loadUsingHopliteClassloader<Config>(listOf("/gh511-application.properties"))
     println(c)
   }
 
@@ -55,8 +55,8 @@ class ConfigLoaderTest : AnnotationSpec() {
    * This makes setup confusing!
    */
   @Test
-  fun `hopliteClassloader env`() {
-    val c = loadUsingHopliteClassloader<Config>(listOf(".env"))
+  fun `hopliteClassloader envfile`() {
+    val c = loadUsingHopliteClassloader<Config>(listOf(".gh511-envfile"))
     println(c)
   }
 
