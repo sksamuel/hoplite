@@ -1,0 +1,68 @@
+package com.sksamuel.hoplite.gh511.classpathLoadingAndFileLoading
+
+import com.sksamuel.hoplite.gh511.classpathLoadingAndFileLoading.ConfigLoader.loadUsingCustomClassLoader
+import com.sksamuel.hoplite.gh511.classpathLoadingAndFileLoading.ConfigLoader.loadUsingHopliteClassloader
+import io.kotest.core.spec.style.AnnotationSpec
+
+@Suppress("NonAsciiCharacters")
+class ConfigLoaderTest : AnnotationSpec() {
+
+  data class Database(val dbJdbcUrl: String, val username: String)
+  data class Config(val gh511Database: Database, val gh511Env: String)
+
+  @Test
+  fun `customClassloader application-properties`() {
+    val c = loadUsingCustomClassLoader<Config>(listOf("gh511-application.properties"))
+    println(c)
+  }
+
+  @Test
+  fun `customClassloader env`() {
+    val c = loadUsingCustomClassLoader<Config>(listOf(".env"))
+    println(c)
+  }
+
+  @Test
+  fun `customClassloader nested-application-properties`() {
+    val c = loadUsingCustomClassLoader<Config>(listOf("nested/gh511-nested-application.properties"))
+    println(c)
+  }
+
+  // /**
+  //  * the problem is, using hoplite's current implementation, for _some_ files i have to put `/` in front,
+  //  * while for other files, i do not need to put `/` in front.
+  //  *
+  //  * Why this duality?
+  //  * Can hoplite be fixed?
+  //  *
+  //  * In my opinion, both `.env` and `application.properties` should be found without the `/`, as they're top level resources.
+  //  */
+  @Test
+  fun `hopliteClassloader application-properties ❌`() {
+    val c = loadUsingHopliteClassloader<Config>(listOf("gh511-application.properties"))
+    println(c)
+  }
+
+  @Test
+  fun `hopliteClassloader application-properties ✅ `() {
+    val c = loadUsingHopliteClassloader<Config>(listOf("/application.properties"))
+    println(c)
+  }
+
+  /**
+   * This is the only one which works without a / in front.
+   *
+   * This makes setup confusing!
+   */
+  @Test
+  fun `hopliteClassloader env`() {
+    val c = loadUsingHopliteClassloader<Config>(listOf(".env"))
+    println(c)
+  }
+
+  @Test
+  fun `hopliteClassloader nested-application-properties`() {
+    val c = loadUsingHopliteClassloader<Config>(listOf("/nested/gh511-nested-application.properties"))
+    println(c)
+  }
+}
