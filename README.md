@@ -7,7 +7,7 @@ into the required type will cause the config to fail with detailed error message
 
 ![master](https://github.com/sksamuel/hoplite/workflows/master/badge.svg)
 [<img src="https://img.shields.io/maven-central/v/com.sksamuel.hoplite/hoplite-core.svg?label=latest%20release"/>](http://search.maven.org/#search%7Cga%7C1%7Choplite)
-[<img src="https://img.shields.io/nexus/s/https/s01.oss.sonatype.org/com.sksamuel.hoplite/hoplite-core.svg?label=latest%20snapshot&style=plastic"/>](https://s01.oss.sonatype.org/content/repositories/snapshots/com/sksamuel/hoplite/)
+[<img src="https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Fcentral.sonatype.com%2Frepository%2Fmaven-snapshots%2Fcom%2Fsksamuel%2Fhoplite%2Fhoplite-core%2Fmaven-metadata.xml&strategy=highestVersion&label=maven-snapshot">](https://central.sonatype.com/repository/maven-snapshots/com/sksamuel/hoplite/hoplite-core/maven-metadata.xml)
 
 ## Features
 

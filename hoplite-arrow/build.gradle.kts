@@ -1,9 +1,12 @@
-dependencies {
-  api(projects.hopliteCore)
-  testImplementation(projects.hopliteToml)
-  testImplementation(projects.hopliteYaml)
-  testImplementation(projects.hopliteJson)
-  implementation(libs.arrow.core)
+plugins {
+   id("kotlin-conventions")
+   id("publishing-conventions")
 }
 
-apply("../publish.gradle.kts")
+dependencies {
+   implementation(projects.hopliteCore)
+   testImplementation(projects.hopliteToml)
+   testImplementation(projects.hopliteYaml)
+   testImplementation(projects.hopliteJson)
+   implementation(libs.arrow.core)
+}

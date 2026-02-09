@@ -8,18 +8,19 @@ import com.sksamuel.hoplite.PropertySource
 import com.sksamuel.hoplite.PropertySourceContext
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.watch.watchers.FileWatcher
+import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.common.ExperimentalKotest
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.engine.spec.tempdir
 import io.kotest.engine.spec.tempfile
-import io.kotest.framework.concurrency.eventually
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import kotlinx.coroutines.delay
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.time.Duration.Companion.seconds
 
 class TestWatcher: Watchable {
   private var cb: (() -> Unit)? = null
@@ -118,7 +119,7 @@ class WatcherTest : FunSpec({
     delay(1000)
     tmpFile.writeText("""{"foo": "baz"}""")
 
-    eventually(10000) {
+    eventually(10.seconds) {
       val reloadedConfig = reloadableConfig.getLatest()
       reloadedConfig shouldNotBe null
       reloadedConfig.foo shouldBe "baz"
@@ -182,7 +183,7 @@ class WatcherTest : FunSpec({
 
     delay(1000)
 
-    eventually(10000) {
+    eventually(10.seconds) {
       val reloadedConfig = reloadableConfig.getLatest()
       reloadedConfig shouldNotBe null
       reloadedConfig.foo shouldBe "baz"

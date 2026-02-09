@@ -7,10 +7,11 @@ import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.PropertySource
 import com.sksamuel.hoplite.consul.ConsulConfigPreprocessor
 import com.sksamuel.hoplite.watch.ReloadableConfig
+import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.common.ExperimentalKotest
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.framework.concurrency.eventually
 import io.kotest.matchers.shouldBe
+import kotlin.time.Duration.Companion.seconds
 
 data class TestConfig(val foo: String)
 
@@ -48,7 +49,7 @@ class ConsulWatcherTest : FunSpec({
 
     kvClient.putValue("foo", "baz")
 
-    eventually(2000) {
+    eventually(2.seconds) {
       latest = reloadableConfig.getLatest()
       latest.foo shouldBe "baz"
     }

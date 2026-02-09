@@ -1,6 +1,9 @@
+plugins {
+   id("kotlin-conventions")
+   id("publishing-conventions")
+}
+
 dependencies {
    api(projects.hopliteCore)
    api(libs.consul.client)
 }
-
-apply("../publish.gradle.kts")
