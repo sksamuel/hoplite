@@ -11,9 +11,12 @@ data class Conf(val mongo: Mongo)
 class HoconEnvOverrideTest : FunSpec({
 
   test("override hocon configuration with env variables") {
+    val config = ConfigLoader().loadConfigOrThrow<Conf>("/hocon.conf")
+    config.mongo.hostname shouldBe "localhost"
+
     withEnvironment("MONGO_HOSTNAME", "foo.wibble.com") {
       val config = ConfigLoader().loadConfigOrThrow<Conf>("/hocon.conf")
-      config.mongo.hostname shouldBe "foo.wibble.com"
+      config.mongo.hostname shouldBe "foo.wibble.com" // as of release 2.9.0 (latest as of 2026-02-18) this fails. This is fixed on latest master
     }
   }
 
