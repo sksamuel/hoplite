@@ -1,3 +1,8 @@
+plugins {
+   id("kotlin-conventions")
+   id("publishing-conventions")
+}
+
 dependencies {
    api(projects.hopliteCore)
    testImplementation(projects.hopliteToml)
@@ -5,5 +10,3 @@ dependencies {
    testImplementation(projects.hopliteJson)
    implementation(libs.vavr.kotlin)
 }
-
-apply("../publish.gradle.kts")

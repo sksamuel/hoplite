@@ -15,6 +15,11 @@ sealed interface Node {
   val path: DotPath
 
   /**
+   * The original delimiter between path elements. Usually a `.` but could be something else.
+   */
+  val delimiter: String
+
+  /**
    * The original source key of this node without any normalization.
    * Useful for reporting or potentially for custom decoders.
    */
@@ -149,7 +154,7 @@ fun Node.transform(transformer: (Node) -> Node): Node = when (val transformed = 
 fun <T : Node> T.denormalize(): T {
   return when (this) {
     is MapNode -> copy(map = map.mapKeys { (k, v) ->
-      (v.sourceKey ?: k).removePrefix("$sourceKey.")
+      (v.sourceKey ?: k).removePrefix("$sourceKey$delimiter")
     })
     else -> this
   } as T
@@ -163,7 +168,8 @@ data class MapNode(
   override val path: DotPath,
   val value: Node = Undefined,
   override val meta: Map<String, Any?> = emptyMap(),
-  override val sourceKey: String? = if (path == DotPath.root) null else path.flatten(),
+  override val delimiter: String = ".",
+  override val sourceKey: String? = if (path == DotPath.root) null else path.flatten(delimiter),
 ) : ContainerNode() {
   override val simpleName: String = "Map"
   override fun atKey(key: String): Node = map[key] ?: Undefined
@@ -177,7 +183,8 @@ data class ArrayNode(
   override val pos: Pos,
   override val path: DotPath,
   override val meta: Map<String, Any?> = emptyMap(),
-  override val sourceKey: String? = if (path == DotPath.root) null else path.flatten(),
+  override val delimiter: String = ".",
+  override val sourceKey: String? = if (path == DotPath.root) null else path.flatten(delimiter),
 ) : ContainerNode() {
   override val simpleName: String = "List"
   override fun atKey(key: String): Node = Undefined
@@ -199,7 +206,8 @@ data class StringNode(
   override val pos: Pos,
   override val path: DotPath,
   override val meta: Map<String, Any?> = emptyMap(),
-  override val sourceKey: String? = if (path == DotPath.root) null else path.flatten(),
+  override val delimiter: String = ".",
+  override val sourceKey: String? = if (path == DotPath.root) null else path.flatten(delimiter),
 ) : PrimitiveNode() {
   override val simpleName: String = "String"
 }
@@ -209,7 +217,8 @@ data class BooleanNode(
   override val pos: Pos,
   override val path: DotPath,
   override val meta: Map<String, Any?> = emptyMap(),
-  override val sourceKey: String? = if (path == DotPath.root) null else path.flatten(),
+  override val delimiter: String = ".",
+  override val sourceKey: String? = if (path == DotPath.root) null else path.flatten(delimiter),
 ) : PrimitiveNode() {
   override val simpleName: String = "Boolean"
 }
@@ -221,7 +230,8 @@ data class LongNode(
   override val pos: Pos,
   override val path: DotPath,
   override val meta: Map<String, Any?> = emptyMap(),
-  override val sourceKey: String? = if (path == DotPath.root) null else path.flatten(),
+  override val delimiter: String = ".",
+  override val sourceKey: String? = if (path == DotPath.root) null else path.flatten(delimiter),
 ) : NumberNode() {
   override val simpleName: String = "Long"
 }
@@ -231,7 +241,8 @@ data class DoubleNode(
   override val pos: Pos,
   override val path: DotPath,
   override val meta: Map<String, Any?> = emptyMap(),
-  override val sourceKey: String? = if (path == DotPath.root) null else path.flatten(),
+  override val delimiter: String = ".",
+  override val sourceKey: String? = if (path == DotPath.root) null else path.flatten(delimiter),
 ) : NumberNode() {
   override val simpleName: String = "Double"
 }
@@ -240,7 +251,8 @@ data class NullNode(
   override val pos: Pos,
   override val path: DotPath,
   override val meta: Map<String, Any?> = emptyMap(),
-  override val sourceKey: String? = if (path == DotPath.root) null else path.flatten(),
+  override val delimiter: String = ".",
+  override val sourceKey: String? = if (path == DotPath.root) null else path.flatten(delimiter),
 ) : PrimitiveNode() {
   override val simpleName: String = "null"
   override val value: Any? = null
@@ -251,6 +263,7 @@ object Undefined : Node {
   override val pos: Pos = Pos.NoPos
   override val path = DotPath.root
   override val sourceKey: String? = null
+  override val delimiter: String = "."
   override fun atKey(key: String): Node = this
   override fun atSourceKey(key: String): Node = this
   override fun atIndex(index: Int): Node = this

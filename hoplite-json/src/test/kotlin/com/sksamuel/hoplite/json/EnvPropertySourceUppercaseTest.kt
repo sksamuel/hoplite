@@ -16,13 +16,11 @@ class EnvPropertySourceUppercaseTest : DescribeSpec({
         ConfigLoader {
           addPropertySource(
             EnvironmentVariablesPropertySource(
-              useUnderscoresAsSeparator = true,
-              allowUppercaseNames = true,
               environmentVariableMap = {
                 mapOf(
-                  "CREDS.USERNAME" to "a",
-                  "CREDS.PASSWORD" to "c",
-                  "SOME_CAMEL_SETTING" to "c"
+                  "CREDS_USERNAME" to "a",
+                  "CREDS_PASSWORD" to "c",
+                  "SOMECAMELSETTING" to "c"
                 )
               }
             )
@@ -36,13 +34,11 @@ class EnvPropertySourceUppercaseTest : DescribeSpec({
         ConfigLoader {
           addPropertySource(
             EnvironmentVariablesPropertySource(
-              useUnderscoresAsSeparator = true,
-              allowUppercaseNames = true,
               environmentVariableMap = {
                 mapOf(
-                  "CREDS__USERNAME" to "a",
-                  "CREDS__PASSWORD" to "b",
-                  "SOME_CAMEL_SETTING" to "c"
+                  "CREDS_USERNAME" to "a",
+                  "CREDS_PASSWORD" to "b",
+                  "SOMECAMELSETTING" to "c"
                 )
               }
             )
@@ -55,12 +51,10 @@ class EnvPropertySourceUppercaseTest : DescribeSpec({
       run {
         ConfigLoader {
           addPropertySource(EnvironmentVariablesPropertySource(
-            useUnderscoresAsSeparator = true,
-            allowUppercaseNames = true,
             environmentVariableMap = {
               mapOf(
-                "creds__username" to "a",
-                "creds__password" to "d",
+                "creds_username" to "a",
+                "creds_password" to "d",
                 "someCamelSetting" to "e"
               )
             }
@@ -74,13 +68,12 @@ class EnvPropertySourceUppercaseTest : DescribeSpec({
         ConfigLoader {
           addPropertySource(
             EnvironmentVariablesPropertySource(
-              useUnderscoresAsSeparator = true,
-              allowUppercaseNames = true,
               environmentVariableMap = {
                 mapOf(
-                  "WIBBLE_CREDS.USERNAME" to "a",
-                  "WIBBLE_CREDS.PASSWORD" to "c",
-                  "WIBBLE_SOME_CAMEL_SETTING" to "c"
+                  "OTHER_CREDS_USERNAME" to "z",
+                  "WIBBLE_CREDS_USERNAME" to "a",
+                  "WIBBLE_CREDS_PASSWORD" to "c",
+                  "WIBBLE_SOMECAMELSETTING" to "c"
                 )
               },
               prefix = "WIBBLE_"

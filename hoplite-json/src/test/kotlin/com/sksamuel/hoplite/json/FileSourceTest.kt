@@ -2,7 +2,6 @@ package com.sksamuel.hoplite.json
 
 import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.PropertySource
-import com.sksamuel.hoplite.addEnvironmentSource
 import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.string.shouldContain
@@ -13,14 +12,12 @@ class FileSourceTest : FunSpec() {
 
     test("PropertySource.file should not fail for optionals") {
       ConfigLoaderBuilder.default()
-        .addEnvironmentSource() // so we have at least one value
         .addSource(PropertySource.file(File("foo.json"), true)).build().loadNodeOrThrow()
     }
 
     test("PropertySource.file should fail for required file that does not exist") {
       shouldThrowAny {
         ConfigLoaderBuilder.default()
-          .addEnvironmentSource() // so we have at least one value
           .addSource(PropertySource.file(File("foo.json")))
           .build().loadNodeOrThrow()
       }.message shouldContain "Could not find file foo.json"
@@ -29,7 +26,6 @@ class FileSourceTest : FunSpec() {
     test("PropertySource.file should fail for empty file") {
       shouldThrowAny {
         ConfigLoaderBuilder.default()
-          .addEnvironmentSource() // so we have at least one value
           .addSource(PropertySource.file(File(this::class.java.getResource("/empty.json")!!.file)))
           .build().loadNodeOrThrow()
       }.message shouldContain "empty.json is empty"
@@ -37,7 +33,6 @@ class FileSourceTest : FunSpec() {
 
     test("PropertySource.file should NOT fail for empty file if allowEmpty=true") {
       ConfigLoaderBuilder.default()
-        .addEnvironmentSource() // so we have at least one value
         .addSource(PropertySource.file(File(this::class.java.getResource("/empty.json")!!.file), allowEmpty = true))
         .build().loadNodeOrThrow()
     }
@@ -45,7 +40,6 @@ class FileSourceTest : FunSpec() {
     test("PropertySource.file should fail if extension is not registered") {
       shouldThrowAny {
         ConfigLoaderBuilder.default()
-          .addEnvironmentSource() // so we have at least one value
           .addSource(PropertySource.file(File("wibble")))
           .build().loadNodeOrThrow()
       }.message shouldContain "Could not detect parser for file extension '.wibble'"

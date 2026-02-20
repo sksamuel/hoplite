@@ -1,5 +1,3 @@
-@file:Suppress("RegExpRedundantEscape")
-
 package com.sksamuel.hoplite.resolver.context
 
 import com.sksamuel.hoplite.ConfigFailure
@@ -55,7 +53,7 @@ abstract class ContextResolver : Resolver {
     node: StringNode,
     root: Node,
     context: DecoderContext
-  ) = lookup(path, node, root, context).flatMap { it?.valid() ?: lookup(fallback, node, root, context) }
+  ) = lookup(path, node, root, context).flatMap { it?.valid() ?: fallback.valid() }
 
   override suspend fun resolve(paramName: String?, kclass: KClass<*>, node: Node, root: Node, context: DecoderContext): ConfigResult<Node> {
     return when (node) {
