@@ -32,6 +32,12 @@ abstract class ConfigSource {
   abstract fun ext(): String
 
   class PathSource(val path: Path) : ConfigSource() {
+    // todo maybe the / sanitization logic can be added here, because there are so many paths which add sources?
+    //  Anyway, what i think is the correct thing is to extract the complete path loading, whether classpath or file, named here Path, (or absolute file?) into a single class and use that everywhere.
+    //    i guess that could be this class itself (ConfigSource), and try to simplify as much as possible every other codepath by delegating to this?
+    //  What i think should be done is nowhere in code should there be a distinction between a simple path resource of a classpath resource, except for here.
+    //  From my summary look, i think this  will take a little more work though than just this little PR,
+    //    so I'd like to ask if this makes sense to you as well?
     override fun describe(): String = path.toString()
     override fun ext() = path.fileName.toString().split('.').last()
     override fun open(optional: Boolean): ConfigResult<InputStream?> {
