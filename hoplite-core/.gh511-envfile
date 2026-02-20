@@ -1,0 +1,3 @@
+gh511-env=test
+gh511-database.dbJdbcUrl=AAA
+gh511-database.username=BBB
