@@ -1,5 +1,6 @@
 package com.sksamuel.hoplite.decoder
 
+import com.sksamuel.hoplite.ConfigEnumDefault
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.DecoderConfig
 import com.sksamuel.hoplite.DecoderContext
@@ -12,6 +13,7 @@ import com.sksamuel.hoplite.fp.Validated
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import kotlin.reflect.KType
 import kotlin.reflect.full.createType
 
 class EnumDecoderTest : BehaviorSpec({
@@ -58,6 +60,39 @@ class EnumDecoderTest : BehaviorSpec({
       }
     }
   }
+
+  given("an enum class annotated with @ConfigEnumDefault") {
+    `when`("the configured value does not match any constant") {
+      val node = StringNode("Yellow", Pos.NoPos, DotPath.root)
+      val actual = EnumDecoder<TestEnumWithDefault>().decode(node, TestEnumWithDefault::class.createType())
+
+      then("it should fall back to the default constant") {
+        actual.shouldBeInstanceOf<Validated.Valid<TestEnumWithDefault>>()
+          .value shouldBe TestEnumWithDefault.Unknown
+      }
+    }
+
+    `when`("the configured value matches a real constant") {
+      val node = StringNode("Red", Pos.NoPos, DotPath.root)
+      val actual = EnumDecoder<TestEnumWithDefault>().decode(node, TestEnumWithDefault::class.createType())
+
+      then("it should decode normally without using the fallback") {
+        actual.shouldBeInstanceOf<Validated.Valid<TestEnumWithDefault>>()
+          .value shouldBe TestEnumWithDefault.Red
+      }
+    }
+  }
+
+  given("an enum class annotated with @ConfigEnumDefault naming a missing constant") {
+    `when`("the configured value does not match any constant") {
+      val node = StringNode("Yellow", Pos.NoPos, DotPath.root)
+      val actual = EnumDecoder<TestEnumWithBadDefault>().decode(node, TestEnumWithBadDefault::class.createType())
+
+      then("it should report the original invalid-enum failure") {
+        actual.shouldBeInstanceOf<Validated.Invalid<ConfigFailure>>()
+      }
+    }
+  }
 }) {
   private companion object {
     fun <T : Any> EnumDecoder<T>.decode(node: PrimitiveNode, ignoreCase: Boolean) = decode(
@@ -71,8 +106,29 @@ class EnumDecoderTest : BehaviorSpec({
       )
     )
 
+    fun <T : Any> EnumDecoder<T>.decode(node: PrimitiveNode, type: KType) = decode(
+      node,
+      type,
+      DecoderContext(
+        decoders = defaultDecoderRegistry(),
+        paramMappers = defaultParamMappers(),
+        nodeTransformers = defaultNodeTransformers(),
+        config = DecoderConfig(flattenArraysToString = false, resolveTypesCaseInsensitive = false)
+      )
+    )
+
     enum class TestEnum {
       ONE, TWO
+    }
+
+    @ConfigEnumDefault("Unknown")
+    enum class TestEnumWithDefault {
+      Red, Blue, Green, Unknown
+    }
+
+    @ConfigEnumDefault("DoesNotExist")
+    enum class TestEnumWithBadDefault {
+      Red, Blue
     }
   }
 }
