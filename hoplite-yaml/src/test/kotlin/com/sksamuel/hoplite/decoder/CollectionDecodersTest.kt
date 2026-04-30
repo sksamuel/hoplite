@@ -1,8 +1,16 @@
 package com.sksamuel.hoplite.decoder
 
 import com.sksamuel.hoplite.ConfigLoader
+import com.sksamuel.hoplite.ConfigLoaderBuilder
+import com.sksamuel.hoplite.yaml.YamlPropertySource
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import java.util.SortedSet
+import java.util.TreeSet
+
+data class CoreSortedSetItem(val name: String, val score: Int) : Comparable<CoreSortedSetItem> {
+  override fun compareTo(other: CoreSortedSetItem): Int = name.compareTo(other.name)
+}
 
 class CollectionDecodersTest : FunSpec() {
   init {
@@ -53,6 +61,34 @@ class CollectionDecodersTest : FunSpec() {
 
       val config = ConfigLoader().loadConfigOrThrow<Test>("/basic.yml")
       config shouldBe Test(null, null)
+    }
+
+    // Per-element decoders must be invoked with the element KType, not the outer
+    // SortedSet<T> KType — DataClassDecoder reads type.classifier.
+    test("SortedSet<DataClass> passes element type to data class decoder") {
+      data class Test(val items: SortedSet<CoreSortedSetItem>)
+
+      val config = ConfigLoaderBuilder.default()
+        .addPropertySource(
+          YamlPropertySource(
+            """
+              items:
+                - name: alice
+                  score: 1
+                - name: bob
+                  score: 2
+            """
+          )
+        )
+        .build()
+        .loadConfigOrThrow<Test>()
+
+      config shouldBe Test(
+        TreeSet<CoreSortedSetItem>().apply {
+          add(CoreSortedSetItem("alice", 1))
+          add(CoreSortedSetItem("bob", 2))
+        }
+      )
     }
   }
 }
