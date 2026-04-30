@@ -18,7 +18,7 @@ class BigDecimalDecoder : NonNullableLeafDecoder<BigDecimal> {
   override fun safeLeafDecode(node: Node,
                               type: KType,
                               context: DecoderContext): ConfigResult<BigDecimal> = when (node) {
-    is StringNode -> runCatching { node.value.toDouble().toBigDecimal() }.toValidated { ThrowableFailure(it) }
+    is StringNode -> runCatching { BigDecimal(node.value) }.toValidated { ThrowableFailure(it) }
     is LongNode -> node.value.toBigDecimal().valid()
     is DoubleNode -> node.value.toBigDecimal().valid()
     else -> ConfigFailure.DecodeError(node, type).invalid()

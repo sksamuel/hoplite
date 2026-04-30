@@ -18,7 +18,7 @@ class BigIntegerDecoder : NonNullableLeafDecoder<BigInteger> {
   override fun safeLeafDecode(node: Node,
                               type: KType,
                               context: DecoderContext): ConfigResult<BigInteger> = when (node) {
-    is StringNode -> runCatching { node.value.toLong().toBigInteger() }.toValidated { ThrowableFailure(it) }
+    is StringNode -> runCatching { BigInteger(node.value) }.toValidated { ThrowableFailure(it) }
     is LongNode -> node.value.toBigInteger().valid()
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }

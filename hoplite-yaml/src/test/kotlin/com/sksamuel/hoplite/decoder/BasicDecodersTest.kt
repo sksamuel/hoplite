@@ -86,7 +86,7 @@ class BasicTypesTest : FunSpec({
     data class Test(val a: BigDecimal, val b: BigDecimal)
 
     val config = ConfigLoader().loadConfigOrThrow<Test>("/test_bigdecimal.yml")
-    config shouldBe Test(10.0.toBigDecimal(), 20.3334.toBigDecimal())
+    config shouldBe Test(BigDecimal("10"), BigDecimal("20.3334"))
   }
 
   test("BigInteger") {
