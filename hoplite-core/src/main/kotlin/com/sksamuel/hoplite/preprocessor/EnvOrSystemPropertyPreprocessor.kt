@@ -19,18 +19,24 @@ object EnvOrSystemPropertyPreprocessor : TraversingPrimitivePreprocessor() {
   private val regex = "\\$\\{(.*?)\\}".toRegex()
   private val valueWithDefaultRegex = "(.*?):-(.*?)".toRegex()
 
+  // System.getProperty throws IllegalArgumentException when called with an empty key,
+  // and that has crashed users whose configs end up containing a literal ${} placeholder
+  // (gh-469). Skip the lookup when the key is empty.
+  private fun lookup(key: String): String? =
+    if (key.isEmpty()) null else System.getProperty(key) ?: System.getenv(key)
+
   override fun handle(node: PrimitiveNode, context: DecoderContext): ConfigResult<Node> = when (node) {
     is StringNode -> {
       val rawValue = node.value
       val value = regex.replace(rawValue) { match ->
         val key = match.groupValues[1]
         when (val matchWithDefault = valueWithDefaultRegex.matchEntire(key)) {
-          null -> System.getProperty(key) ?: System.getenv(key) ?: match.value
+          null -> lookup(key) ?: match.value
           // lookup with default value fallback
           else -> matchWithDefault.let { m ->
             val key2 = m.groupValues[1]
             val default = m.groupValues[2]
-            System.getProperty(key2) ?: System.getenv(key2) ?: default
+            lookup(key2) ?: default
           }
         }
       }
