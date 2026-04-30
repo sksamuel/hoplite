@@ -12,11 +12,15 @@ import com.sksamuel.hoplite.fp.valid
 /**
  * Replaces strings of the form ${var} with the value of the env variable 'var' or system property 'var'.
  * Defaults can also be applied in case the env var is not available: ${var:-default}.
+ *
+ * The negative-lookahead `(?!\{)` skips `${{...}}` placeholders so this legacy preprocessor does not
+ * mangle context-resolver syntax such as `${{ env:VAR :- fallback }}` (gh-472), which the regex would
+ * otherwise greedily match through the inner `{` and the first `}`.
  */
 object EnvOrSystemPropertyPreprocessor : TraversingPrimitivePreprocessor() {
 
   // Redundant escaping required for Android support.
-  private val regex = "\\$\\{(.*?)\\}".toRegex()
+  private val regex = "\\$\\{(?!\\{)(.*?)\\}".toRegex()
   private val valueWithDefaultRegex = "(.*?):-(.*?)".toRegex()
 
   override fun handle(node: PrimitiveNode, context: DecoderContext): ConfigResult<Node> = when (node) {
