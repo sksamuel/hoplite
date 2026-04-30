@@ -13,7 +13,8 @@ class BooleanArrayDecoder : Decoder<BooleanArray> {
   override fun supports(type: KType): Boolean = type.classifier == BooleanArray::class
   override fun decode(node: Node, type: KType, context: DecoderContext): ConfigResult<BooleanArray> {
     return when (node) {
-      is StringNode -> node.value.split(",").map { it.trim().toBooleanStrict() }.toBooleanArray().valid()
+      is StringNode -> runCatching { node.value.split(",").map { it.trim().toBooleanStrict() }.toBooleanArray() }
+        .fold({ it.valid() }, { ConfigFailure.DecodeError(node, type).invalid() })
       else -> ConfigFailure.DecodeError(node, type).invalid()
     }
   }
