@@ -1,5 +1,6 @@
 package com.sksamuel.hoplite.decoder
 
+import com.sksamuel.hoplite.ConfigEnumDefault
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.fp.Validated
@@ -8,6 +9,9 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+
+@ConfigEnumDefault("Unknown")
+enum class Color { Red, Blue, Green, Unknown }
 
 class EnumDecoderTest : BehaviorSpec({
 
@@ -42,6 +46,32 @@ class EnumDecoderTest : BehaviorSpec({
             it.a shouldBe Wine.Malbec
             it.b shouldBe Wine.Merlot
           }
+      }
+    }
+  }
+
+  given("an enum annotated with @ConfigEnumDefault") {
+    data class Branding(val bgColor: Color)
+
+    `when`("the yaml has an unknown enum value") {
+      val config = ConfigLoaderBuilder.default()
+        .build()
+        .loadConfig<Branding>("/enum_default_invalid.yml")
+
+      then("it falls back to the configured default") {
+        config.shouldBeInstanceOf<Validated.Valid<Branding>>()
+          .value.bgColor shouldBe Color.Unknown
+      }
+    }
+
+    `when`("the yaml has a known enum value") {
+      val config = ConfigLoaderBuilder.default()
+        .build()
+        .loadConfig<Branding>("/enum_default_valid.yml")
+
+      then("it decodes normally") {
+        config.shouldBeInstanceOf<Validated.Valid<Branding>>()
+          .value.bgColor shouldBe Color.Red
       }
     }
   }
