@@ -80,9 +80,11 @@ abstract class ConfigSource {
       return if (path.exists()) {
         PathSource(path).valid()
       } else {
-        classpathResourceLoader.getResourceAsStream(resourceOrFile)
-          ?.let { ClasspathSource(resourceOrFile, classpathResourceLoader).valid() }
-          ?: ConfigFailure.UnknownSource(resourceOrFile).invalid()
+        // Probe for existence; close immediately so we don't leak a stream that the actual load
+        // (later, via ConfigFilePropertySource) will reopen.
+        val exists = classpathResourceLoader.getResourceAsStream(resourceOrFile)?.use { true } ?: false
+        if (exists) ClasspathSource(resourceOrFile, classpathResourceLoader).valid()
+        else ConfigFailure.UnknownSource(resourceOrFile).invalid()
       }
     }
 
