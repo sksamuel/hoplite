@@ -44,7 +44,9 @@ object RandomContextResolver : ContextResolver() {
           }
           stringMatch != null -> {
             val length = stringMatch.groupValues[1].toInt()
-            val chars = CharArray(length) { Random.nextInt(a.code, z.code).toChar() }
+            // Random.nextInt(from, until) is exclusive on `until`, so `nextInt(a.code, z.code)`
+            // only produces 'a'..'y' and silently never picks 'z'.
+            val chars = CharArray(length) { Random.nextInt(a.code, z.code + 1).toChar() }
             String(chars).valid()
           }
           else -> null.valid()
