@@ -17,9 +17,13 @@ object RandomContextResolver : ContextResolver() {
   override val contextKey: String = "random"
   override val default: Boolean = false
 
-  private val intWithMaxRule = "\\$\\{random.int\\(\\s*(\\d+)\\s*\\)\\}".toRegex()
-  private val intWithRangeRule = "\\$\\{random.int\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*\\)\\}".toRegex()
-  private val stringRule = "\\$\\{random.string\\(\\s*(\\d+)\\s*\\)\\}".toRegex()
+  // The path passed to lookup() is just the inside of `${{ random:... }}` — e.g. `int(10)` —
+  // not the surrounding `${random.int(10)}` syntax. The previous regexes were anchored to the
+  // outer form, so they could never match and `${{ random:int(N) }}` and friends fell through to
+  // null, leaving the placeholder unresolved.
+  private val intWithMaxRule = "int\\(\\s*(\\d+)\\s*\\)".toRegex()
+  private val intWithRangeRule = "int\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*\\)".toRegex()
+  private val stringRule = "string\\(\\s*(\\d+)\\s*\\)".toRegex()
 
   override fun lookup(path: String, node: StringNode, root: Node, context: DecoderContext): ConfigResult<String?> {
     return when (path) {
