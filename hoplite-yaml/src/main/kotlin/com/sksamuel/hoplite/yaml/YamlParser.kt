@@ -31,17 +31,22 @@ class YamlParser : Parser {
   override fun defaultFileExtensions(): List<String> = listOf("yml", "yaml")
   private val yaml = Yaml()
   override fun load(input: InputStream, source: String): Node {
-    val reader = InputStreamReader(input)
-    val events = yaml.parse(reader).iterator()
-    val stream = TokenStream(events)
-    require(stream.next().`is`(Event.ID.StreamStart)) { "Expected stream start at ${stream.current().startMark}" }
-    return when (stream.next().eventId) {
-      Event.ID.StreamEnd -> Undefined
-      Event.ID.DocumentStart -> {
-        stream.next() // move past the doc start
-        TokenProduction(stream, source, emptyMap(), DotPath.root).first
+    // The reader wraps `input` and must be closed so its decoder buffers are released.
+    // We don't own `input` (the caller does) but closing the reader will close the underlying
+    // stream too — and InputStream.close() is idempotent, so the caller's own .use {} (e.g. via
+    // PR #540's ConfigFilePropertySource fix) remains safe.
+    return InputStreamReader(input).use { reader ->
+      val events = yaml.parse(reader).iterator()
+      val stream = TokenStream(events)
+      require(stream.next().`is`(Event.ID.StreamStart)) { "Expected stream start at ${stream.current().startMark}" }
+      when (stream.next().eventId) {
+        Event.ID.StreamEnd -> Undefined
+        Event.ID.DocumentStart -> {
+          stream.next() // move past the doc start
+          TokenProduction(stream, source, emptyMap(), DotPath.root).first
+        }
+        else -> error { "Expected document start at ${stream.current().startMark}" }
       }
-      else -> error { "Expected document start at ${stream.current().startMark}" }
     }
   }
 }
