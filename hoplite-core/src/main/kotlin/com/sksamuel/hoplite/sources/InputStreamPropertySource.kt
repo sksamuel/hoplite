@@ -26,8 +26,11 @@ class InputStreamPropertySource(
   override fun source(): String = source
 
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
-    return context.parsers.locate(ext).map {
-      it.load(input, source)
+    // Close the stream when we're done with it. Matches ConfigFilePropertySource and the
+    // user/xdg sources — every other PropertySource that opens a stream closes it. The previous
+    // implementation handed the input stream to the parser and never closed it.
+    return context.parsers.locate(ext).map { parser ->
+      input.use { parser.load(it, source) }
     }
   }
 }
