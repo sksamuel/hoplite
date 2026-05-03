@@ -54,8 +54,8 @@ sealed interface Node {
   operator fun get(index: Int): Node = atIndex(index)
 
   /**
-   * Returns the [Node] at the given path, by recursivel calling [atKey]
-   * for each dot seperated element in the input path.
+   * Returns the [Node] at the given path, by recursively calling [atKey]
+   * for each dot-separated element in the input path.
    */
   fun atPath(path: String): Node {
     val parts = path.split('.')
