@@ -54,7 +54,7 @@ object RandomPreprocessor : TraversingPrimitivePreprocessor() {
 
   private val doubleRule: Rule = {
     val regex = "\\$\\{random.double\\}".toRegex()
-    regex.replace(it) { Random.nextLong().toString() }
+    regex.replace(it) { Random.nextDouble().toString() }
   }
 
   private val stringRule: Rule = {
