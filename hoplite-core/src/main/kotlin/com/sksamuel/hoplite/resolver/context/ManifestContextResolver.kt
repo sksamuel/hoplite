@@ -18,8 +18,9 @@ object ManifestContextResolver : ContextResolver() {
     return runCatching {
       val input = javaClass.getResourceAsStream("/META-INF/MANIFEST.MF")
       if (input == null) ConfigFailure.ResolverFailure("Manifest could not be located").invalid() else {
-        val manifest = Manifest(input)
-        manifest.mainAttributes.getValue(path).valid()
+        // Manifest(InputStream) reads from but does not close the stream — wrap in .use {} so we
+        // don't leak a classpath-resource handle on every ${{ manifest:... }} resolve call.
+        input.use { Manifest(it).mainAttributes.getValue(path) }.valid()
       }
     }.getOrElse {
        ConfigFailure.ResolverException("Error loading manifest", it).invalid()
