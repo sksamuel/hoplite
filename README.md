@@ -261,6 +261,9 @@ be used for the same purpose.
 The `SystemPropertiesPropertySource` provides config through system properties that are prefixed with `config.override.`.
 For example, starting your JVM with `-Dconfig.override.database.name` would override a config key of `database.name` residing in a file.
 
+The prefix may be customized by passing a `prefix` argument to the constructor, or set to an empty string to expose
+all system properties.
+
 
 ### UserSettingsPropertySource
 
