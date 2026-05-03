@@ -70,7 +70,7 @@ abstract class ConfigSource {
     /**
      * If this [resourceOrFile] is located in the classpath returns a [ConfigSource.ClasspathSource],
      * otherwise if this [resourceOrFile] is located in the filesystem returns a [ConfigSource.PathSource].
-     * If the resource is neither on the classpath nor the fileystem, returns a [ConfigFailure].
+     * If the resource is neither on the classpath nor the filesystem, returns a [ConfigFailure].
      */
     fun fromResourcesOrFiles(
       resourceOrFile: String,
@@ -92,7 +92,7 @@ abstract class ConfigSource {
      * For each [resourceOrFiles], if they  are located in the classpath, then a [ConfigSource.ClasspathSource]
      * is returned, otherwise a [ConfigSource.PathSource] is returned.
      *
-     * If the resource is neither on the classpath nor the fileystem, returns a [ConfigFailure].
+     * If the resource is neither on the classpath nor the filesystem, returns a [ConfigFailure].
      */
     fun fromResourcesOrFiles(
       resourceOrFiles: List<String>,

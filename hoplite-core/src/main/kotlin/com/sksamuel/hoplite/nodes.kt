@@ -84,7 +84,7 @@ object CommonMetadata {
 }
 
 /**
- * Returnes true if this node is not [Undefined]
+ * Returns true if this node is not [Undefined]
  */
 val Node.isDefined: Boolean
   get() = this !is Undefined
