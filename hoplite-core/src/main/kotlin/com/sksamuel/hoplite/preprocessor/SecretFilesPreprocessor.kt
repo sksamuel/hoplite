@@ -1,34 +1,39 @@
-package com.polecatworks.kotlin.k8smicro.utils
+@file:Suppress("RegExpRedundantEscape")
 
-import com.sksamuel.hoplite.*
+package com.sksamuel.hoplite.preprocessor
+
+import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.DecoderContext
+import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.PrimitiveNode
+import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.valid
-import com.sksamuel.hoplite.preprocessor.TraversingPrimitivePreprocessor
 import java.nio.file.Path
 import kotlin.io.path.readText
 
-class SecretFilesPreprocessor(private val basePath: Path): TraversingPrimitivePreprocessor() {
-    override fun handle(node: PrimitiveNode, context: DecoderContext): ConfigResult<Node> = when (node) {
-        is StringNode -> {
-            val value = regex.replace(node.value) {
-                val key = it.groupValues[1]
-                basePath.resolve(key).readText()
-            }
-            node.copy(value).valid()
-        }
-        else -> node.valid()
+/**
+ * Replaces strings of the form `${secret:key}` with the contents of the file at
+ * `<basePath>/<key>`. A trailing line terminator (`\n` or `\r\n`) is stripped, so
+ * editor- or shell-added newlines do not leak into config values.
+ *
+ * Useful for Docker / Kubernetes-style mounted secrets where each secret is a
+ * separate file inside a directory.
+ */
+class SecretFilesPreprocessor(private val basePath: Path) : TraversingPrimitivePreprocessor() {
+
+  constructor(basePath: String) : this(Path.of(basePath))
+
+  // Redundant escaping required for Android support.
+  private val regex = "\\$\\{secret:(.+?)\\}".toRegex()
+
+  override fun handle(node: PrimitiveNode, context: DecoderContext): ConfigResult<Node> = when (node) {
+    is StringNode -> {
+      val replaced = regex.replace(node.value) { match ->
+        val key = match.groupValues[1]
+        basePath.resolve(key).readText().trimEnd('\r', '\n')
+      }
+      if (replaced == node.value) node.valid() else node.copy(value = replaced).valid()
     }
-
-
-    // Redundant escaping required for Android support.
-    private val regex = "\\$\\{(.*?)\\}".toRegex()
-
-    companion object {
-        operator fun invoke(basePath: String): SecretFilesPreprocessor {
-            val x = Path.of(basePath)
-            println("Secrets DIR =$x")
-            return SecretFilesPreprocessor(x)
-        }
-
-        operator fun invoke(path: Path) = SecretFilesPreprocessor(path)
-    }
+    else -> node.valid()
+  }
 }
