@@ -36,9 +36,8 @@ object XdgConfigPropertySource : PropertySource {
       path(ext).takeIf { it?.exists() ?: false }
     }
     return if (path == null) Undefined.valid() else {
-      val input = path.inputStream()
-      context.parsers.locate(path.extension).map {
-        it.load(input, path.toString())
+      context.parsers.locate(path.extension).map { parser ->
+        path.inputStream().use { input -> parser.load(input, path.toString()) }
       }
     }
   }
