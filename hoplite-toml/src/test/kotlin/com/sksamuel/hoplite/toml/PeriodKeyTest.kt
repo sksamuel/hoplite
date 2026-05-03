@@ -11,8 +11,8 @@ class PeriodKeyTest : FunSpec() {
 value = 10
 [values]
 "cleanup.policy" = "compact"
-"delete.retention.ms" = "604800000
-""""
+"delete.retention.ms" = "604800000"
+"""
       ConfigLoader.builder()
         .addSource(TomlPropertySource(contents))
         .build()
