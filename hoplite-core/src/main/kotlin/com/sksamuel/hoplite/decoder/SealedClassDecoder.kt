@@ -100,9 +100,15 @@ class SealedClassDecoder : NullHandlingDecoder<Any> {
       else -> {
 
         // if we have a string node and that string is the name of an object instance,
-        // we can use the object directly
+        // we can use the object directly. Use `.java.simpleName` so this branch matches the
+        // other two name-based lookups in this file (the discriminator paths on lines 61 and
+        // 67) and the `${available subclasses…}` error rendered by
+        // ConfigFailure.NoSealedClassObjectSubtype — KClass.simpleName and Class.simpleName
+        // happen to agree for typical nested sealed subclasses but disagree for anonymous /
+        // local classes, and the inconsistency means users could see error text listing names
+        // that the decoder won't actually accept.
         val error = if (node is StringNode) {
-          val obj = subclasses.find { it.simpleName == node.value }?.objectInstance
+          val obj = subclasses.find { it.java.simpleName == node.value }?.objectInstance
           if (obj != null) return obj.valid() else ConfigFailure.NoSealedClassObjectSubtype(kclass, node.value)
         } else null
 
