@@ -42,10 +42,11 @@ fun ConfigLoaderBuilder.addFileSource(
 ) = addPathSource(file.toPath(), optional, allowEmpty)
 
 /**
- * Adds a [PropertySource] that will read the specified resource from the classpath.
+ * Adds a [PropertySource] that will read the file at the given filesystem [Path].
+ * (Not a classpath resource — use [addResourceSource] for that.)
  *
- * @param path the [Path] of the resource to be read
- * @param optional if true, the config loader will ignore this source if the resource does not exist
+ * @param path the filesystem [Path] to be read
+ * @param optional if true, the config loader will ignore this source if the file does not exist
  */
 fun ConfigLoaderBuilder.addPathSource(
   path: Path,
