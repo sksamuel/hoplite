@@ -66,7 +66,8 @@ fun ConfigLoaderBuilder.addResourceOrFileSource(
   optional: Boolean = false,
   allowEmpty: Boolean = false,
 ): ConfigLoaderBuilder {
-  val path = Paths.get(resourceOrFile)
+  val resourceOrFileSanitised = resourceOrFile.removePrefix("/")
+  val path = Paths.get(resourceOrFileSanitised)
   return if (path.exists()) {
     addPropertySource(
       ConfigFilePropertySource(
@@ -77,7 +78,7 @@ fun ConfigLoaderBuilder.addResourceOrFileSource(
   } else {
     addPropertySource(
       ConfigFilePropertySource(
-        ConfigSource.ClasspathSource(resourceOrFile),
+        ConfigSource.ClasspathSource(resourceOrFileSanitised),
         optional,
         allowEmpty
       )

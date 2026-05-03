@@ -7,6 +7,7 @@ import com.sksamuel.hoplite.ConfigSource
 import com.sksamuel.hoplite.DecoderConfig
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.ParameterMapper
 import com.sksamuel.hoplite.PropertySource
 import com.sksamuel.hoplite.decoder.DecoderRegistry
@@ -92,6 +93,12 @@ class ConfigParser(
     return configResult
       .map { it.prefixedNode(prefix) }
       .flatMap {
+        // Mark the prefixed subtree root as used so strict mode does not report it as unused.
+        // The path is read from the node itself (not the raw prefix string), which ensures
+        // compatibility with PathNormalizer.
+        if (prefix != null && it !is Undefined) {
+          context.usedPaths.add(it.path)
+        }
         val decoded = decoding.decode(kclass, it, decodeMode, context)
         val state = createDecodingState(it, context, secretsPolicy)
 

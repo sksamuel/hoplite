@@ -57,5 +57,24 @@ class EnvVarPreprocessorTest : FunSpec() {
           .loadConfigOrThrow<Test>()
       }.message.shouldContain("Unresolved substitution \${wibble}")
     }
+
+    // gh-469
+    test("empty placeholder \${} should not crash and is reported as unresolved") {
+      data class Test(val a: String)
+      shouldThrowAny {
+        ConfigLoader.builder()
+          .addSource(YamlPropertySource("a: \"prefix-\${}-suffix\""))
+          .build()
+          .loadConfigOrThrow<Test>()
+      }.message.shouldContain("Unresolved substitution")
+    }
+
+    test("empty placeholder with default \${:-fallback} should resolve to the default") {
+      data class Test(val a: String)
+      ConfigLoader.builder()
+        .addSource(YamlPropertySource("a: \${:-fallback}"))
+        .build()
+        .loadConfigOrThrow<Test>() shouldBe Test(a = "fallback")
+    }
   }
 }

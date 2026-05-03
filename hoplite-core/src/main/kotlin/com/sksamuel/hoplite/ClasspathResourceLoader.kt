@@ -18,16 +18,12 @@ interface ClasspathResourceLoader {
   fun getResourceAsStream(name: String): InputStream?
 
   companion object {
-    fun <T> Class<T>.toClasspathResourceLoader() = object : ClasspathResourceLoader {
-      override fun getResource(name: String) = this@toClasspathResourceLoader.getResource(name)
-      override fun getResourceAsStream(name: String) = this@toClasspathResourceLoader.getResourceAsStream(name)
-    }
+    // this one simply delegates to the [ClassLoader.toClasspathResourceLoader()] object below
+    fun <T> Class<T>.toClasspathResourceLoader() = this.classLoader.toClasspathResourceLoader()
 
     fun ClassLoader.toClasspathResourceLoader() = object : ClasspathResourceLoader {
-      override fun getResource(name: String) = this@toClasspathResourceLoader.getResource(name)
-      override fun getResourceAsStream(name: String) = this@toClasspathResourceLoader.getResourceAsStream(name)
+      override fun getResource(name: String) = this@toClasspathResourceLoader.getResource(name.removePrefix("/"))
+      override fun getResourceAsStream(name: String) = this@toClasspathResourceLoader.getResourceAsStream(name.removePrefix("/"))
     }
   }
 }
-
-

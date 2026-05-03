@@ -1,6 +1,7 @@
 package com.sksamuel.hoplite.decoder
 
 import com.sksamuel.hoplite.BooleanNode
+import com.sksamuel.hoplite.ConfigEnumDefault
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
@@ -12,6 +13,7 @@ import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
+import kotlin.reflect.full.findAnnotation
 
 @Suppress("UNCHECKED_CAST")
 class EnumDecoder<T : Any> : NullHandlingDecoder<T> {
@@ -24,11 +26,15 @@ class EnumDecoder<T : Any> : NullHandlingDecoder<T> {
   ): ConfigResult<T> {
 
     val klass = type.classifier as KClass<*>
+    val ignoreCase = context.config.resolveTypesCaseInsensitive
+
+    fun findConstant(value: String): Any? = klass.java.enumConstants.find {
+      it.toString().contentEquals(other = value, ignoreCase = ignoreCase)
+    }
 
     fun decode(value: String): ConfigResult<T> {
-      val t = klass.java.enumConstants.find {
-        it.toString().contentEquals(other = value, ignoreCase = context.config.resolveTypesCaseInsensitive)
-      }
+      val t = findConstant(value)
+        ?: klass.findAnnotation<ConfigEnumDefault>()?.let { findConstant(it.name) }
       return if (t == null)
         ConfigFailure.InvalidEnumConstant(node, type, value).invalid()
       else

@@ -34,13 +34,13 @@ class NonEmptyListDecoder : NullHandlingDecoder<NonEmptyList<*>> {
 
     fun <T> decode(node: StringNode, decoder: Decoder<T>): ConfigResult<NonEmptyList<T>> {
       return node.value.split(",").map { it.trim() }
-        .map { decoder.decode(StringNode(it, node.pos, node.path, emptyMap()), type, context) }.sequence()
+        .map { decoder.decode(StringNode(it, node.pos, node.path, emptyMap()), t, context) }.sequence()
         .mapInvalid { ConfigFailure.CollectionElementErrors(node, it) }
         .map { it.toNonEmptyListOrNull() ?: throw IndexOutOfBoundsException("Empty list doesn't contain element at index 0.") }
     }
 
     fun <T> decode(node: ArrayNode, decoder: Decoder<T>): ConfigResult<NonEmptyList<T>> {
-      return node.elements.map { decoder.decode(it, type, context) }.sequence()
+      return node.elements.map { decoder.decode(it, t, context) }.sequence()
         .mapInvalid { ConfigFailure.CollectionElementErrors(node, it) }
         .flatMap { ts ->
           ts.toNonEmptyListOrNone().fold(

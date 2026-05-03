@@ -28,12 +28,12 @@ class ListDecoder : NullHandlingDecoder<List<*>> {
 
     fun <T> decode(node: StringNode, decoder: Decoder<T>): ConfigResult<List<T>> =
       node.value.split(",").map { it.trim() }
-        .map { decoder.decode(StringNode(it, node.pos, node.path, emptyMap()), type, context) }.sequence()
+        .map { decoder.decode(StringNode(it, node.pos, node.path, emptyMap()), t, context) }.sequence()
         .mapInvalid { ConfigFailure.CollectionElementErrors(node, it) }
         .map { it.toVavrList() }
 
     fun <T> decode(node: ArrayNode, decoder: Decoder<T>): ConfigResult<List<T>> =
-      node.elements.map { decoder.decode(it, type, context) }.sequence()
+      node.elements.map { decoder.decode(it, t, context) }.sequence()
         .mapInvalid { ConfigFailure.CollectionElementErrors(node, it) }
         .map { it.toVavrList() }
 

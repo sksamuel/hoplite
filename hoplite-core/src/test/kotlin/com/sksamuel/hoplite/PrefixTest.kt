@@ -1,8 +1,10 @@
 package com.sksamuel.hoplite
 
+import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.system.withEnvironment
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 
 class PrefixTest : FunSpec() {
   init {
@@ -157,6 +159,96 @@ class PrefixTest : FunSpec() {
         .loadConfigOrThrow<TestConfig>(prefix = "foo")
 
       config shouldBe TestConfig("1")
+    }
+
+    test("strict mode should not report prefix key as unused") {
+      data class TestConfig(val a: String, val b: Int)
+
+      val config = ConfigLoaderBuilder.default()
+        .strict()
+        .addPropertySource(
+          PropertySource.string(
+            """
+            foo.a = hello
+            foo.b = 123
+            """.trimIndent(), "props"
+          )
+        )
+        .build()
+        .loadConfigOrThrow<TestConfig>(prefix = "foo")
+
+      config shouldBe TestConfig("hello", 123)
+    }
+
+    test("strict mode with nested prefix should not report prefix as unused") {
+      data class TestConfig(val x: String)
+
+      val config = ConfigLoaderBuilder.default()
+        .strict()
+        .addPropertySource(
+          PropertySource.string(
+            """
+            database.primary.x = value
+            """.trimIndent(), "props"
+          )
+        )
+        .build()
+        .loadConfigOrThrow<TestConfig>(prefix = "database.primary")
+
+      config shouldBe TestConfig("value")
+    }
+
+    test("strict mode with prefix should still detect genuinely unused keys") {
+      data class TestConfig(val a: String)
+
+      shouldThrowAny {
+        ConfigLoaderBuilder.default()
+          .strict()
+          .addPropertySource(
+            PropertySource.string(
+              """
+              foo.a = hello
+              foo.b = unused_value
+              """.trimIndent(), "props"
+            )
+          )
+          .build()
+          .loadConfigOrThrow<TestConfig>(prefix = "foo")
+      }.message shouldContain "foo.b"
+    }
+
+    test("ConfigBinder with strict mode should not report prefix as unused") {
+      data class DbConfig(val host: String, val port: Int)
+      data class CacheConfig(val ttl: Int)
+
+      val loader = ConfigLoaderBuilder.default()
+        .strict()
+        .addPropertySource(
+          PropertySource.string(
+            """
+            db.host = localhost
+            db.port = 5432
+            cache.ttl = 60
+            """.trimIndent(), "props"
+          )
+        )
+        .build()
+
+      val binder = loader.configBinder()
+      binder.bindOrThrow<DbConfig>("db") shouldBe DbConfig("localhost", 5432)
+      binder.bindOrThrow<CacheConfig>("cache") shouldBe CacheConfig(60)
+    }
+
+    test("strict mode with nonexistent prefix should not throw on prefix path") {
+      data class TestConfig(val a: String = "default")
+
+      val config = ConfigLoaderBuilder.defaultWithoutPropertySources()
+        .addPropertySource(PropertySource.map(emptyMap<String, String>()))
+        .allowEmptyConfigFiles()
+        .build()
+        .loadConfigOrThrow<TestConfig>(prefix = "nonexistent")
+
+      config shouldBe TestConfig("default")
     }
   }
 }

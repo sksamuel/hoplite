@@ -58,22 +58,26 @@ class TripleDecoder : NullHandlingDecoder<Triple<*, *, *>> {
         .mapInvalid { ConfigFailure.TupleErrors(node, it) }
     }
 
+    fun decode(node: ArrayNode): ConfigResult<Triple<Any?, Any?, Any?>> {
+      return if (node.elements.size == 3) {
+        decode(node.atIndex(0), node.atIndex(1), node.atIndex(2))
+      } else ConfigFailure.Generic("Triple requires a list of three elements but list had size ${node.elements.size}").invalid()
+    }
+
     fun decode(node: StringNode): ConfigResult<Triple<Any?, Any?, Any?>> {
       val parts = node.value.split(',')
       return if (parts.size == 3) {
-        val a = StringNode(parts[0], node.pos, node.path, emptyMap())
-        val b = StringNode(parts[1], node.pos, node.path, emptyMap())
-        val c = StringNode(parts[2], node.pos, node.path, emptyMap())
+        val a = StringNode(parts[0].trim(), node.pos, node.path, emptyMap())
+        val b = StringNode(parts[1].trim(), node.pos, node.path, emptyMap())
+        val c = StringNode(parts[2].trim(), node.pos, node.path, emptyMap())
         decode(a, b, c)
       } else ConfigFailure.Generic("Triple requires a list of three elements but list had size ${parts.size}").invalid()
     }
 
     return when (node) {
-      is ArrayNode -> decode(node.atIndex(0), node.atIndex(1), node.atIndex(2))
-      else -> when (node) {
-        is StringNode -> decode(node)
-        else -> ConfigFailure.DecodeError(node, type).invalid()
-      }
+      is ArrayNode -> decode(node)
+      is StringNode -> decode(node)
+      else -> ConfigFailure.DecodeError(node, type).invalid()
     }
   }
 }

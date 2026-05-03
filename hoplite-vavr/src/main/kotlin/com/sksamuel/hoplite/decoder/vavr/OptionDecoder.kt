@@ -26,8 +26,11 @@ class OptionDecoder : Decoder<Option<*>> {
       when (node) {
         is Undefined -> none<Option<*>>().valid()
         is NullNode -> none<Option<*>>().valid()
-        is StringNode, is LongNode, is DoubleNode, is BooleanNode -> decode(node, decoder)
-        else -> ConfigFailure.DecodeError(node, type).invalid()
+        // Defer to the inner decoder for any other node type. Previously this only enumerated the
+        // primitive node types, so `Option<MyConfig>` (a data class — MapNode) and
+        // `Option<List<X>>` (ArrayNode) would fail with DecodeError even though the inner decoders
+        // know exactly how to handle them.
+        else -> decode(node, decoder)
       }
     }
   }

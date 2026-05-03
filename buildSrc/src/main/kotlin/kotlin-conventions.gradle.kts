@@ -35,9 +35,9 @@ tasks.compileTestJava {
 }
 
 dependencies {
-   testImplementation("io.kotest:kotest-runner-junit5:6.0.7")
-   testImplementation("io.kotest:kotest-assertions-core:6.0.7")
-   testImplementation("io.kotest:kotest-extensions-testcontainers:6.0.7")
+   testImplementation("io.kotest:kotest-runner-junit5:6.1.4")
+   testImplementation("io.kotest:kotest-assertions-core:6.1.4")
+   testImplementation("io.kotest:kotest-extensions-testcontainers:6.1.4")
 }
 
 tasks.withType<Test> {

@@ -32,6 +32,12 @@ abstract class ConfigSource {
   abstract fun ext(): String
 
   class PathSource(val path: Path) : ConfigSource() {
+    // todo maybe the / sanitization logic can be added here, because there are so many paths which add sources?
+    //  Anyway, what i think is the correct thing is to extract the complete path loading, whether classpath or file, named here Path, (or absolute file?) into a single class and use that everywhere.
+    //    i guess that could be this class itself (ConfigSource), and try to simplify as much as possible every other codepath by delegating to this?
+    //  What i think should be done is nowhere in code should there be a distinction between a simple path resource of a classpath resource, except for here.
+    //  From my summary look, i think this  will take a little more work though than just this little PR,
+    //    so I'd like to ask if this makes sense to you as well?
     override fun describe(): String = path.toString()
     override fun ext() = path.fileName.toString().split('.').last()
     override fun open(optional: Boolean): ConfigResult<InputStream?> {
@@ -74,9 +80,11 @@ abstract class ConfigSource {
       return if (path.exists()) {
         PathSource(path).valid()
       } else {
-        classpathResourceLoader.getResourceAsStream(resourceOrFile)
-          ?.let { ClasspathSource(resourceOrFile, classpathResourceLoader).valid() }
-          ?: ConfigFailure.UnknownSource(resourceOrFile).invalid()
+        // Probe for existence; close immediately so we don't leak a stream that the actual load
+        // (later, via ConfigFilePropertySource) will reopen.
+        val exists = classpathResourceLoader.getResourceAsStream(resourceOrFile)?.use { true } ?: false
+        if (exists) ClasspathSource(resourceOrFile, classpathResourceLoader).valid()
+        else ConfigFailure.UnknownSource(resourceOrFile).invalid()
       }
     }
 
@@ -100,19 +108,21 @@ abstract class ConfigSource {
       classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader()
     ): ConfigResult<List<ConfigSource>> {
       return resources.map { resource ->
-        classpathResourceLoader.getResourceAsStream(resource)
-          ?.let { ClasspathSource(resource, classpathResourceLoader).valid() }
-          ?: ConfigFailure.UnknownSource(resource).invalid()
+        // Probe for existence; close immediately so we don't leak a stream that the actual load
+        // (later, via ConfigFilePropertySource) will reopen.
+        val exists = classpathResourceLoader.getResourceAsStream(resource)?.use { true } ?: false
+        if (exists) ClasspathSource(resource, classpathResourceLoader).valid()
+        else ConfigFailure.UnknownSource(resource).invalid()
       }.sequence()
         .mapInvalid { ConfigFailure.MultipleFailures(it) }
     }
 
     fun fromPaths(paths: List<Path>): ConfigResult<List<ConfigSource>> {
       return paths.map { path ->
-        runCatching { Files.newInputStream(path) }.fold(
-          { PathSource(path).valid() },
-          { ConfigFailure.UnknownSource(path.toString()).invalid() }
-        )
+        // Don't open a stream just to check existence — Files.exists is cheaper and doesn't leak
+        // a file handle (the previous implementation opened a stream and discarded it).
+        if (path.exists()) PathSource(path).valid()
+        else ConfigFailure.UnknownSource(path.toString()).invalid()
       }.sequence()
         .mapInvalid { ConfigFailure.MultipleFailures(it) }
     }
