@@ -690,7 +690,7 @@ These built-in preprocessors are registered automatically.
 | `RandomPreprocessor`           | Inserts random strings into the config. See the section on Random Preprocessor for syntax.                                                                                                                                                                                                                                                                                                                                              |
 | `PropsFilePreprocessor`        | Replaces any strings of the form ${key} with the value of the key in a provided `java.util.Properties` file. The file can be specified by a `Path` or a resource on the classpath.                                                                                                                                                                                                                                                      |
 | `LookupPreprocessor`           | Replaces any strings of the form {{key}} with the value of that node in the already parsed config. In other words, this allow substitution from config in one place to another place (even across files).                                                                                                                                                                                                                               |
-| `SecretFilesPreprocessor`      | Replaces any strings of the form ${key} with the value of the file supplied in the secrets directory. The secrets directory is provided on the constructor of the SecretFilesPreprocessor. The Preprocessor is useful for Kubernetes and Docker deployments where secrets are often provided through a mounted directory              |
+| `SecretFilesPreprocessor`      | Replaces any strings of the form `${secret:key}` with the contents of the file at `<basePath>/<key>`. Useful for Kubernetes / Docker deployments where each secret is mounted as a separate file inside a directory. Not registered automatically — see the [SecretFilesPreprocessor](#secretfilespreprocessor) section below for usage.                                                                                                  |
 
 
 
@@ -734,6 +734,35 @@ my.uuid=${random.uuid}
 my.number.less.than.ten=${random.int(10)}
 my.number.in.range=${random.int[1024,65536]}
 ```
+
+### SecretFilesPreprocessor
+
+The `SecretFilesPreprocessor` resolves placeholders of the form `${secret:key}` to the contents of the file at `<basePath>/<key>`. This matches the layout used by Kubernetes and Docker secrets, where each secret is mounted as a separate file inside a directory.
+
+A single trailing line terminator (`\n` or `\r\n`) is stripped from the file, so editor- or shell-added trailing newlines do not leak into config values. Other whitespace is preserved verbatim.
+
+It is not registered automatically — you must add it explicitly with the directory that holds your secret files:
+
+```kotlin
+val config = ConfigLoaderBuilder.default()
+  .addPreprocessor(SecretFilesPreprocessor(Path.of("/run/secrets")))
+  .addResourceSource("/application.yml")
+  .build()
+  .loadConfigOrThrow<MyConfig>()
+```
+
+Given `/run/secrets/db-password` containing `hunter2` and `/run/secrets/api-key` containing `abc-123`, a config like:
+
+```yaml
+db:
+  user: admin
+  password: ${secret:db-password}
+apiKey: ${secret:api-key}
+```
+
+is resolved to `password = "hunter2"` and `apiKey = "abc-123"`. Multiple `${secret:…}` references can appear within a single value (e.g. `jdbc://${secret:user}@${secret:host}/db`).
+
+The basePath can also be supplied as a string for convenience: `SecretFilesPreprocessor("/run/secrets")`.
 
 ## Masked values
 
