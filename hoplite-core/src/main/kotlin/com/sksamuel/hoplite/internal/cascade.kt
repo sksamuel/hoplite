@@ -36,7 +36,7 @@ class Cascader(
 
   /**
    * Returns a new [Node] which is the result of merging node a with node b,
-   * with keys in node a taking preccence if they are defined and not null.
+   * with keys in node a taking precedence if they are defined and not null.
    *
    * @return a [CascadeResult] containing the resolved [Node], and a list of overrides.
    */
