@@ -238,15 +238,20 @@ The `EnvironmentVariablesPropertySource` reads config from environment variables
 This property source maps environment variable names to config properties via idiomatic conventions for environment variables.
 Env vars are idiomatically UPPERCASE and [contain only](https://pubs.opengroup.org/onlinepubs/000095399/basedefs/xbd_chap08.html) letters (`A` to `Z`), digits (`0` to `9`), and the underscore (`_`) character.
 
-Hoplite maps env vars as follows:
+Hoplite's binding rules align with [Spring Boot's relaxed binding for environment variables](https://docs.spring.io/spring-boot/reference/features/external-config.html#features.external-config.typesafe-configuration-properties.relaxed-binding.environment-variables) so that the same env vars can drive both kinds of app:
 
-* Underscores are separators for nested config. For example `TOPIC_NAME` would override a property `name` located in a `topic` parent.
+| Rule | Env var | Binds to |
+|------|---------|----------|
+| Dots in property paths become underscores | `TOPIC_NAME` | `topic.name` |
+| Matching is case-insensitive — env vars uppercase, fields can be camelCase | `SPRING_MAIN_LOGSTARTUPINFO` | `spring.main.logStartupInfo` |
+| Dashes in property paths are removed (not replaced with underscores) | `LOGSTARTUPINFO` | `log-startup-info` (e.g. via `@ConfigAlias`) |
+| List/array indices are surrounded by underscores | `ITEMS_0`, `ITEMS_1` | `items: List<String>` |
+| List of nested objects | `SERVICE_0_OTHER`, `SERVICE_1_OTHER` | `service: List<Service(other = ...)>` |
+| Trailing path segment names a map key | `LABELS_ENV`, `LABELS_REGION` | `labels: Map<String, String>` |
 
-* To bind env vars to arrays or lists, postfix with an index e.g. set env vars `TOPIC_NAME_0` and `TOPIC_NAME_1` to set two values for the `name` list property. Missing indices are ignored, which is useful for commenting out values without renumbering subsequent ones.
+* Missing list indices are ignored, which is useful for commenting out values without renumbering subsequent ones.
 
-* To bind env vars to maps, the key is part of the nested config e.g. `TOPIC_NAME_FOO` and `TOPIC_NAME_BAR` would set the "foo" and "bar"
-keys for the `name` map property. Note that keys are one exception to the idiomatic uppercase rule -- the env var name determines the
-case of the map key.
+* **Map keys preserve case from the env var name.** Spring lowercases map keys (so `VALUES_KEY=v` produces `{"key": "v"}`); hoplite keeps them verbatim (`{"KEY": "v"}`). This is the one documented difference from Spring's rules and is locked in by `EnvironmentVariablesPropertySourceTest > build env source can create case sensitive Maps`.
 
 If the optional (not specified by default) `prefix` setting is provided, then only env vars that begin with the prefix are considered,
 and the prefix is stripped from the env var before processing.
