@@ -38,7 +38,7 @@ sealed interface ConfigFailure {
   data class OverrideConfigError(val overrides: List<OverridePath>) : ConfigFailure {
     override fun description(): String {
       val keys = overrides.joinToString("\n") {
-        " - " + it.path.flatten() + " at ${it.overridePos.loc()} overriden by ${it.overridenPos.loc()}"
+        " - " + it.path.flatten() + " at ${it.overridePos.loc()} overridden by ${it.overridenPos.loc()}"
       }
       return "Overridden configs are configured as errors\n$keys"
     }
