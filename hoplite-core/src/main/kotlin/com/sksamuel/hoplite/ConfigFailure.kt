@@ -37,8 +37,14 @@ sealed interface ConfigFailure {
 
   data class OverrideConfigError(val overrides: List<OverridePath>) : ConfigFailure {
     override fun description(): String {
+      // Wording: "X at <loser> was overridden by <winner>". `OverridePath` builds
+      // overridePos = the cascade winner's position (a.pos in Cascader.cascade),
+      // overridenPos = the loser's position (b.pos). The previous message rendered them in
+      // the opposite order — "X at <winner> overridden by <loser>" — which read as if the
+      // higher-priority source was the one that lost. Swap the placements so the English
+      // matches who actually beat whom. Also fixes the "overriden" → "overridden" typo.
       val keys = overrides.joinToString("\n") {
-        " - " + it.path.flatten() + " at ${it.overridePos.loc()} overridden by ${it.overridenPos.loc()}"
+        " - " + it.path.flatten() + " at ${it.overridenPos.loc()} overridden by ${it.overridePos.loc()}"
       }
       return "Overridden configs are configured as errors\n$keys"
     }
