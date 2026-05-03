@@ -6,6 +6,7 @@ import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.fp.NonEmptyList
 import com.sksamuel.hoplite.fp.Validated
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.plus
@@ -122,8 +123,22 @@ class SealedClassDecoder : NullHandlingDecoder<Any> {
         val success = results.firstOrNull { it.isValid() }
         if (success != null) return success
 
-        val errors = results.sequence().getInvalidUnsafe() + listOfNotNull(error)
-        return ConfigFailure.SealedClassSubtypeFailure(kclass, node, errors).invalid()
+        // `results` may be empty if every subclass requires more mandatory constructor
+        // arguments than the supplied node provides — `hasConstructorsWithArgumentsNumberLessOrEqualTo`
+        // filtered them all out. In that case `results.sequence()` was `Valid(emptyList)`,
+        // and the previous `getInvalidUnsafe()` call crashed with IllegalStateException
+        // ("Not an invalid instance"). Pull errors out via filter and synthesise a generic
+        // failure when there's nothing else to report so the user sees a clean diagnostic
+        // instead of an unrelated stack trace.
+        val resultErrors = results.filterIsInstance<Validated.Invalid<ConfigFailure>>().map { it.error }
+        val errors: List<ConfigFailure> = resultErrors + listOfNotNull(error)
+        val nelErrors = if (errors.isEmpty())
+          NonEmptyList.of<ConfigFailure>(
+            ConfigFailure.Generic("No sealed subtype of ${kclass.qualifiedName} could match the supplied config")
+          )
+        else
+          NonEmptyList.unsafe(errors)
+        return ConfigFailure.SealedClassSubtypeFailure(kclass, node, nelErrors).invalid()
       }
     }
   }
