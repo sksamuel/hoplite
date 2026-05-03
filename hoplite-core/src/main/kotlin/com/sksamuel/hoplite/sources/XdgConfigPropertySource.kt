@@ -37,7 +37,9 @@ object XdgConfigPropertySource : PropertySource {
     }
     return if (path == null) Undefined.valid() else {
       val input = path.inputStream()
-      context.parsers.locate(path.extension).map {
+      // Lower-case so an XDG config like `hoplite.YAML` still hits the registered "yaml"
+      // parser (matches ConfigSource.PathSource.ext()).
+      context.parsers.locate(path.extension.lowercase()).map {
         it.load(input, path.toString())
       }
     }
