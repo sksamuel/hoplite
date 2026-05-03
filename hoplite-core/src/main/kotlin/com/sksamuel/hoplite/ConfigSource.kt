@@ -106,19 +106,21 @@ abstract class ConfigSource {
       classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader()
     ): ConfigResult<List<ConfigSource>> {
       return resources.map { resource ->
-        classpathResourceLoader.getResourceAsStream(resource)
-          ?.let { ClasspathSource(resource, classpathResourceLoader).valid() }
-          ?: ConfigFailure.UnknownSource(resource).invalid()
+        // Probe for existence; close immediately so we don't leak a stream that the actual load
+        // (later, via ConfigFilePropertySource) will reopen.
+        val exists = classpathResourceLoader.getResourceAsStream(resource)?.use { true } ?: false
+        if (exists) ClasspathSource(resource, classpathResourceLoader).valid()
+        else ConfigFailure.UnknownSource(resource).invalid()
       }.sequence()
         .mapInvalid { ConfigFailure.MultipleFailures(it) }
     }
 
     fun fromPaths(paths: List<Path>): ConfigResult<List<ConfigSource>> {
       return paths.map { path ->
-        runCatching { Files.newInputStream(path) }.fold(
-          { PathSource(path).valid() },
-          { ConfigFailure.UnknownSource(path.toString()).invalid() }
-        )
+        // Don't open a stream just to check existence — Files.exists is cheaper and doesn't leak
+        // a file handle (the previous implementation opened a stream and discarded it).
+        if (path.exists()) PathSource(path).valid()
+        else ConfigFailure.UnknownSource(path.toString()).invalid()
       }.sequence()
         .mapInvalid { ConfigFailure.MultipleFailures(it) }
     }
