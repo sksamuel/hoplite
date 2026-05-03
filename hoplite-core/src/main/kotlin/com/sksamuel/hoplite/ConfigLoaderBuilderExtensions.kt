@@ -66,16 +66,28 @@ fun ConfigLoaderBuilder.addResourceOrFileSource(
   optional: Boolean = false,
   allowEmpty: Boolean = false,
 ): ConfigLoaderBuilder {
-  val resourceOrFileSanitised = resourceOrFile.removePrefix("/")
-  val path = Paths.get(resourceOrFileSanitised)
-  return if (path.exists()) {
+  // Probe the filesystem with both the verbatim path and the slash-stripped form so that:
+  //  - absolute paths (`/etc/config.yaml`) resolve as files, not as relative-to-CWD that fall
+  //    through to classpath lookup; and
+  //  - `/foo` written as a classpath-style spec still finds a sibling `foo` relative to CWD,
+  //    matching the existing behaviour exercised by SmarterPathAndClasspathLoadingTest.
+  // The classpath fallback uses the slash-stripped form because a leading `/` is meaningless
+  // for ClassLoader.getResourceAsStream.
+  val verbatim = Paths.get(resourceOrFile)
+  val stripped = Paths.get(resourceOrFile.removePrefix("/"))
+  val filesystemPath = when {
+    verbatim.exists() -> verbatim
+    stripped.exists() -> stripped
+    else -> null
+  }
+  return if (filesystemPath != null) {
     addPropertySource(
       ConfigFilePropertySource(
-        ConfigSource.PathSource(path),
+        ConfigSource.PathSource(filesystemPath),
         // Forward the user's `optional` flag. Without this, the file branch silently
         // ignored `optional = true`: if the file existed at probe time but disappeared
         // before load (TOCTOU), the loader threw instead of skipping the source as the
-        // user requested.
+        // user requested. (See #571.)
         optional = optional,
         allowEmpty = allowEmpty
       )
@@ -83,7 +95,7 @@ fun ConfigLoaderBuilder.addResourceOrFileSource(
   } else {
     addPropertySource(
       ConfigFilePropertySource(
-        ConfigSource.ClasspathSource(resourceOrFileSanitised),
+        ConfigSource.ClasspathSource(resourceOrFile.removePrefix("/")),
         optional,
         allowEmpty
       )
