@@ -22,9 +22,14 @@ class JsonParser(private val jsonFactory: JsonFactory) : Parser {
   constructor() : this(JsonFactory())
 
   override fun load(input: InputStream, source: String): Node {
-    val parser = jsonFactory.createParser(input).configure(JsonParser.Feature.ALLOW_COMMENTS, true)
-    parser.nextToken()
-    return TokenProduction(parser, source, DotPath.root)
+    // The Jackson parser wraps `input` and holds internal buffers that aren't released until
+    // close() runs. Without `.use {}` every load leaked one parser worth of buffer state and one
+    // reference to the underlying stream. The caller still owns `input` and may .use {} it
+    // independently — InputStream.close() is idempotent, so the double close is harmless.
+    return jsonFactory.createParser(input).configure(JsonParser.Feature.ALLOW_COMMENTS, true).use { parser ->
+      parser.nextToken()
+      TokenProduction(parser, source, DotPath.root)
+    }
   }
 
   override fun defaultFileExtensions(): List<String> = listOf("json")
