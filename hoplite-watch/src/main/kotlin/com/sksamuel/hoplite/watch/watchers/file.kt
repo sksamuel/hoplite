@@ -1,6 +1,7 @@
 package com.sksamuel.hoplite.watch.watchers
 
 import com.sksamuel.hoplite.watch.Watchable
+import java.nio.file.ClosedWatchServiceException
 import java.nio.file.FileSystems
 import java.nio.file.Paths
 import java.nio.file.StandardWatchEventKinds
@@ -44,6 +45,15 @@ class FileWatcher(private val dir: String) : Watchable {
               break
             }
           }
+        } catch (e: ClosedWatchServiceException) {
+          // The watch service was closed (by us above, or externally). The next take() would
+          // throw again immediately, causing the loop to spin forever invoking errorCallback.
+          // Stop watching instead.
+          break
+        } catch (e: InterruptedException) {
+          // Restore the interrupt status so callers can observe it, then exit the loop.
+          Thread.currentThread().interrupt()
+          break
         } catch (e: Exception) {
           errorCallback(e)
         }
