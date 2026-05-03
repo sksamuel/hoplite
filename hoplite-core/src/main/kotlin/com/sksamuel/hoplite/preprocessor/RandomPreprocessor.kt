@@ -61,7 +61,9 @@ object RandomPreprocessor : TraversingPrimitivePreprocessor() {
     val regex = "\\$\\{random.string\\(\\s*(\\d+)\\s*\\)\\}".toRegex()
     regex.replace(it) { match ->
       val length = match.groupValues[1].toInt()
-      val chars = CharArray(length) { Random.nextInt(a.code, z.code).toChar() }
+      // Random.nextInt(from, until) is exclusive on `until`, so `nextInt(a.code, z.code)` only
+      // produces 'a'..'y' and silently never picks 'z'. Add 1 to include the upper bound.
+      val chars = CharArray(length) { Random.nextInt(a.code, z.code + 1).toChar() }
       String(chars)
     }
   }
