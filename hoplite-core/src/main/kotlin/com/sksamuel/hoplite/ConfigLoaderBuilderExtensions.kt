@@ -72,6 +72,11 @@ fun ConfigLoaderBuilder.addResourceOrFileSource(
     addPropertySource(
       ConfigFilePropertySource(
         ConfigSource.PathSource(path),
+        // Forward the user's `optional` flag. Without this, the file branch silently
+        // ignored `optional = true`: if the file existed at probe time but disappeared
+        // before load (TOCTOU), the loader threw instead of skipping the source as the
+        // user requested.
+        optional = optional,
         allowEmpty = allowEmpty
       )
     )
