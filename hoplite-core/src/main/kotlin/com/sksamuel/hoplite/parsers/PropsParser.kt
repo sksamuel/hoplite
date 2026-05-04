@@ -14,7 +14,10 @@ class PropsParser : Parser {
 
   override fun load(input: InputStream, source: String): Node {
     val props = Properties()
-    props.load(InputStreamReader(input, Charset.forName("UTF-8")))
+    // The reader wraps `input` and must be closed so its decoder buffers are released.
+    // The caller still owns `input` and may close it independently — InputStream.close() is
+    // idempotent so the double-close is harmless.
+    InputStreamReader(input, Charset.forName("UTF-8")).use { reader -> props.load(reader) }
     return props.toNode(source)
   }
 
