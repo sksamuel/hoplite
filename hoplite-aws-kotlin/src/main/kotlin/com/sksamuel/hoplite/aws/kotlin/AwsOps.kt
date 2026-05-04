@@ -56,11 +56,24 @@ class AwsOps(private val client: SecretsManagerClient) {
       if (index == null) {
         secret.valid()
       } else {
-        val map = runCatching { Json.Default.decodeFromString<Map<String, String>>(secret) }.getOrElse { emptyMap() }
-        map[index]?.valid()
-          ?: ConfigFailure.ResolverFailure(
-            "Index '$index' not present in AWS secret '${result.name}'. Present keys are ${map.keys.joinToString(",")}"
-          ).invalid()
+        // Distinguish "secret isn't JSON at all" from "secret is JSON but the index is missing".
+        // The previous code swallowed the parse failure and reported "Index 'X' not present.
+        // Present keys are " (empty), which sent users hunting for a missing key when in fact
+        // their secret was a plain string and didn't support indexing.
+        val parsed = runCatching { Json.Default.decodeFromString<Map<String, String>>(secret) }
+        parsed.fold(
+          { map ->
+            map[index]?.valid()
+              ?: ConfigFailure.ResolverFailure(
+                "Index '$index' not present in AWS secret '${result.name}'. Present keys are ${map.keys.joinToString(",")}"
+              ).invalid()
+          },
+          {
+            ConfigFailure.ResolverFailure(
+              "AWS secret '${result.name}' is not a JSON object — index '$index' cannot be applied"
+            ).invalid()
+          }
+        )
       }
     }
   }
