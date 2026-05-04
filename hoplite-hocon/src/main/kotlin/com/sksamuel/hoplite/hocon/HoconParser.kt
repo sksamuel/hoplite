@@ -23,12 +23,13 @@ import java.io.InputStreamReader
 class HoconParser : Parser {
 
   override fun load(input: InputStream, source: String): Node {
-    // Pin the charset to UTF-8. InputStreamReader(input) without a charset uses the JVM
-    // default, which is platform-dependent. HOCON files are UTF-8 by spec
-    // (https://github.com/lightbend/config/blob/main/HOCON.md#unchanged-from-json), so any
-    // non-ASCII content would be misinterpreted on a non-UTF-8 default JVM. Other parsers
-    // (PropsParser) already pin UTF-8 — match that.
-    val config = ConfigFactory.parseReader(InputStreamReader(input, Charsets.UTF_8)).resolve()
+    // HOCON is UTF-8 by spec; pin the charset rather than rely on the JVM default.
+    // ConfigFactory.parseReader does not close the reader, so wrap in .use {} to release
+    // the decoder buffers. The caller owns `input` and may .use {} it independently —
+    // InputStream.close() is idempotent.
+    val config = InputStreamReader(input, Charsets.UTF_8).use { reader ->
+      ConfigFactory.parseReader(reader).resolve()
+    }
     return MapProduction(config.root(), config.origin(), source, DotPath.root)
   }
 

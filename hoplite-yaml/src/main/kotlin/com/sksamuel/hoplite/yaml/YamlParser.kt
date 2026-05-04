@@ -31,23 +31,22 @@ class YamlParser : Parser {
   override fun defaultFileExtensions(): List<String> = listOf("yml", "yaml")
   private val yaml = Yaml()
   override fun load(input: InputStream, source: String): Node {
-    // Pin the charset to UTF-8. InputStreamReader(input) without a charset uses the JVM
-    // default, which is platform-dependent (UTF-8 on most modern systems, historically
-    // Windows-1252 on older Windows JVMs, and changes under -Dfile.encoding overrides).
-    // YAML files are UTF-8 by spec, so non-ASCII content (emoji, accented chars, etc.)
-    // would otherwise be misinterpreted on a non-UTF-8 default JVM. PropsParser already
-    // pins UTF-8 — match that.
-    val reader = InputStreamReader(input, Charsets.UTF_8)
-    val events = yaml.parse(reader).iterator()
-    val stream = TokenStream(events)
-    require(stream.next().`is`(Event.ID.StreamStart)) { "Expected stream start at ${stream.current().startMark}" }
-    return when (stream.next().eventId) {
-      Event.ID.StreamEnd -> Undefined
-      Event.ID.DocumentStart -> {
-        stream.next() // move past the doc start
-        TokenProduction(stream, source, emptyMap(), DotPath.root).first
+    // YAML is UTF-8 by spec; pin the charset rather than rely on the JVM default.
+    // The reader wraps `input` and must be closed so its decoder buffers are released.
+    // The caller still owns `input`; InputStream.close() is idempotent so callers can
+    // continue to .use {} their own stream safely.
+    return InputStreamReader(input, Charsets.UTF_8).use { reader ->
+      val events = yaml.parse(reader).iterator()
+      val stream = TokenStream(events)
+      require(stream.next().`is`(Event.ID.StreamStart)) { "Expected stream start at ${stream.current().startMark}" }
+      when (stream.next().eventId) {
+        Event.ID.StreamEnd -> Undefined
+        Event.ID.DocumentStart -> {
+          stream.next() // move past the doc start
+          TokenProduction(stream, source, emptyMap(), DotPath.root).first
+        }
+        else -> error { "Expected document start at ${stream.current().startMark}" }
       }
-      else -> error { "Expected document start at ${stream.current().startMark}" }
     }
   }
 }
