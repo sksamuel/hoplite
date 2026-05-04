@@ -97,7 +97,10 @@ object TokenProduction {
       //    { Y, true, Yes, ON  }    : Boolean true
       //    { n, FALSE, No, off }    : Boolean false
       is ScalarEvent -> {
-        val node = if (event.value == "null" && event.scalarStyle == DumperOptions.ScalarStyle.PLAIN)
+        // YAML 1.1/1.2 PLAIN style allows `null`, `Null`, `NULL`, and `~` as null. The previous
+        // implementation only recognised the literal lowercase `null`; the others produced
+        // StringNodes containing the literal text.
+        val node = if (event.scalarStyle == DumperOptions.ScalarStyle.PLAIN && isYamlNullLiteral(event.value))
           NullNode(event.startMark.toPos(source), path, emptyMap())
         else
           StringNode(event.value, event.startMark.toPos(source), path, emptyMap())
@@ -174,3 +177,9 @@ object SequenceProduction {
 }
 
 fun Mark.toPos(source: String): Pos = Pos.LineColPos(line, column, source)
+
+// YAML 1.1/1.2 PLAIN-scalar null literals.
+private fun isYamlNullLiteral(value: String): Boolean = when (value) {
+  "null", "Null", "NULL", "~" -> true
+  else -> false
+}
