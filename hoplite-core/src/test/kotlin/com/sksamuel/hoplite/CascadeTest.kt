@@ -205,7 +205,7 @@ class CascadeTest : FunSpec({
     }.message shouldBe "Error loading config because:\n" +
       "\n" +
       "    Overridden configs are configured as errors\n" +
-      "     - database.port at (props string source) overriden by (props string source)\n" +
-      "     - database.tls at (props string source) overriden by (props string source)"
+      "     - database.port at (props string source) overridden by (props string source)\n" +
+      "     - database.tls at (props string source) overridden by (props string source)"
   }
 })

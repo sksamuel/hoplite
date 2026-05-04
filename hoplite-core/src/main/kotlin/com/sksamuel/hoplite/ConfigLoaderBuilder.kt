@@ -370,7 +370,11 @@ class ConfigLoaderBuilder private constructor() {
   @Deprecated("use withReport()", ReplaceWith("withReport()"))
   fun report() = withReport()
 
-  @Deprecated("Use correct spelling", ReplaceWith("withObfusctator(obfuscator)"))
+  // The whole point of this deprecation is to nudge callers off the misspelled name, but the
+  // ReplaceWith hint also pointed at the misspelling, so an IDE quick-fix would silently rewrite
+  // `withObfusctator(x)` to `withObfusctator(x)` — i.e. nothing. Aim it at the correctly-spelled
+  // method instead.
+  @Deprecated("Use correct spelling", ReplaceWith("withObfuscator(obfuscator)"))
   fun withObfusctator(obfuscator: Obfuscator): ConfigLoaderBuilder = withObfuscator(obfuscator)
   fun withObfuscator(obfuscator: Obfuscator): ConfigLoaderBuilder = apply { this.obfuscator = obfuscator }
 
