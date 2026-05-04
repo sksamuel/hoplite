@@ -39,7 +39,10 @@ abstract class ConfigSource {
     //  From my summary look, i think this  will take a little more work though than just this little PR,
     //    so I'd like to ask if this makes sense to you as well?
     override fun describe(): String = path.toString()
-    override fun ext() = path.fileName.toString().split('.').last()
+    // Lower-case the extension so the parser registry lookup is case-insensitive — file names
+    // like `application.YAML` (common on Windows / case-insensitive filesystems) would
+    // otherwise miss the registered "yaml" parser and fail with NoSuchParser.
+    override fun ext() = path.fileName.toString().substringAfterLast('.').lowercase()
     override fun open(optional: Boolean): ConfigResult<InputStream?> {
       return when {
         path.exists() -> runCatching { Files.newInputStream(path) }.toValidated { ConfigFailure.ErrorOpeningPath(path) }
@@ -54,7 +57,9 @@ abstract class ConfigSource {
     private val classpathResourceLoader: ClasspathResourceLoader = Companion::class.java.toClasspathResourceLoader()
   ) : ConfigSource() {
     override fun describe(): String = "classpath:$resource"
-    override fun ext() = resource.split('.').last()
+    // Lower-case for the same reason as PathSource.ext — the parser registry stores extensions
+    // in their lower-case canonical form.
+    override fun ext() = resource.substringAfterLast('.').lowercase()
     override fun open(optional: Boolean): ConfigResult<InputStream?> {
       val input = classpathResourceLoader.getResourceAsStream(resource)
       return when {
