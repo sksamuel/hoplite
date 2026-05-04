@@ -23,6 +23,17 @@ class TomlParser : Parser {
   override fun defaultFileExtensions(): List<String> = listOf("toml")
   override fun load(input: InputStream, source: String): Node {
     val result = Toml.parse(input)
+    // Toml.parse returns a result-with-errors object — it does not throw on invalid TOML, it
+    // just gives you whatever it managed to recover. Walking the table after a parse error
+    // silently produces a partial config. Surface the errors so the user is told what went
+    // wrong instead of getting "missing key" failures further down the pipeline.
+    if (result.hasErrors()) {
+      val message = result.errors().joinToString(separator = "\n") { err ->
+        val pos = err.position()
+        if (pos != null) "$source:${pos.line()}:${pos.column()}: ${err.message}" else "$source: ${err.message}"
+      }
+      throw IllegalStateException("Invalid TOML in $source:\n$message")
+    }
     return TableProduction(result, Pos.SourcePos(source), source, DotPath.root)
   }
 }

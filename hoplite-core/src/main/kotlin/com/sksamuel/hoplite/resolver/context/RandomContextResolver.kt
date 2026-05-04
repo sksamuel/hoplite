@@ -1,9 +1,11 @@
 package com.sksamuel.hoplite.resolver.context
 
+import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import java.util.UUID
 import kotlin.math.abs
@@ -39,12 +41,21 @@ object RandomContextResolver : ContextResolver() {
         when {
           intWithMaxMatch != null -> {
             val max = intWithMaxMatch.groupValues[1].toInt()
-            Random.nextInt(0, max).toString().valid()
+            // Random.nextInt(0, max) throws IllegalArgumentException when max <= 0; the regex
+            // permits "0", so `${{ random:int(0) }}` would crash the loader. Surface a clean
+            // ResolverFailure instead.
+            if (max <= 0)
+              ConfigFailure.ResolverFailure("random:int($max) requires max > 0").invalid()
+            else
+              Random.nextInt(0, max).toString().valid()
           }
           intWithRangeMatch != null -> {
             val min = intWithRangeMatch.groupValues[1].toInt()
             val max = intWithRangeMatch.groupValues[2].toInt()
-            Random.nextInt(min, max).toString().valid()
+            if (min >= max)
+              ConfigFailure.ResolverFailure("random:int($min, $max) requires min < max").invalid()
+            else
+              Random.nextInt(min, max).toString().valid()
           }
           stringMatch != null -> {
             val length = stringMatch.groupValues[1].toInt()

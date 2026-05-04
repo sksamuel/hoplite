@@ -31,11 +31,11 @@ class YamlParser : Parser {
   override fun defaultFileExtensions(): List<String> = listOf("yml", "yaml")
   private val yaml = Yaml()
   override fun load(input: InputStream, source: String): Node {
+    // YAML is UTF-8 by spec; pin the charset rather than rely on the JVM default.
     // The reader wraps `input` and must be closed so its decoder buffers are released.
-    // We don't own `input` (the caller does) but closing the reader will close the underlying
-    // stream too — and InputStream.close() is idempotent, so the caller's own .use {} (e.g. via
-    // PR #540's ConfigFilePropertySource fix) remains safe.
-    return InputStreamReader(input).use { reader ->
+    // The caller still owns `input`; InputStream.close() is idempotent so callers can
+    // continue to .use {} their own stream safely.
+    return InputStreamReader(input, Charsets.UTF_8).use { reader ->
       val events = yaml.parse(reader).iterator()
       val stream = TokenStream(events)
       require(stream.next().`is`(Event.ID.StreamStart)) { "Expected stream start at ${stream.current().startMark}" }
@@ -102,7 +102,10 @@ object TokenProduction {
       //    { Y, true, Yes, ON  }    : Boolean true
       //    { n, FALSE, No, off }    : Boolean false
       is ScalarEvent -> {
-        val node = if (event.value == "null" && event.scalarStyle == DumperOptions.ScalarStyle.PLAIN)
+        // YAML 1.1/1.2 PLAIN style allows `null`, `Null`, `NULL`, and `~` as null. The previous
+        // implementation only recognised the literal lowercase `null`; the others produced
+        // StringNodes containing the literal text.
+        val node = if (event.scalarStyle == DumperOptions.ScalarStyle.PLAIN && isYamlNullLiteral(event.value))
           NullNode(event.startMark.toPos(source), path, emptyMap())
         else
           StringNode(event.value, event.startMark.toPos(source), path, emptyMap())
@@ -179,3 +182,9 @@ object SequenceProduction {
 }
 
 fun Mark.toPos(source: String): Pos = Pos.LineColPos(line, column, source)
+
+// YAML 1.1/1.2 PLAIN-scalar null literals.
+private fun isYamlNullLiteral(value: String): Boolean = when (value) {
+  "null", "Null", "NULL", "~" -> true
+  else -> false
+}

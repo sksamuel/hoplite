@@ -14,7 +14,7 @@ private val counter = AtomicInteger(0)
  *
  * For example:
  *
- *   JsonParser(
+ *   JsonPropertySource(
  *      """ {
  *        "a": [
  *          {

@@ -23,10 +23,11 @@ import java.io.InputStreamReader
 class HoconParser : Parser {
 
   override fun load(input: InputStream, source: String): Node {
-    // ConfigFactory.parseReader does not close the reader, so without .use {} the
-    // InputStreamReader's decoder buffers were leaked on every load. The caller owns `input`
-    // and may .use {} it independently — InputStream.close() is idempotent.
-    val config = InputStreamReader(input).use { reader ->
+    // HOCON is UTF-8 by spec; pin the charset rather than rely on the JVM default.
+    // ConfigFactory.parseReader does not close the reader, so wrap in .use {} to release
+    // the decoder buffers. The caller owns `input` and may .use {} it independently —
+    // InputStream.close() is idempotent.
+    val config = InputStreamReader(input, Charsets.UTF_8).use { reader ->
       ConfigFactory.parseReader(reader).resolve()
     }
     return MapProduction(config.root(), config.origin(), source, DotPath.root)
