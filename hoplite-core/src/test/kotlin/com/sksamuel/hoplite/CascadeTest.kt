@@ -208,4 +208,28 @@ class CascadeTest : FunSpec({
       "     - database.port at (props string source) overridden by (props string source)\n" +
       "     - database.tls at (props string source) overridden by (props string source)"
   }
+
+  // Regression for the direction of OverrideConfigError's English: with two sources at
+  // *distinguishable* positions, the message must read "X at <loser> overridden by <winner>".
+  // The earlier wording rendered as "X at <winner> overridden by <loser>" — backwards from
+  // who actually beat whom in the cascade.
+  test("CascadeMode.Error message names the loser before the winner") {
+    val winner = java.util.Properties().apply { setProperty("database.port", "3306") }
+    val loser = java.util.Properties().apply { setProperty("database.port", "1234") }
+
+    val ex = shouldThrowAny {
+      ConfigLoaderBuilder.default()
+        // first added = highest priority = cascade winner
+        .addPropertySource(com.sksamuel.hoplite.parsers.PropsPropertySource(winner, name = "winner-source"))
+        .addPropertySource(com.sksamuel.hoplite.parsers.PropsPropertySource(loser, name = "loser-source"))
+        .withCascadeMode(CascadeMode.Error)
+        .build()
+        .loadNodeOrThrow()
+    }
+    // <loser> rendered first, <winner> after "overridden by"
+    ex.message shouldBe "Error loading config because:\n" +
+      "\n" +
+      "    Overridden configs are configured as errors\n" +
+      "     - database.port at (loser-source) overridden by (winner-source)"
+  }
 })
