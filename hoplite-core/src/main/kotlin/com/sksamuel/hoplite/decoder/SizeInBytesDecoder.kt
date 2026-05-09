@@ -48,7 +48,12 @@ sealed class InformationUnit {
   }
 
   object Octets : InformationUnit() {
-    override val ratioToPrimary = 1 / 8.0
+    // An octet is, by definition, 8 bits — i.e. exactly one byte. The previous
+    // ratio of 1/8.0 confused octets with bits and silently produced wrong
+    // results: parse("5o") yielded SizeInBytes(0) (5 * 0.125 = 0.625 truncated
+    // to 0), and bytes.octets() multiplied by 8 instead of returning the same
+    // count.
+    override val ratioToPrimary = 1.0
     override val symbol = "o"
   }
 
