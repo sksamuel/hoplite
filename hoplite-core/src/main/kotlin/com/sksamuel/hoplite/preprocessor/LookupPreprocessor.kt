@@ -19,10 +19,13 @@ import com.sksamuel.hoplite.withMeta
 object LookupPreprocessor : Preprocessor {
 
   // Redundant escaping required for Android support.
-  private val regex1 = "\\$\\{(.*?)\\}".toRegex()
+  // The `(?!\{)` skips `${{...}}` placeholders so this preprocessor does not mangle context-resolver
+  // syntax such as `${{ env:VAR :- fallback }}` (gh-472).
+  private val regex1 = "\\$\\{(?!\\{)(.*?)\\}".toRegex()
 
   // react syntax {{a.b.c}}
-  private val regex2 = "\\{\\{(.*?)\\}\\}".toRegex()
+  // The `(?<!\$)` skips `${{...}}` (which is context-resolver syntax, handled elsewhere).
+  private val regex2 = "(?<!\\$)\\{\\{(.*?)\\}\\}".toRegex()
   private val valueWithDefaultRegex = "(.*?):-(.*?)".toRegex()
 
   override fun process(node: Node, context: DecoderContext): ConfigResult<Node> {
