@@ -47,8 +47,14 @@ class MapDecoder : NullHandlingDecoder<Map<*, *>> {
                                vdecoder: Decoder<V>,
                                context: DecoderContext): ConfigResult<Map<*, *>> =
       node.elements.map { el ->
-        kdecoder.decode(el.atKey("key"), kType, context).flatMap { kk ->
-          vdecoder.decode(el.atKey("value"), vType, context).map { vv ->
+        val keyNode = el.atKey("key")
+        val valueNode = el.atKey("value")
+        kdecoder.decode(keyNode, kType, context).flatMap { kk ->
+          vdecoder.decode(valueNode, vType, context).map { vv ->
+            // Mark both subnodes as used so strict mode does not flag the array-of-objects
+            // map form (`[{key: ..., value: ...}, ...]`) as containing unused entries.
+            context.usedPaths.add(keyNode.path)
+            context.usedPaths.add(valueNode.path)
             kk to vv
           }
         }
