@@ -47,7 +47,11 @@ class YamlParser : Parser {
         stream.next() // move past the doc start
         TokenProduction(stream, source, emptyMap(), DotPath.root).first
       }
-      else -> error { "Expected document start at ${stream.current().startMark}" }
+      // kotlin.error has only one overload — `error(message: Any)` — so a trailing-lambda call
+      // would pass the lambda itself as the message, and IllegalStateException would be raised
+      // with `message.toString()` of the lambda (something like "Function0<String>") instead of
+      // the intended text. Use the parenthesised form so the actual string reaches the user.
+      else -> error("Expected document start at ${stream.current().startMark}")
     }
   }
 }
