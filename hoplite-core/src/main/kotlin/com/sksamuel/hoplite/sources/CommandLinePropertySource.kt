@@ -23,7 +23,11 @@ class CommandLinePropertySource(
 
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
     val values = arguments.asSequence().filter {
-      it.startsWith(prefix) && it.contains(delimiter)
+      // The delimiter must appear in the key portion (after the prefix is stripped), not just
+      // anywhere in the raw argument. Checking the raw argument means an arg whose only delimiter
+      // is inside the prefix (e.g. prefix "--", delimiter "-", arg "--verbose") passes the filter
+      // but then splits into a single element, and the value lookup at index 1 throws.
+      it.startsWith(prefix) && it.removePrefix(prefix).contains(delimiter)
     }.map {
       it.removePrefix(prefix).split(delimiter, limit = 2)
     }.groupingBy {
