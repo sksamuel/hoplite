@@ -171,7 +171,8 @@ object SequenceProduction {
     require(
       stream.current().`is`(Event.ID.SequenceStart)
     ) { "Expected sequence start at ${stream.current().startMark}" }
-    val mark = stream.current().startMark
+    val seqEvent = stream.current() as SequenceStartEvent
+    val mark = seqEvent.startMark
     val list = mutableListOf<Node>()
     var index = 0
     var tempAnchors: Map<String, Node> = anchors
@@ -182,7 +183,15 @@ object SequenceProduction {
       tempAnchors = returnedAnchors
     }
     require(stream.current().`is`(Event.ID.SequenceEnd)) { "Expected sequence end at ${stream.current().startMark}" }
-    return Pair(ArrayNode(list.toList(), mark.toPos(source), path), tempAnchors)
+    val node = ArrayNode(list.toList(), mark.toPos(source), path)
+    // Register the sequence's own anchor (if any) so a later alias can resolve it,
+    // mirroring how MapProduction and the scalar branch handle anchors. Without this,
+    // an anchored sequence (`&a [ ... ]`) referenced by `*a` failed with "Could not find alias".
+    tempAnchors = when (val anchor = seqEvent.anchor) {
+      null -> tempAnchors
+      else -> tempAnchors + Pair(anchor, node)
+    }
+    return Pair(node, tempAnchors)
   }
 }
 
