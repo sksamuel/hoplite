@@ -24,6 +24,11 @@ class ReloadableConfig<A : Any>(
 ) {
 
   private val config = AtomicReference(configLoader.loadConfigOrThrow(clazz, emptyList()))
+
+  // Written on the caller thread via withErrorHandler, read on the watcher thread (reloadConfig and
+  // the watch error callback). Volatile establishes the happens-before edge so the watcher thread is
+  // guaranteed to see the handler once set; config and subscribers are already thread-safe.
+  @Volatile
   private var errorHandler: ((Throwable) -> Unit)? = null
   private val subscribers = ConcurrentHashMap.newKeySet<(A) -> Unit>()
 
