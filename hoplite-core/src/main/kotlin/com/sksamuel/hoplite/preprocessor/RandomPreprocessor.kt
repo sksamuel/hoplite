@@ -10,7 +10,6 @@ import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.DecoderContext
 import java.util.UUID
-import kotlin.math.abs
 import kotlin.random.Random
 
 private typealias Rule = (String) -> String
@@ -22,7 +21,8 @@ object RandomPreprocessor : TraversingPrimitivePreprocessor() {
 
   private val intRule: Rule = {
     val regex = "\\$\\{random.int\\}".toRegex()
-    regex.replace(it) { abs(Random.nextInt()).toString() }
+    // Mask off the sign bit rather than abs(): abs(Int.MIN_VALUE) == Int.MIN_VALUE (overflow).
+    regex.replace(it) { (Random.nextInt() and Int.MAX_VALUE).toString() }
   }
 
   private val booleanRule: Rule = {
@@ -55,7 +55,8 @@ object RandomPreprocessor : TraversingPrimitivePreprocessor() {
 
   private val longRule: Rule = {
     val regex = "\\$\\{random.long\\}".toRegex()
-    regex.replace(it) { abs(Random.nextLong()).toString() }
+    // Mask off the sign bit rather than abs(): abs(Long.MIN_VALUE) == Long.MIN_VALUE (overflow).
+    regex.replace(it) { (Random.nextLong() and Long.MAX_VALUE).toString() }
   }
 
   private val doubleRule: Rule = {

@@ -8,7 +8,6 @@ import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import java.util.UUID
-import kotlin.math.abs
 import kotlin.random.Random
 
 object RandomContextResolver : ContextResolver() {
@@ -29,10 +28,14 @@ object RandomContextResolver : ContextResolver() {
 
   override fun lookup(path: String, node: StringNode, root: Node, context: DecoderContext): ConfigResult<String?> {
     return when (path) {
-      "int" -> abs(Random.nextInt()).toString().valid()
+      // Mask off the sign bit rather than abs(): abs(Int.MIN_VALUE) == Int.MIN_VALUE (overflow),
+      // so abs(Random.nextInt()) can still return a negative number. `and Int.MAX_VALUE` is always
+      // non-negative and stays uniform over [0, Int.MAX_VALUE].
+      "int" -> (Random.nextInt() and Int.MAX_VALUE).toString().valid()
       "boolean" -> Random.nextBoolean().toString().valid()
-      "long" -> abs(Random.nextLong()).toString().valid()
-      "double" -> abs(Random.nextDouble()).toString().valid()
+      "long" -> (Random.nextLong() and Long.MAX_VALUE).toString().valid()
+      // nextDouble() is already in [0.0, 1.0), so it is always non-negative; no abs needed.
+      "double" -> Random.nextDouble().toString().valid()
       "uuid" -> UUID.randomUUID().toString().valid()
       else -> {
         val intWithMaxMatch = intWithMaxRule.matchEntire(path)
