@@ -10,6 +10,7 @@ import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.DecoderContext
+import com.sksamuel.hoplite.transformer.PathNormalizer
 import com.sksamuel.hoplite.withMeta
 
 /**
@@ -27,9 +28,17 @@ object LookupPreprocessor : Preprocessor {
 
   override fun process(node: Node, context: DecoderContext): ConfigResult<Node> {
 
-    fun lookup(key: String): String? = when (val n = node.atPath(key)) {
-      is StringNode -> n.value
-      else -> null
+    // When PathNormalizer is active it has lowercased and stripped -/_ from every tree key, so the
+    // lookup key must be normalized the same way or a cased/dashed path would no longer match (#503).
+    // transformPathElement leaves '.' untouched, so it can be applied to the whole dotted path —
+    // this mirrors how ConfigParser.prefixedNode normalizes a prefix before atPath.
+    fun lookup(key: String): String? {
+      val normalizedKey =
+        if (context.nodeTransformers.contains(PathNormalizer)) PathNormalizer.transformPathElement(key) else key
+      return when (val n = node.atPath(normalizedKey)) {
+        is StringNode -> n.value
+        else -> null
+      }
     }
 
     fun replace(node: StringNode, regex: Regex): StringNode {
