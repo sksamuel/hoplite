@@ -1,14 +1,24 @@
 package com.sksamuel.hoplite.watch.watchers
 
 import com.sksamuel.hoplite.watch.Watchable
+import java.nio.file.ClosedWatchServiceException
 import java.nio.file.FileSystems
 import java.nio.file.Paths
 import java.nio.file.StandardWatchEventKinds
+import java.nio.file.WatchService
 import java.util.concurrent.Executors
+import java.util.concurrent.Future
 
 class FileWatcher(private val dir: String) : Watchable {
   private var cb = {}
   private var errorCallback: ((Throwable) -> Unit) = { }
+
+  // Visible for testing — lets tests close the watch service externally to drive the
+  // ClosedWatchServiceException path, and join the worker thread to assert it exited cleanly.
+  internal lateinit var watchService: WatchService
+    private set
+  internal lateinit var future: Future<*>
+    private set
 
   override fun watch(callback: () -> Unit, errorHandler: (Throwable) -> Unit) {
     cb = callback
@@ -17,7 +27,7 @@ class FileWatcher(private val dir: String) : Watchable {
   }
 
   private fun start() {
-    val watchService = FileSystems.getDefault().newWatchService()
+    watchService = FileSystems.getDefault().newWatchService()
     // we don't use toRealPath() here, because we *want* to watch the symlinked parent the file is in, not the file's real parent
     val pathToWatch = Paths.get(dir).toAbsolutePath()
 
@@ -28,7 +38,7 @@ class FileWatcher(private val dir: String) : Watchable {
       StandardWatchEventKinds.ENTRY_DELETE
     )
 
-    Executors.newSingleThreadExecutor { Thread(it).apply { isDaemon = true } }.submit {
+    future = Executors.newSingleThreadExecutor { Thread(it).apply { isDaemon = true } }.submit {
       while (true) {
         try {
           val watchKey = watchService.take()
@@ -44,6 +54,15 @@ class FileWatcher(private val dir: String) : Watchable {
               break
             }
           }
+        } catch (e: ClosedWatchServiceException) {
+          // The watch service was closed (by us above, or externally). The next take() would
+          // throw again immediately, causing the loop to spin forever invoking errorCallback.
+          // Stop watching instead.
+          break
+        } catch (e: InterruptedException) {
+          // Restore the interrupt status so callers can observe it, then exit the loop.
+          Thread.currentThread().interrupt()
+          break
         } catch (e: Exception) {
           errorCallback(e)
         }

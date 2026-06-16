@@ -34,11 +34,24 @@ class ParameterStorePathPreprocessor(
 
   private fun fetchParameterStoreValues(): Result<List<Parameter>> = runCatching {
     runBlocking {
-      client.getParametersByPath {
+      val initial = GetParametersByPathRequest {
         path = this@ParameterStorePathPreprocessor.path
         configure()
-      }.parameters
-        ?: emptyList()
+      }
+      // The SSM API caps each response at 10 parameters by default; previously this only
+      // returned the first page, so any path with more than ~10 parameters was effectively
+      // truncated. Walk the nextToken chain so every key under `path` is visible to the
+      // ${ssm:key} substitution. The companion ParameterStorePathPropertySource already
+      // paginates the same way.
+      val all = mutableListOf<Parameter>()
+      var request = initial
+      while (true) {
+        val result = client.getParametersByPath(request)
+        result.parameters?.let { all.addAll(it) }
+        val token = result.nextToken ?: break
+        request = initial.copy { nextToken = token }
+      }
+      all
     }
   }
 

@@ -6,6 +6,7 @@ import com.sksamuel.hoplite.addResourceOrFileSource
 import com.sksamuel.hoplite.parsers.PropsParser
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.style.AnnotationSpec
+import io.kotest.engine.spec.tempdir
 
 class SmarterPathAndClasspathLoadingTest : AnnotationSpec() {
 
@@ -40,6 +41,24 @@ class SmarterPathAndClasspathLoadingTest : AnnotationSpec() {
   @Test
   fun `simple path with slash`() {
     shouldNotThrowAny { loadConfig<Config>(listOf("/.gh511-envfile")) }
+  }
+
+  @Test
+  fun `absolute filesystem path is loaded as a file`() {
+    // Write the same .properties content to an absolute path under tempdir, then load it
+    // by its absolute path. Previously this would silently strip the leading slash and try
+    // to find `tmp/.../foo.properties` relative to CWD, fail, and fall through to a
+    // classpath lookup that didn't exist either.
+    val tempDir = tempdir()
+    val file = tempDir.resolve("absolute.properties")
+    file.writeText(
+      """
+      gh511Database.dbJdbcUrl=jdbc:postgresql://localhost:5432/db
+      gh511Database.username=admin
+      gh511Env=test
+      """.trimIndent()
+    )
+    shouldNotThrowAny { loadConfig<Config>(listOf(file.absolutePath)) }
   }
 
   @OptIn(ExperimentalHoplite::class)

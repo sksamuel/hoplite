@@ -106,6 +106,26 @@ class SecretFilesPreprocessorTest : FunSpec({
     config shouldBe Config(url = "jdbc://alice@db.internal/db")
   }
 
+  test("returns a clean ConfigFailure when the referenced secret file is missing") {
+    val secrets = tempdir() // empty directory — no secret files written
+
+    data class Config(val apiKey: String)
+
+    val ex = io.kotest.assertions.throwables.shouldThrow<com.sksamuel.hoplite.ConfigException> {
+      ConfigLoaderBuilder.default()
+        .addPreprocessor(SecretFilesPreprocessor(secrets.toPath()))
+        .addPropertySource(PropertySource.string("apiKey=\${secret:apiKey}", "props"))
+        .build()
+        .loadConfigOrThrow<Config>()
+    }
+    // Before the fix: an uncaught NoSuchFileException made it out as a generic stack trace.
+    // After the fix: a clean preprocessor warning identifying the missing file.
+    val msg = ex.message.orEmpty()
+    assert("Secret file" in msg && "not found" in msg) {
+      "Expected 'Secret file ... not found' in error, was: $msg"
+    }
+  }
+
   test("accepts a string base path via the convenience constructor") {
     val secrets = tempdir().apply { writeSecret("apiKey", "abc-123") }
 

@@ -20,7 +20,14 @@ class PathDecoder : NullHandlingDecoder<Path> {
                           type: KType,
                           context: DecoderContext): ConfigResult<Path> {
     return when (node) {
-      is StringNode -> Path(node.value).valid()
+      // Hadoop's Path(String) throws IllegalArgumentException for malformed inputs (e.g. an
+      // empty string or a malformed URI). Without runCatching the exception escaped uncaught
+      // and broke the loader instead of producing a clean ConfigFailure — same class of fix
+      // as #541 for the hoplite-javax security decoders.
+      is StringNode -> runCatching { Path(node.value) }.fold(
+        { it.valid() },
+        { ConfigFailure.DecodeError(node, Path::class.createType()).invalid() }
+      )
       else -> ConfigFailure.DecodeError(node, Path::class.createType()).invalid()
     }
   }

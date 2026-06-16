@@ -31,7 +31,13 @@ class YamlParser : Parser {
   override fun defaultFileExtensions(): List<String> = listOf("yml", "yaml")
   private val yaml = Yaml()
   override fun load(input: InputStream, source: String): Node {
-    val reader = InputStreamReader(input)
+    // Pin the charset to UTF-8. InputStreamReader(input) without a charset uses the JVM
+    // default, which is platform-dependent (UTF-8 on most modern systems, historically
+    // Windows-1252 on older Windows JVMs, and changes under -Dfile.encoding overrides).
+    // YAML files are UTF-8 by spec, so non-ASCII content (emoji, accented chars, etc.)
+    // would otherwise be misinterpreted on a non-UTF-8 default JVM. PropsParser already
+    // pins UTF-8 — match that.
+    val reader = InputStreamReader(input, Charsets.UTF_8)
     val events = yaml.parse(reader).iterator()
     val stream = TokenStream(events)
     require(stream.next().`is`(Event.ID.StreamStart)) { "Expected stream start at ${stream.current().startMark}" }
@@ -41,7 +47,11 @@ class YamlParser : Parser {
         stream.next() // move past the doc start
         TokenProduction(stream, source, emptyMap(), DotPath.root).first
       }
-      else -> error { "Expected document start at ${stream.current().startMark}" }
+      // kotlin.error has only one overload — `error(message: Any)` — so a trailing-lambda call
+      // would pass the lambda itself as the message, and IllegalStateException would be raised
+      // with `message.toString()` of the lambda (something like "Function0<String>") instead of
+      // the intended text. Use the parenthesised form so the actual string reaches the user.
+      else -> error("Expected document start at ${stream.current().startMark}")
     }
   }
 }
@@ -97,7 +107,10 @@ object TokenProduction {
       //    { Y, true, Yes, ON  }    : Boolean true
       //    { n, FALSE, No, off }    : Boolean false
       is ScalarEvent -> {
-        val node = if (event.value == "null" && event.scalarStyle == DumperOptions.ScalarStyle.PLAIN)
+        // YAML 1.1/1.2 PLAIN style allows `null`, `Null`, `NULL`, and `~` as null. The previous
+        // implementation only recognised the literal lowercase `null`; the others produced
+        // StringNodes containing the literal text.
+        val node = if (event.scalarStyle == DumperOptions.ScalarStyle.PLAIN && isYamlNullLiteral(event.value))
           NullNode(event.startMark.toPos(source), path, emptyMap())
         else
           StringNode(event.value, event.startMark.toPos(source), path, emptyMap())
@@ -174,3 +187,9 @@ object SequenceProduction {
 }
 
 fun Mark.toPos(source: String): Pos = Pos.LineColPos(line, column, source)
+
+// YAML 1.1/1.2 PLAIN-scalar null literals.
+private fun isYamlNullLiteral(value: String): Boolean = when (value) {
+  "null", "Null", "NULL", "~" -> true
+  else -> false
+}

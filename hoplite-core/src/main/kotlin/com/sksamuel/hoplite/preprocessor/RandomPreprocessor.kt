@@ -34,7 +34,12 @@ object RandomPreprocessor : TraversingPrimitivePreprocessor() {
     val regex = "\\$\\{random.int\\(\\s*(\\d+)\\s*\\)\\}".toRegex()
     regex.replace(it) { match ->
       val max = match.groupValues[1].toInt()
-      Random.nextInt(0, max).toString()
+      // Random.nextInt(0, max) throws IllegalArgumentException when max <= 0.
+      // The regex permits "0", so `${random.int(0)}` would propagate that exception
+      // out of the preprocessor and break the loader. Leave the placeholder verbatim
+      // instead so the user can spot the typo in the report rather than getting a
+      // crash deep inside config loading.
+      if (max <= 0) match.value else Random.nextInt(0, max).toString()
     }
   }
 
@@ -43,7 +48,8 @@ object RandomPreprocessor : TraversingPrimitivePreprocessor() {
     regex.replace(it) { match ->
       val min = match.groupValues[1].toInt()
       val max = match.groupValues[2].toInt()
-      Random.nextInt(min, max).toString()
+      // Same hardening as intWithMaxRule — Random.nextInt(min, max) throws when min >= max.
+      if (min >= max) match.value else Random.nextInt(min, max).toString()
     }
   }
 

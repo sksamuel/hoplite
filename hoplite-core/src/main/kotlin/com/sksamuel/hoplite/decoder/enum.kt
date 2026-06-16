@@ -28,8 +28,16 @@ class EnumDecoder<T : Any> : NullHandlingDecoder<T> {
     val klass = type.classifier as KClass<*>
     val ignoreCase = context.config.resolveTypesCaseInsensitive
 
+    // Match against the canonical Enum.name, not toString(). The previous code used
+    // it.toString() which works for vanilla Java enums (whose default toString() returns
+    // name) but silently breaks for any enum that overrides toString() — e.g.
+    //
+    //   enum class Color { RED; override fun toString() = "Color::red" }
+    //
+    // would no longer be reachable with `color: RED` because the iterator compared
+    // "Color::red" to "RED". Cast each constant to Enum<*> and use .name.
     fun findConstant(value: String): Any? = klass.java.enumConstants.find {
-      it.toString().contentEquals(other = value, ignoreCase = ignoreCase)
+      (it as Enum<*>).name.contentEquals(other = value, ignoreCase = ignoreCase)
     }
 
     fun decode(value: String): ConfigResult<T> {

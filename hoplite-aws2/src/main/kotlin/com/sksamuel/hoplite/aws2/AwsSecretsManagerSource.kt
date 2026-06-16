@@ -20,7 +20,14 @@ class AwsSecretsManagerSource(
     val secretRequest = GetSecretValueRequest.builder().secretId(key).build()
     val secret = client.getSecretValue(secretRequest)
 
-    return json.decodeFromString<Map<String, String>>(secret.secretString())
+    // GetSecretValueResponse.secretString() returns null when the secret was created with
+    // SecretBinary instead of a string payload. Without this guard the next line would NPE
+    // on a Java platform-type result. Surface a clearer message so the caller knows the
+    // secret was binary and can switch to fetching the binary form.
+    val secretString = secret.secretString()
+      ?: error("AWS secret '$key' has no string value (was it created with SecretBinary?)")
+
+    return json.decodeFromString<Map<String, String>>(secretString)
   }
 
 }

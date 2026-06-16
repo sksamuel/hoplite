@@ -16,7 +16,15 @@ class FixedIntervalWatchable(private val intervalMs: Long) : Watchable {
     GlobalScope.launch {
       while (isActive) {
         delay(intervalMs)
-        callback()
+        // Without this guard, an exception thrown by callback() (or anything it calls
+        // synchronously, like a misbehaving subscriber on the reload path) would propagate up to
+        // the coroutine and silently terminate the watcher, with the user's errorHandler never
+        // invoked. Funnel the failure through errorHandler and keep watching.
+        try {
+          callback()
+        } catch (e: Throwable) {
+          errorHandler(e)
+        }
       }
     }
   }

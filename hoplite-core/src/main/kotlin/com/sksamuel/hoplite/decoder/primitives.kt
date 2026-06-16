@@ -107,7 +107,14 @@ class IntDecoder : NonNullableLeafDecoder<Int> {
       }
     }
     is DoubleNode -> node.value.toInt().valid()
-    is LongNode -> node.value.toInt().valid()
+    // Long.toInt() silently truncates when the value is outside Int range — e.g. a JSON
+    // integer literal of 3_000_000_000 would arrive as a LongNode and decode to a negative
+    // Int. The String path uses toInt() which throws NumberFormatException on overflow, so
+    // those callers got a clean error; the LongNode path didn't. Range-check up front.
+    is LongNode -> if (node.value in Int.MIN_VALUE..Int.MAX_VALUE)
+      node.value.toInt().valid()
+    else
+      ConfigFailure.NumberConversionError(node, type).invalid()
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }
@@ -126,7 +133,11 @@ class ByteDecoder : NonNullableLeafDecoder<Byte> {
       }
     }
     is DoubleNode -> runCatching { node.value.toInt().toByte() }.toValidated { ThrowableFailure(it) }
-    is LongNode -> node.value.toByte().valid()
+    // Same overflow trap as IntDecoder: LongNode(1000) silently produced a Byte of -24.
+    is LongNode -> if (node.value in Byte.MIN_VALUE..Byte.MAX_VALUE)
+      node.value.toByte().valid()
+    else
+      ConfigFailure.NumberConversionError(node, type).invalid()
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }
@@ -139,7 +150,11 @@ class ShortDecoder : NonNullableLeafDecoder<Short> {
     context: DecoderContext
   ): ConfigResult<Short> = when (node) {
     is StringNode -> runCatching { node.value.toShort() }.toValidated { ThrowableFailure(it) }
-    is LongNode -> node.value.toShort().valid()
+    // Same overflow trap as IntDecoder.
+    is LongNode -> if (node.value in Short.MIN_VALUE..Short.MAX_VALUE)
+      node.value.toShort().valid()
+    else
+      ConfigFailure.NumberConversionError(node, type).invalid()
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }

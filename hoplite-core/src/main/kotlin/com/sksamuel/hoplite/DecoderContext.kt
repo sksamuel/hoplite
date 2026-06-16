@@ -25,7 +25,7 @@ data class DecoderContext(
   val paramMappers: List<ParameterMapper>,
   val nodeTransformers: List<NodeTransformer>,
   val reporter: Reporter = Reporter(),
-  // these are the dot paths for every config value - overrided or not, that was used
+  // these are the dot paths for every config value - overridden or not, that was used
   val usedPaths: MutableSet<DotPath> = mutableSetOf(),
   // this tracks the types that a node was marshalled into
   val used: MutableMap<DotPath, NodeState> = mutableMapOf(),
@@ -50,7 +50,7 @@ data class DecoderContext(
   fun decoder(type: KParameter): Validated<ConfigFailure, Decoder<*>> = decoder(type.type)
 
   /**
-   * Makes a node as marshalled into the given [type] with the resolved value [value].
+   * Marks a node as marshalled into the given [type] with the resolved value [value].
    */
   fun used(node: Node, type: KType, value: Any?) {
     this.used[node.path] = NodeState(node, true, value, type)
