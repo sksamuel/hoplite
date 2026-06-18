@@ -177,6 +177,30 @@ class CascadeTest : FunSpec({
     )
   }
 
+  test("cascade function should report an override on a map node's own value") {
+    // A "dual" node is both a leaf value and a map (e.g. props `db = primary` plus `db.host = ...`),
+    // represented as a MapNode with a non-Undefined `value`. When two sources both define such a
+    // value, the conflict on the value itself must be reported as an override.
+    val node1 = MapNode(
+      map = mapOf("host" to StringNode("localhost", Pos.NoPos, DotPath("db", "host"))),
+      pos = Pos.NoPos,
+      path = DotPath("db"),
+      value = StringNode("primary", Pos.SourcePos("y"), DotPath("db"))
+    )
+
+    val node2 = MapNode(
+      map = emptyMap(),
+      pos = Pos.NoPos,
+      path = DotPath("db"),
+      value = StringNode("secondary", Pos.SourcePos("x"), DotPath("db"))
+    )
+
+    val cascader = Cascader(CascadeMode.Merge, false)
+    cascader.cascade(node1, node2).overrides shouldBe listOf(
+      OverridePath(DotPath("db"), Pos.SourcePos("y"), Pos.SourcePos("x"))
+    )
+  }
+
   test("CascadeMode.error should error if overrides present") {
     shouldThrowAny {
       ConfigLoaderBuilder.default()
