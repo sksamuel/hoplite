@@ -2,6 +2,7 @@ package com.sksamuel.hoplite.internal
 
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
+import com.sksamuel.hoplite.DecodedPath
 import com.sksamuel.hoplite.fp.NonEmptyList
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
@@ -19,10 +20,21 @@ class DecodeModeValidator(private val mode: DecodeMode) {
   }
 
   private fun ensureAllUsed(result: DecodingState): ConfigResult<DecodingState> {
-    return if (result.unused.isEmpty()) result.valid() else {
-      val errors = NonEmptyList.unsafe(result.unused.map { ConfigFailure.UnusedPath(it) })
+    val unused = result.unused.filterNot { it.isExternalSource() }
+    return if (unused.isEmpty()) result.valid() else {
+      val errors = NonEmptyList.unsafe(unused.map { ConfigFailure.UnusedPath(it) })
       ConfigFailure.MultipleFailures(errors).invalid()
     }
+  }
+
+  // Process-wide sources (environment variables, JVM system properties) typically contain values
+  // the loader did not request — HOME, USER, TMPDIR, etc. for env vars, and arbitrary JVM
+  // properties for sysprops. Reporting them as "unused" in strict mode produces noise that has
+  // nothing to do with the user's config files (gh-505). Strict mode still catches stale values
+  // in user-provided sources (yaml, json, hocon, props, map sources, ...).
+  private fun DecodedPath.isExternalSource(): Boolean = when (pos.source()) {
+    "env", "sysprops" -> true
+    else -> false
   }
 }
 
