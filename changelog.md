@@ -8,6 +8,9 @@ case is still accepted), letters, and digits. **Single underscores** now separat
 loaded by default, and takes precedence over other default sources just like the `EnvironmentVariableOverridePropertySource`
 did. To maintain similar behavior, configure it with a filtering `prefix`.
 * Add the ability to load a series of environment variables into arrays/lists via the `_n` syntax.
+* Fix: a scalar value is no longer discarded when a higher-precedence source (e.g. an environment variable such as
+`HOST_X`) contributes a map at the same key. Previously the map overrode the scalar entirely, causing a spurious
+`Missing` error when decoding that key as a scalar. #592
 
 ### 2.8.0
 

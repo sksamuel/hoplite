@@ -177,6 +177,23 @@ class CascadeTest : FunSpec({
     )
   }
 
+  // gh-592: a higher-precedence map sharing a key with a lower-precedence scalar must not
+  // discard the scalar. The merged node keeps the map's children AND carries the scalar
+  // through as its `value`, so the key still decodes as a scalar.
+  test("CascadeMode.Merge must preserve a scalar when a higher-precedence map shares the key") {
+    val map = MapNode(
+      mapOf("foo" to StringNode("bar", Pos.NoPos, DotPath("host", "foo"))),
+      Pos.NoPos,
+      DotPath("host"),
+    )
+    val scalar = StringNode("0.0.0.0", Pos.NoPos, DotPath("host"))
+
+    // a (the map) is the higher-precedence node; b (the scalar) must not be dropped.
+    val merged = Cascader(CascadeMode.Merge, false).cascade(map, scalar).node as MapNode
+    merged.value shouldBe scalar
+    merged["foo"] shouldBe StringNode("bar", Pos.NoPos, DotPath("host", "foo"))
+  }
+
   test("CascadeMode.error should error if overrides present") {
     shouldThrowAny {
       ConfigLoaderBuilder.default()
