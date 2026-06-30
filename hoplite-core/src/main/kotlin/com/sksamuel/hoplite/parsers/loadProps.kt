@@ -3,6 +3,7 @@ package com.sksamuel.hoplite.parsers
 import com.sksamuel.hoplite.ArrayNode
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Undefined
@@ -79,15 +80,17 @@ private fun <T, K> Iterable<T>.toNode(
         delimiter = delimiter,
       )
     }
+    // Map null elements to NullNode rather than dropping them — mapNotNull would silently shift
+    // every later element's index left by one, corrupting positional decoding of e.g. List<String?>.
     is Array<*> -> ArrayNode(
-      elements = mapNotNull { it?.transform(path, parentSourceKey) },
+      elements = map { it?.transform(path, parentSourceKey) ?: NullNode(pos, path, emptyMap(), delimiter, parentSourceKey) },
       pos = pos,
       path = path,
       sourceKey = parentSourceKey,
       delimiter = delimiter,
     )
     is Collection<*> -> ArrayNode(
-      elements = mapNotNull { it?.transform(path, parentSourceKey) },
+      elements = map { it?.transform(path, parentSourceKey) ?: NullNode(pos, path, emptyMap(), delimiter, parentSourceKey) },
       pos = pos,
       path = path,
       sourceKey = parentSourceKey,
