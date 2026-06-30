@@ -75,8 +75,19 @@ class Cascader(
                 overrides
               )
             }
-            // since the other once is not a map, we override completely with this
-            else -> CascadeResult(a, listOf(OverridePath(a.path, a.pos, b.pos)))
+            // b is a scalar (or other non-map). Rather than discarding b entirely,
+            // fold its value into a's `value` slot, with a's own value taking
+            // precedence. Otherwise a higher-precedence source that turns this key
+            // into a map (e.g. an env var HOST_X making `host` a map) would silently
+            // drop a lower-precedence scalar at the same key, and decoding that key
+            // as a scalar would then fail with "Missing" (gh-592).
+            else -> {
+              val value = cascade(a.value, b)
+              CascadeResult(
+                MapNode(a.map, a.pos, a.path, value.node, a.meta, a.delimiter, a.sourceKey),
+                value.overrides
+              )
+            }
           }
         }
       }
