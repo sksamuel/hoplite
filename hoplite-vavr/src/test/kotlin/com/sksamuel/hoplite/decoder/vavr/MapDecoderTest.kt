@@ -1,6 +1,8 @@
 package com.sksamuel.hoplite.decoder.vavr
 
 import com.sksamuel.hoplite.ConfigLoader
+import com.sksamuel.hoplite.ConfigLoaderBuilder
+import com.sksamuel.hoplite.addMapSource
 import com.sksamuel.hoplite.sources.EnvironmentVariablesPropertySource
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -32,4 +34,15 @@ class MapDecoderTest : FunSpec({
     } shouldBe Test(linkedHashMap("key1" to "test1", "key2" to "test2", "key-3" to "test3", "Key4" to "test4"))
   }
 
+  // Vavr MapDecoder used to forget context.usedPaths.add(v.path), so strict mode rejected every
+  // entry of a vavr Map field as unused even though every entry was decoded.
+  test("strict mode should accept all entries of a vavr Map") {
+    val config = ConfigLoaderBuilder.defaultWithoutPropertySources()
+      .addMapSource(mapOf("map.a" to "1", "map.b" to "2", "map.c" to "3"))
+      .strict()
+      .build()
+      .loadConfigOrThrow<Test>()
+
+    config shouldBe Test(linkedHashMap("a" to "1", "b" to "2", "c" to "3"))
+  }
 })

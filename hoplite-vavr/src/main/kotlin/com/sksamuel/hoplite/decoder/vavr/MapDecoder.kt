@@ -35,6 +35,9 @@ class MapDecoder : NullHandlingDecoder<Map<*, *>> {
       node.denormalize().map.entries.map { (k, v) ->
         kdecoder.decode(StringNode(k, node.pos, node.path, emptyMap()), kType, context).flatMap { kk ->
           vdecoder.decode(v, vType, context).map { vv ->
+            // Mark each entry as used so strict mode does not report them as unused — matches
+            // what the core MapDecoder does for the regular Map<K, V> case.
+            context.usedPaths.add(v.path)
             kk to vv
           }
         }
