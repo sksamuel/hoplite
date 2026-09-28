@@ -33,4 +33,17 @@ class SystemPropertyContextResolverEmptyKeyTest : FunSpec({
       .loadConfigOrThrow<Cfg>()
     cfg.a shouldBe "fallback"
   }
+
+  // A default value may itself contain ":-". The key/default split must happen on the FIRST ":-"
+  // (lookup keys are property/env names and cannot contain ":-"), not the last. A greedy first
+  // group split on the last ":-", so the fallback below resolved to "b" instead of "a:-b".
+  test("\${{ sysprop:somekey :- default }} keeps a ':-' that appears in the default value") {
+    System.clearProperty("hoplite.unset.test.key")
+    data class Cfg(val a: String)
+    val cfg = ConfigLoaderBuilder.newBuilderWithoutPropertySources()
+      .addMapSource(mapOf("a" to "\${{ sysprop:hoplite.unset.test.key :- a:-b }}"))
+      .build()
+      .loadConfigOrThrow<Cfg>()
+    cfg.a shouldBe "a:-b"
+  }
 })
