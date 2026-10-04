@@ -114,14 +114,14 @@ class SealedClassDecoder : NullHandlingDecoder<Any> {
           .filter { subclass ->
             subclass hasConstructorsWithArgumentsNumberLessOrEqualTo node.expectedNumberOfConstructorArguments
           }
-          .sortedWith(
-            compareByDescending<KClass<*>> { it.numberOfMandatoryConstructorArguments }
-              .thenByDescending { it.numberOfTotalConstructorArguments }
-          )
-          .map { DataClassDecoder().decode(node, it.createType(), context) }
+          .map { DataClassDecoder().decodeWithMatchCount(node, it.createType(), context) }
 
-        val success = results.firstOrNull { it.isValid() }
-        if (success != null) return success
+        // among the subclasses that could be decoded, prefer the one whose constructor parameters were matched by the
+        // most config keys, so that a subclass is not chosen just because its unmatched parameters have defaults;
+        // on a tie, the order from above applies as `maxByOrNull` returns the first maximum
+        val success = results.filterIsInstance<Validated.Valid<DataClassDecoder.Decoded>>()
+          .maxByOrNull { it.value.matchedParams }
+        if (success != null) return success.value.value.valid()
 
         // `results` may be empty if every subclass requires more mandatory constructor
         // arguments than the supplied node provides — `hasConstructorsWithArgumentsNumberLessOrEqualTo`

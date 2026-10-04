@@ -45,13 +45,22 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
     // unlike most NullHandlingDecoders, we defer null handling to see if constructors with default args apply
     safeDecode(node, type, context)
 
-  override fun safeDecode(node: Node, type: KType, context: DecoderContext): ConfigResult<Any> {
+  override fun safeDecode(node: Node, type: KType, context: DecoderContext): ConfigResult<Any> =
+    decodeWithMatchCount(node, type, context).map { it.value }
+
+  /**
+   * The decoded [value] along with the number of constructor parameters that were matched by a defined config
+   * node, as opposed to being left to their defaults.
+   */
+  internal data class Decoded(val value: Any, val matchedParams: Int)
+
+  internal fun decodeWithMatchCount(node: Node, type: KType, context: DecoderContext): ConfigResult<Decoded> {
 
     val kclass = type.classifier as KClass<*>
     if (kclass.constructors.isEmpty()) {
       val instance = kclass.objectInstance
       if (instance != null && node is StringNode && node.value == type.simpleName.substringAfter("$")) {
-        return instance.valid()
+        return Decoded(instance, 0).valid()
       }
       return ConfigFailure.DataClassWithoutConstructor(kclass).invalid()
     }
@@ -80,6 +89,7 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
           .map { constructor.parameters[0] to it }
           .mapInvalid { ConfigFailure.ValueTypeFailure(kclass, constructor.parameters[0], it) }
           .flatMap { construct(type, constructor, mapOf(it)) }
+          .map { Decoded(it, 1) }
       }
 
       // create a map of parameter to value. in the case of defaults, we skip the parameter completely.
@@ -143,7 +153,7 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
       {
         when (node) {
           // for Undefined and NullNode, fall back to the NullHandlingDecoder errors
-          is Undefined, is NullNode -> super.decode(node, type, context)
+          is Undefined, is NullNode -> super.decode(node, type, context).map { Decoded(it, 0) }
           // otherwise, wrap in an error containing each individual error
           else -> ConfigFailure.DataClassFieldErrors(it, type, node.pos).invalid()
         }
@@ -153,7 +163,7 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
           type = type,
           constructor = constructor.constructor,
           args = constructor.args.associate { it.parameter to it.value }
-        )
+        ).map { value -> Decoded(value, constructor.args.count { it.node.isDefined }) }
       }
     )
   }
