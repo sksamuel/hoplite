@@ -114,13 +114,10 @@ class SealedClassDecoder : NullHandlingDecoder<Any> {
           .filter { subclass ->
             subclass hasConstructorsWithArgumentsNumberLessOrEqualTo node.expectedNumberOfConstructorArguments
           }
-          .sortedWith { subclass1, subclass2 ->
-            (
-              subclass1.numberOfMandatoryConstructorArguments.compareTo(subclass2.numberOfMandatoryConstructorArguments)
-                .takeUnless { it == 0 }
-                ?: subclass1.numberOfTotalConstructorArguments.compareTo(subclass2.numberOfTotalConstructorArguments)
-              ) * -1
-          }
+          .sortedWith(
+            compareByDescending<KClass<*>> { it.numberOfMandatoryConstructorArguments }
+              .thenByDescending { it.numberOfTotalConstructorArguments }
+          )
           .map { DataClassDecoder().decode(node, it.createType(), context) }
 
         val success = results.firstOrNull { it.isValid() }
