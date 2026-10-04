@@ -18,7 +18,7 @@ data class DbConfig(
   val clientAuth: ClientAuthConfig,
   val clientNoAuth: ClientAuthConfig = ClientAuthConfig.ConfigWithOneDefaultValue(),
   val clientWithOneSpecifiedValue: ClientAuthConfig,
-  val clientWithTwoSpecifiedValue: ClientAuthConfig,
+  val clientWithTwoSpecifiedValues: ClientAuthConfig,
   val clientWithDefaultValues: ClientAuthConfig = ClientAuthConfig.ConfigWithOneDefaultValue()
 )
 
@@ -32,10 +32,10 @@ class SealedClassTest : FunSpec() {
         password = Masked("3pass")
       )
       config.clientNoAuth shouldBe ClientAuthConfig.Url(url = "1url")
-      config.clientWithOneSpecifiedValue shouldBe ClientAuthConfig.ConfigWithTwoDefaultValues(
+      config.clientWithOneSpecifiedValue shouldBe ClientAuthConfig.ConfigWithOneDefaultValue(
         otherStuff = "1url"
       )
-      config.clientWithTwoSpecifiedValue shouldBe ClientAuthConfig.ConfigWithTwoDefaultValues(
+      config.clientWithTwoSpecifiedValues shouldBe ClientAuthConfig.ConfigWithTwoDefaultValues(
         otherStuff = "1url",
         anotherStuff = "test"
       )
