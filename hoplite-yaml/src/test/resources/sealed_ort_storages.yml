@@ -1,0 +1,47 @@
+storages:
+  local:
+    backend:
+      localFileStorage:
+        directory: ~/.ort/scanner/results
+        compression: false
+
+  http:
+    backend:
+      httpFileStorage:
+        url: 'https://your-http-server'
+        query: '?username=user&password=123'
+        headers:
+          key1: value1
+          key2: value2
+
+  aws:
+    backend:
+      s3FileStorage:
+        accessKeyId: "accessKey"
+        awsRegion: "us-east-1"
+        bucketName: "ort-scan-results"
+        compression: false
+        customEndpoint: "http://localhost:4567"
+        pathStyleAccess: false # Required for some non-AWS S3 providers that do not support DNS style access.
+        secretAccessKey: "secret"
+
+  clearlyDefined:
+    serverUrl: 'https://api.clearlydefined.io'
+
+  postgres:
+    connection:
+      url: 'jdbc:postgresql://your-postgresql-server:5432/your-database'
+      schema: public
+      username: username
+      password: password
+      sslmode: require
+      sslcert: /defaultdir/postgresql.crt
+      sslkey: /defaultdir/postgresql.pk8
+      sslrootcert: /defaultdir/root.crt
+      connectionTimeout: 30000
+      idleTimeout: 600000
+      keepaliveTime: 0
+      maxLifetime: 1800000
+      maximumPoolSize: 10
+      minimumIdle: 600000
+    type: PROVENANCE_BASED
