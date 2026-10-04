@@ -9,10 +9,7 @@ import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.NonEmptyList
 import com.sksamuel.hoplite.fp.Validated
 import com.sksamuel.hoplite.fp.invalid
-import com.sksamuel.hoplite.fp.plus
-import com.sksamuel.hoplite.fp.sequence
 import com.sksamuel.hoplite.fp.valid
-import com.sksamuel.hoplite.valueOrNull
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KType
@@ -113,17 +110,14 @@ class SealedClassDecoder : NullHandlingDecoder<Any> {
           if (obj != null) return obj.valid() else ConfigFailure.NoSealedClassObjectSubtype(kclass, node.value)
         } else null
 
-        val results = kclass.sealedSubclasses
+        val results = subclasses
           .filter { subclass ->
             subclass hasConstructorsWithArgumentsNumberLessOrEqualTo node.expectedNumberOfConstructorArguments
           }
-          .sortedWith { subclass1, subclass2 ->
-            (
-              subclass1.numberOfMandatoryConstructorArguments.compareTo(subclass2.numberOfMandatoryConstructorArguments)
-                .takeUnless { it == 0 }
-                ?: subclass1.numberOfTotalConstructorArguments.compareTo(subclass2.numberOfTotalConstructorArguments)
-              ) * -1
-          }
+          .sortedWith(
+            compareByDescending<KClass<*>> { it.numberOfMandatoryConstructorArguments }
+              .thenByDescending { it.numberOfTotalConstructorArguments }
+          )
           .map { DataClassDecoder().decode(node, it.createType(), context) }
 
         val success = results.firstOrNull { it.isValid() }
@@ -144,7 +138,8 @@ class SealedClassDecoder : NullHandlingDecoder<Any> {
           )
         else
           NonEmptyList.unsafe(errors)
-        return ConfigFailure.SealedClassSubtypeFailure(kclass, node, nelErrors).invalid()
+
+        ConfigFailure.SealedClassSubtypeFailure(kclass, node, nelErrors).invalid()
       }
     }
   }
