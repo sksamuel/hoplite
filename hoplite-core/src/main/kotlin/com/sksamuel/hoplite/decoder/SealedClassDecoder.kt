@@ -110,7 +110,7 @@ class SealedClassDecoder : NullHandlingDecoder<Any> {
           if (obj != null) return obj.valid() else ConfigFailure.NoSealedClassObjectSubtype(kclass, node.value)
         } else null
 
-        val results = kclass.sealedSubclasses
+        val results = subclasses
           .filter { subclass ->
             subclass hasConstructorsWithArgumentsNumberLessOrEqualTo node.expectedNumberOfConstructorArguments
           }
