@@ -141,7 +141,8 @@ class SealedClassDecoder : NullHandlingDecoder<Any> {
           )
         else
           NonEmptyList.unsafe(errors)
-        return ConfigFailure.SealedClassSubtypeFailure(kclass, node, nelErrors).invalid()
+
+        ConfigFailure.SealedClassSubtypeFailure(kclass, node, nelErrors).invalid()
       }
     }
   }
