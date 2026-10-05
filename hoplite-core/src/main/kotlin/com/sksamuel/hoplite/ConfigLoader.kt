@@ -54,7 +54,6 @@ class ConfigLoader(
       reportPrintFn.invoke(
         "Hoplite is configured to infer which sealed type to choose by inspecting the config values at runtime. " +
           "This behaviour is now deprecated in favour of explicitly specifying the type through a discriminator field. " +
-          "In 3.0 this new behavior will become the default. " +
           "To enable this behavior now (and disable this warning), invoke withExplicitSealedTypes() on the ConfigLoaderBuilder."
       )
     }
