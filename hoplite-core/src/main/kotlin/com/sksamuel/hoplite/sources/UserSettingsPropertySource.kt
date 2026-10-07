@@ -33,9 +33,8 @@ object UserSettingsPropertySource : PropertySource {
     }
     return if (ext == null) Undefined.valid() else {
       val path = path(ext)
-      val input = path.inputStream()
-      context.parsers.locate(ext).map {
-        it.load(input, path.toString())
+      context.parsers.locate(ext).map { parser ->
+        path.inputStream().use { input -> parser.load(input, path.toString()) }
       }
     }
   }
