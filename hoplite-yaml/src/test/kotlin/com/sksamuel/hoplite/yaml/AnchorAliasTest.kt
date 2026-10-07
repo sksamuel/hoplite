@@ -1,6 +1,7 @@
 package com.sksamuel.hoplite.yaml
 
 import com.sksamuel.hoplite.ConfigLoader
+import com.sksamuel.hoplite.PropertySource
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
@@ -21,6 +22,24 @@ class AnchorAliasTest : FunSpec() {
         Hand("The Bastard Sword of Eowyn", 30),
         Hand("The Bastard Sword of Eowyn", 30)
       )
+    }
+
+    test("should support anchors and aliases on sequences") {
+      data class Test(val defaults: List<String>, val other: List<String>)
+
+      val yaml = """
+        defaults: &d
+          - a
+          - b
+        other: *d
+      """.trimIndent()
+
+      val config = ConfigLoader.builder()
+        .addPropertySource(PropertySource.string(yaml, "yml"))
+        .build()
+        .loadConfigOrThrow<Test>()
+
+      config shouldBe Test(listOf("a", "b"), listOf("a", "b"))
     }
   }
 }
