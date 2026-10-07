@@ -59,9 +59,10 @@ interface PropertySource {
       path(file.toPath(), optional, allowEmpty)
 
     /**
-     * Returns a [PropertySource] that will read the specified resource from the classpath.
+     * Returns a [PropertySource] that will read the file at the given filesystem [Path].
+     * (Not a classpath resource — use [resource] for that.)
      *
-     * @param optional if true then the resource can not exist and the config loader will ignore this source
+     * @param optional if true then the file can not exist and the config loader will ignore this source
      */
     fun path(path: Path, optional: Boolean = false, allowEmpty: Boolean = false) =
       ConfigFilePropertySource(ConfigSource.PathSource(path), optional = optional, allowEmpty = allowEmpty)

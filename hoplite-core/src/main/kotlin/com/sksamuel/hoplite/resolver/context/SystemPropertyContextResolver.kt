@@ -16,7 +16,11 @@ object SystemPropertyContextResolver : ContextResolver() {
   override val default = true
 
   override fun lookup(path: String, node: StringNode, root: Node, context: DecoderContext): ConfigResult<String?> {
-    return System.getProperty(path).valid()
+    // System.getProperty throws IllegalArgumentException on an empty key, which can happen for a
+    // placeholder like `${{ sysprop: }}` or `${{ sysprop:   }}`. Treat an empty key as "not set"
+    // so the resolver's :- fallback path engages or an unresolved-substitution failure is reported,
+    // rather than crashing the loader.
+    return if (path.isEmpty()) null.valid() else System.getProperty(path).valid()
   }
 
 }

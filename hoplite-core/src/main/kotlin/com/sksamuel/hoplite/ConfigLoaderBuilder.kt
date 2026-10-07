@@ -113,7 +113,6 @@ class ConfigLoaderBuilder private constructor() {
      * use [empty] to obtain an empty ConfigLoaderBuilder and call the various addDefault methods manually.
      *
      * Note: This new builder is experimental and may require breaking changes to your config files.
-     * This builder will become the default in 3.0
      */
     @ExperimentalHoplite
     fun newBuilder(): ConfigLoaderBuilder {
@@ -131,7 +130,6 @@ class ConfigLoaderBuilder private constructor() {
      * use [empty] to obtain an empty ConfigLoaderBuilder and call the various addDefault methods manually.
      *
      * Note: This new builder is experimental and may require breaking changes to your config files.
-     * This builder will become the default in 3.0
      */
     @ExperimentalHoplite
     fun newBuilderWithoutPropertySources(): ConfigLoaderBuilder {
@@ -217,8 +215,7 @@ class ConfigLoaderBuilder private constructor() {
   fun addResolvers(resolvers: Iterable<Resolver>): ConfigLoaderBuilder = apply {
     require(preprocessors.isEmpty()) {
       "Preprocessors cannot be used alongside resolvers. " +
-        "Call removePreprocessors() before adding any resolver or create a ConfigLoaderBuilder using newBuilder() instead of default(). " +
-        "Preprocessors will be removed in Hoplite 3.0"
+        "Call removePreprocessors() before adding any resolver or create a ConfigLoaderBuilder using newBuilder() instead of default()."
     }
     this.resolvers.addAll(resolvers)
   }
@@ -370,7 +367,11 @@ class ConfigLoaderBuilder private constructor() {
   @Deprecated("use withReport()", ReplaceWith("withReport()"))
   fun report() = withReport()
 
-  @Deprecated("Use correct spelling", ReplaceWith("withObfusctator(obfuscator)"))
+  // The whole point of this deprecation is to nudge callers off the misspelled name, but the
+  // ReplaceWith hint also pointed at the misspelling, so an IDE quick-fix would silently rewrite
+  // `withObfusctator(x)` to `withObfusctator(x)` — i.e. nothing. Aim it at the correctly-spelled
+  // method instead.
+  @Deprecated("Use correct spelling", ReplaceWith("withObfuscator(obfuscator)"))
   fun withObfusctator(obfuscator: Obfuscator): ConfigLoaderBuilder = withObfuscator(obfuscator)
   fun withObfuscator(obfuscator: Obfuscator): ConfigLoaderBuilder = apply { this.obfuscator = obfuscator }
 
@@ -406,8 +407,6 @@ class ConfigLoaderBuilder private constructor() {
    *
    * Then, Hoplite will use this field to pick amongst the sealed types instead of trying to
    * infer the type from the available config values.
-   *
-   * This option will become the default in 3.0.
    */
   @ExperimentalHoplite
   fun withExplicitSealedTypes(discriminatorFieldName: String = "_type"): ConfigLoaderBuilder =

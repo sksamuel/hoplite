@@ -43,11 +43,18 @@ class ConfigFilePropertySource(
         when {
           input == null && optional -> Undefined.valid()
           input == null -> ConfigFailure.UnknownSource(config.describe()).invalid()
-          input.available() == 0 && (allowEmpty || context.allowEmptyConfigFiles) -> Undefined.valid()
-          input.available() == 0 -> ConfigFailure.EmptyConfigSource(config).invalid()
-          else -> runCatching {
-            input.use { parser.load(it, config.describe()) }
-          }.toValidated { ConfigFailure.PropertySourceFailure("Could not parse ${config.describe()}", it) }
+          // Wrap every branch that touches `input` in `.use {}` so the stream is closed on
+          // every path — including the empty-file branches, which previously leaked the
+          // stream when allowEmpty was true (Undefined) or false (EmptyConfigSource).
+          else -> input.use {
+            when {
+              it.available() == 0 && (allowEmpty || context.allowEmptyConfigFiles) -> Undefined.valid()
+              it.available() == 0 -> ConfigFailure.EmptyConfigSource(config).invalid()
+              else -> runCatching {
+                parser.load(it, config.describe())
+              }.toValidated { ex -> ConfigFailure.PropertySourceFailure("Could not parse ${config.describe()}", ex) }
+            }
+          }
         }
       }
     }

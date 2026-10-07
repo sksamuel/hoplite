@@ -31,17 +31,29 @@ class YamlParser : Parser {
   override fun defaultFileExtensions(): List<String> = listOf("yml", "yaml")
   private val yaml = Yaml()
   override fun load(input: InputStream, source: String): Node {
-    val reader = InputStreamReader(input)
-    val events = yaml.parse(reader).iterator()
-    val stream = TokenStream(events)
-    require(stream.next().`is`(Event.ID.StreamStart)) { "Expected stream start at ${stream.current().startMark}" }
-    return when (stream.next().eventId) {
-      Event.ID.StreamEnd -> Undefined
-      Event.ID.DocumentStart -> {
-        stream.next() // move past the doc start
-        TokenProduction(stream, source, emptyMap(), DotPath.root).first
+    // Pin the charset to UTF-8: InputStreamReader without a charset uses the platform-default
+    // charset (historically Windows-1252 on older Windows JVMs, and changes under -Dfile.encoding).
+    // YAML files are UTF-8 by spec, so non-ASCII content (emoji, accented chars, etc.) would be
+    // misinterpreted on a non-UTF-8 default JVM. PropsParser already pins UTF-8.
+    //
+    // Wrap in .use {} so the reader's decoder buffers are released and close propagates to the
+    // underlying stream. The caller still owns `input`; InputStream.close() is idempotent so the
+    // caller's own .use {} (e.g. #540's ConfigFilePropertySource fix) remains safe.
+    return InputStreamReader(input, Charsets.UTF_8).use { reader ->
+      val events = yaml.parse(reader).iterator()
+      val stream = TokenStream(events)
+      require(stream.next().`is`(Event.ID.StreamStart)) { "Expected stream start at ${stream.current().startMark}" }
+      when (stream.next().eventId) {
+        Event.ID.StreamEnd -> Undefined
+        Event.ID.DocumentStart -> {
+          stream.next() // move past the doc start
+          TokenProduction(stream, source, emptyMap(), DotPath.root).first
+        }
+        // kotlin.error has only one overload — error(message: Any) — so a trailing-lambda call
+        // would pass the lambda itself as the message instead of the text. Use the parenthesised
+        // form so the actual string reaches the user (#553).
+        else -> error("Expected document start at ${stream.current().startMark}")
       }
-      else -> error { "Expected document start at ${stream.current().startMark}" }
     }
   }
 }
@@ -97,7 +109,10 @@ object TokenProduction {
       //    { Y, true, Yes, ON  }    : Boolean true
       //    { n, FALSE, No, off }    : Boolean false
       is ScalarEvent -> {
-        val node = if (event.value == "null" && event.scalarStyle == DumperOptions.ScalarStyle.PLAIN)
+        // YAML 1.1/1.2 PLAIN style allows `null`, `Null`, `NULL`, and `~` as null. The previous
+        // implementation only recognised the literal lowercase `null`; the others produced
+        // StringNodes containing the literal text.
+        val node = if (event.scalarStyle == DumperOptions.ScalarStyle.PLAIN && isYamlNullLiteral(event.value))
           NullNode(event.startMark.toPos(source), path, emptyMap())
         else
           StringNode(event.value, event.startMark.toPos(source), path, emptyMap())
@@ -158,7 +173,8 @@ object SequenceProduction {
     require(
       stream.current().`is`(Event.ID.SequenceStart)
     ) { "Expected sequence start at ${stream.current().startMark}" }
-    val mark = stream.current().startMark
+    val seqEvent = stream.current() as SequenceStartEvent
+    val mark = seqEvent.startMark
     val list = mutableListOf<Node>()
     var index = 0
     var tempAnchors: Map<String, Node> = anchors
@@ -169,8 +185,22 @@ object SequenceProduction {
       tempAnchors = returnedAnchors
     }
     require(stream.current().`is`(Event.ID.SequenceEnd)) { "Expected sequence end at ${stream.current().startMark}" }
-    return Pair(ArrayNode(list.toList(), mark.toPos(source), path), tempAnchors)
+    val node = ArrayNode(list.toList(), mark.toPos(source), path)
+    // Register the sequence's own anchor (if any) so a later alias can resolve it,
+    // mirroring how MapProduction and the scalar branch handle anchors. Without this,
+    // an anchored sequence (`&a [ ... ]`) referenced by `*a` failed with "Could not find alias".
+    tempAnchors = when (val anchor = seqEvent.anchor) {
+      null -> tempAnchors
+      else -> tempAnchors + Pair(anchor, node)
+    }
+    return Pair(node, tempAnchors)
   }
 }
 
 fun Mark.toPos(source: String): Pos = Pos.LineColPos(line, column, source)
+
+// YAML 1.1/1.2 PLAIN-scalar null literals.
+private fun isYamlNullLiteral(value: String): Boolean = when (value) {
+  "null", "Null", "NULL", "~" -> true
+  else -> false
+}

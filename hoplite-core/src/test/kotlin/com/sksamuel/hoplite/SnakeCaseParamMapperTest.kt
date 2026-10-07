@@ -31,7 +31,8 @@ class SnakeCaseParamMapperTest : StringSpec() {
         SnakeCaseParamMapper.map(kparam("TitleCase"), constructor, Config::class) shouldBe setOf("title_case")
         SnakeCaseParamMapper.map(kparam("foo123"), constructor, Config::class) shouldBe setOf("foo123", "foo_123")
         SnakeCaseParamMapper.map(kparam("foo123BarFaz"), constructor, Config::class) shouldBe setOf("foo123_bar_faz")
-        SnakeCaseParamMapper.map(kparam("myDSLClass"), constructor, Config::class) shouldBe setOf("my_d_s_l_class")
+        // Acronyms are kept as a single segment: previously this produced "my_d_s_l_class".
+        SnakeCaseParamMapper.map(kparam("myDSLClass"), constructor, Config::class) shouldBe setOf("my_dsl_class")
       }
     }
   }

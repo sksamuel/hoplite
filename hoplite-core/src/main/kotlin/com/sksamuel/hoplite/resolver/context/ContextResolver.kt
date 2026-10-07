@@ -40,7 +40,11 @@ abstract class ContextResolver : Resolver {
   // redundant escaping required for Android support
   private fun prefixRegex() = "$contextKey://(.*)".toRegex()
 
-  private val valueWithDefaultRegex = "(.+):-(.+)".toRegex()
+  // The first group is lazy so the split happens on the FIRST ":-": lookup keys (env var /
+  // sysprop / ref names) cannot contain ":-", but default values can, so the default must keep
+  // any ":-" it contains. A greedy first group split on the last ":-" instead. This matches the
+  // lazy form already used by EnvOrSystemPropertyPreprocessor and LookupPreprocessor.
+  private val valueWithDefaultRegex = "(.+?):-(.+)".toRegex()
 
   /**
    * Return the replacement value, or null if no replacement should take place.

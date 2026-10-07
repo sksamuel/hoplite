@@ -35,6 +35,9 @@ class MapDecoder : NullHandlingDecoder<Map<*, *>> {
       node.denormalize().map.entries.map { (k, v) ->
         kdecoder.decode(StringNode(k, node.pos, node.path, emptyMap()), kType, context).flatMap { kk ->
           vdecoder.decode(v, vType, context).map { vv ->
+            // Mark each entry as used so strict mode does not report them as unused — matches
+            // what the core MapDecoder does for the regular Map<K, V> case.
+            context.usedPaths.add(v.path)
             kk to vv
           }
         }
@@ -47,8 +50,14 @@ class MapDecoder : NullHandlingDecoder<Map<*, *>> {
                                vdecoder: Decoder<V>,
                                context: DecoderContext): ConfigResult<Map<*, *>> =
       node.elements.map { el ->
-        kdecoder.decode(el.atKey("key"), kType, context).flatMap { kk ->
-          vdecoder.decode(el.atKey("value"), vType, context).map { vv ->
+        val keyNode = el.atKey("key")
+        val valueNode = el.atKey("value")
+        kdecoder.decode(keyNode, kType, context).flatMap { kk ->
+          vdecoder.decode(valueNode, vType, context).map { vv ->
+            // Mark both subnodes as used so strict mode does not flag the array-of-objects
+            // map form (`[{key: ..., value: ...}, ...]`) as containing unused entries.
+            context.usedPaths.add(keyNode.path)
+            context.usedPaths.add(valueNode.path)
             kk to vv
           }
         }

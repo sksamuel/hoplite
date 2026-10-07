@@ -15,7 +15,13 @@ import kotlin.reflect.KType
 
 fun <T> viaString(node: Node, type: KType, f: (String) -> T): ConfigResult<T> {
   return when (node) {
-    is StringNode -> f(node.value).valid()
+    // The constructors of KerberosPrincipal / X500Principal throw IllegalArgumentException for
+    // bad input; without runCatching the exception propagates uncaught. Surface it as a clean
+    // ConfigFailure instead.
+    is StringNode -> runCatching { f(node.value) }.fold(
+      { it.valid() },
+      { ConfigFailure.DecodeError(node, type).invalid() }
+    )
     else -> ConfigFailure.DecodeError(node, type).invalid()
   }
 }

@@ -45,7 +45,9 @@ class CharRangeDecoder : NullHandlingDecoder<CharRange> {
 
 object RangeDecoders {
 
-  private val numericRangePattern = "(\\d+)\\.\\.(\\d+)".toRegex()
+  // The previous pattern was `(\d+)\.\.(\d+)`, which rejected negative numbers — `IntRange(-5, 5)`
+  // is a perfectly valid Kotlin range but `-5..5` could not be decoded. Allow an optional `-`.
+  private val numericRangePattern = "(-?\\d+)\\.\\.(-?\\d+)".toRegex()
 
   private val textRangePattern = "(\\w+)\\.\\.(\\w+)".toRegex()
 

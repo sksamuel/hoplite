@@ -238,15 +238,20 @@ The `EnvironmentVariablesPropertySource` reads config from environment variables
 This property source maps environment variable names to config properties via idiomatic conventions for environment variables.
 Env vars are idiomatically UPPERCASE and [contain only](https://pubs.opengroup.org/onlinepubs/000095399/basedefs/xbd_chap08.html) letters (`A` to `Z`), digits (`0` to `9`), and the underscore (`_`) character.
 
-Hoplite maps env vars as follows:
+Hoplite's binding rules align with [Spring Boot's relaxed binding for environment variables](https://docs.spring.io/spring-boot/reference/features/external-config.html#features.external-config.typesafe-configuration-properties.relaxed-binding.environment-variables) so that the same env vars can drive both kinds of app:
 
-* Underscores are separators for nested config. For example `TOPIC_NAME` would override a property `name` located in a `topic` parent.
+| Rule | Env var | Binds to |
+|------|---------|----------|
+| Dots in property paths become underscores | `TOPIC_NAME` | `topic.name` |
+| Matching is case-insensitive — env vars uppercase, fields can be camelCase | `SPRING_MAIN_LOGSTARTUPINFO` | `spring.main.logStartupInfo` |
+| Dashes in property paths are removed (not replaced with underscores) | `LOGSTARTUPINFO` | `log-startup-info` (e.g. via `@ConfigAlias`) |
+| List/array indices are surrounded by underscores | `ITEMS_0`, `ITEMS_1` | `items: List<String>` |
+| List of nested objects | `SERVICE_0_OTHER`, `SERVICE_1_OTHER` | `service: List<Service(other = ...)>` |
+| Trailing path segment names a map key | `LABELS_ENV`, `LABELS_REGION` | `labels: Map<String, String>` |
 
-* To bind env vars to arrays or lists, postfix with an index e.g. set env vars `TOPIC_NAME_0` and `TOPIC_NAME_1` to set two values for the `name` list property. Missing indices are ignored, which is useful for commenting out values without renumbering subsequent ones.
+* Missing list indices are ignored, which is useful for commenting out values without renumbering subsequent ones.
 
-* To bind env vars to maps, the key is part of the nested config e.g. `TOPIC_NAME_FOO` and `TOPIC_NAME_BAR` would set the "foo" and "bar"
-keys for the `name` map property. Note that keys are one exception to the idiomatic uppercase rule -- the env var name determines the
-case of the map key.
+* **Map keys preserve case from the env var name.** Spring lowercases map keys (so `VALUES_KEY=v` produces `{"key": "v"}`); hoplite keeps them verbatim (`{"KEY": "v"}`). This is the one documented difference from Spring's rules and is locked in by `EnvironmentVariablesPropertySourceTest > build env source can create case sensitive Maps`.
 
 If the optional (not specified by default) `prefix` setting is provided, then only env vars that begin with the prefix are considered,
 and the prefix is stripped from the env var before processing.
@@ -260,6 +265,9 @@ be used for the same purpose.
 
 The `SystemPropertiesPropertySource` provides config through system properties that are prefixed with `config.override.`.
 For example, starting your JVM with `-Dconfig.override.database.name` would override a config key of `database.name` residing in a file.
+
+The prefix may be customized by passing a `prefix` argument to the constructor, or set to an empty string to expose
+all system properties.
 
 
 ### UserSettingsPropertySource
@@ -690,6 +698,7 @@ These built-in preprocessors are registered automatically.
 | `RandomPreprocessor`           | Inserts random strings into the config. See the section on Random Preprocessor for syntax.                                                                                                                                                                                                                                                                                                                                              |
 | `PropsFilePreprocessor`        | Replaces any strings of the form ${key} with the value of the key in a provided `java.util.Properties` file. The file can be specified by a `Path` or a resource on the classpath.                                                                                                                                                                                                                                                      |
 | `LookupPreprocessor`           | Replaces any strings of the form {{key}} with the value of that node in the already parsed config. In other words, this allow substitution from config in one place to another place (even across files).                                                                                                                                                                                                                               |
+| `SecretFilesPreprocessor`      | Replaces any strings of the form `${secret:key}` with the contents of the file at `<basePath>/<key>`. Useful for Kubernetes / Docker deployments where each secret is mounted as a separate file inside a directory. Not registered automatically — see the [SecretFilesPreprocessor](#secretfilespreprocessor) section below for usage.                                                                                                  |
 
 
 
@@ -733,6 +742,35 @@ my.uuid=${random.uuid}
 my.number.less.than.ten=${random.int(10)}
 my.number.in.range=${random.int[1024,65536]}
 ```
+
+### SecretFilesPreprocessor
+
+The `SecretFilesPreprocessor` resolves placeholders of the form `${secret:key}` to the contents of the file at `<basePath>/<key>`. This matches the layout used by Kubernetes and Docker secrets, where each secret is mounted as a separate file inside a directory.
+
+A single trailing line terminator (`\n` or `\r\n`) is stripped from the file, so editor- or shell-added trailing newlines do not leak into config values. Other whitespace is preserved verbatim.
+
+It is not registered automatically — you must add it explicitly with the directory that holds your secret files:
+
+```kotlin
+val config = ConfigLoaderBuilder.default()
+  .addPreprocessor(SecretFilesPreprocessor(Path.of("/run/secrets")))
+  .addResourceSource("/application.yml")
+  .build()
+  .loadConfigOrThrow<MyConfig>()
+```
+
+Given `/run/secrets/db-password` containing `hunter2` and `/run/secrets/api-key` containing `abc-123`, a config like:
+
+```yaml
+db:
+  user: admin
+  password: ${secret:db-password}
+apiKey: ${secret:api-key}
+```
+
+is resolved to `password = "hunter2"` and `apiKey = "abc-123"`. Multiple `${secret:…}` references can appear within a single value (e.g. `jdbc://${secret:user}@${secret:host}/db`).
+
+The basePath can also be supplied as a string for convenience: `SecretFilesPreprocessor("/run/secrets")`.
 
 ## Masked values
 

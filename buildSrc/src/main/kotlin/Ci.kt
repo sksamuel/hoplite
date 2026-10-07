@@ -2,7 +2,7 @@ object Ci {
 
   // this is the version used for building snapshots
   // .GITHUB_RUN_NUMBER-snapshot will be appended
-  private const val SNAPSHOT_BASE = "3.0.0"
+  private const val SNAPSHOT_BASE = "3.1.0"
 
   private val githubRunNumber = System.getenv("GITHUB_RUN_NUMBER")
 

@@ -32,7 +32,8 @@ class KebabCaseParamMapperTest : StringSpec() {
         KebabCaseParamMapper.map(kparam("TitleCase"), constructor, Config::class) shouldBe setOf("title-case")
         KebabCaseParamMapper.map(kparam("foo123"), constructor, Config::class) shouldBe setOf("foo-123", "foo123")
         KebabCaseParamMapper.map(kparam("foo123BarFaz"), constructor, Config::class) shouldBe setOf("foo123-bar-faz")
-        KebabCaseParamMapper.map(kparam("myDSLClass"), constructor, Config::class) shouldBe setOf("my-d-s-l-class")
+        // Acronyms are kept as a single segment: previously this produced "my-d-s-l-class".
+        KebabCaseParamMapper.map(kparam("myDSLClass"), constructor, Config::class) shouldBe setOf("my-dsl-class")
       }
     }
   }

@@ -21,7 +21,7 @@ sealed class Pos {
   data class LinePos(val line: Int, val source: String) : Pos()
 
   /**
-   * Used when we know the filename, line and columnn.
+   * Used when we know the filename, line and column.
    */
   data class LineColPos(val line: Int, val col: Int, val source: String) : Pos()
 

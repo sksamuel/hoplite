@@ -28,8 +28,12 @@ class EnvironmentVariablesPropertySource(
 
     return map.toNode("env", DELIMITER).transform { node ->
       if (node is MapNode && node.map.isNotEmpty() && node.map.keys.all { it.toIntOrNull() != null }) {
-        // all they map keys are ints, so lets transform the MapNode into an ArrayNode
-        ArrayNode(node.map.values.toList(), node.pos, node.path, node.meta, node.delimiter, node.sourceKey)
+        // All the map keys are integer index strings, so transform the MapNode into an ArrayNode.
+        // Sort by the integer value of the key — the upstream tree is backed by a HashMap, so
+        // iteration order is not tied to the index order and the list would otherwise come out
+        // shuffled.
+        val ordered = node.map.entries.sortedBy { it.key.toInt() }.map { it.value }
+        ArrayNode(ordered, node.pos, node.path, node.meta, node.delimiter, node.sourceKey)
       } else {
         node
       }

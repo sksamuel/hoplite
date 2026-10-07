@@ -46,7 +46,8 @@ class ParameterStorePathPropertySource(
           nextToken = result.nextToken
         }
         go(nextReq, (parameters + resultParams).toMutableList())
-      } else resultParams + parameters
+      } else parameters + resultParams // append the final page after the accumulator,
+      // not before it — the previous order put the last page at the front of the list.
     }
     go(req, params)
   }

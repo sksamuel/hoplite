@@ -17,7 +17,7 @@ object SystemContextResolver : ContextResolver() {
     return when (path) {
       "processors" -> Runtime.getRuntime().availableProcessors().toString().valid()
       "timestamp" -> System.currentTimeMillis().toString().valid()
-      else -> ConfigFailure.ResolverFailure("Uknown system context path $path").invalid()
+      else -> ConfigFailure.ResolverFailure("Unknown system context path $path").invalid()
     }
   }
 }

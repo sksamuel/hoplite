@@ -36,7 +36,7 @@ class Cascader(
 
   /**
    * Returns a new [Node] which is the result of merging node a with node b,
-   * with keys in node a taking preccence if they are defined and not null.
+   * with keys in node a taking precedence if they are defined and not null.
    *
    * @return a [CascadeResult] containing the resolved [Node], and a list of overrides.
    */
@@ -68,15 +68,30 @@ class Cascader(
               val keys = a.map.keys + b.map.keys
               val merges: Map<String, CascadeResult> =
                 keys.associateWith { cascade(a.atKey(it), b.atKey(it)) }
-              val overrides = merges.values.toList().flatMap { it.overrides }
+              // Also merge the maps' own scalar `value` (the "dual" leaf+map case) and fold in any
+              // overrides it produces — otherwise a conflict on the value itself is silently dropped
+              // and CascadeMode.Error would not flag it.
+              val valueResult = cascade(a.value, b.value)
+              val overrides = merges.values.toList().flatMap { it.overrides } + valueResult.overrides
               val elements = merges.mapValues { it.value.node }
               CascadeResult(
-                MapNode(elements, a.pos, a.path, cascade(a.value, b.value).node, a.meta, a.delimiter, a.sourceKey),
+                MapNode(elements, a.pos, a.path, valueResult.node, a.meta, a.delimiter, a.sourceKey),
                 overrides
               )
             }
-            // since the other once is not a map, we override completely with this
-            else -> CascadeResult(a, listOf(OverridePath(a.path, a.pos, b.pos)))
+            // b is a scalar (or other non-map). Rather than discarding b entirely,
+            // fold its value into a's `value` slot, with a's own value taking
+            // precedence. Otherwise a higher-precedence source that turns this key
+            // into a map (e.g. an env var HOST_X making `host` a map) would silently
+            // drop a lower-precedence scalar at the same key, and decoding that key
+            // as a scalar would then fail with "Missing" (gh-592).
+            else -> {
+              val value = cascade(a.value, b)
+              CascadeResult(
+                MapNode(a.map, a.pos, a.path, value.node, a.meta, a.delimiter, a.sourceKey),
+                value.overrides
+              )
+            }
           }
         }
       }

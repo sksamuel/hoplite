@@ -177,6 +177,47 @@ class CascadeTest : FunSpec({
     )
   }
 
+  // gh-592: a higher-precedence map sharing a key with a lower-precedence scalar must not
+  // discard the scalar. The merged node keeps the map's children AND carries the scalar
+  // through as its `value`, so the key still decodes as a scalar.
+  test("CascadeMode.Merge must preserve a scalar when a higher-precedence map shares the key") {
+    val map = MapNode(
+      mapOf("foo" to StringNode("bar", Pos.NoPos, DotPath("host", "foo"))),
+      Pos.NoPos,
+      DotPath("host"),
+    )
+    val scalar = StringNode("0.0.0.0", Pos.NoPos, DotPath("host"))
+
+    // a (the map) is the higher-precedence node; b (the scalar) must not be dropped.
+    val merged = Cascader(CascadeMode.Merge, false).cascade(map, scalar).node as MapNode
+    merged.value shouldBe scalar
+    merged["foo"] shouldBe StringNode("bar", Pos.NoPos, DotPath("host", "foo"))
+  }
+
+  test("cascade function should report an override on a map node's own value") {
+    // A "dual" node is both a leaf value and a map (e.g. props `db = primary` plus `db.host = ...`),
+    // represented as a MapNode with a non-Undefined `value`. When two sources both define such a
+    // value, the conflict on the value itself must be reported as an override.
+    val node1 = MapNode(
+      map = mapOf("host" to StringNode("localhost", Pos.NoPos, DotPath("db", "host"))),
+      pos = Pos.NoPos,
+      path = DotPath("db"),
+      value = StringNode("primary", Pos.SourcePos("y"), DotPath("db"))
+    )
+
+    val node2 = MapNode(
+      map = emptyMap(),
+      pos = Pos.NoPos,
+      path = DotPath("db"),
+      value = StringNode("secondary", Pos.SourcePos("x"), DotPath("db"))
+    )
+
+    val cascader = Cascader(CascadeMode.Merge, false)
+    cascader.cascade(node1, node2).overrides shouldBe listOf(
+      OverridePath(DotPath("db"), Pos.SourcePos("y"), Pos.SourcePos("x"))
+    )
+  }
+
   test("CascadeMode.error should error if overrides present") {
     shouldThrowAny {
       ConfigLoaderBuilder.default()
@@ -205,7 +246,31 @@ class CascadeTest : FunSpec({
     }.message shouldBe "Error loading config because:\n" +
       "\n" +
       "    Overridden configs are configured as errors\n" +
-      "     - database.port at (props string source) overriden by (props string source)\n" +
-      "     - database.tls at (props string source) overriden by (props string source)"
+      "     - database.port at (props string source) overridden by (props string source)\n" +
+      "     - database.tls at (props string source) overridden by (props string source)"
+  }
+
+  // Regression for the direction of OverrideConfigError's English: with two sources at
+  // *distinguishable* positions, the message must read "X at <loser> overridden by <winner>".
+  // The earlier wording rendered as "X at <winner> overridden by <loser>" — backwards from
+  // who actually beat whom in the cascade.
+  test("CascadeMode.Error message names the loser before the winner") {
+    val winner = java.util.Properties().apply { setProperty("database.port", "3306") }
+    val loser = java.util.Properties().apply { setProperty("database.port", "1234") }
+
+    val ex = shouldThrowAny {
+      ConfigLoaderBuilder.default()
+        // first added = highest priority = cascade winner
+        .addPropertySource(com.sksamuel.hoplite.parsers.PropsPropertySource(winner, name = "winner-source"))
+        .addPropertySource(com.sksamuel.hoplite.parsers.PropsPropertySource(loser, name = "loser-source"))
+        .withCascadeMode(CascadeMode.Error)
+        .build()
+        .loadNodeOrThrow()
+    }
+    // <loser> rendered first, <winner> after "overridden by"
+    ex.message shouldBe "Error loading config because:\n" +
+      "\n" +
+      "    Overridden configs are configured as errors\n" +
+      "     - database.port at (loser-source) overridden by (winner-source)"
   }
 })

@@ -3,14 +3,17 @@ package com.sksamuel.hoplite.aws2
 import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.addMapSource
 import com.sksamuel.hoplite.parsers.PropsPropertySource
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.extensions.install
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.testcontainers.ContainerExtension
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import kotlinx.serialization.json.Json
 import org.testcontainers.containers.localstack.LocalStackContainer
 import org.testcontainers.utility.DockerImageName
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
+import software.amazon.awssdk.core.SdkBytes
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient
 import java.util.Properties
@@ -65,6 +68,23 @@ class AwsSecretsManagerSourceTest : FunSpec() {
           key1.shouldBe(222)
           key2.shouldBe("override2")
         }
+    }
+
+    // Regression for #568: a secret stored with SecretBinary (no string payload) caused
+    // fetchSecretAsMap to NPE because GetSecretValueResponse.secretString() returns null
+    // (Java platform type) and was passed directly into json.decodeFromString. The fix
+    // surfaces a clear error pointing the user at the binary payload.
+    test("fetchSecretAsMap fails with a clear error when the secret is binary-only") {
+      client.createSecret {
+        it.name("binary-only")
+        it.secretBinary(SdkBytes.fromUtf8String("not a json string"))
+      }
+
+      val ex = shouldThrow<IllegalStateException> {
+        AwsSecretsManagerSource { client }.fetchSecretAsMap("binary-only")
+      }
+      ex.message shouldContain "binary-only"
+      ex.message shouldContain "SecretBinary"
     }
   }
 

@@ -50,6 +50,48 @@ class SystemPropertiesPropertySourceTest : FunSpec() {
       }
     }
 
+    test("supports a custom prefix") {
+      data class TestConfig(val a: String, val b: Int)
+
+      val config = ConfigLoader {
+        addPropertySource(
+          SystemPropertiesPropertySource(
+            systemPropertiesMap = {
+              mapOf("my.prefix.a" to "Overridden by system prop")
+            },
+            prefix = "my.prefix.",
+          )
+        )
+        addPropertySource(
+          PropertySource.string(
+            """
+          a = A value
+          b = 42
+          """.trimIndent(), "props"
+          )
+        )
+      }.loadConfigOrThrow<TestConfig>()
+
+      config shouldBe TestConfig("Overridden by system prop", 42)
+    }
+
+    test("supports an empty prefix to expose all system properties") {
+      data class TestConfig(val a: String, val b: Int)
+
+      val config = ConfigLoader {
+        addPropertySource(
+          SystemPropertiesPropertySource(
+            systemPropertiesMap = {
+              mapOf("a" to "Overridden by system prop", "b" to "42")
+            },
+            prefix = "",
+          )
+        )
+      }.loadConfigOrThrow<TestConfig>()
+
+      config shouldBe TestConfig("Overridden by system prop", 42)
+    }
+
     test("properties toStringMap extension function ignores non-string types") {
       Properties().apply {
         setProperty("foo", "bar")

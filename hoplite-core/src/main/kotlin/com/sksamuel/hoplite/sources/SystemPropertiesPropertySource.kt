@@ -11,13 +11,17 @@ import java.util.Properties
 
 /**
  * An implementation of [PropertySource] that provides config through system properties
- * that are prefixed with 'config.override.'
+ * that are prefixed with [prefix] (defaults to 'config.override.').
  *
  * In other words, if a System property is defined 'config.override.user.name=sam' then
  * the property 'user.name=sam' is made available.
+ *
+ * The [prefix] may be overridden to use a different value, or set to an empty string
+ * to expose all system properties.
  */
 open class SystemPropertiesPropertySource(
-  private val systemPropertiesMap: () -> Map<String, String> = { System.getProperties().toStringMap() }
+  private val systemPropertiesMap: () -> Map<String, String> = { System.getProperties().toStringMap() },
+  private val prefix: String = DEFAULT_PREFIX,
 ) : PropertySource {
 
   override fun source(): String = "System Properties"
@@ -30,7 +34,7 @@ open class SystemPropertiesPropertySource(
   }
 
   companion object : SystemPropertiesPropertySource() {
-    private const val prefix = "config.override."
+    const val DEFAULT_PREFIX = "config.override."
 
     // for backwards compatibility with Java from when SystemPropertiesPropertySource was an `object`
     @Suppress("unused")

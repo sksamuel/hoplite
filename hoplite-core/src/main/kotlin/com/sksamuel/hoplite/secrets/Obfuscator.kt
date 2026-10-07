@@ -50,10 +50,13 @@ class HashObfuscator(private val hashCharsToShow: Int = 8) : Obfuscator {
       is StringNode -> {
         if (isNumericOrBoolean(node.value)) return node.value
         val digest = MessageDigest.getInstance("SHA-256")
-        return digest
+        // `take(hashCharsToShow)` must be applied to the hex string, not the raw bytes:
+        // each byte renders as two hex chars, so taking n bytes first yielded 2n characters
+        // instead of the n promised by the docstring and the `hashCharsToShow` parameter name.
+        val hex = digest
           .digest(node.value.encodeToByteArray())
-          .take(hashCharsToShow)
-          .joinToString("", "hash(", "...)") { "%02x".format(it) }
+          .joinToString("") { "%02x".format(it) }
+        return "hash(${hex.take(hashCharsToShow)}...)"
       }
     }
   }

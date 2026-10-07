@@ -10,7 +10,6 @@ import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.DecoderContext
 import java.util.UUID
-import kotlin.math.abs
 import kotlin.random.Random
 
 private typealias Rule = (String) -> String
@@ -22,7 +21,8 @@ object RandomPreprocessor : TraversingPrimitivePreprocessor() {
 
   private val intRule: Rule = {
     val regex = "\\$\\{random.int\\}".toRegex()
-    regex.replace(it) { abs(Random.nextInt()).toString() }
+    // Mask off the sign bit rather than abs(): abs(Int.MIN_VALUE) == Int.MIN_VALUE (overflow).
+    regex.replace(it) { (Random.nextInt() and Int.MAX_VALUE).toString() }
   }
 
   private val booleanRule: Rule = {
@@ -34,7 +34,12 @@ object RandomPreprocessor : TraversingPrimitivePreprocessor() {
     val regex = "\\$\\{random.int\\(\\s*(\\d+)\\s*\\)\\}".toRegex()
     regex.replace(it) { match ->
       val max = match.groupValues[1].toInt()
-      Random.nextInt(0, max).toString()
+      // Random.nextInt(0, max) throws IllegalArgumentException when max <= 0.
+      // The regex permits "0", so `${random.int(0)}` would propagate that exception
+      // out of the preprocessor and break the loader. Leave the placeholder verbatim
+      // instead so the user can spot the typo in the report rather than getting a
+      // crash deep inside config loading.
+      if (max <= 0) match.value else Random.nextInt(0, max).toString()
     }
   }
 
@@ -43,25 +48,29 @@ object RandomPreprocessor : TraversingPrimitivePreprocessor() {
     regex.replace(it) { match ->
       val min = match.groupValues[1].toInt()
       val max = match.groupValues[2].toInt()
-      Random.nextInt(min, max).toString()
+      // Same hardening as intWithMaxRule — Random.nextInt(min, max) throws when min >= max.
+      if (min >= max) match.value else Random.nextInt(min, max).toString()
     }
   }
 
   private val longRule: Rule = {
     val regex = "\\$\\{random.long\\}".toRegex()
-    regex.replace(it) { abs(Random.nextLong()).toString() }
+    // Mask off the sign bit rather than abs(): abs(Long.MIN_VALUE) == Long.MIN_VALUE (overflow).
+    regex.replace(it) { (Random.nextLong() and Long.MAX_VALUE).toString() }
   }
 
   private val doubleRule: Rule = {
     val regex = "\\$\\{random.double\\}".toRegex()
-    regex.replace(it) { Random.nextLong().toString() }
+    regex.replace(it) { Random.nextDouble().toString() }
   }
 
   private val stringRule: Rule = {
     val regex = "\\$\\{random.string\\(\\s*(\\d+)\\s*\\)\\}".toRegex()
     regex.replace(it) { match ->
       val length = match.groupValues[1].toInt()
-      val chars = CharArray(length) { Random.nextInt(a.code, z.code).toChar() }
+      // Random.nextInt(from, until) is exclusive on `until`, so `nextInt(a.code, z.code)` only
+      // produces 'a'..'y' and silently never picks 'z'. Add 1 to include the upper bound.
+      val chars = CharArray(length) { Random.nextInt(a.code, z.code + 1).toChar() }
       String(chars)
     }
   }

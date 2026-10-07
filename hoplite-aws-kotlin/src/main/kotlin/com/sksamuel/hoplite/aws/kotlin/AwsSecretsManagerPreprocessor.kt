@@ -93,9 +93,17 @@ class AwsSecretsManagerPreprocessor(
             .withMeta(CommonMetadata.RemoteLookup, "AWS '$key'")
             .valid()
         } else {
-          val map = runCatching { json.decodeFromString<Map<String, String>>(secret) }.getOrElse { emptyMap() }
-          val indexedValue = map[index]
-          if (indexedValue == null)
+          // Distinguish "secret isn't JSON at all" from "secret is JSON but the index is missing".
+          // Previously a non-JSON secret was silently treated as an empty map, producing a misleading
+          // "Index 'X' not present. Available keys are " (empty) error.
+          val parsed = runCatching { json.decodeFromString<Map<String, String>>(secret) }
+          val indexedValue = parsed.getOrNull()?.get(index)
+          if (parsed.isFailure)
+            ConfigFailure.PreprocessorWarning(
+              "Secret '$key' in AWS SecretsManager is not a JSON object — index '$index' cannot be applied"
+            ).invalid()
+          else if (indexedValue == null) {
+            val map = parsed.getOrThrow()
             ConfigFailure.PreprocessorWarning(
               "Index '$index' not present in secret '$key'. Available keys are ${
                 map.keys.joinToString(
@@ -103,7 +111,7 @@ class AwsSecretsManagerPreprocessor(
                 )
               }"
             ).invalid()
-          else
+          } else
             node.copy(value = indexedValue)
               .withMeta(CommonMetadata.Secret, true)
               .withMeta(CommonMetadata.UnprocessedValue, node.value)

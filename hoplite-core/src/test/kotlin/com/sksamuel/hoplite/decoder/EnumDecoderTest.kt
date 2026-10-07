@@ -93,6 +93,29 @@ class EnumDecoderTest : BehaviorSpec({
       }
     }
   }
+
+  // Regression: previously the decoder matched against Enum.toString(); a custom toString()
+  // (very common when the display form differs from the constant name) would break the lookup.
+  given("an enum class with an overridden toString()") {
+    `when`("the configured value matches the canonical enum name") {
+      val node = StringNode("RED", Pos.NoPos, DotPath.root)
+      val actual = EnumDecoder<EnumWithCustomToString>().decode(node, EnumWithCustomToString::class.createType())
+
+      then("it should still resolve via Enum.name and ignore the custom toString()") {
+        actual.shouldBeInstanceOf<Validated.Valid<EnumWithCustomToString>>()
+          .value shouldBe EnumWithCustomToString.RED
+      }
+    }
+
+    `when`("the configured value matches only the custom toString() (but not the name)") {
+      val node = StringNode("Color::red", Pos.NoPos, DotPath.root)
+      val actual = EnumDecoder<EnumWithCustomToString>().decode(node, EnumWithCustomToString::class.createType())
+
+      then("it should fail — the custom toString() is for display only") {
+        actual.shouldBeInstanceOf<Validated.Invalid<ConfigFailure>>()
+      }
+    }
+  }
 }) {
   private companion object {
     fun <T : Any> EnumDecoder<T>.decode(node: PrimitiveNode, ignoreCase: Boolean) = decode(
@@ -129,6 +152,11 @@ class EnumDecoderTest : BehaviorSpec({
     @ConfigEnumDefault("DoesNotExist")
     enum class TestEnumWithBadDefault {
       Red, Blue
+    }
+
+    enum class EnumWithCustomToString {
+      RED, GREEN, BLUE;
+      override fun toString(): String = "Color::${name.lowercase()}"
     }
   }
 }

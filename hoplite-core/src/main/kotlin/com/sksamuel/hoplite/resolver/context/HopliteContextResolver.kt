@@ -22,8 +22,8 @@ object HopliteContextResolver : ContextResolver() {
 
   override fun lookup(path: String, node: StringNode, root: Node, context: DecoderContext): ConfigResult<String?> {
     return when (path) {
-      "env" -> Runtime.getRuntime().availableProcessors().toString().valid()
-      else -> ConfigFailure.ResolverFailure("Uknown hoplite context path $path").invalid()
+      "env", "environment" -> context.environment?.name.valid()
+      else -> ConfigFailure.ResolverFailure("Unknown hoplite context path $path").invalid()
     }
   }
 }

@@ -177,7 +177,11 @@ class MonthDayDecoder : NonNullableLeafDecoder<MonthDay> {
                               type: KType,
                               context: DecoderContext): ConfigResult<MonthDay> = when (node) {
     is StringNode -> runCatching {
-      MonthDay.parse(node.value.removePrefix("--").prependIndent("--"))
+      // Accept either `--MM-dd` (the canonical MonthDay form) or `MM-dd` by normalising to the
+      // dashed prefix. Previously this used String.prependIndent("--"), which is a multi-line
+      // indentation helper — for single-line input it happens to produce the same result, but
+      // it's the wrong tool for the job and breaks for inputs containing a newline.
+      MonthDay.parse("--" + node.value.removePrefix("--"))
     }.toValidated {
       ConfigFailure.DecodeError(node, type)
     }

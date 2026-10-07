@@ -1,12 +1,13 @@
 package com.sksamuel.hoplite.resolver.context
 
+import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
 import java.util.UUID
-import kotlin.math.abs
 import kotlin.random.Random
 
 object RandomContextResolver : ContextResolver() {
@@ -17,16 +18,24 @@ object RandomContextResolver : ContextResolver() {
   override val contextKey: String = "random"
   override val default: Boolean = false
 
-  private val intWithMaxRule = "\\$\\{random.int\\(\\s*(\\d+)\\s*\\)\\}".toRegex()
-  private val intWithRangeRule = "\\$\\{random.int\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*\\)\\}".toRegex()
-  private val stringRule = "\\$\\{random.string\\(\\s*(\\d+)\\s*\\)\\}".toRegex()
+  // The path passed to lookup() is just the inside of `${{ random:... }}` — e.g. `int(10)` —
+  // not the surrounding `${random.int(10)}` syntax. The previous regexes were anchored to the
+  // outer form, so they could never match and `${{ random:int(N) }}` and friends fell through to
+  // null, leaving the placeholder unresolved.
+  private val intWithMaxRule = "int\\(\\s*(\\d+)\\s*\\)".toRegex()
+  private val intWithRangeRule = "int\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*\\)".toRegex()
+  private val stringRule = "string\\(\\s*(\\d+)\\s*\\)".toRegex()
 
   override fun lookup(path: String, node: StringNode, root: Node, context: DecoderContext): ConfigResult<String?> {
     return when (path) {
-      "int" -> abs(Random.nextInt()).toString().valid()
+      // Mask off the sign bit rather than abs(): abs(Int.MIN_VALUE) == Int.MIN_VALUE (overflow),
+      // so abs(Random.nextInt()) can still return a negative number. `and Int.MAX_VALUE` is always
+      // non-negative and stays uniform over [0, Int.MAX_VALUE].
+      "int" -> (Random.nextInt() and Int.MAX_VALUE).toString().valid()
       "boolean" -> Random.nextBoolean().toString().valid()
-      "long" -> abs(Random.nextLong()).toString().valid()
-      "double" -> abs(Random.nextDouble()).toString().valid()
+      "long" -> (Random.nextLong() and Long.MAX_VALUE).toString().valid()
+      // nextDouble() is already in [0.0, 1.0), so it is always non-negative; no abs needed.
+      "double" -> Random.nextDouble().toString().valid()
       "uuid" -> UUID.randomUUID().toString().valid()
       else -> {
         val intWithMaxMatch = intWithMaxRule.matchEntire(path)
@@ -35,16 +44,27 @@ object RandomContextResolver : ContextResolver() {
         when {
           intWithMaxMatch != null -> {
             val max = intWithMaxMatch.groupValues[1].toInt()
-            Random.nextInt(0, max).toString().valid()
+            // Random.nextInt(0, max) throws IllegalArgumentException when max <= 0; the regex
+            // permits "0", so `${{ random:int(0) }}` would crash the loader. Surface a clean
+            // ResolverFailure instead.
+            if (max <= 0)
+              ConfigFailure.ResolverFailure("random:int($max) requires max > 0").invalid()
+            else
+              Random.nextInt(0, max).toString().valid()
           }
           intWithRangeMatch != null -> {
             val min = intWithRangeMatch.groupValues[1].toInt()
             val max = intWithRangeMatch.groupValues[2].toInt()
-            Random.nextInt(min, max).toString().valid()
+            if (min >= max)
+              ConfigFailure.ResolverFailure("random:int($min, $max) requires min < max").invalid()
+            else
+              Random.nextInt(min, max).toString().valid()
           }
           stringMatch != null -> {
             val length = stringMatch.groupValues[1].toInt()
-            val chars = CharArray(length) { Random.nextInt(a.code, z.code).toChar() }
+            // Random.nextInt(from, until) is exclusive on `until`, so `nextInt(a.code, z.code)`
+            // only produces 'a'..'y' and silently never picks 'z'.
+            val chars = CharArray(length) { Random.nextInt(a.code, z.code + 1).toChar() }
             String(chars).valid()
           }
           else -> null.valid()
