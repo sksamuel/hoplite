@@ -65,6 +65,20 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
       return ConfigFailure.DataClassWithoutConstructor(kclass).invalid()
     }
 
+    if (node is PrimitiveNode && node !is NullNode) {
+      val valueConstructor = kclass.constructors.find { it.parameters.size == 1 && it.parameters[0].name == "value" }
+      return if (valueConstructor != null) {
+        context.decoder(valueConstructor.parameters[0])
+          .flatMap { it.decode(node, valueConstructor.parameters[0].type, context) }
+          .map { valueConstructor.parameters[0] to it }
+          .mapInvalid { ConfigFailure.ValueTypeFailure(kclass, valueConstructor.parameters[0], it) }
+          .flatMap { construct(type, valueConstructor, mapOf(it)) }
+          .map { Decoded(it, 1) }
+      } else {
+        ConfigFailure.DecodeError(node, type).invalid()
+      }
+    }
+
     data class Arg(
       val parameter: KParameter,
       val configName: String, // the config value name that was used, as determined by param mappers
@@ -78,19 +92,6 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
     )
 
     val constructors = kclass.constructors.map { constructor ->
-
-      // try for the value type
-      // we have a special case, which is a data class with a single field with the name 'value'.
-      // we call this a "value type" and we can instantiate a value directly into this data class
-      // without needing nested config, if the node is a primitive type
-      if (constructor.parameters.size == 1 && constructor.parameters[0].name == "value" && node is PrimitiveNode) {
-        return context.decoder(constructor.parameters[0])
-          .flatMap { it.decode(node, constructor.parameters[0].type, context) }
-          .map { constructor.parameters[0] to it }
-          .mapInvalid { ConfigFailure.ValueTypeFailure(kclass, constructor.parameters[0], it) }
-          .flatMap { construct(type, constructor, mapOf(it)) }
-          .map { Decoded(it, 1) }
-      }
 
       // create a map of parameter to value. in the case of defaults, we skip the parameter completely.
       val args: ValidatedNel<ConfigFailure, List<Arg>> = constructor.parameters.mapNotNull { param ->
