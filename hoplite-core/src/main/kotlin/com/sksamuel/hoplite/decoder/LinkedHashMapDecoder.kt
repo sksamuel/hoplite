@@ -10,6 +10,7 @@ import com.sksamuel.hoplite.fp.sequence
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.Undefined
 import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.starProjectedType
 import kotlin.reflect.full.withNullability
@@ -39,7 +40,9 @@ class LinkedHashMapDecoder : NullHandlingDecoder<LinkedHashMap<*, *>> {
           vdecoder.decode(v, vType, context).map { vv ->
             // Mark each entry as used so strict mode does not report them as unused — matches
             // what MapDecoder does for the regular Map<K, V> case.
-            context.usedPaths.add(v.path)
+            if (v !is Undefined) {
+              context.usedPaths.add(v.path)
+            }
             kk to vv
           }
         }
