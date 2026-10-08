@@ -22,9 +22,15 @@ class EnvironmentVariablesPropertySource(
   override fun source(): String = "Env Var"
 
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
-    val map = environmentVariableMap()
-      .filterKeys { if (prefix == null) true else it.startsWith(prefix) }
-      .mapKeys { if (prefix == null) it.key else it.key.removePrefix(prefix) }
+    val map = environmentVariableMap().run {
+      if (prefix == null) {
+        this
+      } else {
+        mapNotNull { (key, value) ->
+          key.removePrefix(prefix).takeIf { it != key }?.let { it to value }
+        }.toMap()
+      }
+    }
 
     return map.toNode("env", DELIMITER).transform { node ->
       if (node is MapNode && node.map.isNotEmpty() && node.map.keys.all { it.toIntOrNull() != null }) {
