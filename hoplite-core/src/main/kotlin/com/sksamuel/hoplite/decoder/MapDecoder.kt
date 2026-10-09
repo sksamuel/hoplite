@@ -7,6 +7,7 @@ import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
+import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.denormalize
 import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.invalid
@@ -36,7 +37,9 @@ class MapDecoder : NullHandlingDecoder<Map<*, *>> {
       return node.denormalize().map.entries.map { (k, v) ->
         kdecoder.decode(StringNode(k, node.pos, node.path, emptyMap()), kType, context).flatMap { kk ->
           vdecoder.decode(v, vType, context).map { vv ->
-            context.usedPaths.add(v.path)
+            if (v !is Undefined) {
+              context.usedPaths.add(v.path)
+            }
             kk to vv
           }
         }
@@ -58,8 +61,8 @@ class MapDecoder : NullHandlingDecoder<Map<*, *>> {
             // Mark both subnodes as used so strict mode does not flag the array-of-objects
             // map form (`[{key: ..., value: ...}, ...]`) as containing unused entries —
             // matches what decodeFromMap above does for the value path.
-            context.usedPaths.add(keyNode.path)
-            context.usedPaths.add(valueNode.path)
+            if (keyNode !is Undefined) context.usedPaths.add(keyNode.path)
+            if (valueNode !is Undefined) context.usedPaths.add(valueNode.path)
             kk to vv
           }
         }

@@ -120,6 +120,7 @@ class SealedClassDecoder : NullHandlingDecoder<Any> {
         // most config keys, so that a subclass is not chosen just because its unmatched parameters have defaults;
         // on a tie, the order from above applies as `maxByOrNull` returns the first maximum
         val success = results.filterIsInstance<Validated.Valid<DataClassDecoder.Decoded>>()
+          .filter { if (node is MapNode && node.size == 0) true else it.value.matchedParams > 0 }
           .maxByOrNull { it.value.matchedParams }
         if (success != null) return success.value.value.valid()
 
