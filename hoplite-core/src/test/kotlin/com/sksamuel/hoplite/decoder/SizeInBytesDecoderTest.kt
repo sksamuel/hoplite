@@ -44,4 +44,15 @@ class SizeInBytesDecoderTest : FunSpec({
     val size = SizeInBytes(64)
     size.octets() shouldBe size.bytes()
   }
+
+  test("parse keeps exact byte counts above 2^53") {
+    SizeInBytes.parse("9007199254740993B")?.size shouldBe 9007199254740993L
+    SizeInBytes.parse("9223372036854775807B")?.size shouldBe Long.MAX_VALUE
+  }
+
+  test("parse rejects sizes that do not fit in a Long") {
+    SizeInBytes.parse("16EiB") shouldBe null
+    SizeInBytes.parse("1ZB") shouldBe null
+    SizeInBytes.parse("99999999999999999999B") shouldBe null
+  }
 })

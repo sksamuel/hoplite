@@ -9,6 +9,7 @@ import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
+import java.math.BigDecimal
 import kotlin.reflect.KType
 
 data class SizeInBytes(val size: Long) {
@@ -31,7 +32,10 @@ data class SizeInBytes(val size: Long) {
         .mapNotNull { it.objectInstance }
         .find { it.symbol.equals(symbol.trim(), ignoreCase = true) }
         ?: return null
-      val bytes = unit.ratioToPrimary * size.toLong()
+      // Multiply exactly: going through Double loses precision above 2^53 bytes, and
+      // Double.toLong() silently clamps sizes that are too large to Long.MAX_VALUE.
+      val bytes = BigDecimal(size).multiply(BigDecimal(unit.ratioToPrimary)).toBigInteger()
+      if (bytes.bitLength() >= Long.SIZE_BITS) return null
       return SizeInBytes(bytes.toLong())
     }
   }
