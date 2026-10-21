@@ -92,7 +92,7 @@ class SealedClassDecoder : NullHandlingDecoder<Any> {
     context: DecoderContext,
     noSuchSubtypeFn: (String) -> ConfigFailure = { ConfigFailure.NoSealedClassObjectSubtype(kclass, it) },
   ): ConfigResult<Any> {
-    val subtype = kclass.sealedSubclasses.find { it.java.simpleName == name.value }
+    val subtype = kclass.sealedSubclasses.findByName(name.value, context)
       ?: return noSuchSubtypeFn(name.value).invalid()
     return subtype.objectInstance?.valid() ?: DataClassDecoder().decode(node, subtype.createType(), context)
   }
@@ -124,7 +124,7 @@ class SealedClassDecoder : NullHandlingDecoder<Any> {
         // local classes, and the inconsistency means users could see error text listing names
         // that the decoder won't actually accept.
         val error = if (node is StringNode) {
-          val obj = subclasses.find { it.java.simpleName == node.value }?.objectInstance
+          val obj = subclasses.findByName(node.value, context)?.objectInstance
           if (obj != null) return obj.valid() else ConfigFailure.NoSealedClassObjectSubtype(kclass, node.value)
         } else null
 
@@ -162,6 +162,13 @@ class SealedClassDecoder : NullHandlingDecoder<Any> {
       }
     }
   }
+
+  /**
+   * Finds the subclass whose `java.simpleName` is [name], ignoring case when
+   * [com.sksamuel.hoplite.DecoderConfig.resolveTypesCaseInsensitive] is set, as [EnumDecoder] does.
+   */
+  private fun List<KClass<*>>.findByName(name: String, context: DecoderContext): KClass<*>? =
+    find { it.java.simpleName.equals(name, ignoreCase = context.config.resolveTypesCaseInsensitive) }
 
   private val KClass<*>.numberOfTotalConstructorArguments
     get() = constructors.maxOfOrNull { it.numberOfTotalArguments } ?: 0

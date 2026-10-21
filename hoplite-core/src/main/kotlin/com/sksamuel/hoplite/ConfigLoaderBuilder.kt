@@ -344,7 +344,8 @@ class ConfigLoaderBuilder private constructor() {
   }
 
   /**
-   * When enabled, makes type/enum name resolution case-insensitive
+   * When enabled, makes type/enum name resolution case-insensitive: sealed subtype names (by value, by
+   * discriminator field, or as an object name) and enum constant names
    */
   fun withResolveTypesCaseInsensitive(): ConfigLoaderBuilder = apply {
     resolveTypesCaseInsensitive = true
