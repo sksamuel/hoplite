@@ -949,10 +949,66 @@ The second method is only for Json by specifying an empty object:
 When using the second option, there must be only a single object instance in the hierarchy, otherwise a disambiguation error is thrown.
 If you want to support multiple object instances, then refer to the type by name.
 
+### Explicit sealed types
 
+Matching config keys against each implementation is deprecated, because the result can be unexpected when multiple
+config sources, for example config files and environment variables, are merged. Calling `withExplicitSealedTypes()` on
+the `ConfigLoaderBuilder` instead requires the config to name the implementation of each sealed type explicitly, and
+loading fails if it doesn't. In config files, name the implementation with a discriminator field, `_type` by default
+(the field name can be passed to `withExplicitSealedTypes`):
 
+```yaml
+database:
+  _type: Elasticsearch
+  host: localhost
+  port: 9200
+  index: foo
+```
 
+A bare name selects an object, or a data class whose parameters all have defaults:
 
+```yaml
+database: Embedded
+```
+
+Environment variables (and other flat key sources, such as Java properties and system properties) name the
+implementation with the value of the key itself, and need no discriminator field. The properties of the implementation
+are keys below it:
+
+```
+DATABASE=Elasticsearch
+DATABASE_HOST=localhost
+DATABASE_PORT=9200
+DATABASE_INDEX=foo
+```
+
+Sources merge as usual, so a config file can select an implementation and set its properties, and environment
+variables can override some of them, e.g. `DATABASE_PORT=9300`.
+
+A config file can also set only the properties, and leave selecting the implementation to an environment variable.
+For example, this config file:
+
+```yaml
+database:
+  host: localhost
+  port: 9200
+  index: foo
+```
+
+with this environment variable:
+
+```
+DATABASE=Elasticsearch
+```
+
+loads `Elasticsearch(host=localhost, port=9200, index=foo)`.
+
+If several sources select an implementation, the highest priority one wins. The properties of all sources merge as
+usual, and the selected implementation determines which of them apply. For example, if a config file selects
+`Postgres` and sets its properties, and an environment variable selects `Elasticsearch` instead, the properties from
+the config file that `Elasticsearch` also has still apply. In strict mode, properties that apply to no selected
+implementation are reported as unused, so if you use strict mode, don't set properties for other implementations in
+lower priority sources.
 
 ## Reloadable Config
 

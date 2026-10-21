@@ -218,6 +218,102 @@ class CascadeTest : FunSpec({
     )
   }
 
+  test("a map's own value without a discriminator field still merges in explicit sealed types mode") {
+    // props `db = primary` plus `db.host = ...` is a "dual" node, not a sealed subtype selection,
+    // so a lower-precedence source's children must not be dropped because its value differs.
+    val node1 = MapNode(
+      map = mapOf("host" to StringNode("localhost", Pos.NoPos, DotPath("db", "host"))),
+      pos = Pos.NoPos,
+      path = DotPath("db"),
+      value = StringNode("primary", Pos.NoPos, DotPath("db"))
+    )
+
+    val node2 = MapNode(
+      map = mapOf("port" to StringNode("3306", Pos.NoPos, DotPath("db", "port"))),
+      pos = Pos.NoPos,
+      path = DotPath("db"),
+      value = StringNode("secondary", Pos.NoPos, DotPath("db"))
+    )
+
+    val merged = Cascader(CascadeMode.Merge, false, sealedTypeDiscriminatorField = "_type")
+      .cascade(node1, node2).node as MapNode
+    merged.value shouldBe StringNode("primary", Pos.NoPos, DotPath("db"))
+    merged.map.keys shouldBe setOf("host", "port")
+  }
+
+  test("a map selecting a sealed subtype overrides only the lower-precedence map's selection") {
+    val node1 = MapNode(
+      map = mapOf("x" to StringNode("abc", Pos.SourcePos("env"), DotPath("db", "x"))),
+      pos = Pos.SourcePos("env"),
+      path = DotPath("db"),
+      value = StringNode("Foo", Pos.SourcePos("env"), DotPath("db"))
+    )
+
+    val node2 = MapNode(
+      map = mapOf(
+        "_type" to StringNode("Bar", Pos.LinePos(2, "file"), DotPath("db", "_type")),
+        "y" to StringNode("xyz", Pos.LinePos(3, "file"), DotPath("db", "y")),
+      ),
+      pos = Pos.LinePos(1, "file"),
+      path = DotPath("db"),
+    )
+
+    val result = Cascader(CascadeMode.Merge, false, sealedTypeDiscriminatorField = "_type").cascade(node1, node2)
+    val merged = result.node as MapNode
+    merged.value shouldBe StringNode("Foo", Pos.SourcePos("env"), DotPath("db"))
+    merged.map.keys shouldBe setOf("x", "y")
+    // the override points at the selections, i.e. the lower-precedence map's discriminator field, not the map
+    result.overrides shouldBe listOf(OverridePath(DotPath("db"), Pos.SourcePos("env"), Pos.LinePos(2, "file")))
+  }
+
+  test("a scalar over a map folds into the map, replacing its selection, in explicit sealed types mode") {
+    val scalar = StringNode("Foo", Pos.SourcePos("env"), DotPath("db"))
+    val map = MapNode(
+      mapOf(
+        "_type" to StringNode("Bar", Pos.SourcePos("file"), DotPath("db", "_type")),
+        "x" to StringNode("abc", Pos.SourcePos("file"), DotPath("db", "x")),
+      ),
+      Pos.SourcePos("file"),
+      DotPath("db"),
+    )
+
+    val merged = Cascader(CascadeMode.Merge, false, sealedTypeDiscriminatorField = "_type")
+      .cascade(scalar, map).node as MapNode
+    merged.value shouldBe scalar
+    merged.map.keys shouldBe setOf("x")
+  }
+
+  test("a map selecting a sealed subtype overrides a lower-precedence scalar selecting one") {
+    val map = MapNode(
+      map = mapOf(
+        "_type" to StringNode("Foo", Pos.LinePos(2, "file"), DotPath("db", "_type")),
+        "x" to StringNode("abc", Pos.LinePos(3, "file"), DotPath("db", "x")),
+      ),
+      pos = Pos.LinePos(1, "file"),
+      path = DotPath("db"),
+    )
+    val scalar = StringNode("Bar", Pos.SourcePos("env"), DotPath("db"))
+
+    val result = Cascader(CascadeMode.Merge, false, sealedTypeDiscriminatorField = "_type").cascade(map, scalar)
+    result.node shouldBe map
+    result.overrides shouldBe listOf(OverridePath(DotPath("db"), Pos.LinePos(2, "file"), Pos.SourcePos("env")))
+  }
+
+  test("a lower-precedence scalar selects the sealed subtype of a map that doesn't select one") {
+    val map = MapNode(
+      map = mapOf("x" to StringNode("abc", Pos.SourcePos("env"), DotPath("db", "x"))),
+      pos = Pos.SourcePos("env"),
+      path = DotPath("db"),
+    )
+    val scalar = StringNode("Foo", Pos.LinePos(1, "file"), DotPath("db"))
+
+    val result = Cascader(CascadeMode.Merge, false, sealedTypeDiscriminatorField = "_type").cascade(map, scalar)
+    val merged = result.node as MapNode
+    merged.value shouldBe scalar
+    merged.map.keys shouldBe setOf("x")
+    result.overrides shouldBe emptyList()
+  }
+
   test("CascadeMode.error should error if overrides present") {
     shouldThrowAny {
       ConfigLoaderBuilder.default()

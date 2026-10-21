@@ -49,34 +49,52 @@ class SealedClassDecoder : NullHandlingDecoder<Any> {
 
   private fun useDiscriminator(field: String, node: Node, type: KType, context: DecoderContext): ConfigResult<Any> {
     val kclass = type.classifier as KClass<*>
-    val subclasses = kclass.sealedSubclasses
 
-    // when explicitly specifying subtypes, we must have a map type containing the disriminator field,
-    // or a string type referencing an object instance
+    // when explicitly specifying subtypes, we must have a map type containing the discriminator field,
+    // a string naming the subtype, or a map that has its own string value naming the subtype
     return when (node) {
-      is StringNode -> {
-        val referencedName = node.value
-        val subtype = subclasses.find { it.java.simpleName == referencedName }?.objectInstance
-        subtype?.valid() ?: ConfigFailure.NoSealedClassObjectSubtype(kclass, referencedName).invalid()
-      }
+      // a bare name selects an object, or a data class constructed from its defaults
+      is StringNode -> decodeByName(
+        node,
+        MapNode(emptyMap(), node.pos, node.path, delimiter = node.delimiter, sourceKey = node.sourceKey),
+        kclass,
+        context
+      )
       is MapNode -> {
-        when (val discriminatorField = node[field]) {
-          is StringNode -> {
-            val subtype = subclasses.find { it.java.simpleName == discriminatorField.value }
-            if (subtype == null) {
-              ConfigFailure.NoSuchSealedSubtype(kclass, discriminatorField.value).invalid()
-            } else {
-              // check for object-ness first
-              subtype.objectInstance?.valid()
-              // now we know the type is not an object, we can use the data class decoder directly
-                ?: DataClassDecoder().decode(node, subtype.createType(), context)
-            }
-          }
+        val discriminatorField = node[field]
+        when {
+          discriminatorField is StringNode -> decodeByName(
+            discriminatorField,
+            node,
+            kclass,
+            context
+          ) { ConfigFailure.NoSuchSealedSubtype(kclass, it) }
+          // otherwise a map with its own value names the subtype, and its children are the subtype's properties;
+          // this is the idiomatic way for flat key sources to select a subtype, e.g. the env vars `FOO=Bar`
+          // and `FOO_X=abc`, rather than a discriminator field
+          node.value is StringNode -> decodeByName(node.value, node, kclass, context)
           else -> ConfigFailure.InvalidDiscriminatorField(kclass, field).invalid()
         }
       }
       else -> ConfigFailure.Generic("Sealed type values must be maps or strings").invalid()
     }
+  }
+
+  /**
+   * Selects the subtype of [kclass] named by [name], and decodes it from [node]: an object subtype is returned
+   * as is (any children of [node] are left unused), a data class subtype is decoded from the children of [node].
+   * Fails with the failure [noSuchSubtypeFn] returns for the name if no subtype has that name.
+   */
+  private fun decodeByName(
+    name: StringNode,
+    node: MapNode,
+    kclass: KClass<*>,
+    context: DecoderContext,
+    noSuchSubtypeFn: (String) -> ConfigFailure = { ConfigFailure.NoSealedClassObjectSubtype(kclass, it) },
+  ): ConfigResult<Any> {
+    val subtype = kclass.sealedSubclasses.find { it.java.simpleName == name.value }
+      ?: return noSuchSubtypeFn(name.value).invalid()
+    return subtype.objectInstance?.valid() ?: DataClassDecoder().decode(node, subtype.createType(), context)
   }
 
   // to determine which sealed class to use, we can just try each in turn until one results in success
