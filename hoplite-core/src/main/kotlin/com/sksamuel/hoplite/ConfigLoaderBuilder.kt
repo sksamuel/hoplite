@@ -344,7 +344,8 @@ class ConfigLoaderBuilder private constructor() {
   }
 
   /**
-   * When enabled, makes type/enum name resolution case-insensitive
+   * When enabled, makes type/enum name resolution case-insensitive: sealed subtype names (by value, by
+   * discriminator field, or as an object name) and enum constant names
    */
   fun withResolveTypesCaseInsensitive(): ConfigLoaderBuilder = apply {
     resolveTypesCaseInsensitive = true
@@ -407,6 +408,32 @@ class ConfigLoaderBuilder private constructor() {
    *
    * Then, Hoplite will use this field to pick amongst the sealed types instead of trying to
    * infer the type from the available config values.
+   *
+   * For example, given the default discriminator field `_type` and these config classes:
+   *
+   * ```
+   * data class Config(val database: Database)
+   * sealed interface Database
+   * data class Postgres(val host: String) : Database
+   * ```
+   *
+   * Then, a config file selects `Postgres` with the discriminator field:
+   *
+   * ```
+   * database {
+   *   _type = Postgres
+   *   host = localhost
+   * }
+   * ```
+   *
+   * Environment variables, and other flat key sources such as system properties, do not use this
+   * value. Instead, they select it by the value of the key itself, which is cleaner and more idiomatic
+   * for those sources:
+   *
+   * ```
+   * DATABASE=Postgres
+   * DATABASE_HOST=localhost
+   * ```
    */
   @ExperimentalHoplite
   fun withExplicitSealedTypes(discriminatorFieldName: String = "_type"): ConfigLoaderBuilder =
