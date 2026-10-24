@@ -1,6 +1,7 @@
 package com.sksamuel.hoplite
 
 import com.sksamuel.hoplite.decoder.DotPath
+import com.sksamuel.hoplite.transformer.PathNormalizer
 
 sealed interface Node {
 
@@ -153,11 +154,25 @@ fun Node.transform(transformer: (Node) -> Node): Node = when (val transformed = 
  */
 fun <T : Node> T.denormalize(): T {
   return when (this) {
-    is MapNode -> copy(map = map.mapKeys { (k, v) ->
-      (v.sourceKey ?: k).removePrefix("$sourceKey$delimiter")
-    })
+    is MapNode -> copy(map = map.mapKeys { (k, v) -> originalKey(k, v) ?: k })
     else -> this
   } as T
+}
+
+/**
+ * A child's sourceKey ends with the child's own key as written in its source, so the original key is the shortest
+ * delimited suffix of it that matches the (possibly normalized) map key. This deliberately doesn't strip this map's
+ * sourceKey as a prefix: after cascading, a map carries the sourceKey and delimiter of only one of the sources that
+ * defined it, which may not be the source the child came from (gh-603).
+ */
+private fun MapNode.originalKey(key: String, child: Node): String? {
+  val childSourceKey = child.sourceKey ?: return null
+  val segments = if (child.delimiter.isEmpty()) listOf(childSourceKey) else childSourceKey.split(child.delimiter)
+  return segments.indices.reversed().asSequence()
+    .map { segments.drop(it).joinToString(child.delimiter) }
+    .firstOrNull { it == key || PathNormalizer.transformPathElement(it) == key }
+    // the map key may have been transformed by a custom NodeTransformer
+    ?: childSourceKey.removePrefix("$sourceKey$delimiter")
 }
 
 sealed class ContainerNode : Node
