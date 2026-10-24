@@ -120,8 +120,8 @@ object TokenProduction {
       }
       is AliasEvent -> {
         val node = anchors[event.anchor] ?: error("Could not find alias ${event.anchor}")
-        // we need to copy the anchored node to have the right dot path
-        val copy = node.withPath(path)
+        // we need to copy the anchored node to have the right dot path and source keys
+        val copy = node.atSourcePath(path)
         Pair(copy, anchors)
       }
       else -> throw java.lang.UnsupportedOperationException(
@@ -203,4 +203,24 @@ fun Mark.toPos(source: String): Pos = Pos.LineColPos(line, column, source)
 private fun isYamlNullLiteral(value: String): Boolean = when (value) {
   "null", "Null", "NULL", "~" -> true
   else -> false
+}
+
+/**
+ * Relocates an anchored node to the path of an alias that refers to it. YAML anchors are the only case where the
+ * parser places an already-built node at a second path, so unlike [withPath], this also moves the source keys, which
+ * the parser otherwise always derives from the path. Without this, an aliased node would keep the anchor's source
+ * keys, and e.g. a map entry `alphaWorker: *base` would denormalize to the key `base`.
+ *
+ * [withPath] itself must not do this, as [com.sksamuel.hoplite.transformer.PathNormalizer] relies on it keeping the
+ * original source keys.
+ */
+private fun Node.atSourcePath(path: DotPath): Node {
+  val sourceKey = if (path == DotPath.root) null else path.flatten(delimiter)
+  return when (this) {
+    is ArrayNode -> copy(path = path, sourceKey = sourceKey, elements = elements.map { it.atSourcePath(path) })
+    is MapNode -> copy(path = path, sourceKey = sourceKey, map = map.mapValues { it.value.atSourcePath(path.with(it.key)) })
+    is StringNode -> copy(path = path, sourceKey = sourceKey)
+    is NullNode -> copy(path = path, sourceKey = sourceKey)
+    else -> withPath(path)
+  }
 }
