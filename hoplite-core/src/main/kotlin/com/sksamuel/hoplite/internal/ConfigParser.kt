@@ -57,7 +57,7 @@ class ConfigParser(
 ) {
 
   private val loader = PropertySourceLoader(nodeTransformers, sealedTypeDiscriminatorField, classpathResourceLoader, parserRegistry, allowEmptyTree)
-  private val cascader = Cascader(cascadeMode, allowEmptyTree, allowNullOverride)
+  private val cascader = Cascader(cascadeMode, allowEmptyTree, allowNullOverride, sealedTypeDiscriminatorField)
   private val preprocessing = Preprocessing(preprocessors, preprocessingIterations)
   private val decoding = Decoding(decoderRegistry, secretsPolicy)
   private lateinit var configResult: ConfigResult<Node>

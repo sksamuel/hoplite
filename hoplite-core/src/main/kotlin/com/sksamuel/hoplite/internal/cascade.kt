@@ -6,6 +6,7 @@ import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.Pos
+import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.decoder.DotPath
 import com.sksamuel.hoplite.fp.NonEmptyList
@@ -16,6 +17,7 @@ class Cascader(
   private val cascadeMode: CascadeMode,
   private val allowEmptyTree: Boolean,
   private val allowNullOverride: Boolean = false,
+  private val sealedTypeDiscriminatorField: String? = null,
 ) {
 
   fun cascade(nodes: NonEmptyList<Node>): ConfigResult<Node> {
@@ -62,17 +64,25 @@ class Cascader(
         // note override only happens after root, otherwise one entire file would override another
         isFallthrough && a.path != DotPath.root -> CascadeResult(a)
         else -> {
-          when (b) {
+          // in explicit sealed types mode, only the higher priority source's selection of a sealed subtype applies
+          val aSubtypeSelection = a.subtypeSelection()
+          val bSubtypeSelection = b.subtypeSelection()
+          val overridesSubtypeSelection = aSubtypeSelection != null && bSubtypeSelection != null
+          val lower = if (overridesSubtypeSelection) b.withoutSubtypeSelection() else b
+          val selectionOverrides = if (overridesSubtypeSelection) {
+            listOf(OverridePath(a.path, aSubtypeSelection.pos, bSubtypeSelection.pos))
+          } else emptyList()
+          when (lower) {
             // if both are maps we merge
             is MapNode -> {
-              val keys = a.map.keys + b.map.keys
+              val keys = a.map.keys + lower.map.keys
               val merges: Map<String, CascadeResult> =
-                keys.associateWith { cascade(a.atKey(it), b.atKey(it)) }
+                keys.associateWith { cascade(a.atKey(it), lower.atKey(it)) }
               // Also merge the maps' own scalar `value` (the "dual" leaf+map case) and fold in any
               // overrides it produces — otherwise a conflict on the value itself is silently dropped
               // and CascadeMode.Error would not flag it.
-              val valueResult = cascade(a.value, b.value)
-              val overrides = merges.values.toList().flatMap { it.overrides } + valueResult.overrides
+              val valueResult = cascade(a.value, lower.value)
+              val overrides = merges.values.toList().flatMap { it.overrides } + valueResult.overrides + selectionOverrides
               val elements = merges.mapValues { it.value.node }
               CascadeResult(
                 MapNode(elements, a.pos, a.path, valueResult.node, a.meta, a.delimiter, a.sourceKey),
@@ -86,18 +96,55 @@ class Cascader(
             // drop a lower-precedence scalar at the same key, and decoding that key
             // as a scalar would then fail with "Missing" (gh-592).
             else -> {
-              val value = cascade(a.value, b)
+              val value = cascade(a.value, lower)
               CascadeResult(
                 MapNode(a.map, a.pos, a.path, value.node, a.meta, a.delimiter, a.sourceKey),
-                value.overrides
+                value.overrides + selectionOverrides
               )
             }
           }
         }
       }
+      // in explicit sealed types mode, a scalar can name the sealed subtype whose properties a lower priority map
+      // sets, e.g. the env var `FOO=Bar` over a file's `foo { x = abc }`, so rather than discarding the map, fold
+      // the scalar into it as its own value, replacing any selection of a subtype the map makes
+      is StringNode if b is MapNode && sealedTypeDiscriminatorField != null -> {
+        val bSubtypeSelection = b.subtypeSelection()
+        val lower = if (bSubtypeSelection != null) b.withoutSubtypeSelection() as MapNode else b
+        val overrides = if (bSubtypeSelection != null) {
+          listOf(OverridePath(a.path, a.pos, bSubtypeSelection.pos))
+        } else emptyList()
+        CascadeResult(MapNode(lower.map, b.pos, b.path, a, b.meta, b.delimiter, b.sourceKey), overrides)
+      }
       // since neither are maps, we just use this
       else -> CascadeResult(a, listOf(OverridePath(a.path, a.pos, b.pos)))
     }
+  }
+
+  /**
+   * In explicit sealed types mode, a node selects a sealed subtype by its discriminator field, or by its own value
+   * (as flat key sources such as env vars do, e.g. `FOO=Bar`). The subtype is selected by the highest priority source
+   * that selects one, and the properties of all sources merge as usual, so that e.g. env vars can switch the subtype
+   * that a config file selects, and the selected subtype determines which of the merged properties apply.
+   *
+   * Returns the node that selects a subtype: the discriminator field, this map's own value, or this string itself;
+   * or null if this node doesn't select a subtype.
+   */
+  private fun Node.subtypeSelection(): StringNode? {
+    val field = sealedTypeDiscriminatorField ?: return null
+    return when (this) {
+      is MapNode -> this[field] as? StringNode ?: value as? StringNode
+      is StringNode -> this
+      else -> null
+    }
+  }
+
+  /**
+   * Returns this node without its selection of a sealed subtype, see [subtypeSelection].
+   */
+  private fun Node.withoutSubtypeSelection(): Node = when (this) {
+    is MapNode -> MapNode(map - sealedTypeDiscriminatorField!!, pos, path, Undefined, meta, delimiter, sourceKey)
+    else -> Undefined
   }
 }
 
