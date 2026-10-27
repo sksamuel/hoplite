@@ -82,6 +82,13 @@ object CommonMetadata {
   const val Secret = "Secret"
   const val UnprocessedValue = "UnprocessedValue"
   const val RemoteLookup = "RemoteLookup"
+
+  /**
+   * Stored on a [MapNode]: a `Map<String, String>` from (normalized) map key to the spelling that key should be
+   * denormalized to. The [com.sksamuel.hoplite.internal.Cascader] records it for keys defined by several sources,
+   * so the key keeps the spelling of the lowest-precedence source that defines it.
+   */
+  const val MapKeySpellings = "MapKeySpellings"
 }
 
 /**
@@ -154,7 +161,10 @@ fun Node.transform(transformer: (Node) -> Node): Node = when (val transformed = 
  */
 fun <T : Node> T.denormalize(): T {
   return when (this) {
-    is MapNode -> copy(map = map.mapKeys { (k, v) -> originalKey(k, v) ?: k })
+    is MapNode -> {
+      val spellings = meta[CommonMetadata.MapKeySpellings] as? Map<*, *> ?: emptyMap<String, String>()
+      copy(map = map.mapKeys { (k, v) -> spellings[k] as? String ?: originalKey(k, v) ?: k })
+    }
     else -> this
   } as T
 }
@@ -165,7 +175,7 @@ fun <T : Node> T.denormalize(): T {
  * sourceKey as a prefix: after cascading, a map carries the sourceKey and delimiter of only one of the sources that
  * defined it, which may not be the source the child came from (gh-603).
  */
-private fun MapNode.originalKey(key: String, child: Node): String? {
+internal fun MapNode.originalKey(key: String, child: Node): String? {
   val childSourceKey = child.sourceKey ?: return null
   val segments = if (child.delimiter.isEmpty()) listOf(childSourceKey) else childSourceKey.split(child.delimiter)
   return segments.indices.reversed().asSequence()

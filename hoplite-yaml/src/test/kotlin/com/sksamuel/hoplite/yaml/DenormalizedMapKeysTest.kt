@@ -141,7 +141,7 @@ class DenormalizedMapKeysTest : FunSpec({
     }
   }
 
-  test("should set denormalized map keys from command line arguments with the CLI case") {
+  test("command line arguments overriding map entries with a different case keep the property source's spelling") {
     val config = ConfigLoaderBuilder.default()
       .addCommandLineSource(
         arrayOf(
@@ -155,8 +155,8 @@ class DenormalizedMapKeysTest : FunSpec({
 
     config shouldBe MapContainer(
       m = mapOf(
-        "Dc1" to Foo("20"),
-        "Dc2" to Foo("30"),
+        "DC1" to Foo("20"),
+        "DC2" to Foo("30"),
       )
     )
   }

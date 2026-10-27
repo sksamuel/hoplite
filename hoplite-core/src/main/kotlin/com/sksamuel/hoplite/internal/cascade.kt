@@ -1,5 +1,6 @@
 package com.sksamuel.hoplite.internal
 
+import com.sksamuel.hoplite.CommonMetadata
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.MapNode
@@ -12,6 +13,7 @@ import com.sksamuel.hoplite.decoder.DotPath
 import com.sksamuel.hoplite.fp.NonEmptyList
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
+import com.sksamuel.hoplite.originalKey
 
 class Cascader(
   private val cascadeMode: CascadeMode,
@@ -85,7 +87,7 @@ class Cascader(
               val overrides = merges.values.toList().flatMap { it.overrides } + valueResult.overrides + selectionOverrides
               val elements = merges.mapValues { it.value.node }
               CascadeResult(
-                MapNode(elements, a.pos, a.path, valueResult.node, a.meta, a.delimiter, a.sourceKey),
+                MapNode(elements, a.pos, a.path, valueResult.node, mergeKeySpellings(a, lower), a.delimiter, a.sourceKey),
                 overrides
               )
             }
@@ -146,6 +148,27 @@ class Cascader(
     is MapNode -> MapNode(map - sealedTypeDiscriminatorField!!, pos, path, Undefined, meta, delimiter, sourceKey)
     else -> Undefined
   }
+
+  /**
+   * Returns a's meta with the [CommonMetadata.MapKeySpellings] of the merged map, so that a key defined by both
+   * maps keeps b's spelling. b is the lower-precedence source, so after the whole cascade each key is spelled as
+   * in the lowest-precedence source that defines it. Map keys are identifiers that application code looks up,
+   * so overriding an entry (say via an upper-case env var) shouldn't rename it.
+   *
+   * The spelling lives on the parent map rather than in the children's sourceKey, because sourceKey must
+   * keep saying where each value came from, and for a map of primitives the child is the overriding value itself.
+   */
+  private fun mergeKeySpellings(a: MapNode, b: MapNode): Map<String, Any?> {
+    val bSpellings = b.keySpellings()
+    val shared = a.map.keys.intersect(b.map.keys)
+      .mapNotNull { key -> (bSpellings[key] ?: b.originalKey(key, b.atKey(key)))?.let { key to it } }
+    val spellings = a.keySpellings() + bSpellings + shared
+    return if (spellings.isEmpty()) a.meta else a.meta + (CommonMetadata.MapKeySpellings to spellings)
+  }
+
+  @Suppress("UNCHECKED_CAST")
+  private fun MapNode.keySpellings(): Map<String, String> =
+    meta[CommonMetadata.MapKeySpellings] as? Map<String, String> ?: emptyMap()
 }
 
 enum class CascadeMode {
