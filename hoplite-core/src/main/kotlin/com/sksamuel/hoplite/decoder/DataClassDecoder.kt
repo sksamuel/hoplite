@@ -3,6 +3,7 @@ package com.sksamuel.hoplite.decoder
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
+import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.PrimitiveNode
@@ -15,6 +16,7 @@ import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.sequence
 import com.sksamuel.hoplite.fp.valid
+import com.sksamuel.hoplite.internal.UnresolvedSubstitutionChecker
 import com.sksamuel.hoplite.isDefined
 import com.sksamuel.hoplite.simpleName
 import kotlinx.coroutines.runBlocking
@@ -133,8 +135,10 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
             context.decoder(param).flatMap { decoder ->
               runBlocking {
                 context.resolvers.resolve(n, param.name ?: "unknown", kclass, context).flatMap { resolvedNode ->
-                  decoder.decode(resolvedNode, param.type, context).map { decoded ->
-                    Arg(param, usedName, decoded, n)
+                  checkUnresolved(resolvedNode, decoder, context).flatMap {
+                    decoder.decode(resolvedNode, param.type, context).map { decoded ->
+                      Arg(param, usedName, decoded, n)
+                    }
                   }
                 }
               }
@@ -168,6 +172,16 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
       }
     )
   }
+
+  /**
+   * Reports unresolved substitutions in [node] before [decoder] sees it, so only values the bound class refers to
+   * are checked (gh-602). A nested data class checks its own fields, so keys it doesn't bind aren't checked. Any
+   * other decoder may consume its whole node, and some (such as Hikari's) act on it while decoding, so the whole
+   * node is checked first.
+   */
+  private fun checkUnresolved(node: Node, decoder: Decoder<*>, context: DecoderContext): ConfigResult<Node> =
+    if (!context.checkUnresolvedSubstitutions || (decoder is DataClassDecoder && node is MapNode)) node.valid()
+    else UnresolvedSubstitutionChecker.process(node)
 
   private fun <A> construct(
     type: KType,

@@ -77,6 +77,11 @@ class ConfigParser(
       resolvers = Resolving(resolvers, root),
       sealedTypeDiscriminatorField = sealedTypeDiscriminatorField,
       contextResolverMode = contextResolverMode,
+      // Checked as values are decoded rather than over the whole tree at load, so values the bound class never
+      // refers to (such as shell variables from the environment source) can't fail the load (gh-602).
+      // If resolvers is not empty, we don't use allowUnresolvedSubstitutions, but instead the resolver mode setting.
+      checkUnresolvedSubstitutions = resolvers.isEmpty() && !allowUnresolvedSubstitutions &&
+        contextResolverMode != ContextResolverMode.SkipUnresolved,
     )
   }
 
@@ -123,9 +128,7 @@ class ConfigParser(
     loader.loadNodes(propertySources, configSources, resourceOrFiles).flatMap { nodes ->
       cascader.cascade(nodes).flatMap { node ->
         val context = context(node)
-        preprocessing.preprocess(node, context).flatMap { preprocessed ->
-          check(preprocessed)
-        }.map {
+        preprocessing.preprocess(node, context).map {
           it to context
         }
       }
@@ -135,14 +138,6 @@ class ConfigParser(
     }.onFailure { result ->
       configResult = result.invalid()
     }
-  }
-
-  private fun check(node: Node): ConfigResult<Node> {
-    // if resolvers is not empty, we don't use allowUnresolvedSubstitutions, but instead the resolver mode setting
-    return if (resolvers.isNotEmpty() || allowUnresolvedSubstitutions || contextResolverMode == ContextResolverMode.SkipUnresolved)
-      node.valid()
-    else
-      UnresolvedSubstitutionChecker.process(node)
   }
 
   private fun Node.prefixedNode(prefix: String?) = when {
