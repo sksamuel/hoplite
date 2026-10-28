@@ -37,6 +37,8 @@ data class DecoderContext(
   val contextResolverMode: ContextResolverMode = ContextResolverMode.ErrorOnUnresolved,
   val sealedTypeDiscriminatorField: String? = null,
   val reportPrintFn: Print = { println(it) }, // provides access to print warnings etc
+  // when true, values still containing ${...} after preprocessing fail decoding (preprocessor mode only)
+  val checkUnresolvedSubstitutions: Boolean = false,
 ) {
 
   /**
