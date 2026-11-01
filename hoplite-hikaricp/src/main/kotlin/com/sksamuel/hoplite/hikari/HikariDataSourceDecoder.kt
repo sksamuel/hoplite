@@ -14,6 +14,7 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import java.util.*
 import kotlin.reflect.KType
+import kotlin.reflect.full.createType
 
 class HikariDataSourceDecoder : Decoder<HikariDataSource> {
 
@@ -25,8 +26,15 @@ class HikariDataSourceDecoder : Decoder<HikariDataSource> {
 
     fun populate(node: Node, prefix: String) {
       when (node) {
-        is MapNode -> node.denormalize().map.forEach { (k, v) -> populate(v, if (prefix == "") k else "$prefix.$k") }
-        is PrimitiveNode -> props[prefix] = node.value
+        is MapNode -> {
+          context.usedPaths.add(node.path)
+          node.denormalize().map.forEach { (k, v) -> populate(v, if (prefix == "") k else "$prefix.$k") }
+        }
+        is PrimitiveNode -> {
+          props[prefix] = node.value
+          context.usedPaths.add(node.path)
+          node.value?.let { context.used(node, it::class.createType(), it) }
+        }
         else -> {
         }
       }
