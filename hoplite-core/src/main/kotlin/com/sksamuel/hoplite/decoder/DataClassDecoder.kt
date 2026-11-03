@@ -48,7 +48,14 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
     safeDecode(node, type, context)
 
   override fun safeDecode(node: Node, type: KType, context: DecoderContext): ConfigResult<Any> =
-    decodeWithMatchCount(node, type, context).map { it.value }
+    when (val result = decodeWithMatchCount(node, type, context)) {
+      is Validated.Valid -> result.value.value.valid()
+      is Validated.Invalid -> when (node) {
+        // for Undefined and NullNode, fall back to the NullHandlingDecoder null value or errors
+        is Undefined, is NullNode -> super.decode(node, type, context)
+        else -> result
+      }
+    }
 
   /**
    * The decoded [value] along with the number of constructor parameters that were matched by a defined config
@@ -156,12 +163,8 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
 
     return firstValidOrLastInvalidArgs.fold(
       {
-        when (node) {
-          // for Undefined and NullNode, fall back to the NullHandlingDecoder errors
-          is Undefined, is NullNode -> super.decode(node, type, context).map { Decoded(it, 0) }
-          // otherwise, wrap in an error containing each individual error
-          else -> ConfigFailure.DataClassFieldErrors(it, type, node.pos).invalid()
-        }
+        // wrap in an error containing each individual error
+        ConfigFailure.DataClassFieldErrors(it, type, node.pos).invalid()
       },
       { constructor ->
         construct(
