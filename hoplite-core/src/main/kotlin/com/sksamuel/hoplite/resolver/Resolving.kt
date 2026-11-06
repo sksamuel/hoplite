@@ -27,7 +27,9 @@ class Resolving(
         resolver.resolve(paramName, kclass, acc, root, context).flatMap { resolved ->
           // if the resolver actually made a change we should run the resolver again on the result to allow
           // for repeated invocations / nested expressions
-          if (resolved.valueOrNull() == acc.valueOrNull()) acc.valid() else resolve(
+          // Container and null nodes have no scalar value, but omitting either is a change.
+          val omitted = resolved === Undefined && acc !== Undefined
+          if (!omitted && resolved.valueOrNull() == acc.valueOrNull()) acc.valid() else resolve(
             resolved,
             paramName,
             kclass,

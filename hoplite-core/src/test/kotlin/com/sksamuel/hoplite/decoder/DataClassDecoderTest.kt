@@ -1,31 +1,116 @@
 package com.sksamuel.hoplite.decoder
 
 import com.sksamuel.hoplite.BooleanNode
+import com.sksamuel.hoplite.ConfigException
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigFailure.NullValueForNonNullField
+import com.sksamuel.hoplite.ConfigLoaderBuilder
+import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.DecoderContext
+import com.sksamuel.hoplite.ExperimentalHoplite
 import com.sksamuel.hoplite.LongNode
 import com.sksamuel.hoplite.MapNode
+import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Undefined
+import com.sksamuel.hoplite.addMapSource
 import com.sksamuel.hoplite.defaultNodeTransformers
 import com.sksamuel.hoplite.defaultParamMappers
 import com.sksamuel.hoplite.fp.Validated
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.valid
+import com.sksamuel.hoplite.resolver.Resolver
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import java.time.LocalDate
 import java.time.Year
 import java.time.YearMonth
 import java.time.ZoneOffset
+import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
 enum class FooEnum { FIRST, SECOND, THIRD }
 class DataClassDecoderTest : StringSpec() {
   init {
+    val resolver = object : Resolver {
+      override suspend fun resolve(
+        paramName: String?,
+        kclass: KClass<*>,
+        node: Node,
+        root: Node,
+        context: DecoderContext
+      ): ConfigResult<Node> = when {
+        paramName == "omitMap" && node is MapNode -> Undefined
+        paramName == "fromNull" && node is NullNode -> Undefined
+        node is StringNode && node.value == "omit" -> Undefined
+        node is StringNode && node.value == "explicit-null" -> NullNode(node.pos, node.path)
+        node is StringNode && node.value == "replace" -> node.copy(value = "resolved")
+        else -> node
+      }.valid()
+    }
+
+    @OptIn(ExperimentalHoplite::class)
+    fun config(vararg properties: Pair<String, String>) = ConfigLoaderBuilder.newBuilderWithoutPropertySources()
+      .addMapSource(mapOf(*properties))
+      .addResolver(resolver)
+      .strict()
+      .build()
+
+    "use the Kotlin default when a resolver omits a present field" {
+      data class Nested(val value: String = "default")
+      data class Config(val nested: Nested, val retained: String)
+
+      config("nested.value" to "omit", "retained" to "replace")
+        .loadConfigOrThrow<Config>() shouldBe Config(Nested(), "resolved")
+    }
+
+    "a resolver can omit a whole optional map in strict mode" {
+      data class Nested(val value: String)
+      data class Config(val omitMap: Nested = Nested("default"))
+
+      config("omitMap.value" to "configured").loadConfigOrThrow<Config>() shouldBe Config()
+    }
+
+    "omitting a map leaves unrelated keys visible to strict mode" {
+      data class Nested(val value: String)
+      data class Config(val omitMap: Nested = Nested("default"))
+
+      val error = shouldThrow<ConfigException> {
+        config("omitMap.value" to "configured", "unclaimedSibling" to "typo")
+          .loadConfigOrThrow<Config>()
+      }
+      error.message.orEmpty().contains("unclaimedSibling") shouldBe true
+    }
+
+    "a resolver can omit an explicitly null node" {
+      data class Config(val fromNull: String = "default")
+
+      config("fromNull" to "explicit-null").loadConfigOrThrow<Config>() shouldBe Config()
+    }
+
+    "a required nullable field still accepts a resolved Undefined" {
+      data class Config(val value: String?)
+
+      config("value" to "omit").loadConfigOrThrow<Config>() shouldBe Config(null)
+    }
+
+    "a resolved null overrides a nullable parameter default" {
+      data class Config(val value: String? = "default")
+
+      config("value" to "explicit-null").loadConfigOrThrow<Config>() shouldBe Config(null)
+    }
+
+    "a resolver cannot omit a required field" {
+      data class Config(val value: String)
+
+      shouldThrow<ConfigException> {
+        config("value" to "omit").loadConfigOrThrow<Config>()
+      }
+    }
+
     "convert basic data class" {
       data class Foo(val a: String, val b: Long, val c: Boolean)
 
