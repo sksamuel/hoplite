@@ -9,6 +9,7 @@ import com.sksamuel.hoplite.NullNode
 import com.sksamuel.hoplite.PrimitiveNode
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Undefined
+import com.sksamuel.hoplite.decodedPaths
 import com.sksamuel.hoplite.fp.NonEmptyList
 import com.sksamuel.hoplite.fp.Validated
 import com.sksamuel.hoplite.fp.ValidatedNel
@@ -90,10 +91,12 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
 
     data class Constructor(
       val constructor: KFunction<Any>,
-      val args: List<Arg>
+      val args: List<Arg>,
+      val omittedNodes: List<Node>
     )
 
     val constructors = kclass.constructors.map { constructor ->
+      val omittedNodes = mutableListOf<Node>()
 
       // create a map of parameter to value. in the case of defaults, we skip the parameter completely.
       val args: ValidatedNel<ConfigFailure, List<Arg>> = constructor.parameters.mapNotNull { param ->
@@ -135,19 +138,24 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
             context.decoder(param).flatMap { decoder ->
               runBlocking {
                 context.resolvers.resolve(n, param.name ?: "unknown", kclass, context).flatMap { resolvedNode ->
-                  checkUnresolved(resolvedNode, decoder, context).flatMap {
-                    decoder.decode(resolvedNode, param.type, context).map { decoded ->
-                      Arg(param, usedName, decoded, n)
+                  if (param.isOptional && resolvedNode is Undefined) {
+                    omittedNodes.add(n)
+                    null.valid()
+                  } else {
+                    checkUnresolved(resolvedNode, decoder, context).flatMap {
+                      decoder.decode(resolvedNode, param.type, context).map { decoded ->
+                        Arg(param, usedName, decoded, n)
+                      }
                     }
                   }
                 }
               }
             }.mapInvalid { ConfigFailure.ParamFailure(param, it) }
         }
-      }.sequence()
+      }.sequence().map { it.filterNotNull() }
 
       args.onSuccess { argList -> argList.forEach { context.used(it.node, it.parameter.type, it.value) } }
-      args.map { Constructor(constructor, it) }
+      args.map { Constructor(constructor, it, omittedNodes) }
     }
 
     // see if one of the constructors worked
@@ -168,7 +176,12 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
           type = type,
           constructor = constructor.constructor,
           args = constructor.args.associate { it.parameter to it.value }
-        ).map { value -> Decoded(value, constructor.args.count { it.node.isDefined }) }
+        ).map { value ->
+          constructor.omittedNodes.forEach { omitted ->
+            omitted.decodedPaths().mapTo(context.usedPaths) { it.path }
+          }
+          Decoded(value, constructor.args.count { it.node.isDefined })
+        }
       }
     )
   }
