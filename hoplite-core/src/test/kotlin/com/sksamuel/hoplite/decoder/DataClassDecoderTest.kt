@@ -348,5 +348,29 @@ class DataClassDecoderTest : StringSpec() {
         DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), defaultNodeTransformers())
       ) shouldBe Foo("abc").valid()
     }
+
+    "null input for a nullable type without default values results in null" {
+      data class Foo(val a: String)
+
+      val node = NullNode(Pos.NoPos, DotPath.root)
+
+      DataClassDecoder().decode(
+        node,
+        Foo::class.createType(nullable = true),
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), defaultNodeTransformers())
+      ) shouldBe Validated.Valid(null)
+    }
+
+    "undefined input for a nullable type without default values results in null" {
+      data class Foo(val a: String)
+
+      val node = Undefined
+
+      DataClassDecoder().decode(
+        node,
+        Foo::class.createType(nullable = true),
+        DecoderContext(defaultDecoderRegistry(), defaultParamMappers(), defaultNodeTransformers())
+      ) shouldBe Validated.Valid(null)
+    }
   }
 }
