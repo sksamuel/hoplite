@@ -251,7 +251,7 @@ Hoplite's binding rules align with [Spring Boot's relaxed binding for environmen
 
 * Missing list indices are ignored, which is useful for commenting out values without renumbering subsequent ones.
 
-* **Map keys preserve case from the env var name.** Spring lowercases map keys (so `VALUES_KEY=v` produces `{"key": "v"}`); hoplite keeps them verbatim (`{"KEY": "v"}`). This is the one documented difference from Spring's rules and is locked in by `EnvironmentVariablesPropertySourceTest > build env source can create case sensitive Maps`.
+* **Map keys preserve case from the env var name.** Spring lowercases map keys (so `VALUES_KEY=v` produces `{"key": "v"}`); hoplite keeps them verbatim (`{"KEY": "v"}`). This is the one documented difference from Spring's rules and is locked in by `EnvironmentVariablesPropertySourceTest > build env source can create case sensitive Maps`. When an env var (or any source) overrides an entry that a lower-precedence source already defines, the key keeps the spelling from the lowest-precedence source that defines it, so `APPLICATION_WORKERS_ALPHAWORKER_BATCHSIZE` overriding a file's `application.workers.alphaWorker.batchSize` still decodes to the key `alphaWorker`.
 
 If the optional (not specified by default) `prefix` setting is provided, then only env vars that begin with the prefix are considered,
 and the prefix is stripped from the env var before processing.

@@ -57,7 +57,7 @@ class Issue603Test : FunSpec({
     )
   }
 
-  test("an upper-case env var map key is preserved and does not change the keys of untouched siblings") {
+  test("an upper-case env var overriding a map entry keeps the file's spelling of the key") {
     val config = ConfigLoaderBuilder.defaultWithoutPropertySources()
       .addPropertySource(env("APPLICATION_WORKERS_ALPHAWORKER_BATCHSIZE" to "1234"))
       .addPropertySource(props())
@@ -65,7 +65,7 @@ class Issue603Test : FunSpec({
       .loadConfigOrThrow<Issue603Config>()
 
     config.application.workers shouldBe mapOf(
-      "ALPHAWORKER" to Issue603Worker(1234),
+      "alphaWorker" to Issue603Worker(1234),
       "betaWorker" to Issue603Worker(20),
     )
   }
