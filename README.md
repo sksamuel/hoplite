@@ -800,7 +800,7 @@ Note: The masking effect only happens if you use `toString`.
 If you marshall your config to a String using a reflection based tool like Jackson, it will still be able to see the underlying value.
 In these cases, you would need to register a custom serializer.
 For the Jackson project, a `HopliteModule` object is available in the `hoplite-json` module.
-Register this with your Jackson mapper, like `mapper.registerModule(HopliteModule)` and then `Masked` values will be ouputted into Json as "****"
+Register this with your Jackson mapper, like `mapper.registerModule(HopliteModule)` and then `Masked` values will be outputted into Json as "****"
 
 
 
@@ -1021,7 +1021,7 @@ reload the config once a watcher is triggered. Then you can obtain the latest pa
 
 If you wish to be notified whenever the config is reloaded, you can call `subscribe` on the reloader.
 
-A simple example would be to referesh config every 10 seconds:
+A simple example would be to refresh config every 10 seconds:
 
 ```kotlin
 // create a watchable that will trigger every 10 seconds
@@ -1059,17 +1059,17 @@ predefined implementations:
 ## Add on Modules
 
 Hoplite makes available several other modules that add functionality outside of the main core module. They are in
-seperate modules because they bring in dependencies from those projects and so the modules are optional.
+separate modules because they bring in dependencies from those projects and so the modules are optional.
 
 | Module                        | Function                                                                                                |
 |:------------------------------|:--------------------------------------------------------------------------------------------------------|
 | hoplite-arrow                 | Provides decoders for common arrow types                                                                |
 | hoplite-aws                   | Provides decoders for aws `Region` type and a preprocessor for AWS Secrets Manager and Parameter Store. |
 | hoplite-aws2                  | Provides decoders for aws `Region` type using the AWS v2 SDK.                                           |
-| hoplite-azure                 | Provides a preprocessor for retreiving values from Azure Key Vault.                                     |
-| hoplite-consul                | Provides a preprocessor for retreiving values from a Consul instance.                                   |
+| hoplite-azure                 | Provides a preprocessor for retrieving values from Azure Key Vault.                                     |
+| hoplite-consul                | Provides a preprocessor for retrieving values from a Consul instance.                                   |
 | hoplite-datetime              | Provides decoders for [kotlinx datetime](https://github.com/Kotlin/kotlinx-datetime).                   |
-| hoplite-gcp                   | Provides a preprocessor for retreiving values from Google Cloud Platform Secrets Manager.               |
+| hoplite-gcp                   | Provides a preprocessor for retrieving values from Google Cloud Platform Secrets Manager.               |
 | hoplite-hdfs                  | Provides decoder for hadoop `Path`                                                                      |
 | hoplite-hikaricp              | Provides decoder for `HikariDataSource`                                                                 |
 | hoplite-micrometer-datadog    | Provides a decoder for Micrometer's `DatadogConfig` registry                                            |
