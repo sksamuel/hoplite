@@ -23,8 +23,8 @@ import java.util.Properties
  * to expose all system properties.
  */
 open class SystemPropertiesPropertySource(
-  private val systemPropertiesMap: () -> Map<String, String> = { System.getProperties().toStringMap() },
-  private val prefix: String = DEFAULT_PREFIX,
+  internal val systemPropertiesMap: () -> Map<String, String> = { System.getProperties().toStringMap() },
+  internal val prefix: String = DEFAULT_PREFIX,
 ) : PropertySource {
 
   override fun source(): String = "System Properties"

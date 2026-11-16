@@ -13,9 +13,9 @@ import com.sksamuel.hoplite.transform
 import com.sksamuel.hoplite.withMeta
 
 class EnvironmentVariablesPropertySource(
-  private val environmentVariableMap: () -> Map<String, String> = { System.getenv() },
+  internal val environmentVariableMap: () -> Map<String, String> = { System.getenv() },
   /** Optional prefix to limit env var selection. It is stripped before processing. */
-  private val prefix: String? = null,
+  internal val prefix: String? = null,
 ) : PropertySource {
   companion object {
     const val DELIMITER = "_"
