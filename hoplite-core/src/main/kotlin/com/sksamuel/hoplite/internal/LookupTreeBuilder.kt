@@ -1,6 +1,7 @@
 package com.sksamuel.hoplite.internal
 
 import com.sksamuel.hoplite.ArrayNode
+import com.sksamuel.hoplite.ConfigAlias
 import com.sksamuel.hoplite.DecoderContext
 import com.sksamuel.hoplite.LookupPropertySource
 import com.sksamuel.hoplite.MapNode
@@ -48,6 +49,12 @@ import kotlin.reflect.full.starProjectedType
  *    delimiter, so `LABELS_MY_KEY` may be the key `MY` with a value under `KEY`, or the key `MY_KEY`. Every run of
  *    elements under the map is tried as a key, shortest first, and each source key goes to the first map key that
  *    reads it, see [walkMap].
+ *  - A parameter's absolute [ConfigAlias] names (gh-368) are tried last, and only if none of the parameter's
+ *    path-based names found anything in the source. Each is the source's own key: no bind prefix, no parent path.
+ *    It is split into path elements as the source splits its keys, and matched as any key is (environment
+ *    variables ignoring case and `-`). The values are placed where the parameter's own
+ *    name is, so the decoder finds them there, and a type under the parameter, such as a data class, is walked
+ *    under the absolute name too (`LEGACY_DB`, then `LEGACY_DB_URL`).
  */
 internal class LookupTreeBuilder(
   private val source: LookupPropertySource,
@@ -144,9 +151,12 @@ internal class LookupTreeBuilder(
     if (kclass in stack && location.candidates.none { source.keysUnder(it.path).isNotEmpty() }) return
     kclass.constructors.forEach { constructor ->
       constructor.parameters.forEach { param ->
-        paramLocations(param, constructor, kclass, location).forEach {
-          walk(param.type, it, stack + kclass, depth + 1)
-        }
+        val locations = paramLocations(param, constructor, kclass, location)
+        locations.forEach { walk(param.type, it, stack + kclass, depth + 1) }
+        // absolute aliases are read only when no path-based name of the parameter found anything in this source
+        absoluteLocation(param, locations)
+          ?.takeIf { locations.none { hasValueUnder(it.placed) } }
+          ?.let { walk(param.type, it, stack + kclass, depth + 1) }
       }
     }
   }
@@ -171,6 +181,29 @@ internal class LookupTreeBuilder(
       // names that differ only in ways the source ignores, such as case, give the same key, so are read once
       Location(location.placed + group.first(), candidates.distinctBy { source.key(it.path) })
     }
+  }
+
+  /**
+   * Returns the location of [param]'s absolute [ConfigAlias] names (gh-368), placed where the location of the
+   * parameter's own name in [locations] is, so the decoder finds the value there. Null if it has none.
+   */
+  private fun absoluteLocation(param: KParameter, locations: List<Location>): Location? {
+    val names = param.annotations.filterIsInstance<ConfigAlias>().filter { it.absolute }.map { it.name }.distinct()
+    if (names.isEmpty() || locations.isEmpty()) return null
+    val placed = (locations.firstOrNull { it.placed.last() == param.name } ?: locations.first()).placed
+    // the name is the source's own key, so it is split into path elements as the source splits its keys
+    return Location(placed, names.map { Candidate(it.split(source.delimiter)) })
+  }
+
+  /**
+   * Whether a value has been found at or under [placed], in the tree or in a capture in progress.
+   */
+  private fun hasValueUnder(placed: List<String>): Boolean {
+    val captured = captures.any { capture -> capture.any { (p, _) -> p.size >= placed.size && p.subList(0, placed.size) == placed } }
+    if (captured) return true
+    val element = placed.fold(root as Element?) { element, key -> element?.children?.get(key) } ?: return false
+    fun Element.hasValue(): Boolean = value != null || children.values.any { it.hasValue() }
+    return element.hasValue()
   }
 
   private fun walkSealed(kclass: KClass<*>, location: Location, stack: List<KClass<*>>, depth: Int) {

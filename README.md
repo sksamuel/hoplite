@@ -305,7 +305,8 @@ val config = ConfigLoaderBuilder.default()
   from the elements joined with `.`, matched ignoring case, `-` and `_`, so `database.pool.max-pool-size` and
   `database.pool.maxPoolSize` both work.
 * `@ConfigAlias` names and the names the configured parameter mappers give are path elements like any field name:
-  `@ConfigAlias("legacy_timeout")` reads `LEGACYTIMEOUT`.
+  `@ConfigAlias("legacy_timeout")` reads `LEGACYTIMEOUT`. To read an env var whose name doesn't follow the shape of
+  your config, such as `LEGACY_TIMEOUT`, use an absolute alias (below).
 * Map keys are the one place where the env var name doesn't fix the path, since a map key may contain `_`:
   `LABELS_MY_KEY` gives `labels` the key `MY_KEY`. For each map, every run of `_`-separated elements is tried as a
   key, shortest first, and each env var goes to the first key it is read under: with `Map<String, Server>`,
@@ -335,6 +336,30 @@ ConfigLoaderBuilder.default()
   .withAmbientSourceLookup(false)
   .build()
 ```
+
+#### Absolute env var and system property names
+
+An app moving to hoplite often has env var names that are already fixed and don't follow the shape of its config.
+`@ConfigAlias(name, absolute = true)` reads a field from one specific env var or system property, wherever the field
+is in the config:
+
+```kotlin
+data class SomeOptions(@ConfigAlias("ENV_VAL", absolute = true) val string: String)
+data class Config(val options: SomeOptions)
+
+// reads ENV_VAL, not OPTIONS_ENV_VAL
+```
+
+* The name is used as is: no `ConfigBinder` prefix, no parent path. It is matched as any env var or system property
+  is (env vars ignoring case and `-`).
+* It is tried last, and only if none of the field's path-based names (its own name, relative aliases) is set in that
+  source, so `OPTIONS_STRING` wins over `ENV_VAL`. On a data class field, the fields under it are read under the
+  absolute name: `@ConfigAlias("LEGACY_DB", absolute = true) val db: Db` reads `LEGACY_DB_URL`.
+* Precedence between sources is unchanged: a value read through an absolute alias overrides the sources registered
+  after the env var source, as any env var does.
+* The report shows the env var or system property the value came from.
+* It only applies to the lookup-based sources described above. Files, prefixed env var sources, `config.override.`
+  system properties, and the tree-based sources you get with `withAmbientSourceLookup(false)` ignore absolute aliases.
 
 
 ### UserSettingsPropertySource
@@ -581,7 +606,8 @@ data class MyConfig(val database: Database)
 An alias is a name like any other, so it is matched the same way: ignoring case, `-` and `_`. `@ConfigAlias("legacy_timeout")`
 matches a file key `legacy_timeout`, `legacy-timeout` or `legacyTimeout`, and the env var `LEGACYTIMEOUT` (under its
 parent's path, e.g. `APP_LEGACYTIMEOUT`). It does not match `LEGACY_TIMEOUT`, because `_` separates path elements in env
-var names.
+var names. To read an env var whose name is fixed, such as `LEGACY_TIMEOUT`, use
+[`@ConfigAlias("LEGACY_TIMEOUT", absolute = true)`](#absolute-env-var-and-system-property-names).
 
 
 ## Param Mappers

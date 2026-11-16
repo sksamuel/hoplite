@@ -68,6 +68,14 @@ class SpringStyleEnvVarBindingTest : FunSpec({
     loader(mapOf("APP_LEGACY_TIMEOUT" to "1")).loadConfig<Cfg>().isInvalid() shouldBe true
   }
 
+  // To read an env var by its exact name, wherever the field is, use an absolute alias.
+  test("an absolute alias reads the env var it names, `_` and all") {
+    data class App(@ConfigAlias("APP_LEGACY_TIMEOUT", absolute = true) val timeout: Int)
+    data class Cfg(val app: App)
+
+    loader(mapOf("APP_LEGACY_TIMEOUT" to "1")).loadConfigOrThrow<Cfg>() shouldBe Cfg(App(1))
+  }
+
   // ---------------------------------------------------------------------------------------------
   // Rule 3: case-insensitive matching against the property path.
   // ---------------------------------------------------------------------------------------------

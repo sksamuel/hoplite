@@ -25,6 +25,10 @@ is now reported as unused instead of being silently ignored. Unprefixed environm
 with an empty prefix stay exempt. Custom sources can mark their nodes as exempt by setting `CommonMetadata.Ambient`.
 To opt out and restore the 3.0 behaviour (all env vars and system properties exempt), call
 `ConfigLoaderBuilder.withStrictPrefixedSources(false)`. #606
+* `@ConfigAlias(name, absolute = true)` reads a field from one specific env var or system property, wherever the
+field is in the config: `@ConfigAlias("ENV_VAL", absolute = true)` on `options.string` reads `ENV_VAL`, not
+`OPTIONS_ENV_VAL`. It is tried after the field's path-based names, and only applies to the lookup-based env var and
+system property sources; other sources ignore it. #368
 
 ### 3.0.0
 
