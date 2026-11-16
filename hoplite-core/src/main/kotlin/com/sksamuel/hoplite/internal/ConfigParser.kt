@@ -45,6 +45,7 @@ class ConfigParser(
   private val allowUnresolvedSubstitutions: Boolean,
   private val secretsPolicy: SecretsPolicy?,
   private val decodeMode: DecodeMode,
+  strictPrefixedSources: Boolean,
   private val useReport: Boolean,
   private val obfuscator: Obfuscator,
   private val reportPrintFn: Print,
@@ -59,7 +60,7 @@ class ConfigParser(
   private val loader = PropertySourceLoader(nodeTransformers, sealedTypeDiscriminatorField, classpathResourceLoader, parserRegistry, allowEmptyTree)
   private val cascader = Cascader(cascadeMode, allowEmptyTree, allowNullOverride, sealedTypeDiscriminatorField)
   private val preprocessing = Preprocessing(preprocessors, preprocessingIterations)
-  private val decoding = Decoding(decoderRegistry, secretsPolicy)
+  private val decoding = Decoding(decoderRegistry, secretsPolicy, strictPrefixedSources)
   private lateinit var configResult: ConfigResult<Node>
   private lateinit var context: DecoderContext
 

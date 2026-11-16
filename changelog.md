@@ -1,5 +1,15 @@
 # Changelog
 
+### 3.1.0
+
+* Behaviour change: strict mode now checks prefixed sources for unused values: an `EnvironmentVariablesPropertySource`
+with a `prefix`, and a `SystemPropertiesPropertySource` with a non-empty `prefix` (including the default
+`config.override.`). A typo such as `MYAPP_DATABSE_URL` under the prefix `MYAPP_`, or `config.override.databse.url`,
+is now reported as unused instead of being silently ignored. Unprefixed environment variables and system properties
+with an empty prefix stay exempt. Custom sources can mark their nodes as exempt by setting `CommonMetadata.Ambient`.
+To opt out and restore the 3.0 behaviour (all env vars and system properties exempt), call
+`ConfigLoaderBuilder.withStrictPrefixedSources(false)`. #606
+
 ### 3.0.0
 
 * Breaking: the `EnvironmentVariablesPropertySource` now uses idiomatic environment variable format i.e. upper case (though lower

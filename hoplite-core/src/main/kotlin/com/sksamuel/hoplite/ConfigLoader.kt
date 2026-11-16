@@ -47,6 +47,7 @@ class ConfigLoader(
   val allowNullOverride: Boolean = false,
   val resolveTypesCaseInsensitive: Boolean = false,
   val contextResolverMode: ContextResolverMode = ContextResolverMode.ErrorOnUnresolved,
+  val strictPrefixedSources: Boolean = true,
 ) {
 
   init {
@@ -331,6 +332,7 @@ class ConfigLoader(
     allowUnresolvedSubstitutions = allowUnresolvedSubstitutions,
     secretsPolicy = secretsPolicy,
     decodeMode = decodeMode,
+    strictPrefixedSources = strictPrefixedSources,
     useReport = useReport,
     obfuscator = obfuscator ?: PrefixObfuscator(3),
     reportPrintFn = reportPrintFn,

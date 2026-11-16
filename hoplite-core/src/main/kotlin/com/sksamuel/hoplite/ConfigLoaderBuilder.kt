@@ -43,6 +43,9 @@ class ConfigLoaderBuilder private constructor() {
   private var classLoader: ClassLoader = Thread.currentThread().contextClassLoader
 
   private var decodeMode: DecodeMode = DecodeMode.Lenient
+
+  // #606: strict mode checks prefixed env and sysprops sources unless opted out.
+  private var strictPrefixedSources: Boolean = true
   private var cascadeMode: CascadeMode = CascadeMode.Merge
   private var allowEmptyConfigFiles = false
   private var allowNullOverride = false
@@ -306,6 +309,24 @@ class ConfigLoaderBuilder private constructor() {
 
   fun withDecodeMode(mode: DecodeMode) = apply { this.decodeMode = mode }
 
+  /**
+   * Controls which environment variables and system properties [DecodeMode.Strict] checks for unused values.
+   *
+   * Enabled by default: strict mode exempts only *ambient* sources, whose keys are mostly not this app's config:
+   * an [com.sksamuel.hoplite.sources.EnvironmentVariablesPropertySource] without a prefix, and a
+   * [com.sksamuel.hoplite.sources.SystemPropertiesPropertySource] with an empty prefix. A source with a prefix
+   * owns its namespace, so a typo such as `MYAPP_DATABSE_URL` under the prefix `MYAPP_`, or
+   * `config.override.databse.url` under the default system property prefix, is reported as unused.
+   *
+   * A custom source can mark its nodes as ambient by setting [CommonMetadata.Ambient] to `true`.
+   *
+   * Pass `false` to opt out and restore the behaviour before 3.1, where strict mode exempts every value from
+   * environment variables and system properties, prefixed or not.
+   *
+   * This has no effect in [DecodeMode.Lenient].
+   */
+  fun withStrictPrefixedSources(enabled: Boolean = true) = apply { this.strictPrefixedSources = enabled }
+
   @ExperimentalHoplite
   fun withCascadeMode(cascadeMode: CascadeMode) = apply { this.cascadeMode = cascadeMode }
 
@@ -464,6 +485,7 @@ class ConfigLoaderBuilder private constructor() {
       flattenArraysToString = flattenArraysToString,
       sealedTypeDiscriminatorField = sealedTypeDiscriminatorField,
       contextResolverMode = contextResolverMode,
+      strictPrefixedSources = strictPrefixedSources,
     )
   }
 }

@@ -89,6 +89,14 @@ object CommonMetadata {
    * so the key keeps the spelling of the lowest-precedence source that defines it.
    */
   const val MapKeySpellings = "MapKeySpellings"
+
+  /**
+   * Set to `true` on every node of a source whose namespace is *ambient*: most of its keys belong to something
+   * other than this app, such as unprefixed environment variables or all JVM system properties. Unless
+   * [com.sksamuel.hoplite.ConfigLoaderBuilder.withStrictPrefixedSources] is disabled, strict mode exempts exactly
+   * these nodes from the unused-value check, and checks everything else, including prefixed env and sysprops.
+   */
+  const val Ambient = "Ambient"
 }
 
 /**

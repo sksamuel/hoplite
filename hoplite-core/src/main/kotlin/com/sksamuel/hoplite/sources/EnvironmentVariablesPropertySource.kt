@@ -1,6 +1,7 @@
 package com.sksamuel.hoplite.sources
 
 import com.sksamuel.hoplite.ArrayNode
+import com.sksamuel.hoplite.CommonMetadata
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
@@ -9,6 +10,7 @@ import com.sksamuel.hoplite.PropertySourceContext
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.parsers.toNode
 import com.sksamuel.hoplite.transform
+import com.sksamuel.hoplite.withMeta
 
 class EnvironmentVariablesPropertySource(
   private val environmentVariableMap: () -> Map<String, String> = { System.getenv() },
@@ -32,8 +34,11 @@ class EnvironmentVariablesPropertySource(
       }
     }
 
+    // Without a prefix, the source sees every variable in the process environment, so it is ambient (#606).
+    val ambient = prefix.isNullOrEmpty()
+
     return map.toNode("env", DELIMITER).transform { node ->
-      if (node is MapNode && node.map.isNotEmpty() && node.map.keys.all { it.toIntOrNull() != null }) {
+      val transformed = if (node is MapNode && node.map.isNotEmpty() && node.map.keys.all { it.toIntOrNull() != null }) {
         // All the map keys are integer index strings, so transform the MapNode into an ArrayNode.
         // Sort by the integer value of the key — the upstream tree is backed by a HashMap, so
         // iteration order is not tied to the index order and the list would otherwise come out
@@ -43,6 +48,7 @@ class EnvironmentVariablesPropertySource(
       } else {
         node
       }
+      if (ambient) transformed.withMeta(CommonMetadata.Ambient, true) else transformed
     }.valid()
   }
 }
