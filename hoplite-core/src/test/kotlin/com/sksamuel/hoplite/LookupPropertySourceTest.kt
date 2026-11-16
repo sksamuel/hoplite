@@ -164,15 +164,13 @@ class LookupPropertySourceTest : FunSpec({
     ).loadConfigOrThrow<Cfg>() shouldBe Cfg(listOf("a", "b", "c"), listOf(Host("x"), Host("y", 2)))
   }
 
-  test("an env var for one list index replaces a file's whole list, keeping only the indices given (gh-358)") {
-    // Pins the current behaviour: lists cascade as a whole. The lookup tree keeps the indices through the cascade
-    // (as a map keyed by index), so merging index by index can be added in the cascader later.
+  test("an env var for one list index sets that element of a file's list (gh-358)") {
     data class Db(val host: String = "default", val port: Int)
     data class Cfg(val databases: List<Db>)
     builder(mapOf("DATABASES_1_PORT" to "9301"))
       .addMapSource(mapOf("databases" to listOf(mapOf("host" to "a", "port" to 1), mapOf("host" to "b", "port" to 2))))
       .build()
-      .loadConfigOrThrow<Cfg>() shouldBe Cfg(listOf(Db(port = 9301)))
+      .loadConfigOrThrow<Cfg>() shouldBe Cfg(listOf(Db("a", 1), Db("b", 9301)))
   }
 
   test("a map whose keys look like indices stays a map") {

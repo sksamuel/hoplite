@@ -1,0 +1,5 @@
+databases:
+  - host: a
+    port: 1
+  - host: b
+    port: 2

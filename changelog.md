@@ -29,6 +29,12 @@ To opt out and restore the 3.0 behaviour (all env vars and system properties exe
 field is in the config: `@ConfigAlias("ENV_VAL", absolute = true)` on `options.string` reads `ENV_VAL`, not
 `OPTIONS_ENV_VAL`. It is tried after the field's path-based names, and only applies to the lookup-based env var and
 system property sources; other sources ignore it. #368
+* A list index from a higher-precedence source now sets that element of a lower-precedence list instead of replacing
+the whole list (env vars `DATABASES_1_PORT=9301`, command line `--databases.1.port=9301`, system properties and map
+sources `databases.1.port`), so a file's `databases` list keeps its other elements. An index past the end appends an
+element (indices past the end are appended in index order, gaps closed up). A whole list from a higher-precedence
+source still replaces the lower list. Lists given only by index from command line, system property or map sources
+now decode, where they used to fail with "Required a List but a Map". #358
 
 ### 3.0.0
 

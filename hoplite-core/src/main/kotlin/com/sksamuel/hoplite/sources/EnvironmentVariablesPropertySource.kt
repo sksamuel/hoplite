@@ -1,6 +1,5 @@
 package com.sksamuel.hoplite.sources
 
-import com.sksamuel.hoplite.ArrayNode
 import com.sksamuel.hoplite.CommonMetadata
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.MapNode
@@ -8,6 +7,8 @@ import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PropertySource
 import com.sksamuel.hoplite.PropertySourceContext
 import com.sksamuel.hoplite.fp.valid
+import com.sksamuel.hoplite.internal.LookupTreeBuilder
+import com.sksamuel.hoplite.internal.isListIndexMap
 import com.sksamuel.hoplite.parsers.toNode
 import com.sksamuel.hoplite.transform
 import com.sksamuel.hoplite.withMeta
@@ -38,13 +39,11 @@ class EnvironmentVariablesPropertySource(
     val ambient = prefix.isNullOrEmpty()
 
     return map.toNode("env", DELIMITER).transform { node ->
-      val transformed = if (node is MapNode && node.map.isNotEmpty() && node.map.keys.all { it.toIntOrNull() != null }) {
-        // All the map keys are integer index strings, so transform the MapNode into an ArrayNode.
-        // Sort by the integer value of the key — the upstream tree is backed by a HashMap, so
-        // iteration order is not tied to the index order and the list would otherwise come out
-        // shuffled.
-        val ordered = node.map.entries.sortedBy { it.key.toInt() }.map { it.value }
-        ArrayNode(ordered, node.pos, node.path, node.meta, node.delimiter, node.sourceKey)
+      val transformed = if (node is MapNode && node.isListIndexMap()) {
+        // All the map keys are integer index strings, so this is a list. It stays a map keyed by index through
+        // the cascade, so that each index can set the element at that index of a list from a lower-precedence
+        // source (gh-358), and becomes an array, in index order, after the cascade.
+        node.withMeta(LookupTreeBuilder.LIST_INDICES, true)
       } else {
         node
       }

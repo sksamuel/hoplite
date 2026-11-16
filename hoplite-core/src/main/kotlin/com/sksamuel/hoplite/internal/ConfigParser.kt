@@ -193,7 +193,7 @@ class ConfigParser(
    */
   private fun root(nodes: List<Node>): ConfigResult<Pair<Node, DecoderContext>> =
     cascader.cascade(NonEmptyList.unsafe(nodes.ifEmpty { listOf(Undefined) })).flatMap { node ->
-      // lookup trees keep lists as maps keyed by index through the cascade
+      // sources such as environment variables keep lists as maps keyed by index through the cascade (gh-358)
       val root = LookupTreeBuilder.compactLists(node)
       val context = baseContext.copy(resolvers = Resolving(resolvers, root))
       preprocessing.preprocess(root, context).map { it to context }

@@ -252,6 +252,14 @@ Hoplite's binding rules align with [Spring Boot's relaxed binding for environmen
 
 * Missing list indices are ignored, which is useful for commenting out values without renumbering subsequent ones.
 
+* **An index sets one element of a lower-precedence list** (3.1+). Given a file with `databases: [{host: a, port: 1}, {host: b, port: 2}]`,
+  `DATABASES_1_PORT=9301` overrides just the second element's port. The same works for any source of flat keys:
+  command line arguments (`--databases.1.port=9301`), system properties and map sources (`"databases.1.port"`).
+  An index past the end of the list appends an element (which must then be complete, as nothing lower fills it in);
+  indices past the end are appended in index order with gaps closed up, so `DATABASES_5_HOST` over a two-element list
+  gives a third element. A whole list from a higher-precedence source (e.g. a YAML list) still replaces the lower
+  list, and with `CascadeMode.Fallthrough` the indices given replace the lower list.
+
 * **Map keys preserve case from the env var name.** Spring lowercases map keys (so `VALUES_KEY=v` produces `{"key": "v"}`); hoplite keeps them verbatim (`{"KEY": "v"}`). This is the one documented difference from Spring's rules and is locked in by `EnvironmentVariablesPropertySourceTest > build env source can create case sensitive Maps`. When an env var (or any source) overrides an entry that a lower-precedence source already defines, the key keeps the spelling from the lowest-precedence source that defines it, so `APPLICATION_WORKERS_ALPHAWORKER_BATCHSIZE` overriding a file's `application.workers.alphaWorker.batchSize` still decodes to the key `alphaWorker`.
 
 If the optional (not specified by default) `prefix` setting is provided, then only env vars that begin with the prefix are considered,
@@ -315,8 +323,8 @@ val config = ConfigLoaderBuilder.default()
 * Types hoplite can't see into, such as `Properties` or types with custom decoders (for example Hikari's), get every
   env var under their path, split on `_` as before 3.1.
 * Precedence is unchanged: the env var source still overrides the sources registered after it, and is overridden by
-  those registered before it. A list from env vars still replaces a lower-precedence list as a whole:
-  `DATABASES_1_PORT` alone gives a one-element list.
+  those registered before it. A list index sets that element of a lower-precedence list: `DATABASES_1_PORT`
+  overrides the port of a file's second database.
 * The report lists the values that were looked up, with the env var or system property each came from.
 * Preprocessors run on each bind's config tree, so a looked-up value can refer to a value from a file
   (`URL=http://${host}`) and the other way around. Preprocessors that work on one value at a time, such as the
@@ -546,7 +554,7 @@ The resolution rules are as follows:
 - "b" is present in both files and therefore resolved from the file as well
 - "c" is a nested value of "b" and is not present in the first file so is resolved from the second file "default.json"
 - "d" is a nested value of "b" present in both files and therefore resolved from the first file
-- "e" is present in both files and so the entire list is resolved from the first file. This means that the list only contains a single element, and x is null despite being present in the list in the first file. List's cannot be merged.
+- "e" is present in both files and so the entire list is resolved from the first file. This means that the list only contains a single element, and x is null despite being present in the list in the first file. Lists given as a whole are not merged element by element; to override a single element, set it by index from a source of flat keys (`E_0_X=1`, `--e.0.x=1`), see the environment variables section.
 - "f" is only present in the second file and so is resolved from the second file.
 
 
