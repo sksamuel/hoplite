@@ -28,6 +28,7 @@ import com.sksamuel.hoplite.secrets.Obfuscator
 import com.sksamuel.hoplite.secrets.PrefixObfuscator
 import com.sksamuel.hoplite.secrets.SecretsPolicy
 import com.sksamuel.hoplite.sources.EnvironmentVariablesPropertySource
+import com.sksamuel.hoplite.sources.toAmbientLookupSource
 import com.sksamuel.hoplite.sources.SystemPropertiesPropertySource
 import com.sksamuel.hoplite.sources.UserSettingsPropertySource
 import com.sksamuel.hoplite.sources.XdgConfigPropertySource
@@ -70,6 +71,9 @@ class ConfigLoaderBuilder private constructor() {
 
   private var environment: Environment? = null
   private var flattenArraysToString: Boolean = false
+
+  // when true, ambient sources (unprefixed env vars, sysprops with an empty prefix) are lookup-based (gh-606)
+  private var ambientSourceLookup: Boolean = true
 
   companion object {
 
@@ -460,10 +464,30 @@ class ConfigLoaderBuilder private constructor() {
   fun withExplicitSealedTypes(discriminatorFieldName: String = "_type"): ConfigLoaderBuilder =
     apply { sealedTypeDiscriminatorField = discriminatorFieldName }
 
+  /**
+   * Whether the sources of ambient namespaces are lookup-based: environment variables without a prefix (the default
+   * environment source), and system properties with an empty prefix. Enabled by default since 3.1.
+   *
+   * When enabled, instead of importing every variable into the config tree, the values a bound class needs are
+   * looked up when it is bound, so variables that aren't config (`PATH`, `PS1`, `BASH_FUNC_x%%`, ...) are never read,
+   * and a field `maxPoolSize` can be set by `MAX_POOL_SIZE` as well as by `MAXPOOLSIZE`. Everything that bound by
+   * importing these sources still binds the same way.
+   *
+   * Pass `false` to import these sources into the config tree, as before 3.1.
+   *
+   * Prefixed sources, files and other sources always provide a config tree. [ConfigLoader.loadNode] has no class
+   * to look up values for, so it always imports these sources in full.
+   *
+   * See [LookupPropertySource] and gh-606.
+   */
+  fun withAmbientSourceLookup(enabled: Boolean = true): ConfigLoaderBuilder = apply {
+    ambientSourceLookup = enabled
+  }
+
   fun build(): ConfigLoader {
     return ConfigLoader(
       decoderRegistry = DefaultDecoderRegistry(decoders),
-      propertySources = propertySources.toList(),
+      propertySources = propertySources.map { if (ambientSourceLookup) it.toAmbientLookupSource() else it },
       parserRegistry = DefaultParserRegistry(parsers),
       preprocessors = preprocessors.toList(),
       nodeTransformers = nodeTransformers.toList(),

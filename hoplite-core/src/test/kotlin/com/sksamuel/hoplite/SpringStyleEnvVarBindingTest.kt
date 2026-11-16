@@ -54,6 +54,20 @@ class SpringStyleEnvVarBindingTest : FunSpec({
     cfg.flag shouldBe true
   }
 
+  // A relative alias names a config key, one path element, as a file key would: `legacy_timeout` here matches the
+  // file keys `legacy_timeout`, `legacy-timeout` and `legacyTimeout`. Like any path element, it is read from the env
+  // var spelled without `-` or `_` (as Spring treats `first_name` as `first-name`), since `_` in an env var name
+  // separates path elements: `APP_LEGACY_TIMEOUT` is the path `app.legacy.timeout`, not this field.
+  test("a relative alias names a config key, so its env var is spelled without `_`") {
+    data class App(@ConfigAlias("legacy_timeout") val timeout: Int)
+    data class Cfg(val app: App)
+
+    // the path app.legacy_timeout, normalized to app.legacytimeout
+    loader(mapOf("APP_LEGACYTIMEOUT" to "1")).loadConfigOrThrow<Cfg>() shouldBe Cfg(App(1))
+    // the path app.legacy.timeout, which is not this field
+    loader(mapOf("APP_LEGACY_TIMEOUT" to "1")).loadConfig<Cfg>().isInvalid() shouldBe true
+  }
+
   // ---------------------------------------------------------------------------------------------
   // Rule 3: case-insensitive matching against the property path.
   // ---------------------------------------------------------------------------------------------

@@ -2,6 +2,22 @@
 
 ### 3.1.0
 
+* Behaviour change: environment variables without a prefix (the default environment source, and
+`addEnvironmentSource()`) and system properties with an empty prefix are now lookup-based. They are no longer imported
+into the config tree; each bind looks up just the values the bound class needs, so unrelated variables (`PATH`, `PS1`,
+`BASH_FUNC_x%%`, ...) can't affect loading. Each config path is read from one env var name, the one that bound it before: path
+elements spelled as the path normalizer spells them (no `-` or `_`), joined with `_`, upper case. So `db.maxPoolSize`
+is read from `DB_MAXPOOLSIZE` (matched ignoring case and `-`), and `DB_MAX_POOL_SIZE` is `db.max.pool.size`, as in
+Spring's relaxed binding. Map keys may contain `_` (`LABELS_MY_KEY` gives the key `MY_KEY`). Precedence is unchanged. `loadNode()` still imports these sources in full. Preprocessors run on each bind's config tree, so
+env var values can refer to file values with `${...}`; preprocessors that work on one value at a time (secret
+managers, vault, random) still run once per value. Config is now read at the first bind, not when the parser
+is created: for a `configBinder()`, files are read, env vars and system properties are snapshotted, and secrets are
+fetched at the first `bind` rather than when the binder is created, and that bind reports any failure (with no sources
+at all, it throws). This also applies with lookup turned off. The report lists these sources as
+`Env Var (lookup)` / `System Properties (lookup)`. To keep the old behaviour, call
+`ConfigLoaderBuilder.withAmbientSourceLookup(false)`. Prefixed env var sources and the default `config.override.`
+system properties are unchanged. New `LookupPropertySource` interface, with `EnvironmentVariablesLookupPropertySource`
+and `SystemPropertiesLookupPropertySource`. #606
 * Behaviour change: strict mode now checks prefixed sources for unused values: an `EnvironmentVariablesPropertySource`
 with a `prefix`, and a `SystemPropertiesPropertySource` with a non-empty `prefix` (including the default
 `config.override.`). A typo such as `MYAPP_DATABSE_URL` under the prefix `MYAPP_`, or `config.override.databse.url`,

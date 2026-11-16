@@ -245,6 +245,7 @@ Hoplite's binding rules align with [Spring Boot's relaxed binding for environmen
 | Dots in property paths become underscores | `TOPIC_NAME` | `topic.name` |
 | Matching is case-insensitive — env vars uppercase, fields can be camelCase | `SPRING_MAIN_LOGSTARTUPINFO` | `spring.main.logStartupInfo` |
 | Dashes in property paths are removed (not replaced with underscores) | `LOGSTARTUPINFO` | `log-startup-info` (e.g. via `@ConfigAlias`) |
+| Underscores within a name are removed too, as in Spring's `first_name` | `APP_LEGACYTIMEOUT` | `app.legacy_timeout` (e.g. via `@ConfigAlias`) |
 | List/array indices are surrounded by underscores | `ITEMS_0`, `ITEMS_1` | `items: List<String>` |
 | List of nested objects | `SERVICE_0_OTHER`, `SERVICE_1_OTHER` | `service: List<Service(other = ...)>` |
 | Trailing path segment names a map key | `LABELS_ENV`, `LABELS_REGION` | `labels: Map<String, String>` |
@@ -260,6 +261,9 @@ As of Hoplite 3, the `EnvironmentVariablesPropertySource` is applied by default 
 directly. There is no longer any built-in support for the `config.override.` prefix. However, the optional `prefix` setting can still
 be used for the same purpose.
 
+As of Hoplite 3.1, an environment source without a prefix is looked up rather than imported, following the same
+rules, see [Looking up environment variables and system properties](#looking-up-environment-variables-and-system-properties).
+
 
 ### SystemPropertiesPropertySource
 
@@ -268,6 +272,69 @@ For example, starting your JVM with `-Dconfig.override.database.name` would over
 
 The prefix may be customized by passing a `prefix` argument to the constructor, or set to an empty string to expose
 all system properties.
+
+
+### Looking up environment variables and system properties
+
+Environment variables without a prefix, and system properties with an empty prefix, are mostly not config: `PATH`,
+`HOME`, `PS1`, `BASH_FUNC_x%%`, `java.version`, and so on. Before 3.1, hoplite imported all of them into the config
+tree, and had to guess how each `_` in a name splits it into a path before it knew the shape of your config.
+
+As of 3.1 these sources are lookup-based. Nothing is imported up front: each time a class is bound (by `loadConfig`,
+or by each `bind` of a `ConfigBinder`), hoplite walks the class and looks up just the env vars and system properties
+it needs. This applies to the environment source that `ConfigLoaderBuilder.default()` and `addEnvironmentSource()`
+add, and to `SystemPropertiesPropertySource(prefix = "")`.
+
+```kotlin
+data class Pool(val maxPoolSize: Int)
+data class Database(val url: String, val pool: Pool)
+data class Config(val database: Database)
+
+// DATABASE_URL=jdbc:... DATABASE_POOL_MAXPOOLSIZE=10
+val config = ConfigLoaderBuilder.default()
+  .build()
+  .loadConfigOrThrow<Config>()
+```
+
+* Each config path is read from exactly one env var name, the one that bound it before 3.1: each path element spelled
+  as the path normalizer spells it (`-` and `_` removed), the elements joined with `_`, in upper case. So
+  `database.pool.maxPoolSize` is read from `DATABASE_POOL_MAXPOOLSIZE`. An `_` always separates path elements, never
+  the words of a name: `DATABASE_POOL_MAX_POOL_SIZE` is `database.pool.max.pool.size`, as in Spring's relaxed binding.
+  `EnvironmentVariablesLookupPropertySource.envName(path)` gives the name for a path.
+* Env vars are matched ignoring case and `-`, so `database_pool_maxpoolsize` works too. System properties are read
+  from the elements joined with `.`, matched ignoring case, `-` and `_`, so `database.pool.max-pool-size` and
+  `database.pool.maxPoolSize` both work.
+* `@ConfigAlias` names and the names the configured parameter mappers give are path elements like any field name:
+  `@ConfigAlias("legacy_timeout")` reads `LEGACYTIMEOUT`.
+* Map keys are the one place where the env var name doesn't fix the path, since a map key may contain `_`:
+  `LABELS_MY_KEY` gives `labels` the key `MY_KEY`. For each map, every run of `_`-separated elements is tried as a
+  key, shortest first, and each env var goes to the first key it is read under: with `Map<String, Server>`,
+  `SERVERS_MY_SERVER_HOST` is the `host` of the server `MY_SERVER`. Lists are read by index (`HOSTS_0`,
+  `HOSTS_1`) or as one comma separated value, and sealed types work as with the tree-based source.
+* Types hoplite can't see into, such as `Properties` or types with custom decoders (for example Hikari's), get every
+  env var under their path, split on `_` as before 3.1.
+* Precedence is unchanged: the env var source still overrides the sources registered after it, and is overridden by
+  those registered before it. A list from env vars still replaces a lower-precedence list as a whole:
+  `DATABASES_1_PORT` alone gives a one-element list.
+* The report lists the values that were looked up, with the env var or system property each came from.
+* Preprocessors run on each bind's config tree, so a looked-up value can refer to a value from a file
+  (`URL=http://${host}`) and the other way around. Preprocessors that work on one value at a time, such as the
+  secret manager, vault and random ones, run once per value, so a `ConfigBinder` fetches each secret once however
+  many classes it binds.
+* `loadNode()` has no class to look values up for, so it still imports these sources in full.
+
+Prefixed env var sources (`EnvironmentVariablesPropertySource(prefix = "MYAPP_")`), the default `config.override.`
+system properties, files and other sources are not affected: every key in them is meant as config, so they still
+provide a tree. You can also add `EnvironmentVariablesLookupPropertySource` or `SystemPropertiesLookupPropertySource`
+directly, or implement `LookupPropertySource` for other ambient namespaces.
+
+To go back to importing these sources into the tree, as before 3.1, opt out with `withAmbientSourceLookup(false)`:
+
+```kotlin
+ConfigLoaderBuilder.default()
+  .withAmbientSourceLookup(false)
+  .build()
+```
 
 
 ### UserSettingsPropertySource
@@ -510,6 +577,11 @@ or
 data class Database(@ConfigAlias("host") val hostname: String)
 data class MyConfig(val database: Database)
 ```
+
+An alias is a name like any other, so it is matched the same way: ignoring case, `-` and `_`. `@ConfigAlias("legacy_timeout")`
+matches a file key `legacy_timeout`, `legacy-timeout` or `legacyTimeout`, and the env var `LEGACYTIMEOUT` (under its
+parent's path, e.g. `APP_LEGACYTIMEOUT`). It does not match `LEGACY_TIMEOUT`, because `_` separates path elements in env
+var names.
 
 
 ## Param Mappers
