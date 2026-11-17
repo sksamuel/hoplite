@@ -245,11 +245,20 @@ Hoplite's binding rules align with [Spring Boot's relaxed binding for environmen
 | Dots in property paths become underscores | `TOPIC_NAME` | `topic.name` |
 | Matching is case-insensitive — env vars uppercase, fields can be camelCase | `SPRING_MAIN_LOGSTARTUPINFO` | `spring.main.logStartupInfo` |
 | Dashes in property paths are removed (not replaced with underscores) | `LOGSTARTUPINFO` | `log-startup-info` (e.g. via `@ConfigAlias`) |
+| Underscores within a name are removed too, as in Spring's `first_name` | `APP_LEGACYTIMEOUT` | `app.legacy_timeout` (e.g. via `@ConfigAlias`) |
 | List/array indices are surrounded by underscores | `ITEMS_0`, `ITEMS_1` | `items: List<String>` |
 | List of nested objects | `SERVICE_0_OTHER`, `SERVICE_1_OTHER` | `service: List<Service(other = ...)>` |
 | Trailing path segment names a map key | `LABELS_ENV`, `LABELS_REGION` | `labels: Map<String, String>` |
 
 * Missing list indices are ignored, which is useful for commenting out values without renumbering subsequent ones.
+
+* **An index sets one element of a lower-precedence list** (3.1+). Given a file with `databases: [{host: a, port: 1}, {host: b, port: 2}]`,
+  `DATABASES_1_PORT=9301` overrides just the second element's port. The same works for any source of flat keys:
+  command line arguments (`--databases.1.port=9301`), system properties and map sources (`"databases.1.port"`).
+  An index past the end of the list appends an element (which must then be complete, as nothing lower fills it in);
+  indices past the end are appended in index order with gaps closed up, so `DATABASES_5_HOST` over a two-element list
+  gives a third element. A whole list from a higher-precedence source (e.g. a YAML list) still replaces the lower
+  list, and with `CascadeMode.Fallthrough` the indices given replace the lower list.
 
 * **Map keys preserve case from the env var name.** Spring lowercases map keys (so `VALUES_KEY=v` produces `{"key": "v"}`); hoplite keeps them verbatim (`{"KEY": "v"}`). This is the one documented difference from Spring's rules and is locked in by `EnvironmentVariablesPropertySourceTest > build env source can create case sensitive Maps`. When an env var (or any source) overrides an entry that a lower-precedence source already defines, the key keeps the spelling from the lowest-precedence source that defines it, so `APPLICATION_WORKERS_ALPHAWORKER_BATCHSIZE` overriding a file's `application.workers.alphaWorker.batchSize` still decodes to the key `alphaWorker`.
 
@@ -260,6 +269,9 @@ As of Hoplite 3, the `EnvironmentVariablesPropertySource` is applied by default 
 directly. There is no longer any built-in support for the `config.override.` prefix. However, the optional `prefix` setting can still
 be used for the same purpose.
 
+As of Hoplite 3.1, an environment source without a prefix is looked up rather than imported, following the same
+rules, see [Looking up environment variables and system properties](#looking-up-environment-variables-and-system-properties).
+
 
 ### SystemPropertiesPropertySource
 
@@ -268,6 +280,94 @@ For example, starting your JVM with `-Dconfig.override.database.name` would over
 
 The prefix may be customized by passing a `prefix` argument to the constructor, or set to an empty string to expose
 all system properties.
+
+
+### Looking up environment variables and system properties
+
+Environment variables without a prefix, and system properties with an empty prefix, are mostly not config: `PATH`,
+`HOME`, `PS1`, `BASH_FUNC_x%%`, `java.version`, and so on. Before 3.1, hoplite imported all of them into the config
+tree, and had to guess how each `_` in a name splits it into a path before it knew the shape of your config.
+
+As of 3.1 these sources are lookup-based. Nothing is imported up front: each time a class is bound (by `loadConfig`,
+or by each `bind` of a `ConfigBinder`), hoplite walks the class and looks up just the env vars and system properties
+it needs. This applies to the environment source that `ConfigLoaderBuilder.default()` and `addEnvironmentSource()`
+add, and to `SystemPropertiesPropertySource(prefix = "")`.
+
+```kotlin
+data class Pool(val maxPoolSize: Int)
+data class Database(val url: String, val pool: Pool)
+data class Config(val database: Database)
+
+// DATABASE_URL=jdbc:... DATABASE_POOL_MAXPOOLSIZE=10
+val config = ConfigLoaderBuilder.default()
+  .build()
+  .loadConfigOrThrow<Config>()
+```
+
+* Each config path is read from exactly one env var name, the one that bound it before 3.1: each path element spelled
+  as the path normalizer spells it (`-` and `_` removed), the elements joined with `_`, in upper case. So
+  `database.pool.maxPoolSize` is read from `DATABASE_POOL_MAXPOOLSIZE`. An `_` always separates path elements, never
+  the words of a name: `DATABASE_POOL_MAX_POOL_SIZE` is `database.pool.max.pool.size`, as in Spring's relaxed binding.
+  `EnvironmentVariablesLookupPropertySource.envName(path)` gives the name for a path.
+* Env vars are matched ignoring case and `-`, so `database_pool_maxpoolsize` works too. System properties are read
+  from the elements joined with `.`, matched ignoring case, `-` and `_`, so `database.pool.max-pool-size` and
+  `database.pool.maxPoolSize` both work.
+* `@ConfigAlias` names and the names the configured parameter mappers give are path elements like any field name:
+  `@ConfigAlias("legacy_timeout")` reads `LEGACYTIMEOUT`. To read an env var whose name doesn't follow the shape of
+  your config, such as `LEGACY_TIMEOUT`, use an absolute alias (below).
+* Map keys are the one place where the env var name doesn't fix the path, since a map key may contain `_`:
+  `LABELS_MY_KEY` gives `labels` the key `MY_KEY`. For each map, every run of `_`-separated elements is tried as a
+  key, shortest first, and each env var goes to the first key it is read under: with `Map<String, Server>`,
+  `SERVERS_MY_SERVER_HOST` is the `host` of the server `MY_SERVER`. Lists are read by index (`HOSTS_0`,
+  `HOSTS_1`) or as one comma separated value, and sealed types work as with the tree-based source.
+* Types hoplite can't see into, such as `Properties` or types with custom decoders (for example Hikari's), get every
+  env var under their path, split on `_` as before 3.1.
+* Precedence is unchanged: the env var source still overrides the sources registered after it, and is overridden by
+  those registered before it. A list index sets that element of a lower-precedence list: `DATABASES_1_PORT`
+  overrides the port of a file's second database.
+* The report lists the values that were looked up, with the env var or system property each came from.
+* Preprocessors run on each bind's config tree, so a looked-up value can refer to a value from a file
+  (`URL=http://${host}`) and the other way around. Preprocessors that work on one value at a time, such as the
+  secret manager, vault and random ones, run once per value, so a `ConfigBinder` fetches each secret once however
+  many classes it binds.
+* `loadNode()` has no class to look values up for, so it still imports these sources in full.
+
+Prefixed env var sources (`EnvironmentVariablesPropertySource(prefix = "MYAPP_")`), the default `config.override.`
+system properties, files and other sources are not affected: every key in them is meant as config, so they still
+provide a tree. You can also add `EnvironmentVariablesLookupPropertySource` or `SystemPropertiesLookupPropertySource`
+directly, or implement `LookupPropertySource` for other ambient namespaces.
+
+To go back to importing these sources into the tree, as before 3.1, opt out with `withAmbientSourceLookup(false)`:
+
+```kotlin
+ConfigLoaderBuilder.default()
+  .withAmbientSourceLookup(false)
+  .build()
+```
+
+#### Absolute env var and system property names
+
+An app moving to hoplite often has env var names that are already fixed and don't follow the shape of its config.
+`@ConfigAlias(name, absolute = true)` reads a field from one specific env var or system property, wherever the field
+is in the config:
+
+```kotlin
+data class SomeOptions(@ConfigAlias("ENV_VAL", absolute = true) val string: String)
+data class Config(val options: SomeOptions)
+
+// reads ENV_VAL, not OPTIONS_ENV_VAL
+```
+
+* The name is used as is: no `ConfigBinder` prefix, no parent path. It is matched as any env var or system property
+  is (env vars ignoring case and `-`).
+* It is tried last, and only if none of the field's path-based names (its own name, relative aliases) is set in that
+  source, so `OPTIONS_STRING` wins over `ENV_VAL`. On a data class field, the fields under it are read under the
+  absolute name: `@ConfigAlias("LEGACY_DB", absolute = true) val db: Db` reads `LEGACY_DB_URL`.
+* Precedence between sources is unchanged: a value read through an absolute alias overrides the sources registered
+  after the env var source, as any env var does.
+* The report shows the env var or system property the value came from.
+* It only applies to the lookup-based sources described above. Files, prefixed env var sources, `config.override.`
+  system properties, and the tree-based sources you get with `withAmbientSourceLookup(false)` ignore absolute aliases.
 
 
 ### UserSettingsPropertySource
@@ -454,7 +554,7 @@ The resolution rules are as follows:
 - "b" is present in both files and therefore resolved from the file as well
 - "c" is a nested value of "b" and is not present in the first file so is resolved from the second file "default.json"
 - "d" is a nested value of "b" present in both files and therefore resolved from the first file
-- "e" is present in both files and so the entire list is resolved from the first file. This means that the list only contains a single element, and x is null despite being present in the list in the first file. List's cannot be merged.
+- "e" is present in both files and so the entire list is resolved from the first file. This means that the list only contains a single element, and x is null despite being present in the list in the first file. Lists given as a whole are not merged element by element; to override a single element, set it by index from a source of flat keys (`E_0_X=1`, `--e.0.x=1`), see the environment variables section.
 - "f" is only present in the second file and so is resolved from the second file.
 
 
@@ -510,6 +610,12 @@ or
 data class Database(@ConfigAlias("host") val hostname: String)
 data class MyConfig(val database: Database)
 ```
+
+An alias is a name like any other, so it is matched the same way: ignoring case, `-` and `_`. `@ConfigAlias("legacy_timeout")`
+matches a file key `legacy_timeout`, `legacy-timeout` or `legacyTimeout`, and the env var `LEGACYTIMEOUT` (under its
+parent's path, e.g. `APP_LEGACYTIMEOUT`). It does not match `LEGACY_TIMEOUT`, because `_` separates path elements in env
+var names. To read an env var whose name is fixed, such as `LEGACY_TIMEOUT`, use
+[`@ConfigAlias("LEGACY_TIMEOUT", absolute = true)`](#absolute-env-var-and-system-property-names).
 
 
 ## Param Mappers

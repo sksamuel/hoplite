@@ -28,6 +28,7 @@ import com.sksamuel.hoplite.secrets.Obfuscator
 import com.sksamuel.hoplite.secrets.PrefixObfuscator
 import com.sksamuel.hoplite.secrets.SecretsPolicy
 import com.sksamuel.hoplite.sources.EnvironmentVariablesPropertySource
+import com.sksamuel.hoplite.sources.toAmbientLookupSource
 import com.sksamuel.hoplite.sources.SystemPropertiesPropertySource
 import com.sksamuel.hoplite.sources.UserSettingsPropertySource
 import com.sksamuel.hoplite.sources.XdgConfigPropertySource
@@ -43,6 +44,9 @@ class ConfigLoaderBuilder private constructor() {
   private var classLoader: ClassLoader = Thread.currentThread().contextClassLoader
 
   private var decodeMode: DecodeMode = DecodeMode.Lenient
+
+  // #606: strict mode checks prefixed env and sysprops sources unless opted out.
+  private var strictPrefixedSources: Boolean = true
   private var cascadeMode: CascadeMode = CascadeMode.Merge
   private var allowEmptyConfigFiles = false
   private var allowNullOverride = false
@@ -67,6 +71,9 @@ class ConfigLoaderBuilder private constructor() {
 
   private var environment: Environment? = null
   private var flattenArraysToString: Boolean = false
+
+  // when true, ambient sources (unprefixed env vars, sysprops with an empty prefix) are lookup-based (gh-606)
+  private var ambientSourceLookup: Boolean = true
 
   companion object {
 
@@ -306,6 +313,24 @@ class ConfigLoaderBuilder private constructor() {
 
   fun withDecodeMode(mode: DecodeMode) = apply { this.decodeMode = mode }
 
+  /**
+   * Controls which environment variables and system properties [DecodeMode.Strict] checks for unused values.
+   *
+   * Enabled by default: strict mode exempts only *ambient* sources, whose keys are mostly not this app's config:
+   * an [com.sksamuel.hoplite.sources.EnvironmentVariablesPropertySource] without a prefix, and a
+   * [com.sksamuel.hoplite.sources.SystemPropertiesPropertySource] with an empty prefix. A source with a prefix
+   * owns its namespace, so a typo such as `MYAPP_DATABSE_URL` under the prefix `MYAPP_`, or
+   * `config.override.databse.url` under the default system property prefix, is reported as unused.
+   *
+   * A custom source can mark its nodes as ambient by setting [CommonMetadata.Ambient] to `true`.
+   *
+   * Pass `false` to opt out and restore the behaviour before 3.1, where strict mode exempts every value from
+   * environment variables and system properties, prefixed or not.
+   *
+   * This has no effect in [DecodeMode.Lenient].
+   */
+  fun withStrictPrefixedSources(enabled: Boolean = true) = apply { this.strictPrefixedSources = enabled }
+
   @ExperimentalHoplite
   fun withCascadeMode(cascadeMode: CascadeMode) = apply { this.cascadeMode = cascadeMode }
 
@@ -439,10 +464,30 @@ class ConfigLoaderBuilder private constructor() {
   fun withExplicitSealedTypes(discriminatorFieldName: String = "_type"): ConfigLoaderBuilder =
     apply { sealedTypeDiscriminatorField = discriminatorFieldName }
 
+  /**
+   * Whether the sources of ambient namespaces are lookup-based: environment variables without a prefix (the default
+   * environment source), and system properties with an empty prefix. Enabled by default since 3.1.
+   *
+   * When enabled, instead of importing every variable into the config tree, the values a bound class needs are
+   * looked up when it is bound, so variables that aren't config (`PATH`, `PS1`, `BASH_FUNC_x%%`, ...) are never read,
+   * and a field `maxPoolSize` can be set by `MAX_POOL_SIZE` as well as by `MAXPOOLSIZE`. Everything that bound by
+   * importing these sources still binds the same way.
+   *
+   * Pass `false` to import these sources into the config tree, as before 3.1.
+   *
+   * Prefixed sources, files and other sources always provide a config tree. [ConfigLoader.loadNode] has no class
+   * to look up values for, so it always imports these sources in full.
+   *
+   * See [LookupPropertySource] and gh-606.
+   */
+  fun withAmbientSourceLookup(enabled: Boolean = true): ConfigLoaderBuilder = apply {
+    ambientSourceLookup = enabled
+  }
+
   fun build(): ConfigLoader {
     return ConfigLoader(
       decoderRegistry = DefaultDecoderRegistry(decoders),
-      propertySources = propertySources.toList(),
+      propertySources = propertySources.map { if (ambientSourceLookup) it.toAmbientLookupSource() else it },
       parserRegistry = DefaultParserRegistry(parsers),
       preprocessors = preprocessors.toList(),
       nodeTransformers = nodeTransformers.toList(),
@@ -464,6 +509,7 @@ class ConfigLoaderBuilder private constructor() {
       flattenArraysToString = flattenArraysToString,
       sealedTypeDiscriminatorField = sealedTypeDiscriminatorField,
       contextResolverMode = contextResolverMode,
+      strictPrefixedSources = strictPrefixedSources,
     )
   }
 }

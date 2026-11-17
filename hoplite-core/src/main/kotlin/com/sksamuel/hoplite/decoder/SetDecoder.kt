@@ -1,5 +1,9 @@
 package com.sksamuel.hoplite.decoder
 
+import com.sksamuel.hoplite.MapNode
+import com.sksamuel.hoplite.internal.isListIndexMap
+import com.sksamuel.hoplite.internal.toIndexedArray
+
 import com.sksamuel.hoplite.ArrayNode
 import com.sksamuel.hoplite.ConfigFailure
 import com.sksamuel.hoplite.ConfigResult
@@ -45,6 +49,8 @@ class SetDecoder : NullHandlingDecoder<Set<*>> {
       when (node) {
         is ArrayNode -> decode(node, decoder)
         is StringNode -> decode(node, decoder)
+        // a list given by index, e.g. `--databases.0.host=a` (gh-358)
+        is MapNode if node.isListIndexMap() -> decode(node.toIndexedArray(context), decoder)
         else -> ConfigFailure.UnsupportedCollectionType(node, "Set").invalid()
       }
     }

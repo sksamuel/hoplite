@@ -35,7 +35,7 @@ class EnvironmentVariablesPropertySourceTest : FunSpec({
       pos = Pos.env,
       path = DotPath.root,
       delimiter = "_",
-    )
+    ).ambient()
   }
 
   test("build env source with the idiomatic env var mapping should include paths") {
@@ -66,7 +66,7 @@ class EnvironmentVariablesPropertySourceTest : FunSpec({
       pos = Pos.env,
       path = DotPath.root,
       delimiter = "_",
-    )
+    ).ambient()
   }
 
   test("build env source can create case sensitive Maps") {
@@ -218,3 +218,6 @@ class EnvironmentVariablesPropertySourceTest : FunSpec({
   }
 
 })
+
+// An unprefixed env source marks every node as ambient for strict mode (#606).
+private fun Node.ambient(): Node = transform { it.withMeta(CommonMetadata.Ambient, true) }

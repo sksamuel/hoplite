@@ -61,7 +61,7 @@ Used keys: 4
         .propertySources
     ).trim() shouldBe """
 Property sources (highest to lowest priority):
-  - Env Var
+  - Env Var (lookup)
   - System Properties
   - ${System.getProperty("user.home")}/.userconfig.<ext>
   - $xdg/hoplite.<ext>

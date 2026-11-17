@@ -16,13 +16,14 @@ import kotlin.reflect.full.createType
 
 class Decoding(
   private val decoderRegistry: DecoderRegistry,
-  private val secretsPolicy: SecretsPolicy?
+  private val secretsPolicy: SecretsPolicy?,
+  private val strictPrefixedSources: Boolean = true,
 ) {
   fun <A : Any> decode(kclass: KClass<A>, node: Node, mode: DecodeMode, context: DecoderContext): ConfigResult<A> {
     return decoderRegistry.decoder(kclass)
       .flatMap { it.decode(node, kclass.createType(), context) }
       .flatMap {
-        DecodeModeValidator(mode).validate(
+        DecodeModeValidator(mode, strictPrefixedSources).validate(
           it,
           createDecodingState(node, context, secretsPolicy)
         )

@@ -1,5 +1,6 @@
 package com.sksamuel.hoplite.sources
 
+import com.sksamuel.hoplite.CommonMetadata
 import com.sksamuel.hoplite.ConfigResult
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.PropertySource
@@ -7,6 +8,8 @@ import com.sksamuel.hoplite.PropertySourceContext
 import com.sksamuel.hoplite.Undefined
 import com.sksamuel.hoplite.fp.valid
 import com.sksamuel.hoplite.parsers.toNode
+import com.sksamuel.hoplite.transform
+import com.sksamuel.hoplite.withMeta
 import java.util.Properties
 
 /**
@@ -20,17 +23,18 @@ import java.util.Properties
  * to expose all system properties.
  */
 open class SystemPropertiesPropertySource(
-  private val systemPropertiesMap: () -> Map<String, String> = { System.getProperties().toStringMap() },
-  private val prefix: String = DEFAULT_PREFIX,
+  internal val systemPropertiesMap: () -> Map<String, String> = { System.getProperties().toStringMap() },
+  internal val prefix: String = DEFAULT_PREFIX,
 ) : PropertySource {
 
   override fun source(): String = "System Properties"
 
   override fun node(context: PropertySourceContext): ConfigResult<Node> {
     val map = systemPropertiesMap().filter { it.key.startsWith(prefix) }
-    return if (map.isEmpty()) Undefined.valid() else map.toNode("sysprops") {
-      it.removePrefix(prefix)
-    }.valid()
+    if (map.isEmpty()) return Undefined.valid()
+    val node = map.toNode("sysprops") { it.removePrefix(prefix) }
+    // With an empty prefix, the source sees every JVM system property, so it is ambient (#606).
+    return (if (prefix.isEmpty()) node.transform { it.withMeta(CommonMetadata.Ambient, true) } else node).valid()
   }
 
   companion object : SystemPropertiesPropertySource() {

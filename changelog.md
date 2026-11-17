@@ -1,5 +1,41 @@
 # Changelog
 
+### 3.1.0
+
+* Behaviour change: environment variables without a prefix (the default environment source, and
+`addEnvironmentSource()`) and system properties with an empty prefix are now lookup-based. They are no longer imported
+into the config tree; each bind looks up just the values the bound class needs, so unrelated variables (`PATH`, `PS1`,
+`BASH_FUNC_x%%`, ...) can't affect loading. Each config path is read from one env var name, the one that bound it before: path
+elements spelled as the path normalizer spells them (no `-` or `_`), joined with `_`, upper case. So `db.maxPoolSize`
+is read from `DB_MAXPOOLSIZE` (matched ignoring case and `-`), and `DB_MAX_POOL_SIZE` is `db.max.pool.size`, as in
+Spring's relaxed binding. Map keys may contain `_` (`LABELS_MY_KEY` gives the key `MY_KEY`). Precedence is unchanged. `loadNode()` still imports these sources in full. Preprocessors run on each bind's config tree, so
+env var values can refer to file values with `${...}`; preprocessors that work on one value at a time (secret
+managers, vault, random) still run once per value. Config is now read at the first bind, not when the parser
+is created: for a `configBinder()`, files are read, env vars and system properties are snapshotted, and secrets are
+fetched at the first `bind` rather than when the binder is created, and that bind reports any failure (with no sources
+at all, it throws). This also applies with lookup turned off. The report lists these sources as
+`Env Var (lookup)` / `System Properties (lookup)`. To keep the old behaviour, call
+`ConfigLoaderBuilder.withAmbientSourceLookup(false)`. Prefixed env var sources and the default `config.override.`
+system properties are unchanged. New `LookupPropertySource` interface, with `EnvironmentVariablesLookupPropertySource`
+and `SystemPropertiesLookupPropertySource`. #606
+* Behaviour change: strict mode now checks prefixed sources for unused values: an `EnvironmentVariablesPropertySource`
+with a `prefix`, and a `SystemPropertiesPropertySource` with a non-empty `prefix` (including the default
+`config.override.`). A typo such as `MYAPP_DATABSE_URL` under the prefix `MYAPP_`, or `config.override.databse.url`,
+is now reported as unused instead of being silently ignored. Unprefixed environment variables and system properties
+with an empty prefix stay exempt. Custom sources can mark their nodes as exempt by setting `CommonMetadata.Ambient`.
+To opt out and restore the 3.0 behaviour (all env vars and system properties exempt), call
+`ConfigLoaderBuilder.withStrictPrefixedSources(false)`. #606
+* `@ConfigAlias(name, absolute = true)` reads a field from one specific env var or system property, wherever the
+field is in the config: `@ConfigAlias("ENV_VAL", absolute = true)` on `options.string` reads `ENV_VAL`, not
+`OPTIONS_ENV_VAL`. It is tried after the field's path-based names, and only applies to the lookup-based env var and
+system property sources; other sources ignore it. #368
+* A list index from a higher-precedence source now sets that element of a lower-precedence list instead of replacing
+the whole list (env vars `DATABASES_1_PORT=9301`, command line `--databases.1.port=9301`, system properties and map
+sources `databases.1.port`), so a file's `databases` list keeps its other elements. An index past the end appends an
+element (indices past the end are appended in index order, gaps closed up). A whole list from a higher-precedence
+source still replaces the lower list. Lists given only by index from command line, system property or map sources
+now decode, where they used to fail with "Required a List but a Map". #358
+
 ### 3.0.0
 
 * Breaking: the `EnvironmentVariablesPropertySource` now uses idiomatic environment variable format i.e. upper case (though lower

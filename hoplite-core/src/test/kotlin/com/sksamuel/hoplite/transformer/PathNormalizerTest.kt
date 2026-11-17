@@ -1,11 +1,15 @@
 package com.sksamuel.hoplite.transformer
 
+import com.sksamuel.hoplite.CommonMetadata
 import com.sksamuel.hoplite.MapNode
+import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.Pos
 import com.sksamuel.hoplite.PropertySourceContext
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.decoder.DotPath
 import com.sksamuel.hoplite.sources.EnvironmentVariablesPropertySource
+import com.sksamuel.hoplite.transform
+import com.sksamuel.hoplite.withMeta
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
@@ -40,6 +44,9 @@ class PathNormalizerTest : FunSpec({
       Pos.env,
       DotPath.root,
       delimiter = "_",
-    )
+    ).ambient()
   }
 })
+
+// An unprefixed env source marks every node as ambient for strict mode (#606).
+private fun Node.ambient(): Node = transform { it.withMeta(CommonMetadata.Ambient, true) }

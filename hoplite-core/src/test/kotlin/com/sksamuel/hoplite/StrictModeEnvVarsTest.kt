@@ -40,7 +40,8 @@ class StrictModeEnvVarsTest : FunSpec({
   test("strict mode should ignore unused JVM system properties") {
     val config = ConfigLoaderBuilder.defaultWithoutPropertySources()
       .addPropertySource(SystemPropertiesPropertySource(
-        systemPropertiesMap = { mapOf("config.override.unused" to "noise") },
+        systemPropertiesMap = { mapOf("user.home" to "/root", "java.version" to "21") },
+        prefix = "",
       ))
       .addMapSource(mapOf("name" to "test"))
       .strict()
