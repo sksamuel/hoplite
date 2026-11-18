@@ -21,7 +21,7 @@ class SealedClassDecoder : NullHandlingDecoder<Any> {
     return when (type.classifier is KClass<*>) {
       true -> {
         val kclass = type.classifier as KClass<*>
-        kclass.isSealed
+        kclass.java.mayBeSealed() && kclass.isSealed
       }
       false -> false
     }

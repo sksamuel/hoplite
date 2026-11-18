@@ -10,15 +10,11 @@ import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.sequence
 import kotlin.reflect.KType
-import kotlin.reflect.full.isSubtypeOf
-import kotlin.reflect.full.starProjectedType
-import kotlin.reflect.full.withNullability
 
 class ListDecoder : NullHandlingDecoder<List<*>> {
 
   override fun supports(type: KType): Boolean =
-    type.isSubtypeOf(List::class.starProjectedType) || type.isSubtypeOf(List::class.starProjectedType.withNullability(
-      true))
+    type.isSubclassOf(List::class.java)
 
   override fun safeDecode(node: Node,
                           type: KType,

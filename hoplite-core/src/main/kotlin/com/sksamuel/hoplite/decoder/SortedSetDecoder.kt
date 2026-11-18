@@ -14,14 +14,13 @@ import com.sksamuel.hoplite.fp.sequence
 import java.util.SortedSet
 import java.util.TreeSet
 import kotlin.reflect.KType
-import kotlin.reflect.full.isSubtypeOf
-import kotlin.reflect.full.starProjectedType
 
 class SortedSetDecoder : NullHandlingDecoder<SortedSet<*>> {
 
   override fun supports(type: KType): Boolean {
-    return type.isSubtypeOf(SortedSet::class.starProjectedType) &&
-      (type.arguments[0].type?.isSubtypeOf(Comparable::class.starProjectedType) ?: false)
+    // a nullable SortedSet is deliberately not matched, as it was not before this check ignored nullability
+    return type.isSubclassOf(SortedSet::class.java) && !type.isMarkedNullable &&
+      (type.arguments.firstOrNull()?.type?.isSubclassOf(Comparable::class.java) ?: false)
   }
 
   override fun safeDecode(

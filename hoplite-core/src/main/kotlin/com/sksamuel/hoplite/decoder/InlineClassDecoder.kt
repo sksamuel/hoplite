@@ -60,8 +60,13 @@ class InlineClassDecoder : NullHandlingDecoder<Any> {
   }
 }
 
+/**
+ * True for a value class with one property. Answered from the class file rather than kotlin-reflect, as this is
+ * asked of every type a decoder is looked up for: only a value class has a `box-impl` function, a value class is
+ * never a data class, and its `constructor-impl` function takes the primary constructor's parameters.
+ */
 fun KClass<*>.isInline(): Boolean {
-  return !isData &&
-    primaryConstructor?.parameters?.size == 1 &&
-    java.declaredMethods.any { it.name == "box-impl" }
+  val methods = java.declaredMethods
+  return methods.any { it.name == "box-impl" } &&
+    methods.any { it.name == "constructor-impl" && it.parameterCount == 1 }
 }

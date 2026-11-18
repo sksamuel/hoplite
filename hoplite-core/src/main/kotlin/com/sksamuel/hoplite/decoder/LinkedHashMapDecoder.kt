@@ -11,16 +11,12 @@ import com.sksamuel.hoplite.MapNode
 import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.StringNode
 import com.sksamuel.hoplite.Undefined
-import kotlin.reflect.full.isSubtypeOf
-import kotlin.reflect.full.starProjectedType
-import kotlin.reflect.full.withNullability
 import kotlin.reflect.KType
 
 class LinkedHashMapDecoder : NullHandlingDecoder<LinkedHashMap<*, *>> {
 
   override fun supports(type: KType): Boolean =
-    type.isSubtypeOf(LinkedHashMap::class.starProjectedType) ||
-      type.isSubtypeOf(LinkedHashMap::class.starProjectedType.withNullability(true))
+    type.isSubclassOf(LinkedHashMap::class.java)
 
   override fun safeDecode(node: Node,
                           type: KType,
