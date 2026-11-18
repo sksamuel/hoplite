@@ -34,7 +34,7 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
       true -> {
         val kclass = type.classifier as KClass<*>
         // we don't handle sealed in here as we have a custom sealed decoder
-        kclass.isData && !kclass.isSealed && !kclass.isInline()
+        kclass.java.mayBeDataClass() && kclass.isData && !kclass.isSealed && !kclass.isInline()
       }
       false -> false
     }

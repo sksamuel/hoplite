@@ -10,14 +10,11 @@ import com.sksamuel.hoplite.fp.flatMap
 import com.sksamuel.hoplite.fp.invalid
 import com.sksamuel.hoplite.fp.sequence
 import kotlin.reflect.KType
-import kotlin.reflect.full.isSubtypeOf
-import kotlin.reflect.full.starProjectedType
-import kotlin.reflect.full.withNullability
 
 class SetDecoder : NullHandlingDecoder<Set<*>> {
 
   override fun supports(type: KType): Boolean =
-    type.isSubtypeOf(Set::class.starProjectedType) || type.isSubtypeOf(Set::class.starProjectedType.withNullability(true))
+    type.isSubclassOf(Set::class.java)
 
   override fun safeDecode(node: Node,
                           type: KType,

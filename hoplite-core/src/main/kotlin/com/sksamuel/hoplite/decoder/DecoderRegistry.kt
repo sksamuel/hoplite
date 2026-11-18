@@ -50,8 +50,9 @@ class DefaultDecoderRegistry(private val decoders: List<Decoder<*>>) : DecoderRe
     require(decoders.isNotEmpty()) { "Cannot find decoder in empty decoder registry" }
     require(type.classifier is KClass<*>) { "Only instances of KClass are supported [was ${type.classifier ?: type}]" }
     val filteredDecoders = decoders.filter { it.supports(type) }
+    val kclass = type.classifier as KClass<*>
     return when {
-      filteredDecoders.isEmpty() && (type.classifier as KClass<*>).isData -> ConfigFailure.NoDataClassDecoder.invalid()
+      filteredDecoders.isEmpty() && kclass.java.mayBeDataClass() && kclass.isData -> ConfigFailure.NoDataClassDecoder.invalid()
       filteredDecoders.isEmpty() -> ConfigFailure.NoSuchDecoder(type, decoders).invalid()
       else -> filteredDecoders.maxByOrNull { it.priority() }!!.valid()
     }
