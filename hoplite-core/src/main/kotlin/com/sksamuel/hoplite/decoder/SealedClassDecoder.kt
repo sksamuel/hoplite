@@ -128,19 +128,24 @@ class SealedClassDecoder : NullHandlingDecoder<Any> {
           if (obj != null) return obj.valid() else ConfigFailure.NoSealedClassObjectSubtype(kclass, node.value)
         } else null
 
-        val results = subclasses
+        val attempts = subclasses
           .filter { subclass ->
             subclass hasConstructorsWithArgumentsNumberLessOrEqualTo node.expectedNumberOfConstructorArguments
           }
-          .map { DataClassDecoder().decodeWithMatchCount(node, it.createType(), context) }
+          .map { context.attempt { DataClassDecoder().decodeWithMatchCount(node, it.createType(), context) } }
+        val results = attempts.map { it.first }
 
         // among the subclasses that could be decoded, prefer the one whose constructor parameters were matched by the
         // most config keys, so that a subclass is not chosen just because its unmatched parameters have defaults;
-        // on a tie, the order from above applies as `maxByOrNull` returns the first maximum
+        // on a tie, the order from above applies as `maxByOrNull` returns the first maximum.
+        // Only the marks made while decoding the chosen subclass are kept.
         val success = results.filterIsInstance<Validated.Valid<DataClassDecoder.Decoded>>()
           .filter { if (node is MapNode && node.size == 0) true else it.value.matchedParams > 0 }
           .maxByOrNull { it.value.matchedParams }
-        if (success != null) return success.value.value.valid()
+        if (success != null) {
+          context.used.putAll(attempts.first { it.first === success }.second)
+          return success.value.value.valid()
+        }
 
         // `results` may be empty if every subclass requires more mandatory constructor
         // arguments than the supplied node provides — `hasConstructorsWithArgumentsNumberLessOrEqualTo`

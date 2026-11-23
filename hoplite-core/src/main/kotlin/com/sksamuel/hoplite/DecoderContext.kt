@@ -59,6 +59,19 @@ data class DecoderContext(
   }
 
   /**
+   * Runs [decode] and returns its result with the marks it made, and removes those marks again.
+   * Decoders that try several alternatives use this to keep only the marks of the one they pick.
+   */
+  internal fun <T> attempt(decode: () -> T): Pair<T, Map<DotPath, NodeState>> {
+    val before = used.toMap()
+    val result = decode()
+    val marks = used.filter { (path, state) -> before[path] !== state }
+    used.clear()
+    used.putAll(before)
+    return result to marks
+  }
+
+  /**
    * Adds a [row] to the named [section] in the report.
    */
   @Deprecated("Use reporter.report", ReplaceWith("reporter.report(section, row)"))

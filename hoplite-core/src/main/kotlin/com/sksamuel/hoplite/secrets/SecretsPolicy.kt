@@ -5,7 +5,6 @@ import com.sksamuel.hoplite.Node
 import com.sksamuel.hoplite.Secret
 import com.sksamuel.hoplite.StringNode
 import kotlin.reflect.KType
-import kotlin.reflect.full.createType
 
 /**
  * Implementations determine whether a node is considered a secret.
@@ -29,10 +28,12 @@ object AllStringNodesSecretsPolicy : SecretsPolicy {
 }
 
 /**
- * A [SecretsPolicy] that treats all types marshalled to [Secret]s as a secret.
+ * A [SecretsPolicy] that treats all types marshalled to [Secret]s as a secret, including types that have
+ * [Secret] as a type argument, such as `List<Secret>`, as the elements of a list share its path.
  */
 object SecretTypeSecretsPolicy : SecretsPolicy {
-  override fun isSecret(node: Node, type: KType?): Boolean = type == Secret::class.createType()
+  override fun isSecret(node: Node, type: KType?): Boolean =
+    type != null && (type.classifier == Secret::class || type.arguments.any { isSecret(node, it.type) })
 }
 
 private val defaultSecretNames = setOf("secret", "credential", "pass")

@@ -3,10 +3,17 @@ package com.sksamuel.hoplite.arrow
 import arrow.core.nonEmptyListOf
 import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.ConfigLoaderBuilder
+import com.sksamuel.hoplite.ExperimentalHoplite
+import com.sksamuel.hoplite.PropertySource
+import com.sksamuel.hoplite.Secret
+import com.sksamuel.hoplite.secrets.SecretTypeSecretsPolicy
 import com.sksamuel.hoplite.yaml.YamlPropertySource
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotContain
 
+@OptIn(ExperimentalHoplite::class)
 class NonEmptyListTest : FunSpec({
 
   test("NonEmptyList<A> as delimited string") {
@@ -58,6 +65,28 @@ class NonEmptyListTest : FunSpec({
       .loadConfigOrThrow<Test>()
 
     config shouldBe Test(nonEmptyListOf(mapOf("a" to 1, "b" to 2), mapOf("c" to 3)))
+  }
+
+  // gh-613: the report printed the elements of a NonEmptyList<Secret> in plain text.
+  test("report should mask the elements of a NonEmptyList<Secret>") {
+    data class Test(val array: arrow.core.NonEmptyList<Secret>, val csv: arrow.core.NonEmptyList<Secret>)
+
+    val report = StringBuilder()
+    ConfigLoaderBuilder.defaultWithoutPropertySources()
+      .addPropertySource(
+        PropertySource.map(
+          mapOf("array" to listOf("array-secret-1", "array-secret-2"), "csv" to "csv-secret-1,csv-secret-2")
+        )
+      )
+      .withSecretsPolicy(SecretTypeSecretsPolicy)
+      .withReport()
+      .withReportPrintFn { report.append(it) }
+      .build()
+      .loadConfigOrThrow<Test>()
+
+    report.toString() shouldContain "Unused keys: none"
+    report.toString() shouldNotContain "array-secret"
+    report.toString() shouldNotContain "csv-secret"
   }
 
 })

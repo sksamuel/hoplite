@@ -3,13 +3,26 @@ package com.sksamuel.hoplite.arrow
 import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
+import arrow.core.Tuple4
 import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.ConfigLoaderBuilder
+import com.sksamuel.hoplite.ExperimentalHoplite
+import com.sksamuel.hoplite.Node
+import com.sksamuel.hoplite.PropertySource
+import com.sksamuel.hoplite.Secret
 import com.sksamuel.hoplite.addMapSource
+import com.sksamuel.hoplite.secrets.SecretTypeSecretsPolicy
+import com.sksamuel.hoplite.secrets.SecretsPolicy
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotContain
 import java.util.*
+import kotlin.reflect.KType
+import kotlin.reflect.KTypeProjection
+import kotlin.reflect.full.createType
 
+@OptIn(ExperimentalHoplite::class)
 class OptionTest : FunSpec({
 
   test("support Options") {
@@ -51,5 +64,44 @@ class OptionTest : FunSpec({
       .loadConfigOrThrow<Outer>()
 
     cfg.xs shouldBe Some(listOf("a", "b", "c"))
+  }
+
+  // gh-613: the report printed the values of Option<Secret> and tuples of secrets in plain text.
+  test("report should mask Option<Secret> and tuple elements of type Secret") {
+    data class Test(val option: Option<Secret>, val tuple: Tuple4<String, String, String, Secret>)
+
+    val report = StringBuilder()
+    ConfigLoaderBuilder.defaultWithoutPropertySources()
+      .addPropertySource(
+        PropertySource.map(mapOf("option" to "option-secret", "tuple" to listOf("a", "b", "c", "tuple-secret")))
+      )
+      .withSecretsPolicy(SecretTypeSecretsPolicy)
+      .withReport()
+      .withReportPrintFn { report.append(it) }
+      .build()
+      .loadConfigOrThrow<Test>()
+
+    report.toString() shouldNotContain "option-secret"
+    report.toString() shouldNotContain "tuple-secret"
+  }
+
+  test("a policy on the option type still sees it") {
+    data class Test(val option: Option<String>, val other: String)
+
+    val optionType = Option::class.createType(listOf(KTypeProjection.invariant(String::class.createType())))
+    val policy = object : SecretsPolicy {
+      override fun isSecret(node: Node, type: KType?): Boolean = type == optionType
+    }
+    val report = StringBuilder()
+    ConfigLoaderBuilder.defaultWithoutPropertySources()
+      .addPropertySource(PropertySource.map(mapOf("option" to "option-secret", "other" to "plain-value")))
+      .withSecretsPolicy(policy)
+      .withReport()
+      .withReportPrintFn { report.append(it) }
+      .build()
+      .loadConfigOrThrow<Test>()
+
+    report.toString() shouldNotContain "option-secret"
+    report.toString() shouldContain "plain-value"
   }
 })
