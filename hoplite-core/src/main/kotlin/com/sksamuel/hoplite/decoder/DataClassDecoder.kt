@@ -102,7 +102,7 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
       val omittedNodes: List<Node>
     )
 
-    val constructors = kclass.constructors.map { constructor ->
+    val constructors = kclass.constructors.map { constructor -> context.attempt {
       val omittedNodes = mutableListOf<Node>()
 
       // create a map of parameter to value. in the case of defaults, we skip the parameter completely.
@@ -163,11 +163,12 @@ class DataClassDecoder : NullHandlingDecoder<Any> {
 
       args.onSuccess { argList -> argList.forEach { context.used(it.node, it.parameter.type, it.value) } }
       args.map { Constructor(constructor, it, omittedNodes) }
-    }
+    } }
 
-    // see if one of the constructors worked
-    val firstValidOrLastInvalidArgs: Validated<NonEmptyList<ConfigFailure>, Constructor> = constructors
-      .find { it is Validated.Valid } ?: constructors.last { it is Validated.Invalid }
+    // see if one of the constructors worked, and keep only the marks made by that one
+    val (firstValidOrLastInvalidArgs: Validated<NonEmptyList<ConfigFailure>, Constructor>, marks) = constructors
+      .find { it.first is Validated.Valid } ?: constructors.last { it.first is Validated.Invalid }
+    context.used.putAll(marks)
 
     return firstValidOrLastInvalidArgs.fold(
       {

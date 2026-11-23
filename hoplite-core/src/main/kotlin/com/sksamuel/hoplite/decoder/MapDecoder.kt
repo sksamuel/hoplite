@@ -39,6 +39,7 @@ class MapDecoder : NullHandlingDecoder<Map<*, *>> {
           vdecoder.decode(v, vType, context).map { vv ->
             if (v !is Undefined) {
               context.usedPaths.add(v.path)
+              context.used(v, vType, vv)
             }
             kk to vv
           }
@@ -61,8 +62,14 @@ class MapDecoder : NullHandlingDecoder<Map<*, *>> {
             // Mark both subnodes as used so strict mode does not flag the array-of-objects
             // map form (`[{key: ..., value: ...}, ...]`) as containing unused entries —
             // matches what decodeFromMap above does for the value path.
-            if (keyNode !is Undefined) context.usedPaths.add(keyNode.path)
-            if (valueNode !is Undefined) context.usedPaths.add(valueNode.path)
+            if (keyNode !is Undefined) {
+              context.usedPaths.add(keyNode.path)
+              context.used(keyNode, kType, kk)
+            }
+            if (valueNode !is Undefined) {
+              context.usedPaths.add(valueNode.path)
+              context.used(valueNode, vType, vv)
+            }
             kk to vv
           }
         }

@@ -42,6 +42,7 @@ class LinkedHashMapDecoder : NullHandlingDecoder<LinkedHashMap<*, *>> {
             // what MapDecoder does for the regular Map<K, V> case.
             if (v !is Undefined) {
               context.usedPaths.add(v.path)
+              context.used(v, vType, vv)
             }
             kk to vv
           }
